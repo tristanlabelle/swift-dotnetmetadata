@@ -11,10 +11,10 @@ extension UnsafeRawBufferPointer {
         sub(offset: offset).bindMemory(to: T.self).baseAddress!
     }
     
-    func bindMemory<T>(offset: Int, count: Int, to: T.Type) -> UnsafeBufferPointer<T> {
+    func bindMemory<T>(offset: Int, to: T.Type, count: Int) -> UnsafeBufferPointer<T> {
         let rebased = UnsafeRawBufferPointer(rebasing: self[offset...])
         let bound = rebased.bindMemory(to: T.self)
-        return UnsafeBufferPointer<T>(rebasing: bound[0...count])
+        return UnsafeBufferPointer<T>(rebasing: bound[0 ..< count])
     }
 
     mutating func consume<T>(type: T.Type) -> UnsafePointer<T> {
@@ -24,8 +24,13 @@ extension UnsafeRawBufferPointer {
     }
     
     mutating func consume<T>(type: T.Type, count: Int) -> UnsafeBufferPointer<T> {
-        let result = bindMemory(offset: 0, count: count, to: type)
+        let result = bindMemory(offset: 0, to: type, count: count)
         self = self.sub(offset: MemoryLayout<T>.stride * count)
         return result
+    }
+    
+    mutating func consumeNulPaddedUTF8String(maxLength: Int) -> String {
+        let buffer = consume(type: UInt8.self, count: maxLength)
+        return String(bytes: buffer.prefix(while: { $0 != 0 }), encoding: .utf8)!
     }
 }

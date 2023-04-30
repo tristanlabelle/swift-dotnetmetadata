@@ -1,0 +1,57 @@
+import Foundation
+
+class StringHeap {
+    var buffer: UnsafeRawBufferPointer
+    var offsetSize: Int
+
+    init(buffer: UnsafeRawBufferPointer, largeOffsets: Bool) {
+        self.buffer = buffer
+        self.offsetSize = largeOffsets ? 4 : 2
+    }
+
+    func at(offset: Int) -> String {
+        fatalError()
+    }
+}
+
+struct StringRef {
+    var heap: StringHeap
+    var offset: Int
+
+    var value: String { heap.at(offset: offset) }
+}
+
+class GuidHeap {
+    var buffer: UnsafeRawBufferPointer
+    var offsetSize: Int
+
+    init(buffer: UnsafeRawBufferPointer, largeOffsets: Bool) {
+        self.buffer = buffer
+        self.offsetSize = largeOffsets ? 4 : 2
+    }
+
+    func at(offset: Int) -> UUID {
+        fatalError()
+    }
+}
+
+struct GuidRef {
+    var heap: GuidHeap
+    var offset: Int
+    var value: UUID { heap.at(offset: offset) }
+}
+
+class BlobHeap {
+    var buffer: UnsafeRawBufferPointer
+    var offsetSize: Int
+
+    init(buffer: UnsafeRawBufferPointer, largeOffsets: Bool) {
+        self.buffer = buffer
+        self.offsetSize = largeOffsets ? 4 : 2
+    }
+}
+
+struct BlobRef {
+    var BlobHeap: BlobHeap
+    var offset: Int
+}

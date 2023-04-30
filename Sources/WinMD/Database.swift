@@ -7,10 +7,13 @@ public class Database {
         var majorVersion: UInt16, minorVersion: UInt16
         var versionString: String
         var flags: UInt16
-        var streamHeaders: [String: UnsafeRawBufferPointer] = [:]
+        var streamHeaders: [String: CLI.MetadataStreamHeader] = [:]
     }
 
     let file: Data?
+    var stringHeap: StringHeap { fatalError() }
+    var guidHeap: GuidHeap { fatalError() }
+    var blobHeap: BlobHeap { fatalError() }
 
     public init(file: Data) throws {
         self.file = file
@@ -19,20 +22,9 @@ public class Database {
         let metadataRoot = try Self.readMetadataRoot(metadataSection: metadataSection)
 
         // Read the metadata table stream header
-        let metadataTablesStream = metadataRoot.streamHeaders["#~"]!
-
-        var remainder = metadataTablesStream
-        let metadataTablesStreamHeader = remainder.consume(type: CLI.MetadataTablesStreamHeader.self)
-        guard metadataTablesStreamHeader.pointee.MajorVersion == 2 && metadataTablesStreamHeader.pointee.MinorVersion == 0 else {
-            throw InvalidFormatError()
-        }
-
-        var metadataTableRowCounts: [UInt32] = Array(repeating: 0, count: 64)
-        for i in 0 ..< metadataTableRowCounts.count {
-            if (metadataTablesStreamHeader.pointee.Valid & (UInt64(1) << i)) != 0 {
-                metadataTableRowCounts[i] = remainder.consume(type: UInt32.self).pointee;
-            }
-        }
+        let metadataTablesStreamHeader = metadataRoot.streamHeaders["#~"]!
+        let metadataTablesStream = metadataSection.sub(offset: Int(metadataTablesStreamHeader.offset), count: Int(metadataTablesStreamHeader.size))
+        try Self.readMetadataTablesStream(stream: metadataTablesStream)
     }
 
     public convenience init(url: URL) throws {
@@ -54,15 +46,13 @@ public class Database {
         if ntHeaders32.pointee.OptionalHeader.Magic == 0x10B { // PE32
             comVirtualAddress = ntHeaders32.pointee.OptionalHeader.DataDirectory_14.VirtualAddress; // IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR
             sections = file.bindMemory(offset: Int(dosHeader.pointee.e_lfanew) + MemoryLayout<PE.ImageNTHeaders32>.stride,
-                count: Int(ntHeaders32.pointee.FileHeader.NumberOfSections),
-                to: PE.ImageSectionHeader.self)
+                to: PE.ImageSectionHeader.self, count: Int(ntHeaders32.pointee.FileHeader.NumberOfSections))
         }
         else if ntHeaders32.pointee.OptionalHeader.Magic == 0x20B { // PE32+
             let ntHeaders32Plus = file.bindMemory(offset: Int(dosHeader.pointee.e_lfanew), to: PE.ImageNTHeaders32Plus.self)
             comVirtualAddress = ntHeaders32Plus.pointee.OptionalHeader.DataDirectory_14.VirtualAddress; // IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR
             sections = file.bindMemory(offset: Int(dosHeader.pointee.e_lfanew) + MemoryLayout<PE.ImageNTHeaders32Plus>.stride,
-                count: Int(ntHeaders32Plus.pointee.FileHeader.NumberOfSections),
-                to: PE.ImageSectionHeader.self)
+                to: PE.ImageSectionHeader.self, count: Int(ntHeaders32Plus.pointee.FileHeader.NumberOfSections))
         }
         else {
             throw InvalidFormatError()
@@ -86,25 +76,47 @@ public class Database {
         var remainder = metadataSection
 
         let beforeVersion = remainder.consume(type: CLI.MetadataRoot_BeforeVersion.self)
-        guard beforeVersion.pointee.Signature == 0x424a5342 else { throw InvalidFormatError() }
-        
-        let versionStringPtr = remainder.consume(type: UInt8.self, count: Int(beforeVersion.pointee.Length))
-        let versionString = String(bytes: versionStringPtr, encoding: .utf16)!
-        
+        guard beforeVersion.pointee.signature == 0x424a5342 else { throw InvalidFormatError() }
+
+        let versionString = remainder.consumeNulPaddedUTF8String(maxLength: Int(beforeVersion.pointee.length))
+
         let afterVersion = remainder.consume(type: CLI.MetadataRoot_AfterVersion.self)
 
-        var streamHeaders: [String: UnsafeRawBufferPointer] = [:]
-        for _ in 0 ..< Int(afterVersion.pointee.Streams) {
+        print(afterVersion.pointee.streams)
+
+        var streamHeaders: [String: CLI.MetadataStreamHeader] = [:]
+        for _ in 0 ..< Int(afterVersion.pointee.streams) {
             let streamHeader = remainder.consume(type: CLI.MetadataStreamHeader.self)
-            let streamName = String(bytes: remainder.consume(type: UInt8.self, count: 4), encoding: .utf8)!
-            streamHeaders[streamName] = metadataSection.sub(offset: Int(streamHeader.pointee.Offset), count: Int(streamHeader.pointee.Size))
+            let streamName = remainder.consumeNulPaddedUTF8String(maxLength: 4)
+            print("Stream '\(streamName)': offset=\(streamHeader.pointee.offset), size=\(streamHeader.pointee.size)")
+            streamHeaders[streamName] = streamHeader.pointee
         }
 
         return MetadataRoot(
-            majorVersion: beforeVersion.pointee.MajorVersion,
-            minorVersion: beforeVersion.pointee.MinorVersion,
+            majorVersion: beforeVersion.pointee.majorVersion,
+            minorVersion: beforeVersion.pointee.minorVersion,
             versionString: versionString,
-            flags: afterVersion.pointee.Flags,
+            flags: afterVersion.pointee.flags,
             streamHeaders: streamHeaders)
+    }
+
+    static func readMetadataTablesStream(stream: UnsafeRawBufferPointer) throws {
+        var remainder = stream
+        let header = remainder.consume(type: CLI.MetadataTablesStreamHeader.self)
+        guard header.pointee.majorVersion == 2 && header.pointee.minorVersion == 0 else {
+            throw InvalidFormatError()
+        }
+
+        var rowCounts: [UInt32] = Array(repeating: 0, count: 64)
+        for i in 0 ..< rowCounts.count {
+            if (header.pointee.valid & (UInt64(1) << i)) != 0 {
+                rowCounts[i] = remainder.consume(type: UInt32.self).pointee;
+            }
+        }
+
+        let stringIndexSize = (header.pointee.heapSizes & 0x01) == 0 ? 2 : 4;
+        let guidIndexSize = (header.pointee.heapSizes & 0x02) == 0 ? 2 : 4;
+        let blobIndexSize = (header.pointee.heapSizes & 0x04) == 0 ? 2 : 4;
+        print(rowCounts.debugDescription)
     }
 }
