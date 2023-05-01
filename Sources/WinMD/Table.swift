@@ -1,4 +1,4 @@
-class Table<Row> where Row: TableRow {
+class Table<Record> where Record: RecordProtocol {
     let buffer: UnsafeRawBufferPointer
     let database: Database
     let rowSize: Int
@@ -6,15 +6,15 @@ class Table<Row> where Row: TableRow {
     init(buffer: UnsafeRawBufferPointer, database: Database) {
         self.buffer = buffer
         self.database = database
-        self.rowSize = Row.getSize(database: database)
+        self.rowSize = Record.getSize(database: database)
     }
 
-    static var tokenKind: CLI.MetadataTokenKind { Row.tokenKind }
+    static var tokenKind: CLI.MetadataTokenKind { Record.tokenKind }
     var count: Int { buffer.count / rowSize }
 
-    subscript(_ index: Int) -> Row {
+    subscript(_ index: Int) -> Record {
         let rowBuffer = buffer.sub(offset: index * rowSize, count: rowSize)
-        return Row.read(buffer: rowBuffer, database: database)
+        return Record.read(buffer: rowBuffer, database: database)
     }
 }
 
@@ -25,21 +25,21 @@ extension Table: Collection {
 
 }
 
-protocol TableRow {
+protocol RecordProtocol {
     static var tokenKind: CLI.MetadataTokenKind { get }
     static func getSize(database: Database) -> Int
     static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self
 }
 
-struct TableRowRef<Row> where Row: TableRow {
-    var table: Table<Row>
+struct RecordRef<Record> where Record: RecordProtocol {
+    var table: Table<Record>
     var index: Int
 
-    init(table: Table<Row>, index: Int) {
+    init(table: Table<Record>, index: Int) {
         precondition(index >= 0 && index < table.count)
         self.table = table
         self.index = index
     }
 
-    var value: Row { table[index] }
+    var value: Record { table[index] }
 }
