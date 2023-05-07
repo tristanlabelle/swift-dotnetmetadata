@@ -1,4 +1,8 @@
 extension UnsafeRawBufferPointer {
+    static var empty: UnsafeRawBufferPointer {
+        UnsafeRawBufferPointer(start: nil, count: 0)
+    }
+
     func sub(offset: Int) -> UnsafeRawBufferPointer {
         UnsafeRawBufferPointer(rebasing: self[offset...])
     }
