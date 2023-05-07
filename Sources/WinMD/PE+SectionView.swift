@@ -1,5 +1,5 @@
-extension PEView {
-    public struct Section {
+extension PE {
+    public struct SectionView {
         let header: UnsafePointer<ImageSectionHeader>
         let data: UnsafeRawBufferPointer
 

@@ -18,10 +18,10 @@ public class Database {
     public init(file: Data) throws {
         self.file = file
         let data = file.withUnsafeBytes { $0 }
-        let peView = try PEView(file: data)
+        let peView = try PE.View(file: data)
         let cliHeader = peView.resolve(peView.dataDirectories[14]) // IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR
-            .bindMemory(offset: 0, to: PEView.ImageCor20Header.self)
-        guard cliHeader.pointee.cb == MemoryLayout<PEView.ImageCor20Header>.stride else { throw InvalidFormatError() }
+            .bindMemory(offset: 0, to: PE.ImageCor20Header.self)
+        guard cliHeader.pointee.cb == MemoryLayout<PE.ImageCor20Header>.stride else { throw InvalidFormatError() }
 
         let metadataSection = peView.resolve(virtualAddress: cliHeader.pointee.metaData.virtualAddress, size: cliHeader.pointee.metaData.size)
         let metadataRoot = try Self.readMetadataRoot(metadataSection: metadataSection)

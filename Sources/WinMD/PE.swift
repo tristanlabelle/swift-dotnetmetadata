@@ -1,4 +1,4 @@
-extension PEView {
+enum PE {
     public struct ImageDOSHeader {
         var e_signature: UInt16
         var e_cblp: UInt16
