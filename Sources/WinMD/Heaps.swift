@@ -2,11 +2,9 @@ import Foundation
 
 class StringHeap {
     var buffer: UnsafeRawBufferPointer
-    var offsetSize: Int
 
-    init(buffer: UnsafeRawBufferPointer, largeOffsets: Bool) {
+    init(buffer: UnsafeRawBufferPointer) {
         self.buffer = buffer
-        self.offsetSize = largeOffsets ? 4 : 2
     }
 
     func at(offset: Int) -> String {
@@ -23,11 +21,9 @@ struct StringRef {
 
 class GuidHeap {
     var buffer: UnsafeRawBufferPointer
-    var offsetSize: Int
 
-    init(buffer: UnsafeRawBufferPointer, largeOffsets: Bool) {
+    init(buffer: UnsafeRawBufferPointer) {
         self.buffer = buffer
-        self.offsetSize = largeOffsets ? 4 : 2
     }
 
     func at(offset: Int) -> UUID {
@@ -43,11 +39,9 @@ struct GuidRef {
 
 class BlobHeap {
     var buffer: UnsafeRawBufferPointer
-    var offsetSize: Int
 
-    init(buffer: UnsafeRawBufferPointer, largeOffsets: Bool) {
+    init(buffer: UnsafeRawBufferPointer) {
         self.buffer = buffer
-        self.offsetSize = largeOffsets ? 4 : 2
     }
 }
 

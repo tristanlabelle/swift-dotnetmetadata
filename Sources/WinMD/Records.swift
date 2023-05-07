@@ -8,7 +8,7 @@ struct Assembly: RecordProtocol {
 
     static var tokenKind: CLI.MetadataTokenKind { .assembly }
     static func getSize(database: Database) -> Int {
-        4 + (2 * 4) + 4 + database.blobHeap.offsetSize + database.stringHeap.offsetSize * 2
+        4 + (2 * 4) + 4 + database.blobOffsetSize + database.stringOffsetSize * 2
     }
     
     static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self {
@@ -22,7 +22,7 @@ struct Module: RecordProtocol {
     static var tokenKind: CLI.MetadataTokenKind { .module }
 
     static func getSize(database: Database) -> Int {
-        2 + database.stringHeap.offsetSize + database.guidHeap.offsetSize * 3
+        2 + database.stringOffsetSize + database.guidOffsetSize * 3
     }
 
     static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self {

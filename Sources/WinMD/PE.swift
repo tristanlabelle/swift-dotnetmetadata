@@ -27,7 +27,7 @@ enum PE {
     public struct ImageNTHeaders32 {
         var signature: UInt32
         var fileHeader: ImageFileHeader
-        var optionalHeader: ImageOptionalHeader64
+        var optionalHeader: ImageOptionalHeader32
     }
 
     public struct ImageFileHeader {
