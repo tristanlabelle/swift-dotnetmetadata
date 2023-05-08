@@ -1,9 +1,9 @@
-public enum MetadataTokenKind: UInt8 {
+public enum TableIndex: UInt8 {
     case module = 0x00
     case typeRef = 0x01
-    case type = 0x02
+    case typeDef = 0x02
     case field = 0x04
-    case method = 0x06
+    case methodDef = 0x06
     case parameter = 0x08
     case interfaceImplementation = 0x09
     case memberRef = 0x0A
@@ -21,7 +21,7 @@ public enum MetadataTokenKind: UInt8 {
     case methodSemantics = 0x18
     case methodImplementation = 0x19
     case moduleRef = 0x1A
-    case typeSpecification = 0x1B
+    case typeSpec = 0x1B
     case implementationMap = 0x1C
     case fieldRva = 0x1D
     case assembly = 0x20

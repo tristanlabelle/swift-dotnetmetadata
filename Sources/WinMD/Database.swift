@@ -5,7 +5,7 @@ public class Database {
         var majorVersion: UInt16, minorVersion: UInt16
         var versionString: String
         var flags: UInt16
-        var streamHeaders: [String: CLI.MetadataStreamHeader] = [:]
+        var streamHeaders: [String: MetadataStreamHeader] = [:]
     }
 
     let file: Data?
@@ -21,9 +21,11 @@ public class Database {
 
     public let tableRowCounts: [Int]
 
-    // In MetadataTokenKind order
-    public var modules: Table<Module>!
-    public var typeRefs: Table<TypeRef>!
+    // In TableIndex order
+    public var moduleTable: Table<Module>!
+    public var typeRefTable: Table<TypeRef>!
+    public var typeDefTable: Table<TypeDef>!
+    public var fieldTable: Table<Field>!
 
     public init(file: Data) throws {
         self.file = file
@@ -42,7 +44,7 @@ public class Database {
         blobHeap = BlobHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Blob"]))
 
         var tablesStreamRemainder = Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#~"])
-        let tablesStreamHeader = tablesStreamRemainder.consume(type: CLI.MetadataTablesStreamHeader.self)
+        let tablesStreamHeader = tablesStreamRemainder.consume(type: MetadataTablesStreamHeader.self)
         guard tablesStreamHeader.pointee.majorVersion == 2 && tablesStreamHeader.pointee.minorVersion == 0 else {
             throw InvalidFormatError.invalidCLIHeader
         }
@@ -54,15 +56,17 @@ public class Database {
 
         heapSizes = tablesStreamHeader.pointee.heapSizes
 
-        modules = consumeTable(buffer: &tablesStreamRemainder, rowCount: tableRowCounts[0])
-        typeRefs = consumeTable(buffer: &tablesStreamRemainder, rowCount: tableRowCounts[1])
+        moduleTable = consumeTable(buffer: &tablesStreamRemainder)
+        typeRefTable = consumeTable(buffer: &tablesStreamRemainder)
+        typeDefTable = consumeTable(buffer: &tablesStreamRemainder)
+        fieldTable = consumeTable(buffer: &tablesStreamRemainder)
     }
 
     public convenience init(url: URL) throws {
         try self.init(file: try Data(contentsOf: url, options: .mappedIfSafe))
     }
 
-    static func getStream(metadataSection: UnsafeRawBufferPointer, header: CLI.MetadataStreamHeader?) -> UnsafeRawBufferPointer {
+    static func getStream(metadataSection: UnsafeRawBufferPointer, header: MetadataStreamHeader?) -> UnsafeRawBufferPointer {
         guard let header = header else { return UnsafeRawBufferPointer.empty }
         return metadataSection.sub(offset: Int(header.offset), count: Int(header.size))
     }
@@ -70,18 +74,18 @@ public class Database {
     static func readMetadataRoot(metadataSection: UnsafeRawBufferPointer) throws -> MetadataRoot {
         var remainder = metadataSection
 
-        let beforeVersion = remainder.consume(type: CLI.MetadataRoot_BeforeVersion.self)
+        let beforeVersion = remainder.consume(type: MetadataRoot_BeforeVersion.self)
         guard beforeVersion.pointee.signature == 0x424a5342 else { throw InvalidFormatError.invalidCLIHeader }
 
         let versionStringPaddedLength = (Int(beforeVersion.pointee.length) + 3) & ~0x3
         let versionStringPaddedBytes = remainder.consume(count: versionStringPaddedLength)
         let versionString = String(bytes: versionStringPaddedBytes.sub(offset: 0, count: Int(beforeVersion.pointee.length)), encoding: .utf8)!
 
-        let afterVersion = remainder.consume(type: CLI.MetadataRoot_AfterVersion.self)
+        let afterVersion = remainder.consume(type: MetadataRoot_AfterVersion.self)
 
-        var streamHeaders: [String: CLI.MetadataStreamHeader] = [:]
+        var streamHeaders: [String: MetadataStreamHeader] = [:]
         for _ in 0 ..< Int(afterVersion.pointee.streams) {
-            let streamHeader = remainder.consume(type: CLI.MetadataStreamHeader.self)
+            let streamHeader = remainder.consume(type: MetadataStreamHeader.self)
             let streamName = remainder.consumeDwordPaddedUTF8String()
             streamHeaders[streamName] = streamHeader.pointee
         }
@@ -115,19 +119,32 @@ public class Database {
         return BlobRef(heap: blobHeap, offset: offset)
     }
 
-    func consumeTable<T>(buffer: inout UnsafeRawBufferPointer, rowCount: Int) -> Table<T> where T : RecordProtocol {
-        let size = T.getSize(database: self) * rowCount
+    func consumeTable<Row>(buffer: inout UnsafeRawBufferPointer) -> Table<Row> where Row: Record {
+        let rowCount = tableRowCounts[Int(Row.tableIndex.rawValue)]
+        let size = Row.getSize(database: self) * rowCount
         return Table(buffer: buffer.consume(count: size), database: self)
     }
 
-    func consumeCodedIndex<T>(buffer: inout UnsafeRawBufferPointer) -> T where T : CodedIndex {
-        let tagCount: Int = T.tables.count
-        let tagBitCount = Int.bitWidth - tagCount.leadingZeroBitCount
+    func getTableRowIndexSize(_ tableIndex: TableIndex) -> Int {
+        tableRowCounts[Int(tableIndex.rawValue)] < 0x10000 ? 2 : 4
+    }
+    
+    func getTableRowIndexSize<Row>(_ type: Row.Type) -> Int where Row: Record {
+        getTableRowIndexSize(Row.tableIndex)
+    }
+
+    func getCodedIndexSize<T>(_ type: T.Type) -> Int where T : CodedIndex {
+        let tagBitCount = Int.bitWidth - T.tables.count.leadingZeroBitCount
         let maxRowCount = T.tables.compactMap { $0 }.map { tableRowCounts[Int($0.rawValue)] }.max()!
+        return maxRowCount < (1 << (16 - tagBitCount)) ? 2 : 4
+    }
+
+    func consumeCodedIndex<T>(buffer: inout UnsafeRawBufferPointer) -> T where T : CodedIndex {
+        let tagBitCount = Int.bitWidth - T.tables.count.leadingZeroBitCount
 
         let codedValue: Int
         let indexBitCount: Int
-        if maxRowCount < (1 << (16 - tagBitCount)) {
+        if getCodedIndexSize(T.self) == 2 {
             codedValue = Int(buffer.consume(type: UInt16.self).pointee)
             indexBitCount = 16 - tagBitCount
         }

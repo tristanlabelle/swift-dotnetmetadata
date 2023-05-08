@@ -1,11 +1,11 @@
-public struct Module: RecordProtocol {
-    var generation: UInt16
-    var name: StringRef
-    var mvid: GuidRef
-    var encId: GuidRef
-    var encBaseId: GuidRef
+public struct Module: Record {
+    public var generation: UInt16
+    public var name: StringRef
+    public var mvid: GuidRef
+    public var encId: GuidRef
+    public var encBaseId: GuidRef
 
-    public static var tokenKind: MetadataTokenKind { .module }
+    public static var tableIndex: TableIndex { .module }
 
     public static func getSize(database: Database) -> Int {
         2 + database.stringOffsetSize + database.guidOffsetSize * 3
@@ -22,15 +22,15 @@ public struct Module: RecordProtocol {
     }
 }
 
-public struct TypeRef: RecordProtocol {
+public struct TypeRef: Record {
     var resolutionScope: ResolutionScope
     var typeName: StringRef
     var typeNamespace: StringRef
 
-    public static var tokenKind: MetadataTokenKind { .module }
+    public static var tableIndex: TableIndex { .typeRef }
 
     public static func getSize(database: Database) -> Int {
-        2 + database.stringOffsetSize * 2
+        database.getCodedIndexSize(ResolutionScope.self) + database.stringOffsetSize * 2
     }
 
     public static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self {
@@ -42,15 +42,55 @@ public struct TypeRef: RecordProtocol {
     }
 }
 
-public struct Assembly: RecordProtocol {
-    var hashAlgId: CLI.AssemblyHashAlgorithm
-    var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
-    var flags: CLI.AssemblyFlags
-    var publicKey: BlobRef?
-    var name: StringRef
-    var culture: StringRef?
+public struct TypeDef: Record {
+    public var flags: TypeAttributes
+    public var typeName: StringRef
+    public var typeNamespace: StringRef
+    public var extends: TypeDefOrRef
+    var fieldList: TableRowRef<Field>
+    //var methodList: TableRowRef<MethodDef>
 
-    public static var tokenKind: MetadataTokenKind { .assembly }
+    public static var tableIndex: TableIndex { .typeDef }
+
+    public static func getSize(database: Database) -> Int {
+        4 + database.stringOffsetSize * 2 + database.getTableRowIndexSize(.field) + database.getTableRowIndexSize(.methodDef)
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self {
+        var remainder = buffer
+        fatalError()
+    }
+}
+
+public struct Field: Record {
+    public var flags: FieldAttributes
+    public var name: StringRef
+    public var signature: BlobRef
+
+    public static var tableIndex: TableIndex { .field }
+
+    public static func getSize(database: Database) -> Int {
+        4 + database.stringOffsetSize + database.blobOffsetSize
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self {
+        var remainder = buffer
+        return Field(
+            flags: remainder.consume(type: FieldAttributes.self).pointee,
+            name: database.consumeStringRef(buffer: &remainder),
+            signature: database.consumeBlobRef(buffer: &remainder))
+    }
+}
+
+public struct Assembly: Record {
+    public var hashAlgId: AssemblyHashAlgorithm
+    public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
+    public var flags: AssemblyFlags
+    public var publicKey: BlobRef?
+    public var name: StringRef
+    public var culture: StringRef?
+
+    public static var tableIndex: TableIndex { .assembly }
     public static func getSize(database: Database) -> Int {
         4 + (2 * 4) + 4 + database.blobOffsetSize + database.stringOffsetSize * 2
     }
