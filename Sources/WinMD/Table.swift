@@ -1,20 +1,19 @@
 public class Table<Row> where Row: Record {
     let buffer: UnsafeRawBufferPointer
-    unowned let database: Database
-    let rowSize: Int
+    let dimensions: Database.Dimensions
 
-    init(buffer: UnsafeRawBufferPointer, database: Database) {
+    init(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         self.buffer = buffer
-        self.database = database
-        self.rowSize = Row.getSize(database: database)
+        self.dimensions = dimensions
     }
 
     static var index: TableIndex { Row.tableIndex }
-    public var count: Int { buffer.count / rowSize }
+    public var count: Int { dimensions.getRowCount(Row.tableIndex) }
+    public var rowSize: Int { buffer.count / count }
 
     public subscript(_ index: Int) -> Row {
         let rowBuffer = buffer.sub(offset: index * rowSize, count: rowSize)
-        return Row.read(buffer: rowBuffer, database: database)
+        return Row.read(buffer: rowBuffer, dimensions: dimensions)
     }
 }
 
@@ -26,20 +25,15 @@ extension Table: Collection {
 
 public protocol Record {
     static var tableIndex: TableIndex { get }
-    static func getSize(database: Database) -> Int
-    static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self
+    static func getSize(dimensions: Database.Dimensions) -> Int
+    static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self
 }
 
-public struct TableRowRef<Row> where Row: Record {
-    var table: Table<Row>
-    var index: Int
+public struct RowIndex<Type> where Type: Record {
+    public var value: UInt32
 
-    init?(table: Table<Row>, index: Int) {
-        precondition(index >= 0 && index < table.count)
-        guard index != 0 else { return nil }
-        self.table = table
-        self.index = index
+    public init(_ value: UInt32) {
+        precondition(value >= 0)
+        self.value = value
     }
-
-    var value: Row { table[index] }
 }

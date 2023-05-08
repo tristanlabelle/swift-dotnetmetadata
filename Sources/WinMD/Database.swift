@@ -9,17 +9,11 @@ public class Database {
     }
 
     let file: Data?
-    let heapSizes: UInt8
-
-    var stringOffsetSize: Int { (heapSizes & 1) == 0 ? 2 : 4 }
-    var guidOffsetSize: Int { (heapSizes & 2) == 0 ? 2 : 4 }
-    var blobOffsetSize: Int { (heapSizes & 4) == 0 ? 2 : 4 }
+    let dimensions: Dimensions
 
     public let stringHeap: StringHeap
     public let guidHeap: GuidHeap
     public let blobHeap: BlobHeap
-
-    public let tableRowCounts: [Int]
 
     // In TableIndex order
     public var moduleTable: Table<Module>!
@@ -50,18 +44,18 @@ public class Database {
             throw InvalidFormatError.invalidCLIHeader
         }
 
-        tableRowCounts = (0 ..< 64).map {
+        let tableRowCounts = (0 ..< 64).map {
             let isTablePresent = (tablesStreamHeader.pointee.valid & (UInt64(1) << $0)) != 0
-            return isTablePresent ? Int(tablesStreamRemainder.consume(type: UInt32.self).pointee) : 0
+            return isTablePresent ? tablesStreamRemainder.consume(type: UInt32.self).pointee : UInt32(0)
         }
 
-        heapSizes = tablesStreamHeader.pointee.heapSizes
+        dimensions = Dimensions(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
 
-        moduleTable = consumeTable(buffer: &tablesStreamRemainder)
-        typeRefTable = consumeTable(buffer: &tablesStreamRemainder)
-        typeDefTable = consumeTable(buffer: &tablesStreamRemainder)
-        fieldTable = consumeTable(buffer: &tablesStreamRemainder)
-        methodDefTable = consumeTable(buffer: &tablesStreamRemainder)
+        moduleTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        typeRefTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        typeDefTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        fieldTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        methodDefTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
     }
 
     public convenience init(url: URL) throws {
@@ -100,63 +94,21 @@ public class Database {
             streamHeaders: streamHeaders)
     }
 
-    func consumeStringRef(buffer: inout UnsafeRawBufferPointer) -> StringRef {
-        let offset = (heapSizes & 0x1) == 0
-            ? Int(buffer.consume(type: UInt16.self).pointee)
-            : Int(buffer.consume(type: UInt32.self).pointee)
-        return StringRef(heap: stringHeap, offset: offset)
+    func consumeTable<Row>(buffer: inout UnsafeRawBufferPointer, dimensions: Dimensions) -> Table<Row> where Row: Record {
+        let rowCount = dimensions.getRowCount(Row.tableIndex)
+        let size = Row.getSize(dimensions: dimensions) * rowCount
+        return Table(buffer: buffer.consume(count: size), dimensions: dimensions)
     }
 
-    func consumeGuidRef(buffer: inout UnsafeRawBufferPointer) -> GuidRef {
-        let offset = (heapSizes & 0x2) == 0
-            ? Int(buffer.consume(type: UInt16.self).pointee)
-            : Int(buffer.consume(type: UInt32.self).pointee)
-        return GuidRef(heap: guidHeap, offset: offset)
-    }
-
-    func consumeBlobRef(buffer: inout UnsafeRawBufferPointer) -> BlobRef {
-        let offset = (heapSizes & 0x4) == 0
-            ? Int(buffer.consume(type: UInt16.self).pointee)
-            : Int(buffer.consume(type: UInt32.self).pointee)
-        return BlobRef(heap: blobHeap, offset: offset)
-    }
-
-    func consumeTable<Row>(buffer: inout UnsafeRawBufferPointer) -> Table<Row> where Row: Record {
-        let rowCount = tableRowCounts[Int(Row.tableIndex.rawValue)]
-        let size = Row.getSize(database: self) * rowCount
-        return Table(buffer: buffer.consume(count: size), database: self)
-    }
-
-    func getTableRowIndexSize(_ tableIndex: TableIndex) -> Int {
-        tableRowCounts[Int(tableIndex.rawValue)] < 0x10000 ? 2 : 4
+    public func resolve(_ offset: HeapOffset<StringHeap>) -> String {
+        stringHeap.resolve(at: offset.value)
     }
     
-    func getTableRowIndexSize<Row>(_ type: Row.Type) -> Int where Row: Record {
-        getTableRowIndexSize(Row.tableIndex)
+    public func resolve(_ offset: HeapOffset<GuidHeap>) -> UUID {
+        guidHeap.resolve(at: offset.value)
     }
-
-    func getCodedIndexSize<T>(_ type: T.Type) -> Int where T : CodedIndex {
-        let tagBitCount = Int.bitWidth - T.tables.count.leadingZeroBitCount
-        let maxRowCount = T.tables.compactMap { $0 }.map { tableRowCounts[Int($0.rawValue)] }.max()!
-        return maxRowCount < (1 << (16 - tagBitCount)) ? 2 : 4
-    }
-
-    func consumeCodedIndex<T>(buffer: inout UnsafeRawBufferPointer) -> T where T : CodedIndex {
-        let tagBitCount = Int.bitWidth - T.tables.count.leadingZeroBitCount
-
-        let codedValue: Int
-        let indexBitCount: Int
-        if getCodedIndexSize(T.self) == 2 {
-            codedValue = Int(buffer.consume(type: UInt16.self).pointee)
-            indexBitCount = 16 - tagBitCount
-        }
-        else {
-            codedValue = Int(buffer.consume(type: UInt32.self).pointee)
-            indexBitCount = 32 - tagBitCount
-        }
-
-        let tag = codedValue >> indexBitCount
-        let index = codedValue & ((1 << indexBitCount) - 1)
-        return T.create(database: self, tag: tag, index: index) 
+    
+    public func resolve(_ offset: HeapOffset<BlobHeap>) -> UnsafeRawBufferPointer {
+        blobHeap.resolve(at: offset.value)
     }
 }

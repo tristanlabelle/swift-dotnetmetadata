@@ -1,31 +1,33 @@
-protocol CodedIndex {
+public protocol CodedIndex {
     static var tables: [TableIndex?] { get }
-    static func create(database: Database, tag: Int, index: Int) -> Self
+    static func create(tag: UInt8, index: UInt32) -> Self
 }
 
 public enum ResolutionScope : CodedIndex {
-    case module(TableRowRef<Module>?)
+    case module(RowIndex<Module>)
     case moduleRef
     case assemblyRef
-    case typeRef(TableRowRef<TypeRef>?)
+    case typeRef(RowIndex<TypeRef>)
 
-    static let tables: [TableIndex?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
-    static func create(database: Database, tag: Int, index: Int) -> Self {
+    public static let tables: [TableIndex?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
+    public static func create(tag: UInt8, index: UInt32) -> Self {
         switch tag {
-            case 1: return .module(TableRowRef(table: database.moduleTable, index: index))
+            case 0: return .module(RowIndex(index))
             default: fatalError()
         }
     }
 }
 
 public enum TypeDefOrRef : CodedIndex {
-    case typeDef(TableRowRef<TypeDef>?)
-    case typeRef(TableRowRef<TypeRef>?)
+    case typeDef(RowIndex<TypeDef>)
+    case typeRef(RowIndex<TypeRef>)
     case typeSpec
 
-    static let tables: [TableIndex?] = [ .typeDef, .typeRef, .typeSpec ]
-    static func create(database: Database, tag: Int, index: Int) -> Self {
+    public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .typeSpec ]
+    public static func create(tag: UInt8, index: UInt32) -> Self {
         switch tag {
+            case 0: return .typeDef(RowIndex(index))
+            case 1: return .typeRef(RowIndex(index))
             default: fatalError()
         }
     }
