@@ -9,22 +9,8 @@ public class Database {
     }
 
     let file: Data?
-    let dimensions: Dimensions
-
-    public let stringHeap: StringHeap
-    public let guidHeap: GuidHeap
-    public let blobHeap: BlobHeap
-
-    // In TableIndex order
-    public var moduleTable: Table<Module>
-    public var typeRefTable: Table<TypeRef>
-    public var typeDefTable: Table<TypeDef>
-    public var fieldTable: Table<Field>
-    public var methodDefTable: Table<MethodDef>
-    public var paramTable: Table<Param>
-    public var interfaceImplTable: Table<InterfaceImpl>
-    public var memberRefTable: Table<MemberRef>
-    public var constantTable: Table<MemberRef>
+    public let heaps: Heaps
+    public let tables: Tables
 
     public init(file: Data) throws {
         self.file = file
@@ -38,9 +24,10 @@ public class Database {
         let metadataSection = peView.resolve(virtualAddress: cliHeader.pointee.metaData.virtualAddress, size: cliHeader.pointee.metaData.size)
         let metadataRoot = try Self.readMetadataRoot(metadataSection: metadataSection)
 
-        stringHeap = StringHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Strings"]))
-        guidHeap = GuidHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#GUID"]))
-        blobHeap = BlobHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Blob"]))
+        heaps = Heaps(
+            string: StringHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Strings"])),
+            guid: GuidHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#GUID"])),
+            blob: BlobHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Blob"])))
 
         var tablesStreamRemainder = Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#~"])
         let tablesStreamHeader = tablesStreamRemainder.consume(type: MetadataTablesStreamHeader.self)
@@ -53,17 +40,8 @@ public class Database {
             return isTablePresent ? tablesStreamRemainder.consume(type: UInt32.self).pointee : UInt32(0)
         }
 
-        dimensions = Dimensions(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
-
-        moduleTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        typeRefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        typeDefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        fieldTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        methodDefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        paramTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        interfaceImplTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        memberRefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        constantTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        let dimensions = Dimensions(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
+        tables = Tables(buffer: tablesStreamRemainder, dimensions: dimensions)
     }
 
     public convenience init(url: URL) throws {
@@ -100,23 +78,5 @@ public class Database {
             versionString: versionString,
             flags: afterVersion.pointee.flags,
             streamHeaders: streamHeaders)
-    }
-
-    static func consumeTable<Row>(buffer: inout UnsafeRawBufferPointer, dimensions: Dimensions) -> Table<Row> where Row: Record {
-        let rowCount = dimensions.getRowCount(Row.tableIndex)
-        let size = Row.getSize(dimensions: dimensions) * rowCount
-        return Table(buffer: buffer.consume(count: size), dimensions: dimensions)
-    }
-
-    public func resolve(_ entry: HeapEntry<StringHeap>) -> String {
-        stringHeap.resolve(at: entry.offset)
-    }
-    
-    public func resolve(_ entry: HeapEntry<GuidHeap>) -> UUID {
-        guidHeap.resolve(at: entry.offset)
-    }
-    
-    public func resolve(_ entry: HeapEntry<BlobHeap>) -> UnsafeRawBufferPointer {
-        blobHeap.resolve(at: entry.offset)
     }
 }

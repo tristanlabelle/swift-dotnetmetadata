@@ -1,4 +1,4 @@
-import Foundation
+import struct Foundation.UUID
 
 public protocol Heap {
     associatedtype Value
