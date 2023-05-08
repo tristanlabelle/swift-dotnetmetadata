@@ -19,6 +19,7 @@ extension Database {
         public let methodImpl: Table<MethodImpl>
         public let typeSpec: Table<TypeSpec>
         public let assembly: Table<Assembly>
+        public let assemblyRef: Table<AssemblyRef>
 
         init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
             var remainder = buffer
@@ -41,6 +42,7 @@ extension Database {
             methodImpl = Self.consume(&remainder, dimensions)
             typeSpec = Self.consume(&remainder, dimensions)
             assembly = Self.consume(&remainder, dimensions)
+            assemblyRef = Self.consume(&remainder, dimensions)
         }
 
         static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {

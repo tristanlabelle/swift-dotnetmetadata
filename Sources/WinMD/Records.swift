@@ -37,6 +37,45 @@ public struct Assembly: Record {
     }
 }
 
+public struct AssemblyRef: Record {
+    public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
+    public var flags: AssemblyFlags
+    public var publicKeyOrToken: HeapEntry<BlobHeap>
+    public var name: HeapEntry<StringHeap>
+    public var culture: HeapEntry<StringHeap>
+    public var hashValue: HeapEntry<BlobHeap>
+
+    public static var tableIndex: TableIndex { .assemblyRef }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.majorVersion)
+            .addConstant(\.minorVersion)
+            .addConstant(\.buildNumber)
+            .addConstant(\.revisionNumber)
+            .addConstant(\.flags)
+            .addHeapEntry(\.publicKeyOrToken)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.culture)
+            .addHeapEntry(\.hashValue)
+            .size
+    }
+    
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            majorVersion: reader.readConstant(),
+            minorVersion: reader.readConstant(),
+            buildNumber: reader.readConstant(),
+            revisionNumber: reader.readConstant(),
+            flags: reader.readConstant(),
+            publicKeyOrToken: reader.readHeapEntry(),
+            name: reader.readHeapEntry(),
+            culture: reader.readHeapEntry(),
+            hashValue: reader.readHeapEntry(last: true))
+    }
+}
+
 public struct Constant: Record {
     public var type: UInt16
     public var parent: HasConstant

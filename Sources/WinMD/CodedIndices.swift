@@ -19,15 +19,17 @@ public enum CustomAttributeType : CodedIndex {
 }
 
 public enum HasConstant : CodedIndex {
-    case field
+    case field(TableRow<Field>)
     case param(TableRow<Param>)
-    case property
+    case property(TableRow<Property>)
 
     public static let tables: [TableIndex?] = [ .field, .param, .property ]
 
     public static func create(tag: UInt8, index: UInt32) -> Self {
         switch tag {
+            case 0: return .field(TableRow(index))
             case 1: return .param(TableRow(index))
+            case 2: return .property(TableRow(index))
             default: fatalError()
         }
     }
@@ -64,7 +66,7 @@ public enum HasCustomAttribute : CodedIndex {
     case moduleRef
     case typeSpec(TableRow<TypeSpec>)
     case assembly(TableRow<Assembly>)
-    case assemblyRef
+    case assemblyRef(TableRow<AssemblyRef>)
     case file
     case exportedType
     case manifestResource
@@ -90,6 +92,7 @@ public enum HasCustomAttribute : CodedIndex {
             case 10: return .event(TableRow(index))
             case 13: return .typeSpec(TableRow(index))
             case 14: return .assembly(TableRow(index))
+            case 15: return .assemblyRef(TableRow(index))
             default: fatalError()
         }
     }
@@ -133,7 +136,7 @@ public enum MethodDefOrRef : CodedIndex {
 public enum ResolutionScope : CodedIndex {
     case module(TableRow<Module>)
     case moduleRef
-    case assemblyRef
+    case assemblyRef(TableRow<AssemblyRef>)
     case typeRef(TableRow<TypeRef>)
 
     public static let tables: [TableIndex?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
@@ -141,6 +144,8 @@ public enum ResolutionScope : CodedIndex {
     public static func create(tag: UInt8, index: UInt32) -> Self {
         switch tag {
             case 0: return .module(TableRow(index))
+            case 2: return .assemblyRef(TableRow(index))
+            case 3: return .typeRef(TableRow(index))
             default: fatalError()
         }
     }
