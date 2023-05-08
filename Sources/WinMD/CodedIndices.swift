@@ -58,11 +58,11 @@ public enum HasCustomAttribute : CodedIndex {
     case memberRef(TableRow<MemberRef>)
     case module(TableRow<Module>)
     case permission
-    case property
-    case event
+    case property(TableRow<Property>)
+    case event(TableRow<Event>)
     case standAloneSig
     case moduleRef
-    case typeSpec
+    case typeSpec(TableRow<TypeSpec>)
     case assembly(TableRow<Assembly>)
     case assemblyRef
     case file
@@ -78,7 +78,18 @@ public enum HasCustomAttribute : CodedIndex {
 
     public static func create(tag: UInt8, index: UInt32) -> Self {
         switch tag {
-            case 1: return .param(TableRow(index))
+            case 0: return .methodDef(TableRow(index))
+            case 1: return .field(TableRow(index))
+            case 2: return .typeRef(TableRow(index))
+            case 3: return .typeDef(TableRow(index))
+            case 4: return .param(TableRow(index))
+            case 5: return .interfaceImpl(TableRow(index))
+            case 6: return .memberRef(TableRow(index))
+            case 7: return .module(TableRow(index))
+            case 9: return .property(TableRow(index))
+            case 10: return .event(TableRow(index))
+            case 13: return .typeSpec(TableRow(index))
+            case 14: return .assembly(TableRow(index))
             default: fatalError()
         }
     }
@@ -89,7 +100,7 @@ public enum MemberRefParent : CodedIndex {
     case typeRef(TableRow<TypeRef>)
     case moduleRef
     case methodDef(TableRow<MethodDef>)
-    case typeSpec
+    case typeSpec(TableRow<TypeSpec>)
 
     public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
 
@@ -98,6 +109,7 @@ public enum MemberRefParent : CodedIndex {
             case 0: return .typeDef(TableRow(index))
             case 1: return .typeRef(TableRow(index))
             case 3: return .methodDef(TableRow(index))
+            case 4: return .typeSpec(TableRow(index))
             default: fatalError()
         }
     }
@@ -137,7 +149,7 @@ public enum ResolutionScope : CodedIndex {
 public enum TypeDefOrRef : CodedIndex {
     case typeDef(TableRow<TypeDef>)
     case typeRef(TableRow<TypeRef>)
-    case typeSpec
+    case typeSpec(TableRow<TypeSpec>)
 
     public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .typeSpec ]
 
@@ -145,6 +157,7 @@ public enum TypeDefOrRef : CodedIndex {
         switch tag {
             case 0: return .typeDef(TableRow(index))
             case 1: return .typeRef(TableRow(index))
+            case 2: return .typeSpec(TableRow(index))
             default: fatalError()
         }
     }

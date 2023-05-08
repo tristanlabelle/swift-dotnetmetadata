@@ -435,3 +435,22 @@ public struct TypeRef: Record {
             typeNamespace: reader.readHeapEntry(last: true))
     }
 }
+
+
+public struct TypeSpec: Record {
+    public var signature: HeapEntry<BlobHeap>
+
+    public static var tableIndex: TableIndex { .typeSpec }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addHeapEntry(\.signature)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            signature: reader.readHeapEntry(last: true))
+    }
+}
