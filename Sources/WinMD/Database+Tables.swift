@@ -20,6 +20,7 @@ extension Database {
         public let typeSpec: Table<TypeSpec>
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
+        public let genericParam: Table<GenericParam>
 
         init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
             var remainder = buffer
@@ -43,6 +44,7 @@ extension Database {
             typeSpec = Self.consume(&remainder, dimensions)
             assembly = Self.consume(&remainder, dimensions)
             assemblyRef = Self.consume(&remainder, dimensions)
+            genericParam = Self.consume(&remainder, dimensions)
         }
 
         static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {

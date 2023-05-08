@@ -193,6 +193,33 @@ public struct Field: Record {
     }
 }
 
+public struct GenericParam: Record {
+    public var number: UInt16
+    public var flags: GenericParamAttributes
+    public var owner: TypeOrMethodDef
+    public var name: HeapEntry<StringHeap>
+
+    public static var tableIndex: TableIndex { .module }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.number)
+            .addConstant(\.flags)
+            .addCodedIndex(\.owner)
+            .addHeapEntry(\.name)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            number: reader.readConstant(),
+            flags: reader.readConstant(),
+            owner: reader.readCodedIndex(),
+            name: reader.readHeapEntry(last: true))
+    }
+}
+
 public struct InterfaceImpl: Record {
     public var `class`: TableRow<TypeDef>
     public var interface: TypeDefOrRef

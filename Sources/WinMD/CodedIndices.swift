@@ -167,3 +167,18 @@ public enum TypeDefOrRef : CodedIndex {
         }
     }
 }
+
+public enum TypeOrMethodDef: CodedIndex {
+    case typeDef(TableRow<TypeDef>)
+    case methodDef(TableRow<MethodDef>)
+
+    public static let tables: [TableIndex?] = [ .typeDef, .methodDef ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 0: return .typeDef(TableRow(index))
+            case 1: return .methodDef(TableRow(index))
+            default: fatalError()
+        }
+    }
+}

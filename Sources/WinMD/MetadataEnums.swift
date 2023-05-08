@@ -45,6 +45,23 @@ public struct FieldAttributes: OptionSet {
     public static let `public` = Self(rawValue: 0x6)
 }
 
+public struct GenericParamAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+    
+    public static let varianceMask = Self(rawValue: 0x3)
+    public static let none = Self([])
+    public static let covariant = Self(rawValue: 0x1)
+    public static let contravariant = Self(rawValue: 0x2)
+
+    public static let specialConstaintMask = Self(rawValue: 0x1C)
+    public static let referenceTypeConstraint = Self(rawValue: 0x4)
+    public static let notNullableValueTypeConstraint = Self(rawValue: 0x8)
+    public static let defaultConstructorConstraint = Self(rawValue: 0x10)
+}
+
 public struct MethodAttributes: OptionSet {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {
