@@ -10,6 +10,7 @@ extension Database {
         public let interfaceImpl: Table<InterfaceImpl>
         public let memberRef: Table<MemberRef>
         public let constant: Table<MemberRef>
+        public let customAttribute: Table<CustomAttribute>
 
         init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
             var remainder = buffer
@@ -22,6 +23,7 @@ extension Database {
             interfaceImpl = Self.consume(&remainder, dimensions)
             memberRef = Self.consume(&remainder, dimensions)
             constant = Self.consume(&remainder, dimensions)
+            customAttribute = Self.consume(&remainder, dimensions)
         }
 
         static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {

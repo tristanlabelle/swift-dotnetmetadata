@@ -61,6 +61,30 @@ public struct Constant: Record {
     }
 }
 
+public struct CustomAttribute: Record {
+    public var parent: HasCustomAttribute
+    public var type: CustomAttributeType
+    public var value: HeapEntry<BlobHeap>
+
+    public static var tableIndex: TableIndex { .constant }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addCodedIndex(\.parent)
+            .addCodedIndex(\.type)
+            .addHeapEntry(\.value)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            parent: reader.readCodedIndex(),
+            type: reader.readCodedIndex(),
+            value: reader.readHeapEntry(last: true))
+    }
+}
+
 public struct Field: Record {
     public var flags: FieldAttributes
     public var name: HeapEntry<StringHeap>

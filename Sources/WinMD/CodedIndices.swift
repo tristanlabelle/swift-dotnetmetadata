@@ -3,12 +3,63 @@ public protocol CodedIndex {
     static func create(tag: UInt8, index: UInt32) -> Self
 }
 
+public enum CustomAttributeType : CodedIndex {
+    case methodDef(TableRow<MethodDef>)
+    case memberRef(TableRow<MemberRef>)
+
+    public static let tables: [TableIndex?] = [ nil, nil, .methodDef, .memberRef, nil ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 2: return .methodDef(TableRow(index))
+            case 3: return .memberRef(TableRow(index))
+            default: fatalError()
+        }
+    }
+}
+
 public enum HasConstant : CodedIndex {
     case field
     case param(TableRow<Param>)
     case property
 
     public static let tables: [TableIndex?] = [ .field, .param, .property ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 1: return .param(TableRow(index))
+            default: fatalError()
+        }
+    }
+}
+
+public enum HasCustomAttribute : CodedIndex {
+    case methodDef(TableRow<MethodDef>)
+    case field(TableRow<Field>)
+    case typeRef(TableRow<TypeRef>)
+    case typeDef(TableRow<TypeDef>)
+    case param(TableRow<Param>)
+    case interfaceImpl(TableRow<InterfaceImpl>)
+    case memberRef(TableRow<MemberRef>)
+    case module(TableRow<Module>)
+    case permission
+    case property
+    case event
+    case standAloneSig
+    case moduleRef
+    case typeSpec
+    case assembly(TableRow<Assembly>)
+    case assemblyRef
+    case file
+    case exportedType
+    case manifestResource
+
+    public static let tables: [TableIndex?] = [
+        .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
+        .memberRef, .module, nil /* .permission */, .property, .event, .standAloneSig,
+        .moduleRef, .typeSpec, .assembly, .assemblyRef, .file, .exportedType,
+        .manifestResource
+    ]
 
     public static func create(tag: UInt8, index: UInt32) -> Self {
         switch tag {

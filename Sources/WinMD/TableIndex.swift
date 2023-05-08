@@ -13,7 +13,7 @@ public enum TableIndex: UInt8 {
     case declarativeSecurity = 0x0E
     case classLayout = 0x0F
     case fieldLayout = 0x10
-    case signature = 0x11
+    case standAloneSig = 0x11
     case eventMap = 0x12
     case event = 0x14
     case propertyMap = 0x15
