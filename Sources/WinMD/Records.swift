@@ -48,7 +48,7 @@ public struct TypeDef: Record {
     public var typeNamespace: StringRef
     public var extends: TypeDefOrRef
     var fieldList: TableRowRef<Field>
-    //var methodList: TableRowRef<MethodDef>
+    var methodList: TableRowRef<MethodDef>
 
     public static var tableIndex: TableIndex { .typeDef }
 
@@ -77,6 +77,31 @@ public struct Field: Record {
         var remainder = buffer
         return Field(
             flags: remainder.consume(type: FieldAttributes.self).pointee,
+            name: database.consumeStringRef(buffer: &remainder),
+            signature: database.consumeBlobRef(buffer: &remainder))
+    }
+}
+
+public struct MethodDef: Record {
+    public var rva: UInt32
+    public var implFlags: MethodImplAttributes
+    public var flags: MethodAttributes
+    public var name: StringRef
+    public var signature: BlobRef
+    // public var paramList: TableRowRef<Param>?
+
+    public static var tableIndex: TableIndex { .methodDef }
+
+    public static func getSize(database: Database) -> Int {
+        4 + 2 + 2 + database.stringOffsetSize + database.blobOffsetSize
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, database: Database) -> Self {
+        var remainder = buffer
+        return MethodDef(
+            rva: remainder.consume(type: UInt32.self).pointee,
+            implFlags: remainder.consume(type: MethodImplAttributes.self).pointee,
+            flags: remainder.consume(type: MethodAttributes.self).pointee,
             name: database.consumeStringRef(buffer: &remainder),
             signature: database.consumeBlobRef(buffer: &remainder))
     }

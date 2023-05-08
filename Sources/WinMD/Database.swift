@@ -26,6 +26,7 @@ public class Database {
     public var typeRefTable: Table<TypeRef>!
     public var typeDefTable: Table<TypeDef>!
     public var fieldTable: Table<Field>!
+    public var methodDefTable: Table<MethodDef>!
 
     public init(file: Data) throws {
         self.file = file
@@ -60,6 +61,7 @@ public class Database {
         typeRefTable = consumeTable(buffer: &tablesStreamRemainder)
         typeDefTable = consumeTable(buffer: &tablesStreamRemainder)
         fieldTable = consumeTable(buffer: &tablesStreamRemainder)
+        methodDefTable = consumeTable(buffer: &tablesStreamRemainder)
     }
 
     public convenience init(url: URL) throws {

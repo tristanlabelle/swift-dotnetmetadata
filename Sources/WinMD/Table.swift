@@ -1,6 +1,6 @@
 public class Table<Row> where Row: Record {
     let buffer: UnsafeRawBufferPointer
-    let database: Database
+    unowned let database: Database
     let rowSize: Int
 
     init(buffer: UnsafeRawBufferPointer, database: Database) {
