@@ -13,6 +13,8 @@ extension Database {
         public let customAttribute: Table<CustomAttribute>
         public let eventMap: Table<EventMap>
         public let event: Table<Event>
+        public let propertyMap: Table<PropertyMap>
+        public let property: Table<Property>
 
         init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
             var remainder = buffer
@@ -29,6 +31,8 @@ extension Database {
             customAttribute = Self.consume(&remainder, dimensions)
             eventMap = Self.consume(&remainder, dimensions)
             event = Self.consume(&remainder, dimensions)
+            propertyMap = Self.consume(&remainder, dimensions)
+            property = Self.consume(&remainder, dimensions)
         }
 
         static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {

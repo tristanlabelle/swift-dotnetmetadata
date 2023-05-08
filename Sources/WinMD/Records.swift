@@ -286,6 +286,51 @@ public struct Param: Record {
     }
 }
 
+public struct Property: Record {
+    public var flags: PropertyAttributes
+    public var name: HeapEntry<StringHeap>
+    public var type: HeapEntry<BlobHeap>
+
+    public static var tableIndex: TableIndex { .property }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.flags)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.type)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            flags: reader.readConstant(),
+            name: reader.readHeapEntry(),
+            type: reader.readHeapEntry(last: true))
+    }
+}
+
+public struct PropertyMap: Record {
+    public var parent: TableRow<TypeDef>
+    public var propertyList: TableRow<Property>
+
+    public static var tableIndex: TableIndex { .propertyMap }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addTableRow(\.parent)
+            .addTableRow(\.propertyList)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            parent: reader.readTableRow(),
+            propertyList: reader.readTableRow(last: true))
+    }
+}
+
 public struct TypeDef: Record {
     public var flags: TypeAttributes
     public var typeName: HeapEntry<StringHeap>

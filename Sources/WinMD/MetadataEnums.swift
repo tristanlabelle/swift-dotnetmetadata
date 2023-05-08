@@ -118,6 +118,18 @@ public struct ParamAttributes: OptionSet {
     public static let unused = MethodAttributes(rawValue: 0xcfe0)
 }
 
+public struct PropertyAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+    
+    public static let specialName = MethodAttributes(rawValue: 0x200)
+    public static let rtSpecialName = MethodAttributes(rawValue: 0x400)
+    public static let hasDefault = MethodAttributes(rawValue: 0x1000)
+    public static let unused = MethodAttributes(rawValue: 0xE9FF)
+}
+
 public struct TypeAttributes: OptionSet {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {
