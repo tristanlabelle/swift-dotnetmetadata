@@ -3,6 +3,25 @@ public protocol CodedIndex {
     static func create(tag: UInt8, index: UInt32) -> Self
 }
 
+public enum MemberRefParent : CodedIndex {
+    case typeDef(TableRow<TypeDef>)
+    case typeRef(TableRow<TypeRef>)
+    case moduleRef
+    case methodDef(TableRow<MethodDef>)
+    case typeSpec
+
+    public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 0: return .typeDef(TableRow(index))
+            case 1: return .typeRef(TableRow(index))
+            case 3: return .methodDef(TableRow(index))
+            default: fatalError()
+        }
+    }
+}
+
 public enum ResolutionScope : CodedIndex {
     case module(TableRow<Module>)
     case moduleRef

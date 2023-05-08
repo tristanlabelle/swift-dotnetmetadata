@@ -147,7 +147,7 @@ public struct Param: Record {
     public var sequence: UInt16
     public var name: HeapEntry<StringHeap>
 
-    public static var tableIndex: TableIndex { .methodDef }
+    public static var tableIndex: TableIndex { .param }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
@@ -163,6 +163,51 @@ public struct Param: Record {
             flags: reader.readConstant(),
             sequence: reader.readConstant(),
             name: reader.readHeapEntry(last: true))
+    }
+}
+
+public struct InterfaceImpl: Record {
+    public var `class`: TableRow<TypeDef>
+    public var interface: TypeDefOrRef
+
+    public static var tableIndex: TableIndex { .interfaceImpl }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addTableRow(\.`class`)
+            .addCodedIndex(\.interface)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            class: reader.readTableRow(),
+            interface: reader.readCodedIndex(last: true))
+    }
+}
+
+public struct MemberRef: Record {
+    public var `class`: MemberRefParent
+    public var name: HeapEntry<StringHeap>
+    public var signature: HeapEntry<BlobHeap>
+
+    public static var tableIndex: TableIndex { .memberRef }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addCodedIndex(\.`class`)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.signature)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            class: reader.readCodedIndex(),
+            name: reader.readHeapEntry(),
+            signature: reader.readHeapEntry(last: true))
     }
 }
 

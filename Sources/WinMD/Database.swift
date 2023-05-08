@@ -21,6 +21,9 @@ public class Database {
     public var typeDefTable: Table<TypeDef>
     public var fieldTable: Table<Field>
     public var methodDefTable: Table<MethodDef>
+    public var paramTable: Table<Param>
+    public var interfaceImplTable: Table<InterfaceImpl>
+    public var memberRefTable: Table<MemberRef>
 
     public init(file: Data) throws {
         self.file = file
@@ -56,6 +59,9 @@ public class Database {
         typeDefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
         fieldTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
         methodDefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        paramTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        interfaceImplTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        memberRefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
     }
 
     public convenience init(url: URL) throws {

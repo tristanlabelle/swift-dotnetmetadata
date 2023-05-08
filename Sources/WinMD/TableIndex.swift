@@ -4,8 +4,8 @@ public enum TableIndex: UInt8 {
     case typeDef = 0x02
     case field = 0x04
     case methodDef = 0x06
-    case parameter = 0x08
-    case interfaceImplementation = 0x09
+    case param = 0x08
+    case interfaceImpl = 0x09
     case memberRef = 0x0A
     case constant = 0x0B
     case customAttribute = 0x0C
