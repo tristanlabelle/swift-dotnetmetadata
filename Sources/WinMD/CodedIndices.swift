@@ -3,6 +3,21 @@ public protocol CodedIndex {
     static func create(tag: UInt8, index: UInt32) -> Self
 }
 
+public enum HasConstant : CodedIndex {
+    case field
+    case param(TableRow<Param>)
+    case property
+
+    public static let tables: [TableIndex?] = [ .field, .param, .property ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 1: return .param(TableRow(index))
+            default: fatalError()
+        }
+    }
+}
+
 public enum MemberRefParent : CodedIndex {
     case typeDef(TableRow<TypeDef>)
     case typeRef(TableRow<TypeRef>)

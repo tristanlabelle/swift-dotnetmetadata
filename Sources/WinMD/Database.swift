@@ -24,6 +24,7 @@ public class Database {
     public var paramTable: Table<Param>
     public var interfaceImplTable: Table<InterfaceImpl>
     public var memberRefTable: Table<MemberRef>
+    public var constantTable: Table<MemberRef>
 
     public init(file: Data) throws {
         self.file = file
@@ -62,6 +63,7 @@ public class Database {
         paramTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
         interfaceImplTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
         memberRefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        constantTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
     }
 
     public convenience init(url: URL) throws {

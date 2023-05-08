@@ -211,6 +211,30 @@ public struct MemberRef: Record {
     }
 }
 
+public struct Constant: Record {
+    public var type: UInt16
+    public var parent: HasConstant
+    public var value: HeapEntry<BlobHeap>
+
+    public static var tableIndex: TableIndex { .constant }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.type)
+            .addCodedIndex(\.parent)
+            .addHeapEntry(\.value)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            type: reader.readConstant(),
+            parent: reader.readCodedIndex(),
+            value: reader.readHeapEntry(last: true))
+    }
+}
+
 public struct Assembly: Record {
     public var hashAlgId: AssemblyHashAlgorithm
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
