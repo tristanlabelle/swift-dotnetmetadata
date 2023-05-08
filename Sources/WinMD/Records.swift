@@ -232,6 +232,30 @@ public struct MethodDef: Record {
     }
 }
 
+public struct MethodImpl: Record {
+    public var `class`: TableRow<TypeDef>
+    public var methodBody: MethodDefOrRef
+    public var methodDeclaration: MethodDefOrRef
+
+    public static var tableIndex: TableIndex { .methodImpl }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addTableRow(\.`class`)
+            .addCodedIndex(\.methodBody)
+            .addCodedIndex(\.methodDeclaration)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            class: reader.readTableRow(),
+            methodBody: reader.readCodedIndex(),
+            methodDeclaration: reader.readCodedIndex(last: true))
+    }
+}
+
 public struct MethodSemantics: Record {
     public var semantics: MethodSemanticsAttributes
     public var method: TableRow<MethodDef>

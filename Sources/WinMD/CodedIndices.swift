@@ -103,6 +103,21 @@ public enum MemberRefParent : CodedIndex {
     }
 }
 
+public enum MethodDefOrRef : CodedIndex {
+    case methodDef(TableRow<MethodDef>)
+    case memberRef(TableRow<MemberRef>)
+
+    public static let tables: [TableIndex?] = [ .methodDef, .memberRef ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 0: return .methodDef(TableRow(index))
+            case 1: return .memberRef(TableRow(index))
+            default: fatalError()
+        }
+    }
+}
+
 public enum ResolutionScope : CodedIndex {
     case module(TableRow<Module>)
     case moduleRef

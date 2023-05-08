@@ -16,6 +16,7 @@ extension Database {
         public let propertyMap: Table<PropertyMap>
         public let property: Table<Property>
         public let methodSemantics: Table<MethodSemantics>
+        public let methodImpl: Table<MethodImpl>
 
         init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
             var remainder = buffer
@@ -35,6 +36,7 @@ extension Database {
             propertyMap = Self.consume(&remainder, dimensions)
             property = Self.consume(&remainder, dimensions)
             methodSemantics = Self.consume(&remainder, dimensions)
+            methodImpl = Self.consume(&remainder, dimensions)
         }
 
         static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {

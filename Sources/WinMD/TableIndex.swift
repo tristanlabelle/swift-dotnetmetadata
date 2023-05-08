@@ -19,7 +19,7 @@ public enum TableIndex: UInt8 {
     case propertyMap = 0x15
     case property = 0x17
     case methodSemantics = 0x18
-    case methodImplementation = 0x19
+    case methodImpl = 0x19
     case moduleRef = 0x1A
     case typeSpec = 0x1B
     case implementationMap = 0x1C
