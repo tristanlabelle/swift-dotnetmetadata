@@ -66,7 +66,7 @@ public struct CustomAttribute: Record {
     public var type: CustomAttributeType
     public var value: HeapEntry<BlobHeap>
 
-    public static var tableIndex: TableIndex { .constant }
+    public static var tableIndex: TableIndex { .customAttribute }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
@@ -82,6 +82,51 @@ public struct CustomAttribute: Record {
             parent: reader.readCodedIndex(),
             type: reader.readCodedIndex(),
             value: reader.readHeapEntry(last: true))
+    }
+}
+
+public struct Event: Record {
+    public var eventFlags: EventAttributes
+    public var name: HeapEntry<StringHeap>
+    public var eventType: TypeDefOrRef
+
+    public static var tableIndex: TableIndex { .event }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.eventFlags)
+            .addHeapEntry(\.name)
+            .addCodedIndex(\.eventType)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            eventFlags: reader.readConstant(),
+            name: reader.readHeapEntry(),
+            eventType: reader.readCodedIndex(last: true))
+    }
+}
+
+public struct EventMap: Record {
+    public var parent: TableRow<TypeDef>
+    public var eventList: TableRow<Event>
+
+    public static var tableIndex: TableIndex { .eventMap }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addTableRow(\.parent)
+            .addTableRow(\.eventList)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            parent: reader.readTableRow(),
+            eventList: reader.readTableRow(last: true))
     }
 }
 

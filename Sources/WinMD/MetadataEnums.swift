@@ -19,6 +19,16 @@ public enum AssemblyHashAlgorithm: UInt32 {
     case sha1 = 0x8004
 }
 
+public struct EventAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+    
+    public static let specialName = MethodAttributes(rawValue: 0x200)
+    public static let rtSpecialName = MethodAttributes(rawValue: 0x400)
+}
+
 public struct FieldAttributes: OptionSet {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {

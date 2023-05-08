@@ -11,9 +11,12 @@ extension Database {
         public let memberRef: Table<MemberRef>
         public let constant: Table<MemberRef>
         public let customAttribute: Table<CustomAttribute>
+        public let eventMap: Table<EventMap>
+        public let event: Table<Event>
 
         init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
             var remainder = buffer
+            // In TableIndex order
             module = Self.consume(&remainder, dimensions)
             typeRef = Self.consume(&remainder, dimensions)
             typeDef = Self.consume(&remainder, dimensions)
@@ -24,6 +27,8 @@ extension Database {
             memberRef = Self.consume(&remainder, dimensions)
             constant = Self.consume(&remainder, dimensions)
             customAttribute = Self.consume(&remainder, dimensions)
+            eventMap = Self.consume(&remainder, dimensions)
+            event = Self.consume(&remainder, dimensions)
         }
 
         static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {
