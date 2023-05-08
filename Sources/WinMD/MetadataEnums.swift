@@ -94,6 +94,20 @@ public struct MethodImplAttributes: OptionSet {
     public static let noOptimization = MethodAttributes(rawValue: 0x40)
 }
 
+public struct ParamAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+    
+    public static let `in` = MethodAttributes(rawValue: 0x1)
+    public static let out = MethodAttributes(rawValue: 0x2)
+    public static let optional = MethodAttributes(rawValue: 0x10)
+    public static let hasDefault = MethodAttributes(rawValue: 0x1000)
+    public static let hasFieldMarshal = MethodAttributes(rawValue: 0x2000)
+    public static let unused = MethodAttributes(rawValue: 0xcfe0)
+}
+
 public struct TypeAttributes: OptionSet {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {

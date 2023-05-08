@@ -29,11 +29,13 @@ public protocol Record {
     static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self
 }
 
-public struct RowIndex<Type> where Type: Record {
-    public var value: UInt32
+public struct TableRow<T> where T: Record {
+    public var tableIndex: TableIndex { T.tableIndex }
 
-    public init(_ value: UInt32) {
-        precondition(value >= 0)
-        self.value = value
+    public var index: UInt32
+
+    public init(_ index: UInt32) {
+        precondition(index >= 0)
+        self.index = index
     }
 }

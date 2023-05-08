@@ -13,20 +13,20 @@ struct ColumnReader {
         return result
     }
 
-    mutating func readHeapOffset<T>(last: Bool = false) -> HeapOffset<T> where T: Heap {
-        let index = dimensions.getHeapOffsetSize(T.self) == 2
+    mutating func readHeapEntry<T>(last: Bool = false) -> HeapEntry<T> where T: Heap {
+        let index = dimensions.getHeapEntrySize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return HeapOffset<T>(index)
+        return HeapEntry<T>(index)
     }
 
-    mutating func readRowIndex<T>(last: Bool = false) -> RowIndex<T> where T: Record {
-        let index = dimensions.getRowIndexSize(T.self) == 2
+    mutating func readTableRow<T>(last: Bool = false) -> TableRow<T> where T: Record {
+        let index = dimensions.getTableRowSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return RowIndex<T>(index)
+        return TableRow<T>(index)
     }
 
     mutating func readCodedIndex<T>(last: Bool = false) -> T where T: CodedIndex {

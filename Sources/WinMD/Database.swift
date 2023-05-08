@@ -16,11 +16,11 @@ public class Database {
     public let blobHeap: BlobHeap
 
     // In TableIndex order
-    public var moduleTable: Table<Module>!
-    public var typeRefTable: Table<TypeRef>!
-    public var typeDefTable: Table<TypeDef>!
-    public var fieldTable: Table<Field>!
-    public var methodDefTable: Table<MethodDef>!
+    public var moduleTable: Table<Module>
+    public var typeRefTable: Table<TypeRef>
+    public var typeDefTable: Table<TypeDef>
+    public var fieldTable: Table<Field>
+    public var methodDefTable: Table<MethodDef>
 
     public init(file: Data) throws {
         self.file = file
@@ -51,11 +51,11 @@ public class Database {
 
         dimensions = Dimensions(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
 
-        moduleTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        typeRefTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        typeDefTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        fieldTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
-        methodDefTable = consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        moduleTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        typeRefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        typeDefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        fieldTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
+        methodDefTable = Self.consumeTable(buffer: &tablesStreamRemainder, dimensions: dimensions)
     }
 
     public convenience init(url: URL) throws {
@@ -94,21 +94,21 @@ public class Database {
             streamHeaders: streamHeaders)
     }
 
-    func consumeTable<Row>(buffer: inout UnsafeRawBufferPointer, dimensions: Dimensions) -> Table<Row> where Row: Record {
+    static func consumeTable<Row>(buffer: inout UnsafeRawBufferPointer, dimensions: Dimensions) -> Table<Row> where Row: Record {
         let rowCount = dimensions.getRowCount(Row.tableIndex)
         let size = Row.getSize(dimensions: dimensions) * rowCount
         return Table(buffer: buffer.consume(count: size), dimensions: dimensions)
     }
 
-    public func resolve(_ offset: HeapOffset<StringHeap>) -> String {
-        stringHeap.resolve(at: offset.value)
+    public func resolve(_ entry: HeapEntry<StringHeap>) -> String {
+        stringHeap.resolve(at: entry.offset)
     }
     
-    public func resolve(_ offset: HeapOffset<GuidHeap>) -> UUID {
-        guidHeap.resolve(at: offset.value)
+    public func resolve(_ entry: HeapEntry<GuidHeap>) -> UUID {
+        guidHeap.resolve(at: entry.offset)
     }
     
-    public func resolve(_ offset: HeapOffset<BlobHeap>) -> UnsafeRawBufferPointer {
-        blobHeap.resolve(at: offset.value)
+    public func resolve(_ entry: HeapEntry<BlobHeap>) -> UnsafeRawBufferPointer {
+        blobHeap.resolve(at: entry.offset)
     }
 }

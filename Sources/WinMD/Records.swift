@@ -1,19 +1,19 @@
 public struct Module: Record {
     public var generation: UInt16
-    public var name: HeapOffset<StringHeap>
-    public var mvid: HeapOffset<GuidHeap>
-    public var encId: HeapOffset<GuidHeap>
-    public var encBaseId: HeapOffset<GuidHeap>
+    public var name: HeapEntry<StringHeap>
+    public var mvid: HeapEntry<GuidHeap>
+    public var encId: HeapEntry<GuidHeap>
+    public var encBaseId: HeapEntry<GuidHeap>
 
     public static var tableIndex: TableIndex { .module }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
             .addConstant(\.generation)
-            .addHeapOffset(\.name)
-            .addHeapOffset(\.mvid)
-            .addHeapOffset(\.encId)
-            .addHeapOffset(\.encBaseId)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.mvid)
+            .addHeapEntry(\.encId)
+            .addHeapEntry(\.encBaseId)
             .size
     }
 
@@ -21,25 +21,25 @@ public struct Module: Record {
         var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
         return Self(
             generation: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            mvid: reader.readHeapOffset(),
-            encId: reader.readHeapOffset(),
-            encBaseId: reader.readHeapOffset(last: true))
+            name: reader.readHeapEntry(),
+            mvid: reader.readHeapEntry(),
+            encId: reader.readHeapEntry(),
+            encBaseId: reader.readHeapEntry(last: true))
     }
 }
 
 public struct TypeRef: Record {
     var resolutionScope: ResolutionScope
-    var typeName: HeapOffset<StringHeap>
-    var typeNamespace: HeapOffset<StringHeap>
+    var typeName: HeapEntry<StringHeap>
+    var typeNamespace: HeapEntry<StringHeap>
 
     public static var tableIndex: TableIndex { .typeRef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
             .addCodedIndex(\.resolutionScope)
-            .addHeapOffset(\.typeName)
-            .addHeapOffset(\.typeNamespace)
+            .addHeapEntry(\.typeName)
+            .addHeapEntry(\.typeNamespace)
             .size
     }
 
@@ -47,29 +47,29 @@ public struct TypeRef: Record {
         var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
         return Self(
             resolutionScope: reader.readConstant(),
-            typeName: reader.readHeapOffset(),
-            typeNamespace: reader.readHeapOffset(last: true))
+            typeName: reader.readHeapEntry(),
+            typeNamespace: reader.readHeapEntry(last: true))
     }
 }
 
 public struct TypeDef: Record {
     public var flags: TypeAttributes
-    public var typeName: HeapOffset<StringHeap>
-    public var typeNamespace: HeapOffset<StringHeap>
+    public var typeName: HeapEntry<StringHeap>
+    public var typeNamespace: HeapEntry<StringHeap>
     public var extends: TypeDefOrRef
-    public var fieldList: RowIndex<Field>
-    public var methodList: RowIndex<MethodDef>
+    public var fieldList: TableRow<Field>
+    public var methodList: TableRow<MethodDef>
 
     public static var tableIndex: TableIndex { .typeDef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
             .addConstant(\.flags)
-            .addHeapOffset(\.typeName)
-            .addHeapOffset(\.typeNamespace)
+            .addHeapEntry(\.typeName)
+            .addHeapEntry(\.typeNamespace)
             .addCodedIndex(\.extends)
-            .addRowIndex(\.fieldList)
-            .addRowIndex(\.methodList)
+            .addTableRow(\.fieldList)
+            .addTableRow(\.methodList)
             .size
     }
 
@@ -77,26 +77,26 @@ public struct TypeDef: Record {
         var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
         return Self(
             flags: reader.readConstant(),
-            typeName: reader.readHeapOffset(),
-            typeNamespace: reader.readHeapOffset(),
+            typeName: reader.readHeapEntry(),
+            typeNamespace: reader.readHeapEntry(),
             extends: reader.readCodedIndex(),
-            fieldList: reader.readRowIndex(),
-            methodList: reader.readRowIndex(last: true))
+            fieldList: reader.readTableRow(),
+            methodList: reader.readTableRow(last: true))
     }
 }
 
 public struct Field: Record {
     public var flags: FieldAttributes
-    public var name: HeapOffset<StringHeap>
-    public var signature: HeapOffset<BlobHeap>
+    public var name: HeapEntry<StringHeap>
+    public var signature: HeapEntry<BlobHeap>
 
     public static var tableIndex: TableIndex { .field }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
             .addConstant(\.flags)
-            .addHeapOffset(\.name)
-            .addHeapOffset(\.signature)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.signature)
             .size
     }
 
@@ -104,8 +104,8 @@ public struct Field: Record {
         var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
         return Self(
             flags: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            signature: reader.readHeapOffset(last: true))
+            name: reader.readHeapEntry(),
+            signature: reader.readHeapEntry(last: true))
     }
 }
 
@@ -113,9 +113,9 @@ public struct MethodDef: Record {
     public var rva: UInt32
     public var implFlags: MethodImplAttributes
     public var flags: MethodAttributes
-    public var name: HeapOffset<StringHeap>
-    public var signature: HeapOffset<BlobHeap>
-    // public var paramList: TableRowRef<Param>?
+    public var name: HeapEntry<StringHeap>
+    public var signature: HeapEntry<BlobHeap>
+    public var paramList: TableRow<Param>
 
     public static var tableIndex: TableIndex { .methodDef }
 
@@ -124,8 +124,9 @@ public struct MethodDef: Record {
             .addConstant(\.rva)
             .addConstant(\.implFlags)
             .addConstant(\.flags)
-            .addHeapOffset(\.name)
-            .addHeapOffset(\.signature)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.signature)
+            .addTableRow(\.paramList)
             .size
     }
 
@@ -135,8 +136,33 @@ public struct MethodDef: Record {
             rva: reader.readConstant(),
             implFlags: reader.readConstant(),
             flags: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            signature: reader.readHeapOffset(last: true))
+            name: reader.readHeapEntry(),
+            signature: reader.readHeapEntry(),
+            paramList: reader.readTableRow(last: true))
+    }
+}
+
+public struct Param: Record {
+    public var flags: ParamAttributes
+    public var sequence: UInt16
+    public var name: HeapEntry<StringHeap>
+
+    public static var tableIndex: TableIndex { .methodDef }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.flags)
+            .addConstant(\.sequence)
+            .addHeapEntry(\.name)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            flags: reader.readConstant(),
+            sequence: reader.readConstant(),
+            name: reader.readHeapEntry(last: true))
     }
 }
 
@@ -144,9 +170,9 @@ public struct Assembly: Record {
     public var hashAlgId: AssemblyHashAlgorithm
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
     public var flags: AssemblyFlags
-    public var publicKey: HeapOffset<BlobHeap>
-    public var name: HeapOffset<StringHeap>
-    public var culture: HeapOffset<StringHeap>
+    public var publicKey: HeapEntry<BlobHeap>
+    public var name: HeapEntry<StringHeap>
+    public var culture: HeapEntry<StringHeap>
 
     public static var tableIndex: TableIndex { .assembly }
 
@@ -158,9 +184,9 @@ public struct Assembly: Record {
             .addConstant(\.buildNumber)
             .addConstant(\.revisionNumber)
             .addConstant(\.flags)
-            .addHeapOffset(\.publicKey)
-            .addHeapOffset(\.name)
-            .addHeapOffset(\.culture)
+            .addHeapEntry(\.publicKey)
+            .addHeapEntry(\.name)
+            .addHeapEntry(\.culture)
             .size
     }
     
@@ -173,8 +199,8 @@ public struct Assembly: Record {
             buildNumber: reader.readConstant(),
             revisionNumber: reader.readConstant(),
             flags: reader.readConstant(),
-            publicKey: reader.readHeapOffset(),
-            name: reader.readHeapOffset(),
-            culture: reader.readHeapOffset(last: true))
+            publicKey: reader.readHeapEntry(),
+            name: reader.readHeapEntry(),
+            culture: reader.readHeapEntry(last: true))
     }
 }

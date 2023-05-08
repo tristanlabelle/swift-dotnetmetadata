@@ -15,12 +15,12 @@ struct RowSizer<Row> where Row: Record {
         add(size: MemoryLayout<T>.stride)
     }
 
-    public func addHeapOffset<T>(_: KeyPath<Row, HeapOffset<T>>) -> Self where T: Heap {
-        add(size: dimensions.getHeapOffsetSize(T.self))
+    public func addHeapEntry<T>(_: KeyPath<Row, HeapEntry<T>>) -> Self where T: Heap {
+        add(size: dimensions.getHeapEntrySize(T.self))
     }
     
-    public func addRowIndex<T>(_: KeyPath<Row, RowIndex<T>>) -> Self where T: Record {
-        add(size: dimensions.getRowIndexSize(T.tableIndex))
+    public func addTableRow<T>(_: KeyPath<Row, TableRow<T>>) -> Self where T: Record {
+        add(size: dimensions.getTableRowSize(T.tableIndex))
     }
     
     public func addCodedIndex<T>(_: KeyPath<Row, T>) -> Self where T: CodedIndex {
