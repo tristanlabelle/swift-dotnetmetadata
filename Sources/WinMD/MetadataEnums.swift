@@ -5,12 +5,12 @@ public struct AssemblyFlags: OptionSet {
         self.rawValue = rawValue
     }
 
-    static let publicKey = AssemblyFlags(rawValue: 0x1)
-    static let sideBySideCompatible = AssemblyFlags(rawValue: 0x2)
-    static let reserved = AssemblyFlags(rawValue: 0x30)
-    static let retargetable = AssemblyFlags(rawValue: 0x100)
-    static let disableJITcompileOptimizer = AssemblyFlags(rawValue: 0x4000)
-    static let enableJITCompileTracking = AssemblyFlags(rawValue: 0x8000)
+    static let publicKey = Self(rawValue: 0x1)
+    static let sideBySideCompatible = Self(rawValue: 0x2)
+    static let reserved = Self(rawValue: 0x30)
+    static let retargetable = Self(rawValue: 0x100)
+    static let disableJITcompileOptimizer = Self(rawValue: 0x4000)
+    static let enableJITCompileTracking = Self(rawValue: 0x8000)
 }
 
 public enum AssemblyHashAlgorithm: UInt32 {
@@ -25,8 +25,8 @@ public struct EventAttributes: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let specialName = MethodAttributes(rawValue: 0x200)
-    public static let rtSpecialName = MethodAttributes(rawValue: 0x400)
+    public static let specialName = Self(rawValue: 0x200)
+    public static let rtSpecialName = Self(rawValue: 0x400)
 }
 
 public struct FieldAttributes: OptionSet {
@@ -35,14 +35,14 @@ public struct FieldAttributes: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let fieldAccessMask = FieldAttributes(rawValue: 0x7)
-    public static let compilerControlled = FieldAttributes([])
-    public static let `private` = FieldAttributes(rawValue: 0x1)
-    public static let famANDAssem = FieldAttributes(rawValue: 0x2)
-    public static let assembly = FieldAttributes(rawValue: 0x3)
-    public static let family = FieldAttributes(rawValue: 0x4)
-    public static let famORAssem = FieldAttributes(rawValue: 0x5)
-    public static let `public` = FieldAttributes(rawValue: 0x6)
+    public static let fieldAccessMask = Self(rawValue: 0x7)
+    public static let compilerControlled = Self([])
+    public static let `private` = Self(rawValue: 0x1)
+    public static let famANDAssem = Self(rawValue: 0x2)
+    public static let assembly = Self(rawValue: 0x3)
+    public static let family = Self(rawValue: 0x4)
+    public static let famORAssem = Self(rawValue: 0x5)
+    public static let `public` = Self(rawValue: 0x6)
 }
 
 public struct MethodAttributes: OptionSet {
@@ -51,32 +51,32 @@ public struct MethodAttributes: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let memberAccessMask = MethodAttributes(rawValue: 0x7)
-    public static let compilerControlled = MethodAttributes([])
-    public static let `private` = MethodAttributes(rawValue: 0x1)
-    public static let famANDAssem = MethodAttributes(rawValue: 0x2)
-    public static let assem = MethodAttributes(rawValue: 0x3)
-    public static let family = MethodAttributes(rawValue: 0x4)
-    public static let famORAssem = MethodAttributes(rawValue: 0x5)
-    public static let `public` = MethodAttributes(rawValue: 0x6)
+    public static let memberAccessMask = Self(rawValue: 0x7)
+    public static let compilerControlled = Self([])
+    public static let `private` = Self(rawValue: 0x1)
+    public static let famANDAssem = Self(rawValue: 0x2)
+    public static let assem = Self(rawValue: 0x3)
+    public static let family = Self(rawValue: 0x4)
+    public static let famORAssem = Self(rawValue: 0x5)
+    public static let `public` = Self(rawValue: 0x6)
     
-    public static let `static` = MethodAttributes(rawValue: 0x10)
-    public static let `final` = MethodAttributes(rawValue: 0x20)
-    public static let virtual = MethodAttributes(rawValue: 0x40)
-    public static let hideBySig = MethodAttributes(rawValue: 0x80)
-    public static let vtableLayoutMask = MethodAttributes(rawValue: 0x100)
-    public static let reuseSlot = MethodAttributes([])
-    public static let newSlot = MethodAttributes(rawValue: 0x100)
-    public static let strict = MethodAttributes(rawValue: 0x200)
-    public static let abstract = MethodAttributes(rawValue: 0x400)
-    public static let specialName = MethodAttributes(rawValue: 0x800)
+    public static let `static` = Self(rawValue: 0x10)
+    public static let `final` = Self(rawValue: 0x20)
+    public static let virtual = Self(rawValue: 0x40)
+    public static let hideBySig = Self(rawValue: 0x80)
+    public static let vtableLayoutMask = Self(rawValue: 0x100)
+    public static let reuseSlot = Self([])
+    public static let newSlot = Self(rawValue: 0x100)
+    public static let strict = Self(rawValue: 0x200)
+    public static let abstract = Self(rawValue: 0x400)
+    public static let specialName = Self(rawValue: 0x800)
     
-    public static let pinvokeImpl = MethodAttributes(rawValue: 0x2000)
-    public static let unmanagedExport = MethodAttributes(rawValue: 0x8)
+    public static let pinvokeImpl = Self(rawValue: 0x2000)
+    public static let unmanagedExport = Self(rawValue: 0x8)
     
-    public static let rtSpecialName = MethodAttributes(rawValue: 0x1000)
-    public static let hasSecurity = MethodAttributes(rawValue: 0x4000)
-    public static let requireSecObject = MethodAttributes(rawValue: 0x8000)
+    public static let rtSpecialName = Self(rawValue: 0x1000)
+    public static let hasSecurity = Self(rawValue: 0x4000)
+    public static let requireSecObject = Self(rawValue: 0x8000)
 }
 
 public struct MethodImplAttributes: OptionSet {
@@ -85,23 +85,37 @@ public struct MethodImplAttributes: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let codeTypeMaskMask = MethodAttributes(rawValue: 0x3)
-    public static let il = MethodAttributes([])
-    public static let native = MethodAttributes(rawValue: 0x1)
-    public static let optil = MethodAttributes(rawValue: 0x2)
-    public static let runtime = MethodAttributes(rawValue: 0x3)
+    public static let codeTypeMaskMask = Self(rawValue: 0x3)
+    public static let il = Self([])
+    public static let native = Self(rawValue: 0x1)
+    public static let optil = Self(rawValue: 0x2)
+    public static let runtime = Self(rawValue: 0x3)
     
-    public static let unmanagedMask = MethodAttributes(rawValue: 0x4)
-    public static let unmanaged = MethodAttributes(rawValue: 0x4)
-    public static let managed = MethodAttributes([])
+    public static let unmanagedMask = Self(rawValue: 0x4)
+    public static let unmanaged = Self(rawValue: 0x4)
+    public static let managed = Self([])
     
-    public static let forwardRef = MethodAttributes(rawValue: 0x10)
-    public static let preserveSig = MethodAttributes(rawValue: 0x80)
-    public static let internalCall = MethodAttributes(rawValue: 0x1000)
-    public static let synchronized = MethodAttributes(rawValue: 0x20)
-    public static let noInlining = MethodAttributes(rawValue: 0x8)
-    public static let maxMethodImplVal = MethodAttributes(rawValue: 0xFFFF)
-    public static let noOptimization = MethodAttributes(rawValue: 0x40)
+    public static let forwardRef = Self(rawValue: 0x10)
+    public static let preserveSig = Self(rawValue: 0x80)
+    public static let internalCall = Self(rawValue: 0x1000)
+    public static let synchronized = Self(rawValue: 0x20)
+    public static let noInlining = Self(rawValue: 0x8)
+    public static let maxMethodImplVal = Self(rawValue: 0xFFFF)
+    public static let noOptimization = Self(rawValue: 0x40)
+}
+
+public struct MethodSemanticsAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+    
+    public static let setter = Self(rawValue: 0x1)
+    public static let getter = Self(rawValue: 0x2)
+    public static let other = Self(rawValue: 0x4)
+    public static let addOn = Self(rawValue: 0x8)
+    public static let removeOn = Self(rawValue: 0x10)
+    public static let fire = Self(rawValue: 0x20)
 }
 
 public struct ParamAttributes: OptionSet {
@@ -110,12 +124,12 @@ public struct ParamAttributes: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let `in` = MethodAttributes(rawValue: 0x1)
-    public static let out = MethodAttributes(rawValue: 0x2)
-    public static let optional = MethodAttributes(rawValue: 0x10)
-    public static let hasDefault = MethodAttributes(rawValue: 0x1000)
-    public static let hasFieldMarshal = MethodAttributes(rawValue: 0x2000)
-    public static let unused = MethodAttributes(rawValue: 0xcfe0)
+    public static let `in` = Self(rawValue: 0x1)
+    public static let out = Self(rawValue: 0x2)
+    public static let optional = Self(rawValue: 0x10)
+    public static let hasDefault = Self(rawValue: 0x1000)
+    public static let hasFieldMarshal = Self(rawValue: 0x2000)
+    public static let unused = Self(rawValue: 0xcfe0)
 }
 
 public struct PropertyAttributes: OptionSet {
@@ -124,10 +138,10 @@ public struct PropertyAttributes: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let specialName = MethodAttributes(rawValue: 0x200)
-    public static let rtSpecialName = MethodAttributes(rawValue: 0x400)
-    public static let hasDefault = MethodAttributes(rawValue: 0x1000)
-    public static let unused = MethodAttributes(rawValue: 0xE9FF)
+    public static let specialName = Self(rawValue: 0x200)
+    public static let rtSpecialName = Self(rawValue: 0x400)
+    public static let hasDefault = Self(rawValue: 0x1000)
+    public static let unused = Self(rawValue: 0xE9FF)
 }
 
 public struct TypeAttributes: OptionSet {
@@ -136,41 +150,41 @@ public struct TypeAttributes: OptionSet {
         self.rawValue = rawValue
     }
 
-    public static let visibilityMask = TypeAttributes(rawValue: 0x7)
-    public static let notPublic = TypeAttributes([])
-    public static let `public` = TypeAttributes(rawValue: 0x1)
-    public static let nestedPublic = TypeAttributes(rawValue: 0x2)
-    public static let nestedPrivate = TypeAttributes(rawValue: 0x3)
-    public static let nestedFamily = TypeAttributes(rawValue: 0x4)
-    public static let nestedAssembly = TypeAttributes(rawValue: 0x5)
-    public static let nestedFamANDAssem = TypeAttributes(rawValue: 0x6)
-    public static let nestedFamORAssem = TypeAttributes(rawValue: 0x7)
+    public static let visibilityMask = Self(rawValue: 0x7)
+    public static let notPublic = Self([])
+    public static let `public` = Self(rawValue: 0x1)
+    public static let nestedPublic = Self(rawValue: 0x2)
+    public static let nestedPrivate = Self(rawValue: 0x3)
+    public static let nestedFamily = Self(rawValue: 0x4)
+    public static let nestedAssembly = Self(rawValue: 0x5)
+    public static let nestedFamANDAssem = Self(rawValue: 0x6)
+    public static let nestedFamORAssem = Self(rawValue: 0x7)
     
-    public static let layoutMask = TypeAttributes(rawValue: 0x18)
-    public static let autoLayout = TypeAttributes([])
-    public static let sequentialLayout = TypeAttributes(rawValue: 0x8)
-    public static let explicitLayout = TypeAttributes(rawValue: 0x10)
+    public static let layoutMask = Self(rawValue: 0x18)
+    public static let autoLayout = Self([])
+    public static let sequentialLayout = Self(rawValue: 0x8)
+    public static let explicitLayout = Self(rawValue: 0x10)
     
-    public static let classSemanticsMask = TypeAttributes(rawValue: 0x20)
-    public static let `class` = TypeAttributes([])
-    public static let interface = TypeAttributes(rawValue: 0x20)
+    public static let classSemanticsMask = Self(rawValue: 0x20)
+    public static let `class` = Self([])
+    public static let interface = Self(rawValue: 0x20)
     
-    public static let abstract = TypeAttributes(rawValue: 0x80)
-    public static let sealed = TypeAttributes(rawValue: 0x100)
-    public static let specialName = TypeAttributes(rawValue: 0x400)
+    public static let abstract = Self(rawValue: 0x80)
+    public static let sealed = Self(rawValue: 0x100)
+    public static let specialName = Self(rawValue: 0x400)
     
-    public static let `import` = TypeAttributes(rawValue: 0x1000)
-    public static let serializable = TypeAttributes(rawValue: 0x2000)
+    public static let `import` = Self(rawValue: 0x1000)
+    public static let serializable = Self(rawValue: 0x2000)
     
-    public static let stringFormatMask = TypeAttributes(rawValue: 0x30000)
-    public static let ansiClass = TypeAttributes([])
-    public static let unicodeClass = TypeAttributes(rawValue: 0x10000)
-    public static let autoClass = TypeAttributes(rawValue: 0x20000)
-    public static let customFormatClass = TypeAttributes(rawValue: 0x30000)
+    public static let stringFormatMask = Self(rawValue: 0x30000)
+    public static let ansiClass = Self([])
+    public static let unicodeClass = Self(rawValue: 0x10000)
+    public static let autoClass = Self(rawValue: 0x20000)
+    public static let customFormatClass = Self(rawValue: 0x30000)
     
-    public static let customStringFormatMask = TypeAttributes(rawValue: 0xC00000)
+    public static let customStringFormatMask = Self(rawValue: 0xC00000)
     
-    public static let beforeFieldInit = TypeAttributes(rawValue: 0x100000)
-    public static let rtSpecialName = TypeAttributes(rawValue: 0x800)
-    public static let hasSecurity = TypeAttributes(rawValue: 0x40000)
+    public static let beforeFieldInit = Self(rawValue: 0x100000)
+    public static let rtSpecialName = Self(rawValue: 0x800)
+    public static let hasSecurity = Self(rawValue: 0x40000)
 }

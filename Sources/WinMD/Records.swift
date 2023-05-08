@@ -232,6 +232,30 @@ public struct MethodDef: Record {
     }
 }
 
+public struct MethodSemantics: Record {
+    public var semantics: MethodSemanticsAttributes
+    public var method: TableRow<MethodDef>
+    public var association: HasSemantics
+
+    public static var tableIndex: TableIndex { .methodSemantics }
+
+    public static func getSize(dimensions: Database.Dimensions) -> Int {
+        RowSizer<Self>(dimensions: dimensions)
+            .addConstant(\.semantics)
+            .addTableRow(\.method)
+            .addCodedIndex(\.association)
+            .size
+    }
+
+    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+        var reader = ColumnReader(buffer: buffer, dimensions: dimensions)
+        return Self(
+            semantics: reader.readConstant(),
+            method: reader.readTableRow(),
+            association: reader.readCodedIndex(last: true))
+    }
+}
+
 public struct Module: Record {
     public var generation: UInt16
     public var name: HeapEntry<StringHeap>

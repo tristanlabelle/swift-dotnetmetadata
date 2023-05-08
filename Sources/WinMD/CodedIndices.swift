@@ -33,6 +33,21 @@ public enum HasConstant : CodedIndex {
     }
 }
 
+public enum HasSemantics : CodedIndex {
+    case event(TableRow<Event>)
+    case property(TableRow<Property>)
+
+    public static let tables: [TableIndex?] = [ .event, .property ]
+
+    public static func create(tag: UInt8, index: UInt32) -> Self {
+        switch tag {
+            case 0: return .event(TableRow(index))
+            case 1: return .property(TableRow(index))
+            default: fatalError()
+        }
+    }
+}
+
 public enum HasCustomAttribute : CodedIndex {
     case methodDef(TableRow<MethodDef>)
     case field(TableRow<Field>)
