@@ -1,16 +1,11 @@
 import struct Foundation.UUID
 
 extension Database {
-    public class Heaps {
+    /// "namespace" for database.heaps.xxx syntax
+    public struct Heaps {
         public let string: StringHeap
         public let guid: GuidHeap
         public let blob: BlobHeap
-
-        init(string: StringHeap, guid: GuidHeap, blob: BlobHeap) {
-            self.string = string
-            self.guid = guid
-            self.blob = blob
-        }
         
         public func resolve(_ offset: HeapOffset<StringHeap>) -> String {
             string.resolve(at: offset.value)
