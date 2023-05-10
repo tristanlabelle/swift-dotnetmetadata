@@ -6,13 +6,20 @@ import PackageDescription
 let package = Package(
     name: "WinMD",
     products: [
-        .executable(
+        .library(
             name: "WinMD",
             targets: ["WinMD"]),
+        .executable(
+            name: "Sample",
+            targets: ["Sample"])
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "WinMD",
             path: "Sources"),
+        .executableTarget(
+            name: "Sample",
+            dependencies: ["WinMD"],
+            path: "Sample")
     ]
 )
