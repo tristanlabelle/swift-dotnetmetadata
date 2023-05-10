@@ -37,7 +37,7 @@ public enum TableIndex: UInt8 {
     case genericParameter = 0x2A
     case methodSpecification = 0x2B
     case genericParameterConstraint = 0x2C
-    case string = 0x70
-    case name = 0x71
-    case baseType = 0x72
+
+    public static let count = 64
+    public typealias BitSet = UInt64
 }

@@ -4,7 +4,7 @@ extension Database {
         public let heapSizes: UInt8
 
         public init(heapSizes: UInt8, tableRowCounts: [UInt32]) {
-            precondition(tableRowCounts.count == 64)
+            precondition(tableRowCounts.count == TableIndex.count)
             self.heapSizes = heapSizes
             self.tableRowCounts = tableRowCounts
         }

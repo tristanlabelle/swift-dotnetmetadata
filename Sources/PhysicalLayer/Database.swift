@@ -35,8 +35,8 @@ public class Database {
             throw InvalidFormatError.invalidCLIHeader
         }
 
-        let tableRowCounts = (0 ..< 64).map {
-            let isTablePresent = (tablesStreamHeader.pointee.valid & (UInt64(1) << $0)) != 0
+        let tableRowCounts = (0 ..< TableIndex.count).map {
+            let isTablePresent = (tablesStreamHeader.pointee.valid & (TableIndex.BitSet(1) << $0)) != 0
             return isTablePresent ? tablesStreamRemainder.consume(type: UInt32.self).pointee : UInt32(0)
         }
 
