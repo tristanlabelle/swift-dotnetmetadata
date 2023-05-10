@@ -1,6 +1,6 @@
 public protocol CodedIndex {
     static var tables: [TableIndex?] { get }
-    static func create(tag: UInt8, index: UInt32) -> Self
+    init(tag: UInt8, index: UInt32)
 }
 
 public enum CustomAttributeType : CodedIndex {
@@ -9,10 +9,10 @@ public enum CustomAttributeType : CodedIndex {
 
     public static let tables: [TableIndex?] = [ nil, nil, .methodDef, .memberRef, nil ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 2: return .methodDef(TableRowIndex(index))
-            case 3: return .memberRef(TableRowIndex(index))
+            case 2: self = .methodDef(TableRowIndex(index))
+            case 3: self = .memberRef(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -25,11 +25,11 @@ public enum HasConstant : CodedIndex {
 
     public static let tables: [TableIndex?] = [ .field, .param, .property ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .field(TableRowIndex(index))
-            case 1: return .param(TableRowIndex(index))
-            case 2: return .property(TableRowIndex(index))
+            case 0: self = .field(TableRowIndex(index))
+            case 1: self = .param(TableRowIndex(index))
+            case 2: self = .property(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -41,10 +41,10 @@ public enum HasSemantics : CodedIndex {
 
     public static let tables: [TableIndex?] = [ .event, .property ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .event(TableRowIndex(index))
-            case 1: return .property(TableRowIndex(index))
+            case 0: self = .event(TableRowIndex(index))
+            case 1: self = .property(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -78,21 +78,21 @@ public enum HasCustomAttribute : CodedIndex {
         .manifestResource
     ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .methodDef(TableRowIndex(index))
-            case 1: return .field(TableRowIndex(index))
-            case 2: return .typeRef(TableRowIndex(index))
-            case 3: return .typeDef(TableRowIndex(index))
-            case 4: return .param(TableRowIndex(index))
-            case 5: return .interfaceImpl(TableRowIndex(index))
-            case 6: return .memberRef(TableRowIndex(index))
-            case 7: return .module(TableRowIndex(index))
-            case 9: return .property(TableRowIndex(index))
-            case 10: return .event(TableRowIndex(index))
-            case 13: return .typeSpec(TableRowIndex(index))
-            case 14: return .assembly(TableRowIndex(index))
-            case 15: return .assemblyRef(TableRowIndex(index))
+            case 0: self = .methodDef(TableRowIndex(index))
+            case 1: self = .field(TableRowIndex(index))
+            case 2: self = .typeRef(TableRowIndex(index))
+            case 3: self = .typeDef(TableRowIndex(index))
+            case 4: self = .param(TableRowIndex(index))
+            case 5: self = .interfaceImpl(TableRowIndex(index))
+            case 6: self = .memberRef(TableRowIndex(index))
+            case 7: self = .module(TableRowIndex(index))
+            case 9: self = .property(TableRowIndex(index))
+            case 10: self = .event(TableRowIndex(index))
+            case 13: self = .typeSpec(TableRowIndex(index))
+            case 14: self = .assembly(TableRowIndex(index))
+            case 15: self = .assemblyRef(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -107,12 +107,12 @@ public enum MemberRefParent : CodedIndex {
 
     public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .typeDef(TableRowIndex(index))
-            case 1: return .typeRef(TableRowIndex(index))
-            case 3: return .methodDef(TableRowIndex(index))
-            case 4: return .typeSpec(TableRowIndex(index))
+            case 0: self = .typeDef(TableRowIndex(index))
+            case 1: self = .typeRef(TableRowIndex(index))
+            case 3: self = .methodDef(TableRowIndex(index))
+            case 4: self = .typeSpec(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -124,10 +124,10 @@ public enum MethodDefOrRef : CodedIndex {
 
     public static let tables: [TableIndex?] = [ .methodDef, .memberRef ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .methodDef(TableRowIndex(index))
-            case 1: return .memberRef(TableRowIndex(index))
+            case 0: self = .methodDef(TableRowIndex(index))
+            case 1: self = .memberRef(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -141,11 +141,11 @@ public enum ResolutionScope : CodedIndex {
 
     public static let tables: [TableIndex?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .module(TableRowIndex(index))
-            case 2: return .assemblyRef(TableRowIndex(index))
-            case 3: return .typeRef(TableRowIndex(index))
+            case 0: self = .module(TableRowIndex(index))
+            case 2: self = .assemblyRef(TableRowIndex(index))
+            case 3: self = .typeRef(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -158,11 +158,11 @@ public enum TypeDefOrRef : CodedIndex {
 
     public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .typeSpec ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .typeDef(TableRowIndex(index))
-            case 1: return .typeRef(TableRowIndex(index))
-            case 2: return .typeSpec(TableRowIndex(index))
+            case 0: self = .typeDef(TableRowIndex(index))
+            case 1: self = .typeRef(TableRowIndex(index))
+            case 2: self = .typeSpec(TableRowIndex(index))
             default: fatalError()
         }
     }
@@ -174,10 +174,10 @@ public enum TypeOrMethodDef: CodedIndex {
 
     public static let tables: [TableIndex?] = [ .typeDef, .methodDef ]
 
-    public static func create(tag: UInt8, index: UInt32) -> Self {
+    public init(tag: UInt8, index: UInt32) {
         switch tag {
-            case 0: return .typeDef(TableRowIndex(index))
-            case 1: return .methodDef(TableRowIndex(index))
+            case 0: self = .typeDef(TableRowIndex(index))
+            case 1: self = .methodDef(TableRowIndex(index))
             default: fatalError()
         }
     }

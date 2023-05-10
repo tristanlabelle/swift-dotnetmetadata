@@ -29,6 +29,7 @@ public struct TableRowIndex<T> where T: TableRow {
     public var value: UInt32
 
     public init(_ index: UInt32) {
+        precondition(index < 0x1_00_00_00)
         self.value = index
     }
 }

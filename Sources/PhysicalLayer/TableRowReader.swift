@@ -46,7 +46,7 @@ struct TableRowReader {
 
         let tag = UInt8(codedValue >> indexBitCount)
         let index = codedValue & ((1 << indexBitCount) - 1)
-        let result = T.create(tag: tag, index: index)
+        let result = T(tag: tag, index: index)
         if last { checkAtEnd() }
         return result
     }
