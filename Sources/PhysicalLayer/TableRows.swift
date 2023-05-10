@@ -1,17 +1,22 @@
+/// A row in a metadata table
+/// The size of rows isn't constant because the size of column which index
+/// into heaps or other metadata tables depends on the size of these.
 public protocol TableRow {
     static var tableIndex: TableIndex { get }
     static func getSize(dimensions: Database.Dimensions) -> Int
-    static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self
+    init(reading: UnsafeRawBufferPointer, dimensions: Database.Dimensions)
 }
 
-public struct Assembly: TableRow {
+public struct Assembly {
     public var hashAlgId: AssemblyHashAlgorithm
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
     public var flags: AssemblyFlags
     public var publicKey: HeapEntry<BlobHeap>
     public var name: HeapEntry<StringHeap>
     public var culture: HeapEntry<StringHeap>
+}
 
+extension Assembly: TableRow {
     public static var tableIndex: TableIndex { .assembly }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -27,10 +32,10 @@ public struct Assembly: TableRow {
             .addingHeapEntry(\.culture)
             .size
     }
-    
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             hashAlgId: reader.readConstant(),
             majorVersion: reader.readConstant(),
             minorVersion: reader.readConstant(),
@@ -43,14 +48,16 @@ public struct Assembly: TableRow {
     }
 }
 
-public struct AssemblyRef: TableRow {
+public struct AssemblyRef {
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
     public var flags: AssemblyFlags
     public var publicKeyOrToken: HeapEntry<BlobHeap>
     public var name: HeapEntry<StringHeap>
     public var culture: HeapEntry<StringHeap>
     public var hashValue: HeapEntry<BlobHeap>
+}
 
+extension AssemblyRef: TableRow {
     public static var tableIndex: TableIndex { .assemblyRef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -67,9 +74,9 @@ public struct AssemblyRef: TableRow {
             .size
     }
     
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             majorVersion: reader.readConstant(),
             minorVersion: reader.readConstant(),
             buildNumber: reader.readConstant(),
@@ -82,11 +89,13 @@ public struct AssemblyRef: TableRow {
     }
 }
 
-public struct Constant: TableRow {
+public struct Constant {
     public var type: UInt16
     public var parent: HasConstant
     public var value: HeapEntry<BlobHeap>
+}
 
+extension Constant: TableRow {
     public static var tableIndex: TableIndex { .constant }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -97,20 +106,22 @@ public struct Constant: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             type: reader.readConstant(),
             parent: reader.readCodedIndex(),
             value: reader.readHeapEntry(last: true))
     }
 }
 
-public struct CustomAttribute: TableRow {
+public struct CustomAttribute {
     public var parent: HasCustomAttribute
     public var type: CustomAttributeType
     public var value: HeapEntry<BlobHeap>
+}
 
+extension CustomAttribute: TableRow {
     public static var tableIndex: TableIndex { .customAttribute }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -121,20 +132,22 @@ public struct CustomAttribute: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             parent: reader.readCodedIndex(),
             type: reader.readCodedIndex(),
             value: reader.readHeapEntry(last: true))
     }
 }
 
-public struct Event: TableRow {
+public struct Event {
     public var eventFlags: EventAttributes
     public var name: HeapEntry<StringHeap>
     public var eventType: TypeDefOrRef
+}
 
+extension Event: TableRow {
     public static var tableIndex: TableIndex { .event }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -145,19 +158,21 @@ public struct Event: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             eventFlags: reader.readConstant(),
             name: reader.readHeapEntry(),
             eventType: reader.readCodedIndex(last: true))
     }
 }
 
-public struct EventMap: TableRow {
+public struct EventMap {
     public var parent: TableRowIndex<TypeDef>
     public var eventList: TableRowIndex<Event>
+}
 
+extension EventMap: TableRow {
     public static var tableIndex: TableIndex { .eventMap }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -167,19 +182,21 @@ public struct EventMap: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             parent: reader.readTableRowIndex(),
             eventList: reader.readTableRowIndex(last: true))
     }
 }
 
-public struct Field: TableRow {
+public struct Field {
     public var flags: FieldAttributes
     public var name: HeapEntry<StringHeap>
     public var signature: HeapEntry<BlobHeap>
+}
 
+extension Field: TableRow {
     public static var tableIndex: TableIndex { .field }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -190,21 +207,23 @@ public struct Field: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             flags: reader.readConstant(),
             name: reader.readHeapEntry(),
             signature: reader.readHeapEntry(last: true))
     }
 }
 
-public struct GenericParam: TableRow {
+public struct GenericParam {
     public var number: UInt16
     public var flags: GenericParamAttributes
     public var owner: TypeOrMethodDef
     public var name: HeapEntry<StringHeap>
+}
 
+extension GenericParam: TableRow {
     public static var tableIndex: TableIndex { .module }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -216,9 +235,9 @@ public struct GenericParam: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             number: reader.readConstant(),
             flags: reader.readConstant(),
             owner: reader.readCodedIndex(),
@@ -226,10 +245,12 @@ public struct GenericParam: TableRow {
     }
 }
 
-public struct InterfaceImpl: TableRow {
+public struct InterfaceImpl {
     public var `class`: TableRowIndex<TypeDef>
     public var interface: TypeDefOrRef
+}
 
+extension InterfaceImpl: TableRow {
     public static var tableIndex: TableIndex { .interfaceImpl }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -239,19 +260,21 @@ public struct InterfaceImpl: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             class: reader.readTableRowIndex(),
             interface: reader.readCodedIndex(last: true))
     }
 }
 
-public struct MemberRef: TableRow {
+public struct MemberRef {
     public var `class`: MemberRefParent
     public var name: HeapEntry<StringHeap>
     public var signature: HeapEntry<BlobHeap>
+}
 
+extension MemberRef: TableRow {
     public static var tableIndex: TableIndex { .memberRef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -262,23 +285,25 @@ public struct MemberRef: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             class: reader.readCodedIndex(),
             name: reader.readHeapEntry(),
             signature: reader.readHeapEntry(last: true))
     }
 }
 
-public struct MethodDef: TableRow {
+public struct MethodDef {
     public var rva: UInt32
     public var implFlags: MethodImplAttributes
     public var flags: MethodAttributes
     public var name: HeapEntry<StringHeap>
     public var signature: HeapEntry<BlobHeap>
     public var paramList: TableRowIndex<Param>
+}
 
+extension MethodDef: TableRow {
     public static var tableIndex: TableIndex { .methodDef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -292,9 +317,9 @@ public struct MethodDef: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             rva: reader.readConstant(),
             implFlags: reader.readConstant(),
             flags: reader.readConstant(),
@@ -304,11 +329,13 @@ public struct MethodDef: TableRow {
     }
 }
 
-public struct MethodImpl: TableRow {
+public struct MethodImpl {
     public var `class`: TableRowIndex<TypeDef>
     public var methodBody: MethodDefOrRef
     public var methodDeclaration: MethodDefOrRef
+}
 
+extension MethodImpl: TableRow {
     public static var tableIndex: TableIndex { .methodImpl }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -319,20 +346,22 @@ public struct MethodImpl: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             class: reader.readTableRowIndex(),
             methodBody: reader.readCodedIndex(),
             methodDeclaration: reader.readCodedIndex(last: true))
     }
 }
 
-public struct MethodSemantics: TableRow {
+public struct MethodSemantics {
     public var semantics: MethodSemanticsAttributes
     public var method: TableRowIndex<MethodDef>
     public var association: HasSemantics
+}
 
+extension MethodSemantics: TableRow {
     public static var tableIndex: TableIndex { .methodSemantics }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -343,22 +372,24 @@ public struct MethodSemantics: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             semantics: reader.readConstant(),
             method: reader.readTableRowIndex(),
             association: reader.readCodedIndex(last: true))
     }
 }
 
-public struct Module: TableRow {
+public struct Module {
     public var generation: UInt16
     public var name: HeapEntry<StringHeap>
     public var mvid: HeapEntry<GuidHeap>
     public var encId: HeapEntry<GuidHeap>
     public var encBaseId: HeapEntry<GuidHeap>
+}
 
+extension Module: TableRow {
     public static var tableIndex: TableIndex { .module }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -371,9 +402,9 @@ public struct Module: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             generation: reader.readConstant(),
             name: reader.readHeapEntry(),
             mvid: reader.readHeapEntry(),
@@ -382,11 +413,13 @@ public struct Module: TableRow {
     }
 }
 
-public struct Param: TableRow {
+public struct Param {
     public var flags: ParamAttributes
     public var sequence: UInt16
     public var name: HeapEntry<StringHeap>
+}
 
+extension Param: TableRow {
     public static var tableIndex: TableIndex { .param }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -397,20 +430,22 @@ public struct Param: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             flags: reader.readConstant(),
             sequence: reader.readConstant(),
             name: reader.readHeapEntry(last: true))
     }
 }
 
-public struct Property: TableRow {
+public struct Property {
     public var flags: PropertyAttributes
     public var name: HeapEntry<StringHeap>
     public var type: HeapEntry<BlobHeap>
+}
 
+extension Property: TableRow {
     public static var tableIndex: TableIndex { .property }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -421,19 +456,21 @@ public struct Property: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             flags: reader.readConstant(),
             name: reader.readHeapEntry(),
             type: reader.readHeapEntry(last: true))
     }
 }
 
-public struct PropertyMap: TableRow {
+public struct PropertyMap {
     public var parent: TableRowIndex<TypeDef>
     public var propertyList: TableRowIndex<Property>
+}
 
+extension PropertyMap: TableRow {
     public static var tableIndex: TableIndex { .propertyMap }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -443,22 +480,24 @@ public struct PropertyMap: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             parent: reader.readTableRowIndex(),
             propertyList: reader.readTableRowIndex(last: true))
     }
 }
 
-public struct TypeDef: TableRow {
+public struct TypeDef {
     public var flags: TypeAttributes
     public var typeName: HeapEntry<StringHeap>
     public var typeNamespace: HeapEntry<StringHeap>
     public var extends: TypeDefOrRef
     public var fieldList: TableRowIndex<Field>
     public var methodList: TableRowIndex<MethodDef>
+}
 
+extension TypeDef: TableRow {
     public static var tableIndex: TableIndex { .typeDef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -472,9 +511,9 @@ public struct TypeDef: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             flags: reader.readConstant(),
             typeName: reader.readHeapEntry(),
             typeNamespace: reader.readHeapEntry(),
@@ -484,11 +523,13 @@ public struct TypeDef: TableRow {
     }
 }
 
-public struct TypeRef: TableRow {
+public struct TypeRef {
     var resolutionScope: ResolutionScope
     var typeName: HeapEntry<StringHeap>
     var typeNamespace: HeapEntry<StringHeap>
+}
 
+extension TypeRef: TableRow {
     public static var tableIndex: TableIndex { .typeRef }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -499,9 +540,9 @@ public struct TypeRef: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             resolutionScope: reader.readConstant(),
             typeName: reader.readHeapEntry(),
             typeNamespace: reader.readHeapEntry(last: true))
@@ -509,9 +550,11 @@ public struct TypeRef: TableRow {
 }
 
 
-public struct TypeSpec: TableRow {
+public struct TypeSpec {
     public var signature: HeapEntry<BlobHeap>
+}
 
+extension TypeSpec: TableRow {
     public static var tableIndex: TableIndex { .typeSpec }
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
@@ -520,9 +563,9 @@ public struct TypeSpec: TableRow {
             .size
     }
 
-    public static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self {
+    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
-        return Self(
+        self.init(
             signature: reader.readHeapEntry(last: true))
     }
 }

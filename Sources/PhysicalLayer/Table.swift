@@ -13,7 +13,7 @@ public class Table<Row> where Row: TableRow {
 
     public subscript(_ index: Int) -> Row {
         let rowBuffer = buffer.sub(offset: index * rowSize, count: rowSize)
-        return Row.read(buffer: rowBuffer, dimensions: dimensions)
+        return Row(reading: rowBuffer, dimensions: dimensions)
     }
 }
 
