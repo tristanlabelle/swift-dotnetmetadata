@@ -1,3 +1,5 @@
+import WinMD
+
 public class MetadataContext {
     struct MetadataKey: Hashable {
         var token: MetadataToken
@@ -12,4 +14,5 @@ public class MetadataContext {
             lhs.token == rhs.token && ObjectIdentifier(lhs.database) == ObjectIdentifier(rhs.database)
         }
     }
+
 }

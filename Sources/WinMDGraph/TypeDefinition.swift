@@ -1,3 +1,5 @@
+import WinMD
+
 public class TypeDefinition {
     unowned let context: MetadataContext
     let database: Database

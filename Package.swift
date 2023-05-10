@@ -8,18 +8,20 @@ let package = Package(
     products: [
         .library(
             name: "WinMD",
-            targets: ["WinMD"]),
+            targets: ["WinMD", "WinMDGraph"]),
         .executable(
             name: "Sample",
             targets: ["Sample"])
     ],
     targets: [
         .target(
-            name: "WinMD",
-            path: "Sources"),
+            name: "WinMD"),
+        .target(
+            name: "WinMDGraph",
+            dependencies: [ "WinMD" ]),
         .executableTarget(
             name: "Sample",
-            dependencies: ["WinMD"],
+            dependencies: [ "WinMD", "WinMDGraph" ],
             path: "Sample")
     ]
 )
