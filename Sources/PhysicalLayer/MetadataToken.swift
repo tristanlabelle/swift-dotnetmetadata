@@ -18,6 +18,7 @@ public struct MetadataToken: Hashable {
         self.init(tableIndex: Row.tableIndex, rowIndex: row.value)
     }
 
+    // TODO: This is not necessarily a table index. Other tokens are possible: string = 0x70, name = 0x71, baseType = 0x72
     public var tableIndex: TableIndex { .init(rawValue: UInt8(rawValue >> 24))! }
     public var rowIndex: UInt32 { rawValue & 0xFFFFFF }
     public var isNull: Bool { rowIndex == 0 }
