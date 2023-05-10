@@ -16,8 +16,8 @@ struct TableRowSizer<Row> where Row: TableRow {
         adding(size: MemoryLayout<T>.stride)
     }
 
-    public func addingHeapEntry<T>(_: KeyPath<Row, HeapEntry<T>>) -> Self where T: Heap {
-        adding(size: dimensions.getHeapEntrySize(T.self))
+    public func addingHeapOffset<T>(_: KeyPath<Row, HeapOffset<T>>) -> Self where T: Heap {
+        adding(size: dimensions.getHeapOffsetSize(T.self))
     }
     
     public func addingTableRowIndex<T>(_: KeyPath<Row, TableRowIndex<T>>) -> Self where T: TableRow {

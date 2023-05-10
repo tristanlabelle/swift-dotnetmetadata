@@ -12,16 +12,16 @@ extension Database {
             self.blob = blob
         }
         
-        public func resolve(_ entry: HeapEntry<StringHeap>) -> String {
-            string.resolve(at: entry.offset)
+        public func resolve(_ offset: HeapOffset<StringHeap>) -> String {
+            string.resolve(at: offset.value)
         }
         
-        public func resolve(_ entry: HeapEntry<GuidHeap>) -> UUID {
-            guid.resolve(at: entry.offset)
+        public func resolve(_ offset: HeapOffset<GuidHeap>) -> UUID {
+            guid.resolve(at: offset.value)
         }
         
-        public func resolve(_ entry: HeapEntry<BlobHeap>) -> UnsafeRawBufferPointer {
-            blob.resolve(at: entry.offset)
+        public func resolve(_ offset: HeapOffset<BlobHeap>) -> UnsafeRawBufferPointer {
+            blob.resolve(at: offset.value)
         }
     }
 }

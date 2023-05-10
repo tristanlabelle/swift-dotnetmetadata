@@ -9,9 +9,9 @@ extension Database {
             self.tableRowCounts = tableRowCounts
         }
 
-        public var stringHeapEntrySize: Int { (heapSizes & 1) == 0 ? 2 : 4 }
-        public var guidHeapEntrySize: Int { (heapSizes & 2) == 0 ? 2 : 4 }
-        public var blobHeapEntrySize: Int { (heapSizes & 4) == 0 ? 2 : 4 }
+        public var stringHeapOffsetSize: Int { (heapSizes & 1) == 0 ? 2 : 4 }
+        public var guidHeapOffsetSize: Int { (heapSizes & 2) == 0 ? 2 : 4 }
+        public var blobHeapOffsetSize: Int { (heapSizes & 4) == 0 ? 2 : 4 }
 
         public func getRowCount(_ tableIndex: TableIndex) -> Int {
             Int(tableRowCounts[Int(tableIndex.rawValue)])
@@ -21,10 +21,10 @@ extension Database {
             getRowCount(Row.tableIndex)
         }
 
-        public func getHeapEntrySize<T>(_: T.Type) -> Int where T: Heap {
-            if T.self == StringHeap.self { return stringHeapEntrySize }
-            if T.self == GuidHeap.self { return guidHeapEntrySize }
-            if T.self == BlobHeap.self { return blobHeapEntrySize }
+        public func getHeapOffsetSize<T>(_: T.Type) -> Int where T: Heap {
+            if T.self == StringHeap.self { return stringHeapOffsetSize }
+            if T.self == GuidHeap.self { return guidHeapOffsetSize }
+            if T.self == BlobHeap.self { return blobHeapOffsetSize }
             fatalError("Unexpeted heap type \(T.self)")
         }
 

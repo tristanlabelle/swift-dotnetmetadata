@@ -14,12 +14,12 @@ struct TableRowReader {
         return result
     }
 
-    mutating func readHeapEntry<T>(last: Bool = false) -> HeapEntry<T> where T: Heap {
-        let index = dimensions.getHeapEntrySize(T.self) == 2
+    mutating func readHeapOffset<T>(last: Bool = false) -> HeapOffset<T> where T: Heap {
+        let index = dimensions.getHeapOffsetSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return HeapEntry<T>(index)
+        return HeapOffset<T>(index)
     }
 
     mutating func readTableRowIndex<T>(last: Bool = false) -> TableRowIndex<T> where T: TableRow {

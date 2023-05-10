@@ -1,6 +1,6 @@
 /// A row in a metadata table
-/// The size of rows isn't constant because the size of column which index
-/// into heaps or other metadata tables depends on the size of these.
+/// The size of rows isn't constant because the size of columns which index
+/// into heaps or other metadata tables depends on the size of these heaps/tables.
 public protocol TableRow {
     static var tableIndex: TableIndex { get }
     static func getSize(dimensions: Database.Dimensions) -> Int
@@ -11,9 +11,9 @@ public struct Assembly {
     public var hashAlgId: AssemblyHashAlgorithm
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
     public var flags: AssemblyFlags
-    public var publicKey: HeapEntry<BlobHeap>
-    public var name: HeapEntry<StringHeap>
-    public var culture: HeapEntry<StringHeap>
+    public var publicKey: HeapOffset<BlobHeap>
+    public var name: HeapOffset<StringHeap>
+    public var culture: HeapOffset<StringHeap>
 }
 
 extension Assembly: TableRow {
@@ -27,9 +27,9 @@ extension Assembly: TableRow {
             .addingConstant(\.buildNumber)
             .addingConstant(\.revisionNumber)
             .addingConstant(\.flags)
-            .addingHeapEntry(\.publicKey)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.culture)
+            .addingHeapOffset(\.publicKey)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.culture)
             .size
     }
 
@@ -42,19 +42,19 @@ extension Assembly: TableRow {
             buildNumber: reader.readConstant(),
             revisionNumber: reader.readConstant(),
             flags: reader.readConstant(),
-            publicKey: reader.readHeapEntry(),
-            name: reader.readHeapEntry(),
-            culture: reader.readHeapEntry(last: true))
+            publicKey: reader.readHeapOffset(),
+            name: reader.readHeapOffset(),
+            culture: reader.readHeapOffset(last: true))
     }
 }
 
 public struct AssemblyRef {
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
     public var flags: AssemblyFlags
-    public var publicKeyOrToken: HeapEntry<BlobHeap>
-    public var name: HeapEntry<StringHeap>
-    public var culture: HeapEntry<StringHeap>
-    public var hashValue: HeapEntry<BlobHeap>
+    public var publicKeyOrToken: HeapOffset<BlobHeap>
+    public var name: HeapOffset<StringHeap>
+    public var culture: HeapOffset<StringHeap>
+    public var hashValue: HeapOffset<BlobHeap>
 }
 
 extension AssemblyRef: TableRow {
@@ -67,10 +67,10 @@ extension AssemblyRef: TableRow {
             .addingConstant(\.buildNumber)
             .addingConstant(\.revisionNumber)
             .addingConstant(\.flags)
-            .addingHeapEntry(\.publicKeyOrToken)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.culture)
-            .addingHeapEntry(\.hashValue)
+            .addingHeapOffset(\.publicKeyOrToken)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.culture)
+            .addingHeapOffset(\.hashValue)
             .size
     }
     
@@ -82,17 +82,17 @@ extension AssemblyRef: TableRow {
             buildNumber: reader.readConstant(),
             revisionNumber: reader.readConstant(),
             flags: reader.readConstant(),
-            publicKeyOrToken: reader.readHeapEntry(),
-            name: reader.readHeapEntry(),
-            culture: reader.readHeapEntry(),
-            hashValue: reader.readHeapEntry(last: true))
+            publicKeyOrToken: reader.readHeapOffset(),
+            name: reader.readHeapOffset(),
+            culture: reader.readHeapOffset(),
+            hashValue: reader.readHeapOffset(last: true))
     }
 }
 
 public struct Constant {
     public var type: UInt16
     public var parent: HasConstant
-    public var value: HeapEntry<BlobHeap>
+    public var value: HeapOffset<BlobHeap>
 }
 
 extension Constant: TableRow {
@@ -102,7 +102,7 @@ extension Constant: TableRow {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.type)
             .addingCodedIndex(\.parent)
-            .addingHeapEntry(\.value)
+            .addingHeapOffset(\.value)
             .size
     }
 
@@ -111,14 +111,14 @@ extension Constant: TableRow {
         self.init(
             type: reader.readConstant(),
             parent: reader.readCodedIndex(),
-            value: reader.readHeapEntry(last: true))
+            value: reader.readHeapOffset(last: true))
     }
 }
 
 public struct CustomAttribute {
     public var parent: HasCustomAttribute
     public var type: CustomAttributeType
-    public var value: HeapEntry<BlobHeap>
+    public var value: HeapOffset<BlobHeap>
 }
 
 extension CustomAttribute: TableRow {
@@ -128,7 +128,7 @@ extension CustomAttribute: TableRow {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingCodedIndex(\.parent)
             .addingCodedIndex(\.type)
-            .addingHeapEntry(\.value)
+            .addingHeapOffset(\.value)
             .size
     }
 
@@ -137,13 +137,13 @@ extension CustomAttribute: TableRow {
         self.init(
             parent: reader.readCodedIndex(),
             type: reader.readCodedIndex(),
-            value: reader.readHeapEntry(last: true))
+            value: reader.readHeapOffset(last: true))
     }
 }
 
 public struct Event {
     public var eventFlags: EventAttributes
-    public var name: HeapEntry<StringHeap>
+    public var name: HeapOffset<StringHeap>
     public var eventType: TypeDefOrRef
 }
 
@@ -153,7 +153,7 @@ extension Event: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.eventFlags)
-            .addingHeapEntry(\.name)
+            .addingHeapOffset(\.name)
             .addingCodedIndex(\.eventType)
             .size
     }
@@ -162,7 +162,7 @@ extension Event: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             eventFlags: reader.readConstant(),
-            name: reader.readHeapEntry(),
+            name: reader.readHeapOffset(),
             eventType: reader.readCodedIndex(last: true))
     }
 }
@@ -192,8 +192,8 @@ extension EventMap: TableRow {
 
 public struct Field {
     public var flags: FieldAttributes
-    public var name: HeapEntry<StringHeap>
-    public var signature: HeapEntry<BlobHeap>
+    public var name: HeapOffset<StringHeap>
+    public var signature: HeapOffset<BlobHeap>
 }
 
 extension Field: TableRow {
@@ -202,8 +202,8 @@ extension Field: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.flags)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.signature)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.signature)
             .size
     }
 
@@ -211,8 +211,8 @@ extension Field: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             flags: reader.readConstant(),
-            name: reader.readHeapEntry(),
-            signature: reader.readHeapEntry(last: true))
+            name: reader.readHeapOffset(),
+            signature: reader.readHeapOffset(last: true))
     }
 }
 
@@ -220,7 +220,7 @@ public struct GenericParam {
     public var number: UInt16
     public var flags: GenericParamAttributes
     public var owner: TypeOrMethodDef
-    public var name: HeapEntry<StringHeap>
+    public var name: HeapOffset<StringHeap>
 }
 
 extension GenericParam: TableRow {
@@ -231,7 +231,7 @@ extension GenericParam: TableRow {
             .addingConstant(\.number)
             .addingConstant(\.flags)
             .addingCodedIndex(\.owner)
-            .addingHeapEntry(\.name)
+            .addingHeapOffset(\.name)
             .size
     }
 
@@ -241,7 +241,7 @@ extension GenericParam: TableRow {
             number: reader.readConstant(),
             flags: reader.readConstant(),
             owner: reader.readCodedIndex(),
-            name: reader.readHeapEntry(last: true))
+            name: reader.readHeapOffset(last: true))
     }
 }
 
@@ -270,8 +270,8 @@ extension InterfaceImpl: TableRow {
 
 public struct MemberRef {
     public var `class`: MemberRefParent
-    public var name: HeapEntry<StringHeap>
-    public var signature: HeapEntry<BlobHeap>
+    public var name: HeapOffset<StringHeap>
+    public var signature: HeapOffset<BlobHeap>
 }
 
 extension MemberRef: TableRow {
@@ -280,8 +280,8 @@ extension MemberRef: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingCodedIndex(\.`class`)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.signature)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.signature)
             .size
     }
 
@@ -289,8 +289,8 @@ extension MemberRef: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             class: reader.readCodedIndex(),
-            name: reader.readHeapEntry(),
-            signature: reader.readHeapEntry(last: true))
+            name: reader.readHeapOffset(),
+            signature: reader.readHeapOffset(last: true))
     }
 }
 
@@ -298,8 +298,8 @@ public struct MethodDef {
     public var rva: UInt32
     public var implFlags: MethodImplAttributes
     public var flags: MethodAttributes
-    public var name: HeapEntry<StringHeap>
-    public var signature: HeapEntry<BlobHeap>
+    public var name: HeapOffset<StringHeap>
+    public var signature: HeapOffset<BlobHeap>
     public var paramList: TableRowIndex<Param>
 }
 
@@ -311,8 +311,8 @@ extension MethodDef: TableRow {
             .addingConstant(\.rva)
             .addingConstant(\.implFlags)
             .addingConstant(\.flags)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.signature)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.signature)
             .addingTableRowIndex(\.paramList)
             .size
     }
@@ -323,8 +323,8 @@ extension MethodDef: TableRow {
             rva: reader.readConstant(),
             implFlags: reader.readConstant(),
             flags: reader.readConstant(),
-            name: reader.readHeapEntry(),
-            signature: reader.readHeapEntry(),
+            name: reader.readHeapOffset(),
+            signature: reader.readHeapOffset(),
             paramList: reader.readTableRowIndex(last: true))
     }
 }
@@ -383,10 +383,10 @@ extension MethodSemantics: TableRow {
 
 public struct Module {
     public var generation: UInt16
-    public var name: HeapEntry<StringHeap>
-    public var mvid: HeapEntry<GuidHeap>
-    public var encId: HeapEntry<GuidHeap>
-    public var encBaseId: HeapEntry<GuidHeap>
+    public var name: HeapOffset<StringHeap>
+    public var mvid: HeapOffset<GuidHeap>
+    public var encId: HeapOffset<GuidHeap>
+    public var encBaseId: HeapOffset<GuidHeap>
 }
 
 extension Module: TableRow {
@@ -395,10 +395,10 @@ extension Module: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.generation)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.mvid)
-            .addingHeapEntry(\.encId)
-            .addingHeapEntry(\.encBaseId)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.mvid)
+            .addingHeapOffset(\.encId)
+            .addingHeapOffset(\.encBaseId)
             .size
     }
 
@@ -406,17 +406,17 @@ extension Module: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             generation: reader.readConstant(),
-            name: reader.readHeapEntry(),
-            mvid: reader.readHeapEntry(),
-            encId: reader.readHeapEntry(),
-            encBaseId: reader.readHeapEntry(last: true))
+            name: reader.readHeapOffset(),
+            mvid: reader.readHeapOffset(),
+            encId: reader.readHeapOffset(),
+            encBaseId: reader.readHeapOffset(last: true))
     }
 }
 
 public struct Param {
     public var flags: ParamAttributes
     public var sequence: UInt16
-    public var name: HeapEntry<StringHeap>
+    public var name: HeapOffset<StringHeap>
 }
 
 extension Param: TableRow {
@@ -426,7 +426,7 @@ extension Param: TableRow {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.flags)
             .addingConstant(\.sequence)
-            .addingHeapEntry(\.name)
+            .addingHeapOffset(\.name)
             .size
     }
 
@@ -435,14 +435,14 @@ extension Param: TableRow {
         self.init(
             flags: reader.readConstant(),
             sequence: reader.readConstant(),
-            name: reader.readHeapEntry(last: true))
+            name: reader.readHeapOffset(last: true))
     }
 }
 
 public struct Property {
     public var flags: PropertyAttributes
-    public var name: HeapEntry<StringHeap>
-    public var type: HeapEntry<BlobHeap>
+    public var name: HeapOffset<StringHeap>
+    public var type: HeapOffset<BlobHeap>
 }
 
 extension Property: TableRow {
@@ -451,8 +451,8 @@ extension Property: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.flags)
-            .addingHeapEntry(\.name)
-            .addingHeapEntry(\.type)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.type)
             .size
     }
 
@@ -460,8 +460,8 @@ extension Property: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             flags: reader.readConstant(),
-            name: reader.readHeapEntry(),
-            type: reader.readHeapEntry(last: true))
+            name: reader.readHeapOffset(),
+            type: reader.readHeapOffset(last: true))
     }
 }
 
@@ -490,8 +490,8 @@ extension PropertyMap: TableRow {
 
 public struct TypeDef {
     public var flags: TypeAttributes
-    public var typeName: HeapEntry<StringHeap>
-    public var typeNamespace: HeapEntry<StringHeap>
+    public var typeName: HeapOffset<StringHeap>
+    public var typeNamespace: HeapOffset<StringHeap>
     public var extends: TypeDefOrRef
     public var fieldList: TableRowIndex<Field>
     public var methodList: TableRowIndex<MethodDef>
@@ -503,8 +503,8 @@ extension TypeDef: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingConstant(\.flags)
-            .addingHeapEntry(\.typeName)
-            .addingHeapEntry(\.typeNamespace)
+            .addingHeapOffset(\.typeName)
+            .addingHeapOffset(\.typeNamespace)
             .addingCodedIndex(\.extends)
             .addingTableRowIndex(\.fieldList)
             .addingTableRowIndex(\.methodList)
@@ -515,8 +515,8 @@ extension TypeDef: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             flags: reader.readConstant(),
-            typeName: reader.readHeapEntry(),
-            typeNamespace: reader.readHeapEntry(),
+            typeName: reader.readHeapOffset(),
+            typeNamespace: reader.readHeapOffset(),
             extends: reader.readCodedIndex(),
             fieldList: reader.readTableRowIndex(),
             methodList: reader.readTableRowIndex(last: true))
@@ -525,8 +525,8 @@ extension TypeDef: TableRow {
 
 public struct TypeRef {
     var resolutionScope: ResolutionScope
-    var typeName: HeapEntry<StringHeap>
-    var typeNamespace: HeapEntry<StringHeap>
+    var typeName: HeapOffset<StringHeap>
+    var typeNamespace: HeapOffset<StringHeap>
 }
 
 extension TypeRef: TableRow {
@@ -535,8 +535,8 @@ extension TypeRef: TableRow {
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
             .addingCodedIndex(\.resolutionScope)
-            .addingHeapEntry(\.typeName)
-            .addingHeapEntry(\.typeNamespace)
+            .addingHeapOffset(\.typeName)
+            .addingHeapOffset(\.typeNamespace)
             .size
     }
 
@@ -544,14 +544,14 @@ extension TypeRef: TableRow {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
             resolutionScope: reader.readConstant(),
-            typeName: reader.readHeapEntry(),
-            typeNamespace: reader.readHeapEntry(last: true))
+            typeName: reader.readHeapOffset(),
+            typeNamespace: reader.readHeapOffset(last: true))
     }
 }
 
 
 public struct TypeSpec {
-    public var signature: HeapEntry<BlobHeap>
+    public var signature: HeapOffset<BlobHeap>
 }
 
 extension TypeSpec: TableRow {
@@ -559,13 +559,13 @@ extension TypeSpec: TableRow {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         TableRowSizer<Self>(dimensions: dimensions)
-            .addingHeapEntry(\.signature)
+            .addingHeapOffset(\.signature)
             .size
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
         var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
         self.init(
-            signature: reader.readHeapEntry(last: true))
+            signature: reader.readHeapOffset(last: true))
     }
 }

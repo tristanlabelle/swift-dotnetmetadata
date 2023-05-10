@@ -48,14 +48,14 @@ public class BlobHeap: Heap {
     }
 }
 
-public struct HeapEntry<Type> where Type: Heap {
-    public var offset: UInt32
+public struct HeapOffset<Type> where Type: Heap {
+    public var value: UInt32
 
-    public init(_ offset: UInt32) {
-        self.offset = offset
+    public init(_ value: UInt32) {
+        self.value = value
     }
 
     public func resolve(_ heap: Type) -> Type.Value {
-        heap.resolve(at: offset)
+        heap.resolve(at: value)
     }
 }
