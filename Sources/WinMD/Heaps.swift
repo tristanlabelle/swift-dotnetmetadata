@@ -9,14 +9,18 @@ public protocol Heap {
 public class StringHeap: Heap {
     public typealias Value = String
 
-    var buffer: UnsafeRawBufferPointer
+    private let buffer: UnsafeRawBufferPointer
+    private var cache: [UInt32: String] = [:]
 
     init(buffer: UnsafeRawBufferPointer) {
         self.buffer = buffer
     }
 
     public func resolve(at offset: UInt32) -> String {
-        String(bytes: buffer.sub(offset: Int(offset)).prefix { $0 != 0 }, encoding: .utf8)!
+        if let existing = cache[offset] { return existing }
+        let result = String(bytes: buffer.sub(offset: Int(offset)).prefix { $0 != 0 }, encoding: .utf8)!
+        cache[offset] = result
+        return result
     }
 }
 

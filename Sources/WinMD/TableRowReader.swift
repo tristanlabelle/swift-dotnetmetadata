@@ -23,19 +23,19 @@ struct TableRowReader {
     }
 
     mutating func readTableRowIndex<T>(last: Bool = false) -> TableRowIndex<T> where T: TableRow {
-        let index = dimensions.getTableRowSize(T.self) == 2
+        let oneBasedIndex = dimensions.getTableRowSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return TableRowIndex<T>(index)
+        return TableRowIndex<T>(oneBased: oneBasedIndex)
     }
 
-    mutating func readCodedIndex<T>(last: Bool = false) -> T where T: CodedIndex {
-        let tagBitCount = Int.bitWidth - T.tables.count.leadingZeroBitCount
+    mutating func readCodedIndex<Index>(last: Bool = false) -> Index where Index: CodedIndex {
+        let tagBitCount = Int.bitWidth - Index.tables.count.leadingZeroBitCount
 
         let codedValue: UInt32
         let indexBitCount: Int
-        if dimensions.getCodedIndexSize(T.self) == 2 {
+        if dimensions.getCodedIndexSize(Index.self) == 2 {
             codedValue = UInt32(remainder.consume(type: UInt16.self).pointee)
             indexBitCount = 16 - tagBitCount
         }
@@ -46,7 +46,7 @@ struct TableRowReader {
 
         let tag = UInt8(codedValue >> indexBitCount)
         let index = codedValue & ((1 << indexBitCount) - 1)
-        let result = T(tag: tag, index: index)
+        let result = Index(tag: tag, oneBasedIndex: index)
         if last { checkAtEnd() }
         return result
     }
