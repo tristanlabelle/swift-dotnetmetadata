@@ -12,9 +12,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "WinMD"),
-        // .testTarget(
-        //     name: "WinMDTests",
-        //     dependencies: ["WinMD"]),
+            name: "WinMD",
+            path: "Sources"),
     ]
 )
