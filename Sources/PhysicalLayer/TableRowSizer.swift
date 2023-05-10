@@ -1,4 +1,5 @@
-struct RowSizer<Row> where Row: Record {
+/// Computes the size of a table row by adding the size of its column values.
+struct TableRowSizer<Row> where Row: TableRow {
     let dimensions: Database.Dimensions
     let size: Int
 
@@ -19,7 +20,7 @@ struct RowSizer<Row> where Row: Record {
         adding(size: dimensions.getHeapEntrySize(T.self))
     }
     
-    public func addingTableRow<T>(_: KeyPath<Row, TableRow<T>>) -> Self where T: Record {
+    public func addingTableRowIndex<T>(_: KeyPath<Row, TableRowIndex<T>>) -> Self where T: TableRow {
         adding(size: dimensions.getTableRowSize(T.tableIndex))
     }
     

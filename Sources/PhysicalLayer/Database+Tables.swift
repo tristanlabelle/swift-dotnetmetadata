@@ -47,7 +47,7 @@ extension Database {
             genericParam = Self.consume(&remainder, dimensions)
         }
 
-        static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: Record {
+        static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: TableRow {
             let rowCount = dimensions.getRowCount(Row.tableIndex)
             let size = Row.getSize(dimensions: dimensions) * rowCount
             return Table(buffer: buffer.consume(count: size), dimensions: dimensions)

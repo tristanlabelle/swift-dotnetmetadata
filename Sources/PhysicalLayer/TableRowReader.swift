@@ -1,4 +1,5 @@
-struct ColumnReader {
+/// Reads a table row one column value at a time.
+struct TableRowReader {
     var remainder: UnsafeRawBufferPointer
     let dimensions: Database.Dimensions
 
@@ -21,12 +22,12 @@ struct ColumnReader {
         return HeapEntry<T>(index)
     }
 
-    mutating func readTableRow<T>(last: Bool = false) -> TableRow<T> where T: Record {
+    mutating func readTableRowIndex<T>(last: Bool = false) -> TableRowIndex<T> where T: TableRow {
         let index = dimensions.getTableRowSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return TableRow<T>(index)
+        return TableRowIndex<T>(index)
     }
 
     mutating func readCodedIndex<T>(last: Bool = false) -> T where T: CodedIndex {

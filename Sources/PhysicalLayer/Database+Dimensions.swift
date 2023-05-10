@@ -17,7 +17,7 @@ extension Database {
             Int(tableRowCounts[Int(tableIndex.rawValue)])
         }
         
-        public func getRowCount<Row>(_: Row.Type) -> Int where Row: Record {
+        public func getRowCount<Row>(_: Row.Type) -> Int where Row: TableRow {
             getRowCount(Row.tableIndex)
         }
 
@@ -32,7 +32,7 @@ extension Database {
             getRowCount(tableIndex) < 0x1000 ? 2 : 4
         }
         
-        public func getTableRowSize<Row>(_: Row.Type) -> Int where Row: Record {
+        public func getTableRowSize<Row>(_: Row.Type) -> Int where Row: TableRow {
             getTableRowSize(Row.tableIndex)
         }
 

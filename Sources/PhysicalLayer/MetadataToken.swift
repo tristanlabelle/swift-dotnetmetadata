@@ -14,8 +14,8 @@ public struct MetadataToken: Hashable {
         rawValue = UInt32(tableIndex.rawValue) << 24
     }
 
-    public init<Type>(row: TableRow<Type>) where Type: Record {
-        self.init(tableIndex: Type.tableIndex, rowIndex: row.index)
+    public init<Row>(row: TableRowIndex<Row>) where Row: TableRow {
+        self.init(tableIndex: Row.tableIndex, rowIndex: row.value)
     }
 
     public var tableIndex: TableIndex { .init(rawValue: UInt8(rawValue >> 24))! }

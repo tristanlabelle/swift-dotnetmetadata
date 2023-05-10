@@ -1,4 +1,4 @@
-public class Table<Row> where Row: Record {
+public class Table<Row> where Row: TableRow {
     let buffer: UnsafeRawBufferPointer
     let dimensions: Database.Dimensions
 
@@ -23,19 +23,12 @@ extension Table: Collection {
     public func index(after i: Int) -> Int { i + 1 }
 }
 
-public protocol Record {
-    static var tableIndex: TableIndex { get }
-    static func getSize(dimensions: Database.Dimensions) -> Int
-    static func read(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) -> Self
-}
-
-public struct TableRow<T> where T: Record {
+public struct TableRowIndex<T> where T: TableRow {
     public var tableIndex: TableIndex { T.tableIndex }
 
-    public var index: UInt32
+    public var value: UInt32
 
     public init(_ index: UInt32) {
-        precondition(index >= 0)
-        self.index = index
+        self.value = index
     }
 }
