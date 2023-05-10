@@ -7,23 +7,23 @@ struct RowSizer<Row> where Row: Record {
         self.size = size
     }
 
-    private func add(size: Int) -> Self {
+    private func adding(size: Int) -> Self {
         return Self(dimensions: dimensions, size: self.size + size)
     }
 
-    public func addConstant<T>(_: KeyPath<Row, T>) -> Self {
-        add(size: MemoryLayout<T>.stride)
+    public func addingConstant<T>(_: KeyPath<Row, T>) -> Self {
+        adding(size: MemoryLayout<T>.stride)
     }
 
-    public func addHeapEntry<T>(_: KeyPath<Row, HeapEntry<T>>) -> Self where T: Heap {
-        add(size: dimensions.getHeapEntrySize(T.self))
+    public func addingHeapEntry<T>(_: KeyPath<Row, HeapEntry<T>>) -> Self where T: Heap {
+        adding(size: dimensions.getHeapEntrySize(T.self))
     }
     
-    public func addTableRow<T>(_: KeyPath<Row, TableRow<T>>) -> Self where T: Record {
-        add(size: dimensions.getTableRowSize(T.tableIndex))
+    public func addingTableRow<T>(_: KeyPath<Row, TableRow<T>>) -> Self where T: Record {
+        adding(size: dimensions.getTableRowSize(T.tableIndex))
     }
     
-    public func addCodedIndex<T>(_: KeyPath<Row, T>) -> Self where T: CodedIndex {
-        add(size: dimensions.getCodedIndexSize(T.self))
+    public func addingCodedIndex<T>(_: KeyPath<Row, T>) -> Self where T: CodedIndex {
+        adding(size: dimensions.getCodedIndexSize(T.self))
     }
 }

@@ -10,15 +10,15 @@ public struct Assembly: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.hashAlgId)
-            .addConstant(\.majorVersion)
-            .addConstant(\.minorVersion)
-            .addConstant(\.buildNumber)
-            .addConstant(\.revisionNumber)
-            .addConstant(\.flags)
-            .addHeapEntry(\.publicKey)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.culture)
+            .addingConstant(\.hashAlgId)
+            .addingConstant(\.majorVersion)
+            .addingConstant(\.minorVersion)
+            .addingConstant(\.buildNumber)
+            .addingConstant(\.revisionNumber)
+            .addingConstant(\.flags)
+            .addingHeapEntry(\.publicKey)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.culture)
             .size
     }
     
@@ -49,15 +49,15 @@ public struct AssemblyRef: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.majorVersion)
-            .addConstant(\.minorVersion)
-            .addConstant(\.buildNumber)
-            .addConstant(\.revisionNumber)
-            .addConstant(\.flags)
-            .addHeapEntry(\.publicKeyOrToken)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.culture)
-            .addHeapEntry(\.hashValue)
+            .addingConstant(\.majorVersion)
+            .addingConstant(\.minorVersion)
+            .addingConstant(\.buildNumber)
+            .addingConstant(\.revisionNumber)
+            .addingConstant(\.flags)
+            .addingHeapEntry(\.publicKeyOrToken)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.culture)
+            .addingHeapEntry(\.hashValue)
             .size
     }
     
@@ -85,9 +85,9 @@ public struct Constant: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.type)
-            .addCodedIndex(\.parent)
-            .addHeapEntry(\.value)
+            .addingConstant(\.type)
+            .addingCodedIndex(\.parent)
+            .addingHeapEntry(\.value)
             .size
     }
 
@@ -109,9 +109,9 @@ public struct CustomAttribute: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addCodedIndex(\.parent)
-            .addCodedIndex(\.type)
-            .addHeapEntry(\.value)
+            .addingCodedIndex(\.parent)
+            .addingCodedIndex(\.type)
+            .addingHeapEntry(\.value)
             .size
     }
 
@@ -133,9 +133,9 @@ public struct Event: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.eventFlags)
-            .addHeapEntry(\.name)
-            .addCodedIndex(\.eventType)
+            .addingConstant(\.eventFlags)
+            .addingHeapEntry(\.name)
+            .addingCodedIndex(\.eventType)
             .size
     }
 
@@ -156,8 +156,8 @@ public struct EventMap: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addTableRow(\.parent)
-            .addTableRow(\.eventList)
+            .addingTableRow(\.parent)
+            .addingTableRow(\.eventList)
             .size
     }
 
@@ -178,9 +178,9 @@ public struct Field: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.flags)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.signature)
+            .addingConstant(\.flags)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.signature)
             .size
     }
 
@@ -203,10 +203,10 @@ public struct GenericParam: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.number)
-            .addConstant(\.flags)
-            .addCodedIndex(\.owner)
-            .addHeapEntry(\.name)
+            .addingConstant(\.number)
+            .addingConstant(\.flags)
+            .addingCodedIndex(\.owner)
+            .addingHeapEntry(\.name)
             .size
     }
 
@@ -228,8 +228,8 @@ public struct InterfaceImpl: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addTableRow(\.`class`)
-            .addCodedIndex(\.interface)
+            .addingTableRow(\.`class`)
+            .addingCodedIndex(\.interface)
             .size
     }
 
@@ -250,9 +250,9 @@ public struct MemberRef: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addCodedIndex(\.`class`)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.signature)
+            .addingCodedIndex(\.`class`)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.signature)
             .size
     }
 
@@ -277,12 +277,12 @@ public struct MethodDef: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.rva)
-            .addConstant(\.implFlags)
-            .addConstant(\.flags)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.signature)
-            .addTableRow(\.paramList)
+            .addingConstant(\.rva)
+            .addingConstant(\.implFlags)
+            .addingConstant(\.flags)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.signature)
+            .addingTableRow(\.paramList)
             .size
     }
 
@@ -307,9 +307,9 @@ public struct MethodImpl: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addTableRow(\.`class`)
-            .addCodedIndex(\.methodBody)
-            .addCodedIndex(\.methodDeclaration)
+            .addingTableRow(\.`class`)
+            .addingCodedIndex(\.methodBody)
+            .addingCodedIndex(\.methodDeclaration)
             .size
     }
 
@@ -331,9 +331,9 @@ public struct MethodSemantics: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.semantics)
-            .addTableRow(\.method)
-            .addCodedIndex(\.association)
+            .addingConstant(\.semantics)
+            .addingTableRow(\.method)
+            .addingCodedIndex(\.association)
             .size
     }
 
@@ -357,11 +357,11 @@ public struct Module: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.generation)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.mvid)
-            .addHeapEntry(\.encId)
-            .addHeapEntry(\.encBaseId)
+            .addingConstant(\.generation)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.mvid)
+            .addingHeapEntry(\.encId)
+            .addingHeapEntry(\.encBaseId)
             .size
     }
 
@@ -385,9 +385,9 @@ public struct Param: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.flags)
-            .addConstant(\.sequence)
-            .addHeapEntry(\.name)
+            .addingConstant(\.flags)
+            .addingConstant(\.sequence)
+            .addingHeapEntry(\.name)
             .size
     }
 
@@ -409,9 +409,9 @@ public struct Property: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.flags)
-            .addHeapEntry(\.name)
-            .addHeapEntry(\.type)
+            .addingConstant(\.flags)
+            .addingHeapEntry(\.name)
+            .addingHeapEntry(\.type)
             .size
     }
 
@@ -432,8 +432,8 @@ public struct PropertyMap: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addTableRow(\.parent)
-            .addTableRow(\.propertyList)
+            .addingTableRow(\.parent)
+            .addingTableRow(\.propertyList)
             .size
     }
 
@@ -457,12 +457,12 @@ public struct TypeDef: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addConstant(\.flags)
-            .addHeapEntry(\.typeName)
-            .addHeapEntry(\.typeNamespace)
-            .addCodedIndex(\.extends)
-            .addTableRow(\.fieldList)
-            .addTableRow(\.methodList)
+            .addingConstant(\.flags)
+            .addingHeapEntry(\.typeName)
+            .addingHeapEntry(\.typeNamespace)
+            .addingCodedIndex(\.extends)
+            .addingTableRow(\.fieldList)
+            .addingTableRow(\.methodList)
             .size
     }
 
@@ -487,9 +487,9 @@ public struct TypeRef: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addCodedIndex(\.resolutionScope)
-            .addHeapEntry(\.typeName)
-            .addHeapEntry(\.typeNamespace)
+            .addingCodedIndex(\.resolutionScope)
+            .addingHeapEntry(\.typeName)
+            .addingHeapEntry(\.typeNamespace)
             .size
     }
 
@@ -510,7 +510,7 @@ public struct TypeSpec: Record {
 
     public static func getSize(dimensions: Database.Dimensions) -> Int {
         RowSizer<Self>(dimensions: dimensions)
-            .addHeapEntry(\.signature)
+            .addingHeapEntry(\.signature)
             .size
     }
 
