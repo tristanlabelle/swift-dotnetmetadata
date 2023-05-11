@@ -22,35 +22,35 @@ extension Database {
         public let assemblyRef: Table<AssemblyRef>
         public let genericParam: Table<GenericParam>
 
-        init(buffer: UnsafeRawBufferPointer, dimensions: Dimensions) {
+        init(buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
             var remainder = buffer
             // In TableIndex order
-            module = Self.consume(&remainder, dimensions)
-            typeRef = Self.consume(&remainder, dimensions)
-            typeDef = Self.consume(&remainder, dimensions)
-            field = Self.consume(&remainder, dimensions)
-            methodDef = Self.consume(&remainder, dimensions)
-            param = Self.consume(&remainder, dimensions)
-            interfaceImpl = Self.consume(&remainder, dimensions)
-            memberRef = Self.consume(&remainder, dimensions)
-            constant = Self.consume(&remainder, dimensions)
-            customAttribute = Self.consume(&remainder, dimensions)
-            eventMap = Self.consume(&remainder, dimensions)
-            event = Self.consume(&remainder, dimensions)
-            propertyMap = Self.consume(&remainder, dimensions)
-            property = Self.consume(&remainder, dimensions)
-            methodSemantics = Self.consume(&remainder, dimensions)
-            methodImpl = Self.consume(&remainder, dimensions)
-            typeSpec = Self.consume(&remainder, dimensions)
-            assembly = Self.consume(&remainder, dimensions)
-            assemblyRef = Self.consume(&remainder, dimensions)
-            genericParam = Self.consume(&remainder, dimensions)
+            module = Self.consume(&remainder, sizes)
+            typeRef = Self.consume(&remainder, sizes)
+            typeDef = Self.consume(&remainder, sizes)
+            field = Self.consume(&remainder, sizes)
+            methodDef = Self.consume(&remainder, sizes)
+            param = Self.consume(&remainder, sizes)
+            interfaceImpl = Self.consume(&remainder, sizes)
+            memberRef = Self.consume(&remainder, sizes)
+            constant = Self.consume(&remainder, sizes)
+            customAttribute = Self.consume(&remainder, sizes)
+            eventMap = Self.consume(&remainder, sizes)
+            event = Self.consume(&remainder, sizes)
+            propertyMap = Self.consume(&remainder, sizes)
+            property = Self.consume(&remainder, sizes)
+            methodSemantics = Self.consume(&remainder, sizes)
+            methodImpl = Self.consume(&remainder, sizes)
+            typeSpec = Self.consume(&remainder, sizes)
+            assembly = Self.consume(&remainder, sizes)
+            assemblyRef = Self.consume(&remainder, sizes)
+            genericParam = Self.consume(&remainder, sizes)
         }
 
-        static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ dimensions: Dimensions) -> Table<Row> where Row: TableRow {
-            let rowCount = dimensions.getRowCount(Row.tableIndex)
-            let size = Row.getSize(dimensions: dimensions) * rowCount
-            return Table(buffer: buffer.consume(count: size), dimensions: dimensions)
+        static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ sizes: TableSizes) -> Table<Row> where Row: TableRow {
+            let rowCount = sizes.getRowCount(Row.tableIndex)
+            let size = Row.getSize(sizes: sizes) * rowCount
+            return Table(buffer: buffer.consume(count: size), sizes: sizes)
         }
     }
 }

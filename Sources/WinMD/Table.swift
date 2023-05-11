@@ -1,20 +1,20 @@
-public class Table<Row> where Row: TableRow {
-    let buffer: UnsafeRawBufferPointer
-    let dimensions: Database.Dimensions
+public final class Table<Row> where Row: TableRow {
+    private let buffer: UnsafeRawBufferPointer
+    private let sizes: TableSizes
 
-    init(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
+    init(buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self.buffer = buffer
-        self.dimensions = dimensions
+        self.sizes = sizes
     }
 
     public static var index: TableIndex { Row.tableIndex }
-    public var count: Int { dimensions.getRowCount(Row.tableIndex) }
+    public var count: Int { sizes.getRowCount(Row.tableIndex) }
     public var rowSize: Int { buffer.count / count }
 
     /// Indexes into this table using zero-based indices
     public subscript(_ index: Int) -> Row {
         let rowBuffer = buffer.sub(offset: index * rowSize, count: rowSize)
-        return Row(reading: rowBuffer, dimensions: dimensions)
+        return Row(reading: rowBuffer, sizes: sizes)
     }
 
     public subscript(_ index: TableRowIndex<Row>) -> Row {

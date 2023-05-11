@@ -3,8 +3,8 @@
 /// into heaps or other metadata tables depends on the size of these heaps/tables.
 public protocol TableRow {
     static var tableIndex: TableIndex { get }
-    static func getSize(dimensions: Database.Dimensions) -> Int
-    init(reading: UnsafeRawBufferPointer, dimensions: Database.Dimensions)
+    static func getSize(sizes: TableSizes) -> Int
+    init(reading: UnsafeRawBufferPointer, sizes: TableSizes)
 }
 
 public struct Assembly {
@@ -19,8 +19,8 @@ public struct Assembly {
 extension Assembly: TableRow {
     public static var tableIndex: TableIndex { .assembly }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.hashAlgId)
             .addingConstant(\.majorVersion)
             .addingConstant(\.minorVersion)
@@ -33,8 +33,8 @@ extension Assembly: TableRow {
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             hashAlgId: reader.readConstant(),
             majorVersion: reader.readConstant(),
@@ -60,8 +60,8 @@ public struct AssemblyRef {
 extension AssemblyRef: TableRow {
     public static var tableIndex: TableIndex { .assemblyRef }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.majorVersion)
             .addingConstant(\.minorVersion)
             .addingConstant(\.buildNumber)
@@ -74,8 +74,8 @@ extension AssemblyRef: TableRow {
             .size
     }
     
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             majorVersion: reader.readConstant(),
             minorVersion: reader.readConstant(),
@@ -98,16 +98,16 @@ public struct Constant {
 extension Constant: TableRow {
     public static var tableIndex: TableIndex { .constant }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.type)
             .addingCodedIndex(\.parent)
             .addingHeapOffset(\.value)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             type: reader.readConstant(),
             parent: reader.readCodedIndex(),
@@ -124,16 +124,16 @@ public struct CustomAttribute {
 extension CustomAttribute: TableRow {
     public static var tableIndex: TableIndex { .customAttribute }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingCodedIndex(\.parent)
             .addingCodedIndex(\.type)
             .addingHeapOffset(\.value)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             parent: reader.readCodedIndex(),
             type: reader.readCodedIndex(),
@@ -150,16 +150,16 @@ public struct Event {
 extension Event: TableRow {
     public static var tableIndex: TableIndex { .event }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.eventFlags)
             .addingHeapOffset(\.name)
             .addingCodedIndex(\.eventType)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             eventFlags: reader.readConstant(),
             name: reader.readHeapOffset(),
@@ -175,15 +175,15 @@ public struct EventMap {
 extension EventMap: TableRow {
     public static var tableIndex: TableIndex { .eventMap }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingTableRowIndex(\.parent)
             .addingTableRowIndex(\.eventList)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             parent: reader.readTableRowIndex(),
             eventList: reader.readTableRowIndex(last: true))
@@ -199,16 +199,16 @@ public struct Field {
 extension Field: TableRow {
     public static var tableIndex: TableIndex { .field }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.flags)
             .addingHeapOffset(\.name)
             .addingHeapOffset(\.signature)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             flags: reader.readConstant(),
             name: reader.readHeapOffset(),
@@ -226,8 +226,8 @@ public struct GenericParam {
 extension GenericParam: TableRow {
     public static var tableIndex: TableIndex { .module }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.number)
             .addingConstant(\.flags)
             .addingCodedIndex(\.owner)
@@ -235,8 +235,8 @@ extension GenericParam: TableRow {
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             number: reader.readConstant(),
             flags: reader.readConstant(),
@@ -253,15 +253,15 @@ public struct InterfaceImpl {
 extension InterfaceImpl: TableRow {
     public static var tableIndex: TableIndex { .interfaceImpl }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingTableRowIndex(\.`class`)
             .addingCodedIndex(\.interface)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             class: reader.readTableRowIndex(),
             interface: reader.readCodedIndex(last: true))
@@ -277,16 +277,16 @@ public struct MemberRef {
 extension MemberRef: TableRow {
     public static var tableIndex: TableIndex { .memberRef }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingCodedIndex(\.`class`)
             .addingHeapOffset(\.name)
             .addingHeapOffset(\.signature)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             class: reader.readCodedIndex(),
             name: reader.readHeapOffset(),
@@ -306,8 +306,8 @@ public struct MethodDef {
 extension MethodDef: TableRow {
     public static var tableIndex: TableIndex { .methodDef }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.rva)
             .addingConstant(\.implFlags)
             .addingConstant(\.flags)
@@ -317,8 +317,8 @@ extension MethodDef: TableRow {
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             rva: reader.readConstant(),
             implFlags: reader.readConstant(),
@@ -338,16 +338,16 @@ public struct MethodImpl {
 extension MethodImpl: TableRow {
     public static var tableIndex: TableIndex { .methodImpl }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingTableRowIndex(\.`class`)
             .addingCodedIndex(\.methodBody)
             .addingCodedIndex(\.methodDeclaration)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             class: reader.readTableRowIndex(),
             methodBody: reader.readCodedIndex(),
@@ -364,16 +364,16 @@ public struct MethodSemantics {
 extension MethodSemantics: TableRow {
     public static var tableIndex: TableIndex { .methodSemantics }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.semantics)
             .addingTableRowIndex(\.method)
             .addingCodedIndex(\.association)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             semantics: reader.readConstant(),
             method: reader.readTableRowIndex(),
@@ -392,8 +392,8 @@ public struct Module {
 extension Module: TableRow {
     public static var tableIndex: TableIndex { .module }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.generation)
             .addingHeapOffset(\.name)
             .addingHeapOffset(\.mvid)
@@ -402,8 +402,8 @@ extension Module: TableRow {
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             generation: reader.readConstant(),
             name: reader.readHeapOffset(),
@@ -422,16 +422,16 @@ public struct Param {
 extension Param: TableRow {
     public static var tableIndex: TableIndex { .param }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.flags)
             .addingConstant(\.sequence)
             .addingHeapOffset(\.name)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             flags: reader.readConstant(),
             sequence: reader.readConstant(),
@@ -448,16 +448,16 @@ public struct Property {
 extension Property: TableRow {
     public static var tableIndex: TableIndex { .property }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.flags)
             .addingHeapOffset(\.name)
             .addingHeapOffset(\.type)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             flags: reader.readConstant(),
             name: reader.readHeapOffset(),
@@ -473,15 +473,15 @@ public struct PropertyMap {
 extension PropertyMap: TableRow {
     public static var tableIndex: TableIndex { .propertyMap }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingTableRowIndex(\.parent)
             .addingTableRowIndex(\.propertyList)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             parent: reader.readTableRowIndex(),
             propertyList: reader.readTableRowIndex(last: true))
@@ -500,8 +500,8 @@ public struct TypeDef {
 extension TypeDef: TableRow {
     public static var tableIndex: TableIndex { .typeDef }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.flags)
             .addingHeapOffset(\.typeName)
             .addingHeapOffset(\.typeNamespace)
@@ -511,8 +511,8 @@ extension TypeDef: TableRow {
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             flags: reader.readConstant(),
             typeName: reader.readHeapOffset(),
@@ -532,16 +532,16 @@ public struct TypeRef {
 extension TypeRef: TableRow {
     public static var tableIndex: TableIndex { .typeRef }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingCodedIndex(\.resolutionScope)
             .addingHeapOffset(\.typeName)
             .addingHeapOffset(\.typeNamespace)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             resolutionScope: reader.readConstant(),
             typeName: reader.readHeapOffset(),
@@ -557,14 +557,14 @@ public struct TypeSpec {
 extension TypeSpec: TableRow {
     public static var tableIndex: TableIndex { .typeSpec }
 
-    public static func getSize(dimensions: Database.Dimensions) -> Int {
-        TableRowSizer<Self>(dimensions: dimensions)
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
             .addingHeapOffset(\.signature)
             .size
     }
 
-    public init(reading buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
-        var reader = TableRowReader(buffer: buffer, dimensions: dimensions)
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
             signature: reader.readHeapOffset(last: true))
     }

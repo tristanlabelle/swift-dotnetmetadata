@@ -1,11 +1,11 @@
 /// Reads a table row one column value at a time.
 struct TableRowReader {
-    var remainder: UnsafeRawBufferPointer
-    let dimensions: Database.Dimensions
+    private var remainder: UnsafeRawBufferPointer
+    private let sizes: TableSizes
 
-    init(buffer: UnsafeRawBufferPointer, dimensions: Database.Dimensions) {
+    init(buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self.remainder = buffer
-        self.dimensions = dimensions
+        self.sizes = sizes
     }
 
     mutating func readConstant<T>(last: Bool = false) -> T {
@@ -15,7 +15,7 @@ struct TableRowReader {
     }
 
     mutating func readHeapOffset<T>(last: Bool = false) -> HeapOffset<T> where T: Heap {
-        let index = dimensions.getHeapOffsetSize(T.self) == 2
+        let index = sizes.getHeapOffsetSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
@@ -23,7 +23,7 @@ struct TableRowReader {
     }
 
     mutating func readTableRowIndex<T>(last: Bool = false) -> TableRowIndex<T> where T: TableRow {
-        let oneBasedIndex = dimensions.getTableRowSize(T.self) == 2
+        let oneBasedIndex = sizes.getTableRowIndexSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
@@ -35,7 +35,7 @@ struct TableRowReader {
 
         let codedValue: UInt32
         let indexBitCount: Int
-        if dimensions.getCodedIndexSize(Index.self) == 2 {
+        if sizes.getCodedIndexSize(Index.self) == 2 {
             codedValue = UInt32(remainder.consume(type: UInt16.self).pointee)
             indexBitCount = 16 - tagBitCount
         }

@@ -1,15 +1,15 @@
 /// Computes the size of a table row by adding the size of its column values.
-struct TableRowSizer<Row> where Row: TableRow {
-    let dimensions: Database.Dimensions
+internal struct TableRowSizeBuilder<Row> where Row: TableRow {
+    let sizes: TableSizes
     let size: Int
 
-    init(dimensions: Database.Dimensions, size: Int = 0) {
-        self.dimensions = dimensions
+    init(sizes: TableSizes, size: Int = 0) {
+        self.sizes = sizes
         self.size = size
     }
 
     private func adding(size: Int) -> Self {
-        return Self(dimensions: dimensions, size: self.size + size)
+        return Self(sizes: sizes, size: self.size + size)
     }
 
     public func addingConstant<T>(_: KeyPath<Row, T>) -> Self {
@@ -17,14 +17,14 @@ struct TableRowSizer<Row> where Row: TableRow {
     }
 
     public func addingHeapOffset<T>(_: KeyPath<Row, HeapOffset<T>>) -> Self where T: Heap {
-        adding(size: dimensions.getHeapOffsetSize(T.self))
+        adding(size: sizes.getHeapOffsetSize(T.self))
     }
     
     public func addingTableRowIndex<T>(_: KeyPath<Row, TableRowIndex<T>>) -> Self where T: TableRow {
-        adding(size: dimensions.getTableRowSize(T.tableIndex))
+        adding(size: sizes.getTableRowIndexSize(T.tableIndex))
     }
     
     public func addingCodedIndex<T>(_: KeyPath<Row, T>) -> Self where T: CodedIndex {
-        adding(size: dimensions.getCodedIndexSize(T.self))
+        adding(size: sizes.getCodedIndexSize(T.self))
     }
 }

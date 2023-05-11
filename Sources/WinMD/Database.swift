@@ -1,14 +1,15 @@
 import Foundation
 
-public class Database {
-    struct MetadataRoot {
+/// A view of the CLI metadata embedded in a winmd file.
+public final class Database {
+    private struct MetadataRoot {
         var majorVersion: UInt16, minorVersion: UInt16
         var versionString: String
         var flags: UInt16
         var streamHeaders: [String: MetadataStreamHeader] = [:]
     }
 
-    let file: Data?
+    private let file: Data?
     public let heaps: Heaps
     public let tables: Tables
 
@@ -40,20 +41,20 @@ public class Database {
             return isTablePresent ? tablesStreamRemainder.consume(type: UInt32.self).pointee : UInt32(0)
         }
 
-        let dimensions = Dimensions(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
-        tables = Tables(buffer: tablesStreamRemainder, dimensions: dimensions)
+        let tableSizes = TableSizes(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
+        tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes)
     }
 
     public convenience init(url: URL) throws {
         try self.init(file: try Data(contentsOf: url, options: .mappedIfSafe))
     }
 
-    static func getStream(metadataSection: UnsafeRawBufferPointer, header: MetadataStreamHeader?) -> UnsafeRawBufferPointer {
+    private static func getStream(metadataSection: UnsafeRawBufferPointer, header: MetadataStreamHeader?) -> UnsafeRawBufferPointer {
         guard let header = header else { return UnsafeRawBufferPointer.empty }
         return metadataSection.sub(offset: Int(header.offset), count: Int(header.size))
     }
 
-    static func readMetadataRoot(metadataSection: UnsafeRawBufferPointer) throws -> MetadataRoot {
+    private static func readMetadataRoot(metadataSection: UnsafeRawBufferPointer) throws -> MetadataRoot {
         var remainder = metadataSection
 
         let beforeVersion = remainder.consume(type: MetadataRoot_BeforeVersion.self)
