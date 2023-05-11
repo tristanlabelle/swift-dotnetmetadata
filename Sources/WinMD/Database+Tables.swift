@@ -22,35 +22,36 @@ extension Database {
         public let assemblyRef: Table<AssemblyRef>
         public let genericParam: Table<GenericParam>
 
-        init(buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        init(buffer: UnsafeRawBufferPointer, sizes: TableSizes, sortedBits: UInt64) {
             var remainder = buffer
             // In TableIndex order
-            module = Self.consume(&remainder, sizes)
-            typeRef = Self.consume(&remainder, sizes)
-            typeDef = Self.consume(&remainder, sizes)
-            field = Self.consume(&remainder, sizes)
-            methodDef = Self.consume(&remainder, sizes)
-            param = Self.consume(&remainder, sizes)
-            interfaceImpl = Self.consume(&remainder, sizes)
-            memberRef = Self.consume(&remainder, sizes)
-            constant = Self.consume(&remainder, sizes)
-            customAttribute = Self.consume(&remainder, sizes)
-            eventMap = Self.consume(&remainder, sizes)
-            event = Self.consume(&remainder, sizes)
-            propertyMap = Self.consume(&remainder, sizes)
-            property = Self.consume(&remainder, sizes)
-            methodSemantics = Self.consume(&remainder, sizes)
-            methodImpl = Self.consume(&remainder, sizes)
-            typeSpec = Self.consume(&remainder, sizes)
-            assembly = Self.consume(&remainder, sizes)
-            assemblyRef = Self.consume(&remainder, sizes)
-            genericParam = Self.consume(&remainder, sizes)
+            module = Self.consume(&remainder, sizes, sortedBits)
+            typeRef = Self.consume(&remainder, sizes, sortedBits)
+            typeDef = Self.consume(&remainder, sizes, sortedBits)
+            field = Self.consume(&remainder, sizes, sortedBits)
+            methodDef = Self.consume(&remainder, sizes, sortedBits)
+            param = Self.consume(&remainder, sizes, sortedBits)
+            interfaceImpl = Self.consume(&remainder, sizes, sortedBits)
+            memberRef = Self.consume(&remainder, sizes, sortedBits)
+            constant = Self.consume(&remainder, sizes, sortedBits)
+            customAttribute = Self.consume(&remainder, sizes, sortedBits)
+            eventMap = Self.consume(&remainder, sizes, sortedBits)
+            event = Self.consume(&remainder, sizes, sortedBits)
+            propertyMap = Self.consume(&remainder, sizes, sortedBits)
+            property = Self.consume(&remainder, sizes, sortedBits)
+            methodSemantics = Self.consume(&remainder, sizes, sortedBits)
+            methodImpl = Self.consume(&remainder, sizes, sortedBits)
+            typeSpec = Self.consume(&remainder, sizes, sortedBits)
+            assembly = Self.consume(&remainder, sizes, sortedBits)
+            assemblyRef = Self.consume(&remainder, sizes, sortedBits)
+            genericParam = Self.consume(&remainder, sizes, sortedBits)
         }
 
-        static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ sizes: TableSizes) -> Table<Row> where Row: TableRow {
+        private static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ sizes: TableSizes, _ sortedBits: UInt64) -> Table<Row> where Row: TableRow {
             let rowCount = sizes.getRowCount(Row.tableIndex)
             let size = Row.getSize(sizes: sizes) * rowCount
-            return Table(buffer: buffer.consume(count: size), sizes: sizes)
+            let sorted = ((sortedBits >> Row.tableIndex.rawValue) & 1) == 1
+            return Table(buffer: buffer.consume(count: size), sizes: sizes, sorted: sorted)
         }
     }
 }

@@ -42,7 +42,7 @@ public final class Database {
         }
 
         let tableSizes = TableSizes(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
-        tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes)
+        tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes, sortedBits: tablesStreamHeader.pointee.sorted)
     }
 
     public convenience init(url: URL) throws {

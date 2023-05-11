@@ -1,10 +1,12 @@
 public final class Table<Row> where Row: TableRow {
     private let buffer: UnsafeRawBufferPointer
     private let sizes: TableSizes
+    public let isSorted: Bool
 
-    init(buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+    init(buffer: UnsafeRawBufferPointer, sizes: TableSizes, sorted: Bool) {
         self.buffer = buffer
         self.sizes = sizes
+        self.isSorted = sorted
     }
 
     public static var index: TableIndex { Row.tableIndex }
