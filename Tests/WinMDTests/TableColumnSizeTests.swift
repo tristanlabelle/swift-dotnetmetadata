@@ -4,21 +4,21 @@ import XCTest
 
 final class TableColumnSizeTests: XCTestCase {
     func testCodedIndexTagBitCount() throws {
-        enum TwoCaseCodedIndex : CodedIndex {
+        enum TwoCaseCodedIndex: CodedIndex {
             public static let tables: [TableIndex?] = [ nil, nil ]
             public init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
         }
 
         XCTAssertEqual(TwoCaseCodedIndex.tagBitCount, 1)
         
-        enum ThreeCaseCodedIndex : CodedIndex {
+        enum ThreeCaseCodedIndex: CodedIndex {
             public static let tables: [TableIndex?] = [ nil, nil, nil ]
             public init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
         }
 
         XCTAssertEqual(ThreeCaseCodedIndex.tagBitCount, 2)
 
-        enum FourCaseCodedIndex : CodedIndex {
+        enum FourCaseCodedIndex: CodedIndex {
             public static let tables: [TableIndex?] = [ nil, nil, nil, nil ]
             public init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
         }

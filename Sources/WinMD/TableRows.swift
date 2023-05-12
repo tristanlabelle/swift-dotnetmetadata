@@ -7,6 +7,16 @@ public protocol TableRow {
     init(reading: UnsafeRawBufferPointer, sizes: TableSizes)
 }
 
+public protocol KeyedTableRow: TableRow {
+    associatedtype PrimaryKey: Comparable
+    var primaryKey: PrimaryKey { get }
+}
+
+public protocol DoublyKeyedTableRow: KeyedTableRow {
+    associatedtype SecondaryKey: Comparable
+    var secondaryKey: SecondaryKey { get }
+}
+
 public struct Assembly {
     public var hashAlgId: AssemblyHashAlgorithm
     public var majorVersion: UInt16, minorVersion: UInt16, buildNumber: UInt16, revisionNumber: UInt16
@@ -95,7 +105,9 @@ public struct Constant {
     public var value: HeapOffset<BlobHeap>
 }
 
-extension Constant: TableRow {
+extension Constant: KeyedTableRow {
+    public var primaryKey: HasConstant { parent }
+
     public static var tableIndex: TableIndex { .constant }
 
     public static func getSize(sizes: TableSizes) -> Int {
@@ -121,7 +133,9 @@ public struct CustomAttribute {
     public var value: HeapOffset<BlobHeap>
 }
 
-extension CustomAttribute: TableRow {
+extension CustomAttribute: KeyedTableRow {
+    public var primaryKey: HasCustomAttribute { parent }
+
     public static var tableIndex: TableIndex { .customAttribute }
 
     public static func getSize(sizes: TableSizes) -> Int {
@@ -223,7 +237,10 @@ public struct GenericParam {
     public var name: HeapOffset<StringHeap>
 }
 
-extension GenericParam: TableRow {
+extension GenericParam: DoublyKeyedTableRow {
+    public var primaryKey: TypeOrMethodDef { owner }
+    public var secondaryKey: UInt16 { number }
+
     public static var tableIndex: TableIndex { .module }
 
     public static func getSize(sizes: TableSizes) -> Int {
@@ -250,7 +267,10 @@ public struct InterfaceImpl {
     public var interface: TypeDefOrRef
 }
 
-extension InterfaceImpl: TableRow {
+extension InterfaceImpl: DoublyKeyedTableRow {
+    public var primaryKey: TableRowIndex<TypeDef> { `class` }
+    public var secondaryKey: TypeDefOrRef { interface }
+
     public static var tableIndex: TableIndex { .interfaceImpl }
 
     public static func getSize(sizes: TableSizes) -> Int {
@@ -335,7 +355,9 @@ public struct MethodImpl {
     public var methodDeclaration: MethodDefOrRef
 }
 
-extension MethodImpl: TableRow {
+extension MethodImpl: KeyedTableRow {
+    public var primaryKey: TableRowIndex<TypeDef> { `class` }
+
     public static var tableIndex: TableIndex { .methodImpl }
 
     public static func getSize(sizes: TableSizes) -> Int {
@@ -361,7 +383,9 @@ public struct MethodSemantics {
     public var association: HasSemantics
 }
 
-extension MethodSemantics: TableRow {
+extension MethodSemantics: KeyedTableRow {
+    public var primaryKey: HasSemantics { association }
+
     public static var tableIndex: TableIndex { .methodSemantics }
 
     public static func getSize(sizes: TableSizes) -> Int {

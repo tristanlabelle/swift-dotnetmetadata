@@ -1,4 +1,4 @@
-public protocol CodedIndex {
+public protocol CodedIndex: Comparable {
     static var tables: [TableIndex?] { get }
     init(tag: UInt8, oneBasedIndex: UInt32)
 }
@@ -7,7 +7,7 @@ extension CodedIndex {
     public static var tagBitCount: Int { Int.bitWidth - (tables.count - 1).leadingZeroBitCount }
 }
 
-public enum CustomAttributeType : CodedIndex {
+public enum CustomAttributeType: CodedIndex {
     case methodDef(TableRowIndex<MethodDef>)
     case memberRef(TableRowIndex<MemberRef>)
 
@@ -22,7 +22,7 @@ public enum CustomAttributeType : CodedIndex {
     }
 }
 
-public enum HasConstant : CodedIndex {
+public enum HasConstant: CodedIndex {
     case field(TableRowIndex<Field>)
     case param(TableRowIndex<Param>)
     case property(TableRowIndex<Property>)
@@ -39,7 +39,7 @@ public enum HasConstant : CodedIndex {
     }
 }
 
-public enum HasSemantics : CodedIndex {
+public enum HasSemantics: CodedIndex {
     case event(TableRowIndex<Event>)
     case property(TableRowIndex<Property>)
 
@@ -54,7 +54,7 @@ public enum HasSemantics : CodedIndex {
     }
 }
 
-public enum HasCustomAttribute : CodedIndex {
+public enum HasCustomAttribute: CodedIndex {
     case methodDef(TableRowIndex<MethodDef>)
     case field(TableRowIndex<Field>)
     case typeRef(TableRowIndex<TypeRef>)
@@ -63,17 +63,17 @@ public enum HasCustomAttribute : CodedIndex {
     case interfaceImpl(TableRowIndex<InterfaceImpl>)
     case memberRef(TableRowIndex<MemberRef>)
     case module(TableRowIndex<Module>)
-    case permission
+    case permission(oneBasedIndex: UInt32)
     case property(TableRowIndex<Property>)
     case event(TableRowIndex<Event>)
-    case standAloneSig
-    case moduleRef
+    case standAloneSig(oneBasedIndex: UInt32)
+    case moduleRef(oneBasedIndex: UInt32)
     case typeSpec(TableRowIndex<TypeSpec>)
     case assembly(TableRowIndex<Assembly>)
     case assemblyRef(TableRowIndex<AssemblyRef>)
-    case file
-    case exportedType
-    case manifestResource
+    case file(oneBasedIndex: UInt32)
+    case exportedType(oneBasedIndex: UInt32)
+    case manifestResource(oneBasedIndex: UInt32)
 
     public static let tables: [TableIndex?] = [
         .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
@@ -102,10 +102,10 @@ public enum HasCustomAttribute : CodedIndex {
     }
 }
 
-public enum MemberRefParent : CodedIndex {
+public enum MemberRefParent: CodedIndex {
     case typeDef(TableRowIndex<TypeDef>)
     case typeRef(TableRowIndex<TypeRef>)
-    case moduleRef
+    case moduleRef(oneBasedIndex: UInt32)
     case methodDef(TableRowIndex<MethodDef>)
     case typeSpec(TableRowIndex<TypeSpec>)
 
@@ -122,7 +122,7 @@ public enum MemberRefParent : CodedIndex {
     }
 }
 
-public enum MethodDefOrRef : CodedIndex {
+public enum MethodDefOrRef: CodedIndex {
     case methodDef(TableRowIndex<MethodDef>)
     case memberRef(TableRowIndex<MemberRef>)
 
@@ -137,9 +137,9 @@ public enum MethodDefOrRef : CodedIndex {
     }
 }
 
-public enum ResolutionScope : CodedIndex {
+public enum ResolutionScope: CodedIndex {
     case module(TableRowIndex<Module>)
-    case moduleRef
+    case moduleRef(oneBasedIndex: UInt32)
     case assemblyRef(TableRowIndex<AssemblyRef>)
     case typeRef(TableRowIndex<TypeRef>)
 
@@ -155,7 +155,7 @@ public enum ResolutionScope : CodedIndex {
     }
 }
 
-public enum TypeDefOrRef : CodedIndex {
+public enum TypeDefOrRef: CodedIndex {
     case typeDef(TableRowIndex<TypeDef>)
     case typeRef(TableRowIndex<TypeRef>)
     case typeSpec(TableRowIndex<TypeSpec>)
