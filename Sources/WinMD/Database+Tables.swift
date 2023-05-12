@@ -9,7 +9,7 @@ extension Database {
         public let param: Table<Param>
         public let interfaceImpl: Table<InterfaceImpl>
         public let memberRef: Table<MemberRef>
-        public let constant: Table<MemberRef>
+        public let constant: Table<Constant>
         public let customAttribute: Table<CustomAttribute>
         public let eventMap: Table<EventMap>
         public let event: Table<Event>

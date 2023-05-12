@@ -2,17 +2,17 @@
 /// allowing for computing column sizes.
 public final class TableSizes {
     public let tableRowCounts: [UInt32]
-    public let heapSizes: UInt8
+    public let heapSizingBits: UInt8
 
-    public init(heapSizes: UInt8, tableRowCounts: [UInt32]) {
+    public init(heapSizingBits: UInt8, tableRowCounts: [UInt32]) {
         precondition(tableRowCounts.count == TableIndex.count)
-        self.heapSizes = heapSizes
+        self.heapSizingBits = heapSizingBits
         self.tableRowCounts = tableRowCounts
     }
 
-    public var stringHeapOffsetSize: Int { (heapSizes & 1) == 0 ? 2 : 4 }
-    public var guidHeapOffsetSize: Int { (heapSizes & 2) == 0 ? 2 : 4 }
-    public var blobHeapOffsetSize: Int { (heapSizes & 4) == 0 ? 2 : 4 }
+    public var stringHeapOffsetSize: Int { (heapSizingBits & 1) == 0 ? 2 : 4 }
+    public var guidHeapOffsetSize: Int { (heapSizingBits & 2) == 0 ? 2 : 4 }
+    public var blobHeapOffsetSize: Int { (heapSizingBits & 4) == 0 ? 2 : 4 }
 
     public func getRowCount(_ tableIndex: TableIndex) -> Int {
         Int(tableRowCounts[Int(tableIndex.rawValue)])
@@ -30,7 +30,11 @@ public final class TableSizes {
     }
 
     public func getTableRowIndexSize(_ tableIndex: TableIndex) -> Int {
-        getRowCount(tableIndex) < 0x1000 ? 2 : 4
+        // §II.24.2.6:
+        // > If e is a simple index into a table with index i,
+        // > it is stored using 2 bytes if table i has less than 2^16 rows,
+        // > otherwise it is stored using 4 bytes.
+        getRowCount(tableIndex) < 0x10000 ? 2 : 4
     }
     
     public func getTableRowIndexSize<Row>(_: Row.Type) -> Int where Row: TableRow {
@@ -44,8 +48,8 @@ public final class TableSizes {
         // The coded index is 32 bits iff at least one indexed table
         // has more rows than could be indexed using the row index bits
         // if the coded index was 16 bits.
-        let tagBitCount = Int.bitWidth - T.tables.count.leadingZeroBitCount
         let maxRowCount = T.tables.compactMap { $0 }.map { tableRowCounts[Int($0.rawValue)] }.max()!
-        return maxRowCount < (1 << (16 - tagBitCount)) ? 2 : 4
+        let size = maxRowCount < (1 << (16 - T.tagBitCount)) ? 2 : 4
+        return size
     }
 }

@@ -3,6 +3,10 @@ public protocol CodedIndex {
     init(tag: UInt8, oneBasedIndex: UInt32)
 }
 
+extension CodedIndex {
+    public static var tagBitCount: Int { Int.bitWidth - (tables.count - 1).leadingZeroBitCount }
+}
+
 public enum CustomAttributeType : CodedIndex {
     case methodDef(TableRowIndex<MethodDef>)
     case memberRef(TableRowIndex<MemberRef>)

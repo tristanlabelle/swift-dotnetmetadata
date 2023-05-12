@@ -1,4 +1,4 @@
-
+// Avoid using "enum: UInt32" since that doesn't make the type 32-bit sized.
 public struct AssemblyFlags: OptionSet {
     public let rawValue: UInt32
     public init(rawValue: UInt32) {
@@ -13,15 +13,22 @@ public struct AssemblyFlags: OptionSet {
     static let enableJITCompileTracking = Self(rawValue: 0x8000)
 }
 
-public enum AssemblyHashAlgorithm: UInt32 {
-    case none = 0
-    case reserved_MD5 = 0x8003
-    case sha1 = 0x8004
+public struct AssemblyHashAlgorithm: Hashable, Equatable, RawRepresentable {
+    public typealias RawValue = UInt32
+
+    public let rawValue: RawValue
+
+    public init?(rawValue: RawValue) { self.rawValue = rawValue }
+    public init(_ rawValue: RawValue) { self.rawValue = rawValue }
+
+    static let none = Self(0)
+    static let reserved_MD5 = Self(0x8003)
+    static let sha1 = Self(0x8004)
 }
 
 public struct EventAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -30,8 +37,8 @@ public struct EventAttributes: OptionSet {
 }
 
 public struct FieldAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -46,8 +53,8 @@ public struct FieldAttributes: OptionSet {
 }
 
 public struct GenericParamAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -63,8 +70,8 @@ public struct GenericParamAttributes: OptionSet {
 }
 
 public struct MethodAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -97,8 +104,8 @@ public struct MethodAttributes: OptionSet {
 }
 
 public struct MethodImplAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -122,8 +129,8 @@ public struct MethodImplAttributes: OptionSet {
 }
 
 public struct MethodSemanticsAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -136,8 +143,8 @@ public struct MethodSemanticsAttributes: OptionSet {
 }
 
 public struct ParamAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
@@ -150,8 +157,8 @@ public struct ParamAttributes: OptionSet {
 }
 
 public struct PropertyAttributes: OptionSet {
-    public let rawValue: UInt32
-    public init(rawValue: UInt32) {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     

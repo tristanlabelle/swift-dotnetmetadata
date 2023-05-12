@@ -31,21 +31,17 @@ struct TableRowReader {
     }
 
     mutating func readCodedIndex<Index>(last: Bool = false) -> Index where Index: CodedIndex {
-        let tagBitCount = Int.bitWidth - Index.tables.count.leadingZeroBitCount
-
         let codedValue: UInt32
-        let indexBitCount: Int
         if sizes.getCodedIndexSize(Index.self) == 2 {
             codedValue = UInt32(remainder.consume(type: UInt16.self).pointee)
-            indexBitCount = 16 - tagBitCount
         }
         else {
             codedValue = remainder.consume(type: UInt32.self).pointee
-            indexBitCount = 32 - tagBitCount
         }
 
-        let tag = UInt8(codedValue >> indexBitCount)
-        let index = codedValue & ((1 << indexBitCount) - 1)
+        // §II.24.2.6: "The actual table is encoded into the low [N] bits of the number"
+        let tag = UInt8(codedValue & ((1 << Index.tagBitCount) - 1))
+        let index = codedValue >> Index.tagBitCount
         let result = Index(tag: tag, oneBasedIndex: index)
         if last { checkAtEnd() }
         return result

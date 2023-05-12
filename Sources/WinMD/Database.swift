@@ -41,7 +41,7 @@ public final class Database {
             return isTablePresent ? tablesStreamRemainder.consume(type: UInt32.self).pointee : UInt32(0)
         }
 
-        let tableSizes = TableSizes(heapSizes: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
+        let tableSizes = TableSizes(heapSizingBits: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
         tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes, sortedBits: tablesStreamHeader.pointee.sorted)
     }
 

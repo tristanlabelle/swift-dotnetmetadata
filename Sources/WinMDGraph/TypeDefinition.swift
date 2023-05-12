@@ -13,14 +13,19 @@ public class TypeDefinition {
 
     private var tableRow: WinMD.TypeDef { database.tables.typeDef[tableRowIndex] }
 
-    public lazy var name: String = database.heaps.resolve(tableRow.typeName)
-    public lazy var namespace: String = database.heaps.resolve(tableRow.typeNamespace)
-    public lazy var fullName: String = {
-        let ns = namespace
-        return ns.isEmpty ? name : "\(ns).\(name)"
-    }()
+    public var name: String { database.heaps.resolve(tableRow.typeName) }
+    public var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }
 
-    public lazy var base: TypeDefinition? = {
-        assembly.resolve(tableRow.extends)
-    }()
+    private var lazyFullName: String?
+    public var fullName: String {
+        lazyInit(storage: &lazyFullName) {
+            let ns = namespace
+            return ns.isEmpty ? name : "\(ns).\(name)"
+        }
+    }
+
+    private var lazyBase: TypeDefinition??
+    public var base: TypeDefinition? {
+        lazyInit(storage: &lazyBase) { assembly.resolve(tableRow.extends) }
+    }
 }

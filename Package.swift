@@ -22,6 +22,9 @@ let package = Package(
         .executableTarget(
             name: "Sample",
             dependencies: [ "WinMD", "WinMDGraph" ],
-            path: "Sample")
+            path: "Sample"),
+        .testTarget(
+            name: "WinMDTests",
+            dependencies: [ "WinMD" ])
     ]
 )
