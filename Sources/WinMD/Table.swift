@@ -24,8 +24,18 @@ public final class Table<Row> where Row: TableRow {
     }
 }
 
-extension Table: Collection {
+extension Table: RandomAccessCollection {
     public var startIndex: Int { 0 }
     public var endIndex: Int { count }
     public func index(after i: Int) -> Int { i + 1 }
+    public func index(before i: Int) -> Int { i - 1 }
+    public func index(_ i: Int, offsetBy offset: Int) -> Int { i + offset }
+}
+
+extension Table where Row: KeyedTableRow {
+    public func lookup(key: Row.PrimaryKey) -> TableRowIndex<Row> {
+        precondition(isSorted)
+        let index = self.binarySearch { $0.primaryKey < key }
+        return index == count ? .null : .init(zeroBased: index)
+    }
 }
