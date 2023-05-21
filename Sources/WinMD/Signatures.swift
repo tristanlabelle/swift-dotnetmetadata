@@ -23,3 +23,29 @@ public enum IntegerSize {
     case _8
     case native
 }
+
+public struct MethodDefSig {
+    public var hasThis: Bool
+    public var explicitThis: Bool
+    // default/vararg/generic
+    public var retType: TypeSig
+    public var params: [TypeSig]
+}
+
+extension MethodDefSig {
+    public init(blob: UnsafeRawBufferPointer) throws {
+        self = try SignatureReader.readMethodDef(blob: blob)
+    }
+}
+
+public struct FieldSig {
+    // customMods
+    public var type: TypeSig
+}
+
+
+extension FieldSig {
+    public init(blob: UnsafeRawBufferPointer) throws {
+        self = try SignatureReader.readField(blob: blob)
+    }
+}
