@@ -15,6 +15,18 @@ public class TypeDefinition {
 
     public var name: String { database.heaps.resolve(tableRow.typeName) }
     public var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }
+    public var visibility: Visibility {
+        switch tableRow.flags.intersection(.visibilityMask) {
+            case .public: return .public
+            case .notPublic: return .assembly
+            case .nestedFamily: return .family
+            case .nestedFamORAssem: return .familyOrAssembly
+            case .nestedFamANDAssem: return .familyAndAssembly
+            case .nestedAssembly: return .assembly
+            case .nestedPrivate: return .private
+            default: fatalError()
+        }
+    }
 
     private var lazyFullName: String?
     public var fullName: String {

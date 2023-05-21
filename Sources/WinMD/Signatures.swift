@@ -43,7 +43,6 @@ public struct FieldSig {
     public var type: TypeSig
 }
 
-
 extension FieldSig {
     public init(blob: UnsafeRawBufferPointer) throws {
         self = try SignatureReader.readField(blob: blob)

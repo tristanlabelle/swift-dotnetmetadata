@@ -50,6 +50,18 @@ public struct FieldAttributes: OptionSet {
     public static let family = Self(rawValue: 0x4)
     public static let famORAssem = Self(rawValue: 0x5)
     public static let `public` = Self(rawValue: 0x6)
+
+    public static let `static` = Self(rawValue: 0x10)
+    public static let initOnly = Self(rawValue: 0x20)
+    public static let literal = Self(rawValue: 0x40)
+    public static let notSerialized = Self(rawValue: 0x80)
+    public static let specialName = Self(rawValue: 0x200)
+
+    public static let pinvokeImpl = Self(rawValue: 0x2000)
+    public static let rtSpecialName = Self(rawValue: 0x400)
+    public static let hasFieldMarshal = Self(rawValue: 0x1000)
+    public static let hasDefault = Self(rawValue: 0x8000)
+    public static let hasFieldRVA = Self(rawValue: 0x100)
 }
 
 public struct GenericParamAttributes: OptionSet {
