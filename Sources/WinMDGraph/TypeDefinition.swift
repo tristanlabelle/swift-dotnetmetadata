@@ -1,7 +1,7 @@
 import WinMD
 
 public class TypeDefinition {
-    private unowned let assembly: Assembly
+    public unowned let assembly: Assembly
     private let tableRowIndex: TableRowIndex<WinMD.TypeDef>
     internal var context: MetadataContext { assembly.context }
     internal var database: Database { assembly.database }
@@ -27,5 +27,17 @@ public class TypeDefinition {
     private var lazyBase: TypeDefinition??
     public var base: TypeDefinition? {
         lazyInit(storage: &lazyBase) { assembly.resolve(tableRow.extends) }
+    }
+
+    private var lazyMethods: [Method]?
+    public var methods: [Method] {
+        lazyInit(storage: &lazyMethods) {
+            getChildRowRange(parent: database.tables.typeDef,
+                parentRowIndex: tableRowIndex,
+                childTable: database.tables.methodDef,
+                childSelector: { $0.methodList }).map {
+                Method(definingType: self, tableRowIndex: TableRowIndex<MethodDef>(zeroBased: $0))
+            }
+        }
     }
 }

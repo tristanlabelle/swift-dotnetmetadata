@@ -8,4 +8,8 @@ let url = URL(fileURLWithPath: #"C:\Program Files (x86)\Windows Kits\10\UnionMet
 let assembly = try context.loadAssembly(url: url)
 print("Loaded assembly: \(assembly.name)")
 let iclosable = assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")!
-print("IClosable: \(iclosable.namespace) \(iclosable.name)")
+print("interface IClosable {")
+for method in iclosable.methods {
+    print("  void \(method.name)")
+}
+print("}")
