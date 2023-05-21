@@ -48,7 +48,30 @@ public class BlobHeap: Heap {
     }
 
     public func resolve(at offset: UInt32) -> UnsafeRawBufferPointer {
-        fatalError()
+        var remainder = buffer.sub(offset: Int(offset))
+
+        // §II.24.2.4
+        let size: Int
+        let firstByte = remainder.consume(type: UInt8.self).pointee
+        if firstByte < 0x80 {
+            size = Int(firstByte)
+        }
+        else {
+            let secondByte = remainder.consume(type: UInt8.self).pointee
+            if firstByte < 0xC0 {
+                size = (Int(firstByte & 0x3F) << 8) | Int(secondByte)
+            }
+            else if firstByte < 0xE0 {
+                let thirdByte = remainder.consume(type: UInt8.self).pointee
+                let fourthByte = remainder.consume(type: UInt8.self).pointee
+                size = (Int(firstByte & 0x1F) << 24) | (Int(secondByte) << 16) | (Int(thirdByte) << 8) | Int(fourthByte)
+            }
+            else {
+                fatalError()
+            }
+        }
+
+        return remainder.sub(offset: 0, count: size)
     }
 }
 
