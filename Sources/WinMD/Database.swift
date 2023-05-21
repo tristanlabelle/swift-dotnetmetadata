@@ -20,7 +20,7 @@ public final class Database {
 
         let cliHeader = peView.resolve(peView.dataDirectories[14]) // IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR
             .bindMemory(offset: 0, to: PE.ImageCor20Header.self)
-        guard cliHeader.pointee.cb == MemoryLayout<PE.ImageCor20Header>.stride else { throw InvalidFormatError.invalidCLIHeader }
+        guard cliHeader.pointee.cb == MemoryLayout<PE.ImageCor20Header>.stride else { throw InvalidFormatError.cliHeader }
 
         let metadataSection = peView.resolve(virtualAddress: cliHeader.pointee.metaData.virtualAddress, size: cliHeader.pointee.metaData.size)
         let metadataRoot = try Self.readMetadataRoot(metadataSection: metadataSection)
@@ -33,7 +33,7 @@ public final class Database {
         var tablesStreamRemainder = Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#~"])
         let tablesStreamHeader = tablesStreamRemainder.consume(type: MetadataTablesStreamHeader.self)
         guard tablesStreamHeader.pointee.majorVersion == 2 && tablesStreamHeader.pointee.minorVersion == 0 else {
-            throw InvalidFormatError.invalidCLIHeader
+            throw InvalidFormatError.cliHeader
         }
 
         let tableRowCounts = (0 ..< TableIndex.count).map {
@@ -58,7 +58,7 @@ public final class Database {
         var remainder = metadataSection
 
         let beforeVersion = remainder.consume(type: MetadataRoot_BeforeVersion.self)
-        guard beforeVersion.pointee.signature == 0x424a5342 else { throw InvalidFormatError.invalidCLIHeader }
+        guard beforeVersion.pointee.signature == 0x424a5342 else { throw InvalidFormatError.cliHeader }
 
         let versionStringPaddedLength = (Int(beforeVersion.pointee.length) + 3) & ~0x3
         let versionStringPaddedBytes = remainder.consume(count: versionStringPaddedLength)

@@ -40,13 +40,13 @@ extension PE {
         init(file: UnsafeRawBufferPointer) throws {
             self.file = file
             self.dosHeader = file.bindMemory(offset: 0, to: ImageDOSHeader.self)
-            guard dosHeader.pointee.e_signature == 0x5A4D else { throw InvalidFormatError.invalidDOSHeader } // IMAGE_DOS_SIGNATURE
+            guard dosHeader.pointee.e_signature == 0x5A4D else { throw InvalidFormatError.dosHeader } // IMAGE_DOS_SIGNATURE
 
             peHeader = file.sub(offset: Int(dosHeader.pointee.e_lfanew))
             var peHeaderRemainder = peHeader
 
             let peHeaderSignature = peHeaderRemainder.consume(type: UInt32.self).pointee
-            guard peHeaderSignature == 0x00004550 else { throw InvalidFormatError.invalidNTHeader } // 'PE\0\0'
+            guard peHeaderSignature == 0x00004550 else { throw InvalidFormatError.ntHeader } // 'PE\0\0'
 
             let fileHeader = peHeaderRemainder.consume(type: ImageFileHeader.self)
 
@@ -54,17 +54,17 @@ extension PE {
             if optionalHeaderMagic == 0x10B { // PE32
                 let optionalHeader = peHeaderRemainder.consume(type: ImageOptionalHeader32.self)
                 guard optionalHeader.pointee.numberOfRvaAndSizes == 16 else {
-                    throw InvalidFormatError.invalidNTHeader
+                    throw InvalidFormatError.ntHeader
                 }
             }
             else if optionalHeaderMagic == 0x20B { // PE32+
                 let optionalHeader = peHeaderRemainder.consume(type: ImageOptionalHeader64.self)
                 guard optionalHeader.pointee.numberOfRvaAndSizes == 16 else {
-                    throw InvalidFormatError.invalidNTHeader
+                    throw InvalidFormatError.ntHeader
                 }
             }
             else {
-                throw InvalidFormatError.invalidNTHeader
+                throw InvalidFormatError.ntHeader
             }
 
             let sectionHeaders = peHeaderRemainder.consume(type: ImageSectionHeader.self, count: Int(fileHeader.pointee.numberOfSections))
