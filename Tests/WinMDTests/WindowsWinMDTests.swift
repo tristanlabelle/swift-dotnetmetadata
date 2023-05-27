@@ -36,17 +36,39 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testMethodEnumeration() throws {
-        let iclosable = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")!
-        let methods = iclosable.methods
-        XCTAssertEqual(methods.count, 1)
-        XCTAssertEqual(methods[0].name, "Close")
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.methods.map({ $0.name }).sorted(),
+            [ "Cancel", "Close", "get_ErrorCode", "get_Id", "get_Status" ])
     }
 
     func testFieldEnumeration() throws {
-        let point = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")!
-        let fields = point.fields.sorted { $0.name < $1.name }
-        XCTAssertEqual(fields.count, 2)
-        XCTAssertEqual(fields[0].name, "X")
-        XCTAssertEqual(fields[1].name, "Y")
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.fields.map({ $0.name }).sorted(),
+            [ "X", "Y" ])
+    }
+
+    func testTypeVisibility() throws {
+        XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
+        XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)
+    }
+
+    func testTypeFlags() throws {
+        let guidHelper = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.GuidHelper")!
+        XCTAssert(guidHelper.isAbstract)
+        XCTAssert(guidHelper.isSealed)
+    }
+
+    func testMethodFlags() throws {
+        let istringable_toString = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?
+            .findSingleMethod(name: "ToString")
+        XCTAssertEqual(istringable_toString?.isStatic, false)
+        XCTAssertEqual(istringable_toString?.isVirtual, true)
+        XCTAssertEqual(istringable_toString?.isAbstract, true)
+
+        let guidHelper_createNewGuid = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.GuidHelper")?
+            .findSingleMethod(name: "CreateNewGuid")
+        XCTAssertEqual(guidHelper_createNewGuid?.isStatic, true)
+        XCTAssertEqual(guidHelper_createNewGuid?.isVirtual, false)
+        XCTAssertEqual(guidHelper_createNewGuid?.isAbstract, false)
     }
 }

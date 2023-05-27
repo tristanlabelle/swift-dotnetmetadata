@@ -28,6 +28,9 @@ public class TypeDefinition {
         }
     }
 
+    public var isAbstract: Bool { tableRow.flags.contains(TypeAttributes.abstract) }
+    public var isSealed: Bool { tableRow.flags.contains(TypeAttributes.sealed) }
+
     public private(set) lazy var fullName: String = {
         let ns = namespace
         return ns.isEmpty ? name : "\(ns).\(name)"
@@ -46,6 +49,10 @@ public class TypeDefinition {
         }
     }()
 
+    public func findSingleMethod(name: String) -> Method? {
+        methods.single { $0.name == name }
+    }
+
     public private(set) lazy var fields: [Field] = {
         getChildRowRange(parent: database.tables.typeDef,
             parentRowIndex: tableRowIndex,
@@ -54,4 +61,8 @@ public class TypeDefinition {
             Field(definingType: self, tableRowIndex: .init(zeroBased: $0))
         }
     }()
+
+    public func findSingleField(name: String) -> Field? {
+        fields.single { $0.name == name }
+    }
 }
