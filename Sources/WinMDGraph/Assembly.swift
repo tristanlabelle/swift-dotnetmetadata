@@ -13,21 +13,15 @@ public final class Assembly {
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 
-    private var lazyTypes: [TypeDefinition]?
-    private var types: [TypeDefinition] {
-        lazyInit(storage: &lazyTypes) {
-            (0 ..< database.tables.typeDef.count).map {
-                TypeDefinition(assembly: self, tableRowIndex: .init(zeroBased: $0))
-            }
+    public private(set) lazy var types: [TypeDefinition] = {
+        (0 ..< database.tables.typeDef.count).map {
+            TypeDefinition(assembly: self, tableRowIndex: .init(zeroBased: $0))
         }
-    }
+    }()
 
-    private var lazyTypesByFullName: [String: TypeDefinition]?
-    private var typesByFullName: [String: TypeDefinition] {
-        lazyInit(storage: &lazyTypesByFullName) {
-            Dictionary(uniqueKeysWithValues: types.map { ($0.fullName, $0) })
-        }
-    }
+    public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
+        Dictionary(uniqueKeysWithValues: types.map { ($0.fullName, $0) })
+    }()
 
     public func findTypeDefinition(fullName: String) -> TypeDefinition? {
         typesByFullName[fullName]

@@ -28,28 +28,30 @@ public class TypeDefinition {
         }
     }
 
-    private var lazyFullName: String?
-    public var fullName: String {
-        lazyInit(storage: &lazyFullName) {
-            let ns = namespace
-            return ns.isEmpty ? name : "\(ns).\(name)"
-        }
-    }
+    public private(set) lazy var fullName: String = {
+        let ns = namespace
+        return ns.isEmpty ? name : "\(ns).\(name)"
+    }()
 
-    private var lazyBase: TypeDefinition??
-    public var base: TypeDefinition? {
-        lazyInit(storage: &lazyBase) { assembly.resolve(tableRow.extends) }
-    }
+    public private(set) lazy var base: TypeDefinition? = {
+        assembly.resolve(tableRow.extends)
+    }()
 
-    private var lazyMethods: [Method]?
-    public var methods: [Method] {
-        lazyInit(storage: &lazyMethods) {
-            getChildRowRange(parent: database.tables.typeDef,
-                parentRowIndex: tableRowIndex,
-                childTable: database.tables.methodDef,
-                childSelector: { $0.methodList }).map {
-                Method(definingType: self, tableRowIndex: TableRowIndex<MethodDef>(zeroBased: $0))
-            }
+    public private(set) lazy var methods: [Method] = {
+        getChildRowRange(parent: database.tables.typeDef,
+            parentRowIndex: tableRowIndex,
+            childTable: database.tables.methodDef,
+            childSelector: { $0.methodList }).map {
+            Method(definingType: self, tableRowIndex: .init(zeroBased: $0))
         }
-    }
+    }()
+
+    public private(set) lazy var fields: [Field] = {
+        getChildRowRange(parent: database.tables.typeDef,
+            parentRowIndex: tableRowIndex,
+            childTable: database.tables.field,
+            childSelector: { $0.fieldList }).map {
+            Field(definingType: self, tableRowIndex: .init(zeroBased: $0))
+        }
+    }()
 }
