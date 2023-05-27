@@ -19,6 +19,7 @@ public final class Method {
     public var isVirtual: Bool { tableRow.flags.contains(.virtual) }
     public var isAbstract: Bool { tableRow.flags.contains(.abstract) }
     public var isFinal: Bool { tableRow.flags.contains(.final) }
+    public var isSpecialName: Bool { tableRow.flags.contains(.specialName) }
 
     public var visibility: Visibility {
         switch tableRow.flags.intersection(.memberAccessMask) {

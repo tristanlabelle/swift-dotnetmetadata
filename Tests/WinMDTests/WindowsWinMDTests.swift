@@ -29,10 +29,10 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testTypeName() throws {
-        let iclosable = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")!
-        XCTAssertEqual(iclosable.name, "IClosable")
-        XCTAssertEqual(iclosable.namespace, "Windows.Foundation")
-        XCTAssertEqual(iclosable.fullName, "Windows.Foundation.IClosable")
+        let iclosable = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")
+        XCTAssertEqual(iclosable?.name, "IClosable")
+        XCTAssertEqual(iclosable?.namespace, "Windows.Foundation")
+        XCTAssertEqual(iclosable?.fullName, "Windows.Foundation.IClosable")
     }
 
     func testMethodEnumeration() throws {
@@ -59,16 +59,18 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testMethodFlags() throws {
-        let istringable_toString = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?
-            .findSingleMethod(name: "ToString")
-        XCTAssertEqual(istringable_toString?.isStatic, false)
-        XCTAssertEqual(istringable_toString?.isVirtual, true)
-        XCTAssertEqual(istringable_toString?.isAbstract, true)
+        let iasyncInfo_get_Id = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?
+            .findSingleMethod(name: "get_Id")
+        XCTAssertEqual(iasyncInfo_get_Id?.isStatic, false)
+        XCTAssertEqual(iasyncInfo_get_Id?.isVirtual, true)
+        XCTAssertEqual(iasyncInfo_get_Id?.isAbstract, true)
+        XCTAssertEqual(iasyncInfo_get_Id?.isSpecialName, true)
 
         let guidHelper_createNewGuid = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.GuidHelper")?
             .findSingleMethod(name: "CreateNewGuid")
         XCTAssertEqual(guidHelper_createNewGuid?.isStatic, true)
         XCTAssertEqual(guidHelper_createNewGuid?.isVirtual, false)
         XCTAssertEqual(guidHelper_createNewGuid?.isAbstract, false)
+        XCTAssertEqual(guidHelper_createNewGuid?.isSpecialName, false)
     }
 }
