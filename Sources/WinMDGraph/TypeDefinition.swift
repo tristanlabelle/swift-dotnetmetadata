@@ -2,11 +2,11 @@ import WinMD
 
 public class TypeDefinition {
     public unowned let assembly: Assembly
-    private let tableRowIndex: TableRowIndex<WinMD.TypeDef>
+    private let tableRowIndex: Table<WinMD.TypeDef>.RowIndex
     internal var context: MetadataContext { assembly.context }
     internal var database: Database { assembly.database }
 
-    init(assembly: Assembly, tableRowIndex: TableRowIndex<WinMD.TypeDef>) {
+    init(assembly: Assembly, tableRowIndex: Table<WinMD.TypeDef>.RowIndex) {
         self.assembly = assembly
         self.tableRowIndex = tableRowIndex
     }

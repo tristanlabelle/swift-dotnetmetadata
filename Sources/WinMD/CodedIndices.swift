@@ -9,8 +9,8 @@ extension CodedIndex {
 }
 
 public enum CustomAttributeType: CodedIndex {
-    case methodDef(TableRowIndex<MethodDef>?)
-    case memberRef(TableRowIndex<MemberRef>?)
+    case methodDef(Table<MethodDef>.RowIndex?)
+    case memberRef(Table<MemberRef>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ nil, nil, .methodDef, .memberRef, nil ]
 
@@ -31,9 +31,9 @@ public enum CustomAttributeType: CodedIndex {
 }
 
 public enum HasConstant: CodedIndex {
-    case field(TableRowIndex<Field>?)
-    case param(TableRowIndex<Param>?)
-    case property(TableRowIndex<Property>?)
+    case field(Table<Field>.RowIndex?)
+    case param(Table<Param>.RowIndex?)
+    case property(Table<Property>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .field, .param, .property ]
 
@@ -56,8 +56,8 @@ public enum HasConstant: CodedIndex {
 }
 
 public enum HasSemantics: CodedIndex {
-    case event(TableRowIndex<Event>?)
-    case property(TableRowIndex<Property>?)
+    case event(Table<Event>.RowIndex?)
+    case property(Table<Property>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .event, .property ]
 
@@ -78,22 +78,22 @@ public enum HasSemantics: CodedIndex {
 }
 
 public enum HasCustomAttribute: CodedIndex {
-    case methodDef(TableRowIndex<MethodDef>?)
-    case field(TableRowIndex<Field>?)
-    case typeRef(TableRowIndex<TypeRef>?)
-    case typeDef(TableRowIndex<TypeDef>?)
-    case param(TableRowIndex<Param>?)
-    case interfaceImpl(TableRowIndex<InterfaceImpl>?)
-    case memberRef(TableRowIndex<MemberRef>?)
-    case module(TableRowIndex<Module>?)
+    case methodDef(Table<MethodDef>.RowIndex?)
+    case field(Table<Field>.RowIndex?)
+    case typeRef(Table<TypeRef>.RowIndex?)
+    case typeDef(Table<TypeDef>.RowIndex?)
+    case param(Table<Param>.RowIndex?)
+    case interfaceImpl(Table<InterfaceImpl>.RowIndex?)
+    case memberRef(Table<MemberRef>.RowIndex?)
+    case module(Table<Module>.RowIndex?)
     case permission(oneBasedIndex: UInt32)
-    case property(TableRowIndex<Property>?)
-    case event(TableRowIndex<Event>?)
+    case property(Table<Property>.RowIndex?)
+    case event(Table<Event>.RowIndex?)
     case standAloneSig(oneBasedIndex: UInt32)
     case moduleRef(oneBasedIndex: UInt32)
-    case typeSpec(TableRowIndex<TypeSpec>?)
-    case assembly(TableRowIndex<Assembly>?)
-    case assemblyRef(TableRowIndex<AssemblyRef>?)
+    case typeSpec(Table<TypeSpec>.RowIndex?)
+    case assembly(Table<Assembly>.RowIndex?)
+    case assemblyRef(Table<AssemblyRef>.RowIndex?)
     case file(oneBasedIndex: UInt32)
     case exportedType(oneBasedIndex: UInt32)
     case manifestResource(oneBasedIndex: UInt32)
@@ -150,11 +150,11 @@ public enum HasCustomAttribute: CodedIndex {
 }
 
 public enum MemberRefParent: CodedIndex {
-    case typeDef(TableRowIndex<TypeDef>?)
-    case typeRef(TableRowIndex<TypeRef>?)
+    case typeDef(Table<TypeDef>.RowIndex?)
+    case typeRef(Table<TypeRef>.RowIndex?)
     case moduleRef(oneBasedIndex: UInt32)
-    case methodDef(TableRowIndex<MethodDef>?)
-    case typeSpec(TableRowIndex<TypeSpec>?)
+    case methodDef(Table<MethodDef>.RowIndex?)
+    case typeSpec(Table<TypeSpec>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
 
@@ -180,8 +180,8 @@ public enum MemberRefParent: CodedIndex {
 }
 
 public enum MethodDefOrRef: CodedIndex {
-    case methodDef(TableRowIndex<MethodDef>?)
-    case memberRef(TableRowIndex<MemberRef>?)
+    case methodDef(Table<MethodDef>.RowIndex?)
+    case memberRef(Table<MemberRef>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .methodDef, .memberRef ]
 
@@ -202,10 +202,10 @@ public enum MethodDefOrRef: CodedIndex {
 }
 
 public enum ResolutionScope: CodedIndex {
-    case module(TableRowIndex<Module>?)
+    case module(Table<Module>.RowIndex?)
     case moduleRef(oneBasedIndex: UInt32)
-    case assemblyRef(TableRowIndex<AssemblyRef>?)
-    case typeRef(TableRowIndex<TypeRef>?)
+    case assemblyRef(Table<AssemblyRef>.RowIndex?)
+    case typeRef(Table<TypeRef>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
 
@@ -229,9 +229,9 @@ public enum ResolutionScope: CodedIndex {
 }
 
 public enum TypeDefOrRef: CodedIndex {
-    case typeDef(TableRowIndex<TypeDef>?)
-    case typeRef(TableRowIndex<TypeRef>?)
-    case typeSpec(TableRowIndex<TypeSpec>?)
+    case typeDef(Table<TypeDef>.RowIndex?)
+    case typeRef(Table<TypeRef>.RowIndex?)
+    case typeSpec(Table<TypeSpec>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .typeSpec ]
 
@@ -254,8 +254,8 @@ public enum TypeDefOrRef: CodedIndex {
 }
 
 public enum TypeOrMethodDef: CodedIndex {
-    case typeDef(TableRowIndex<TypeDef>?)
-    case methodDef(TableRowIndex<MethodDef>?)
+    case typeDef(Table<TypeDef>.RowIndex?)
+    case methodDef(Table<MethodDef>.RowIndex?)
 
     public static let tables: [TableIndex?] = [ .typeDef, .methodDef ]
 

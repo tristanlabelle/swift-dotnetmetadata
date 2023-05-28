@@ -2,9 +2,9 @@ import WinMD
 
 func getChildRowRange<Parent, Child>(
     parent: Table<Parent>,
-    parentRowIndex: TableRowIndex<Parent>,
+    parentRowIndex: Table<Parent>.RowIndex,
     childTable: Table<Child>,
-    childSelector: (Parent) -> TableRowIndex<Child>?) -> Range<TableRowIndex<Child>>
+    childSelector: (Parent) -> Table<Child>.RowIndex?) -> Range<Table<Child>.RowIndex>
     where Parent : TableRow, Child: TableRow {
     guard let firstChildIndex = childSelector(parent[parentRowIndex]) else {
         return childTable.endIndex ..< childTable.endIndex

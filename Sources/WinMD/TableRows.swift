@@ -182,8 +182,8 @@ extension Event: TableRow {
 }
 
 public struct EventMap {
-    public var parent: TableRowIndex<TypeDef>?
-    public var eventList: TableRowIndex<Event>?
+    public var parent: Table<TypeDef>.RowIndex?
+    public var eventList: Table<Event>.RowIndex?
 }
 
 extension EventMap: TableRow {
@@ -263,7 +263,7 @@ extension GenericParam: DoublyKeyedTableRow {
 }
 
 public struct InterfaceImpl {
-    public var `class`: TableRowIndex<TypeDef>?
+    public var `class`: Table<TypeDef>.RowIndex?
     public var interface: TypeDefOrRef
 }
 
@@ -320,7 +320,7 @@ public struct MethodDef {
     public var flags: MethodAttributes
     public var name: HeapOffset<StringHeap>
     public var signature: HeapOffset<BlobHeap>
-    public var paramList: TableRowIndex<Param>?
+    public var paramList: Table<Param>.RowIndex?
 }
 
 extension MethodDef: TableRow {
@@ -350,7 +350,7 @@ extension MethodDef: TableRow {
 }
 
 public struct MethodImpl {
-    public var `class`: TableRowIndex<TypeDef>?
+    public var `class`: Table<TypeDef>.RowIndex?
     public var methodBody: MethodDefOrRef
     public var methodDeclaration: MethodDefOrRef
 }
@@ -379,7 +379,7 @@ extension MethodImpl: KeyedTableRow {
 
 public struct MethodSemantics {
     public var semantics: MethodSemanticsAttributes
-    public var method: TableRowIndex<MethodDef>?
+    public var method: Table<MethodDef>.RowIndex?
     public var association: HasSemantics
 }
 
@@ -490,8 +490,8 @@ extension Property: TableRow {
 }
 
 public struct PropertyMap {
-    public var parent: TableRowIndex<TypeDef>?
-    public var propertyList: TableRowIndex<Property>?
+    public var parent: Table<TypeDef>.RowIndex?
+    public var propertyList: Table<Property>.RowIndex?
 }
 
 extension PropertyMap: TableRow {
@@ -517,8 +517,8 @@ public struct TypeDef {
     public var typeName: HeapOffset<StringHeap>
     public var typeNamespace: HeapOffset<StringHeap>
     public var extends: TypeDefOrRef
-    public var fieldList: TableRowIndex<Field>?
-    public var methodList: TableRowIndex<MethodDef>?
+    public var fieldList: Table<Field>.RowIndex?
+    public var methodList: Table<MethodDef>.RowIndex?
 }
 
 extension TypeDef: TableRow {

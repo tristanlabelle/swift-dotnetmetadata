@@ -2,12 +2,12 @@ import WinMD
 
 public final class Field {
     public unowned let definingType: TypeDefinition
-    private let tableRowIndex: TableRowIndex<WinMD.Field>
+    private let tableRowIndex: Table<WinMD.Field>.RowIndex
     internal var assembly: Assembly { definingType.assembly }
     internal var context: MetadataContext { assembly.context }
     internal var database: Database { assembly.database }
 
-    init(definingType: TypeDefinition, tableRowIndex: TableRowIndex<WinMD.Field>) {
+    init(definingType: TypeDefinition, tableRowIndex: Table<WinMD.Field>.RowIndex) {
         self.definingType = definingType
         self.tableRowIndex = tableRowIndex
     }

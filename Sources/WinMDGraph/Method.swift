@@ -2,12 +2,12 @@ import WinMD
 
 public final class Method {
     public unowned let definingType: TypeDefinition
-    private let tableRowIndex: TableRowIndex<WinMD.MethodDef>
+    private let tableRowIndex: Table<WinMD.MethodDef>.RowIndex
     internal var assembly: Assembly { definingType.assembly }
     internal var context: MetadataContext { assembly.context }
     internal var database: Database { assembly.database }
 
-    init(definingType: TypeDefinition, tableRowIndex: TableRowIndex<WinMD.MethodDef>) {
+    init(definingType: TypeDefinition, tableRowIndex: Table<WinMD.MethodDef>.RowIndex) {
         self.definingType = definingType
         self.tableRowIndex = tableRowIndex
     }

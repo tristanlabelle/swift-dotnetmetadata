@@ -35,12 +35,12 @@ public final class Assembly {
         }
     }
 
-    private lazy var propertyMapByTypeDefRowIndex: [TableRowIndex<TypeDef>: TableRowIndex<PropertyMap>] = {
+    private lazy var propertyMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<PropertyMap>.RowIndex] = {
         .init(uniqueKeysWithValues: database.tables.propertyMap.indices.map {
             (database.tables.propertyMap[$0].parent!, $0)
         })
     }()
-    func findPropertyMap(forTypeDef typeDefRowIndex: TableRowIndex<TypeDef>) -> TableRowIndex<PropertyMap>? {
+    func findPropertyMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<PropertyMap>.RowIndex? {
         propertyMapByTypeDefRowIndex[typeDefRowIndex]
     }
 }
