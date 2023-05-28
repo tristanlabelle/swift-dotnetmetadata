@@ -14,8 +14,8 @@ public final class Assembly {
     public var name: String { database.heaps.resolve(tableRow.name) }
 
     public private(set) lazy var types: [TypeDefinition] = {
-        (0 ..< database.tables.typeDef.count).map {
-            TypeDefinition(assembly: self, tableRowIndex: .init(zeroBased: $0))
+        database.tables.typeDef.indices.map {
+            TypeDefinition(assembly: self, tableRowIndex: $0)
         }
     }()
 
@@ -29,7 +29,8 @@ public final class Assembly {
 
     internal func resolve(_ codedIndex: TypeDefOrRef) -> TypeDefinition? {
         switch codedIndex {
-            case let .typeDef(index): return index.isNull ? nil : types[index.zeroBased!]
+            case let .typeDef(index):
+                return index == nil ? nil : types[Int(index!.zeroBased)]
             default: fatalError()
         }
     }

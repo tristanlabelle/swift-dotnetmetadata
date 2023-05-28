@@ -1,5 +1,5 @@
 extension RandomAccessCollection {
-    func binarySearch(predicate: (Iterator.Element) -> Bool) -> Index {
+    func binarySearchIndex(predicate: (Iterator.Element) -> Bool) -> Index {
         var low = startIndex
         var high = endIndex
         while low != high {

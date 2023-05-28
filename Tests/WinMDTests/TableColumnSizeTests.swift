@@ -5,22 +5,25 @@ import XCTest
 final class TableColumnSizeTests: XCTestCase {
     func testCodedIndexTagBitCount() throws {
         enum TwoCaseCodedIndex: CodedIndex {
-            public static let tables: [TableIndex?] = [ nil, nil ]
-            public init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
+            static let tables: [TableIndex?] = [ nil, nil ]
+            init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
+            var metadataToken: MetadataToken { fatalError() } 
         }
 
         XCTAssertEqual(TwoCaseCodedIndex.tagBitCount, 1)
-        
+
         enum ThreeCaseCodedIndex: CodedIndex {
-            public static let tables: [TableIndex?] = [ nil, nil, nil ]
-            public init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
+            static let tables: [TableIndex?] = [ nil, nil, nil ]
+            init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
+            var metadataToken: MetadataToken { fatalError() }
         }
 
         XCTAssertEqual(ThreeCaseCodedIndex.tagBitCount, 2)
 
         enum FourCaseCodedIndex: CodedIndex {
-            public static let tables: [TableIndex?] = [ nil, nil, nil, nil ]
-            public init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
+            static let tables: [TableIndex?] = [ nil, nil, nil, nil ]
+            init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
+            var metadataToken: MetadataToken { fatalError() }
         }
 
         XCTAssertEqual(FourCaseCodedIndex.tagBitCount, 2)

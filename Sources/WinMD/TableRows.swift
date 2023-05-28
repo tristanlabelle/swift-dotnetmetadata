@@ -106,7 +106,7 @@ public struct Constant {
 }
 
 extension Constant: KeyedTableRow {
-    public var primaryKey: HasConstant { parent }
+    public var primaryKey: MetadataToken { parent.metadataToken }
 
     public static var tableIndex: TableIndex { .constant }
 
@@ -134,7 +134,7 @@ public struct CustomAttribute {
 }
 
 extension CustomAttribute: KeyedTableRow {
-    public var primaryKey: HasCustomAttribute { parent }
+    public var primaryKey: MetadataToken { parent.metadataToken }
 
     public static var tableIndex: TableIndex { .customAttribute }
 
@@ -182,8 +182,8 @@ extension Event: TableRow {
 }
 
 public struct EventMap {
-    public var parent: TableRowIndex<TypeDef>
-    public var eventList: TableRowIndex<Event>
+    public var parent: TableRowIndex<TypeDef>?
+    public var eventList: TableRowIndex<Event>?
 }
 
 extension EventMap: TableRow {
@@ -238,7 +238,7 @@ public struct GenericParam {
 }
 
 extension GenericParam: DoublyKeyedTableRow {
-    public var primaryKey: TypeOrMethodDef { owner }
+    public var primaryKey: MetadataToken { owner.metadataToken }
     public var secondaryKey: UInt16 { number }
 
     public static var tableIndex: TableIndex { .module }
@@ -263,13 +263,13 @@ extension GenericParam: DoublyKeyedTableRow {
 }
 
 public struct InterfaceImpl {
-    public var `class`: TableRowIndex<TypeDef>
+    public var `class`: TableRowIndex<TypeDef>?
     public var interface: TypeDefOrRef
 }
 
 extension InterfaceImpl: DoublyKeyedTableRow {
-    public var primaryKey: TableRowIndex<TypeDef> { `class` }
-    public var secondaryKey: TypeDefOrRef { interface }
+    public var primaryKey: MetadataToken { .init(`class`) }
+    public var secondaryKey: MetadataToken { interface.metadataToken }
 
     public static var tableIndex: TableIndex { .interfaceImpl }
 
@@ -320,7 +320,7 @@ public struct MethodDef {
     public var flags: MethodAttributes
     public var name: HeapOffset<StringHeap>
     public var signature: HeapOffset<BlobHeap>
-    public var paramList: TableRowIndex<Param>
+    public var paramList: TableRowIndex<Param>?
 }
 
 extension MethodDef: TableRow {
@@ -350,13 +350,13 @@ extension MethodDef: TableRow {
 }
 
 public struct MethodImpl {
-    public var `class`: TableRowIndex<TypeDef>
+    public var `class`: TableRowIndex<TypeDef>?
     public var methodBody: MethodDefOrRef
     public var methodDeclaration: MethodDefOrRef
 }
 
 extension MethodImpl: KeyedTableRow {
-    public var primaryKey: TableRowIndex<TypeDef> { `class` }
+    public var primaryKey: MetadataToken { .init(`class`) }
 
     public static var tableIndex: TableIndex { .methodImpl }
 
@@ -379,12 +379,12 @@ extension MethodImpl: KeyedTableRow {
 
 public struct MethodSemantics {
     public var semantics: MethodSemanticsAttributes
-    public var method: TableRowIndex<MethodDef>
+    public var method: TableRowIndex<MethodDef>?
     public var association: HasSemantics
 }
 
 extension MethodSemantics: KeyedTableRow {
-    public var primaryKey: HasSemantics { association }
+    public var primaryKey: MetadataToken { association.metadataToken }
 
     public static var tableIndex: TableIndex { .methodSemantics }
 
@@ -490,8 +490,8 @@ extension Property: TableRow {
 }
 
 public struct PropertyMap {
-    public var parent: TableRowIndex<TypeDef>
-    public var propertyList: TableRowIndex<Property>
+    public var parent: TableRowIndex<TypeDef>?
+    public var propertyList: TableRowIndex<Property>?
 }
 
 extension PropertyMap: TableRow {
@@ -517,8 +517,8 @@ public struct TypeDef {
     public var typeName: HeapOffset<StringHeap>
     public var typeNamespace: HeapOffset<StringHeap>
     public var extends: TypeDefOrRef
-    public var fieldList: TableRowIndex<Field>
-    public var methodList: TableRowIndex<MethodDef>
+    public var fieldList: TableRowIndex<Field>?
+    public var methodList: TableRowIndex<MethodDef>?
 }
 
 extension TypeDef: TableRow {

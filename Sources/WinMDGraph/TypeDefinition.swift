@@ -45,7 +45,7 @@ public class TypeDefinition {
             parentRowIndex: tableRowIndex,
             childTable: database.tables.methodDef,
             childSelector: { $0.methodList }).map {
-            Method(definingType: self, tableRowIndex: .init(zeroBased: $0))
+            Method(definingType: self, tableRowIndex: $0)
         }
     }()
 
@@ -58,7 +58,7 @@ public class TypeDefinition {
             parentRowIndex: tableRowIndex,
             childTable: database.tables.field,
             childSelector: { $0.fieldList }).map {
-            Field(definingType: self, tableRowIndex: .init(zeroBased: $0))
+            Field(definingType: self, tableRowIndex: $0)
         }
     }()
 

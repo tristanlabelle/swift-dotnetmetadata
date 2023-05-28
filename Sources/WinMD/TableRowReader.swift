@@ -19,15 +19,15 @@ struct TableRowReader {
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return HeapOffset<T>(index)
+        return .init(index)
     }
 
-    mutating func readTableRowIndex<T>(last: Bool = false) -> TableRowIndex<T> where T: TableRow {
+    mutating func readTableRowIndex<T>(last: Bool = false) -> TableRowIndex<T>? where T: TableRow {
         let oneBasedIndex = sizes.getTableRowIndexSize(T.self) == 2
             ? UInt32(remainder.consume(type: UInt16.self).pointee)
             : remainder.consume(type: UInt32.self).pointee
         if last { checkAtEnd() }
-        return TableRowIndex<T>(oneBased: oneBasedIndex)
+        return .init(oneBased: oneBasedIndex)
     }
 
     mutating func readCodedIndex<Index>(last: Bool = false) -> Index where Index: CodedIndex {
