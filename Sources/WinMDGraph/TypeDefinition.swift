@@ -62,7 +62,21 @@ public class TypeDefinition {
         }
     }()
 
-    public func findSingleField(name: String) -> Field? {
-        fields.single { $0.name == name }
+    public func findField(name: String) -> Field? {
+        fields.first { $0.name == name }
+    }
+
+    public private(set) lazy var properties: [Property] = {
+        guard let propertyMapRowIndex = assembly.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
+        return getChildRowRange(parent: database.tables.propertyMap,
+            parentRowIndex: propertyMapRowIndex,
+            childTable: database.tables.property,
+            childSelector: { $0.propertyList }).map {
+            Property(definingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public func findProperty(name: String) -> Property? {
+        properties.first { $0.name == name }
     }
 }

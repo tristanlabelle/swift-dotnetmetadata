@@ -47,6 +47,12 @@ final class WindowsWinMDTests: XCTestCase {
             [ "X", "Y" ])
     }
 
+    func testPropertyEnumeration() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.properties.map({ $0.name }).sorted(),
+            [ "ErrorCode", "Id", "Status" ])
+    }
+
     func testTypeVisibility() throws {
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)

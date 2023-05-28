@@ -44,7 +44,7 @@ extension Table: RandomAccessCollection {
 }
 
 extension Table where Row: KeyedTableRow {
-    public func lookup(primaryKey: Row.PrimaryKey) -> TableRowIndex<Row>? {
+    public func find(primaryKey: Row.PrimaryKey) -> TableRowIndex<Row>? {
         precondition(isSorted)
         let insertIndex = self.binarySearchIndex { $0.primaryKey < primaryKey }
         guard insertIndex != startIndex else { return nil }
@@ -56,7 +56,7 @@ extension Table where Row: KeyedTableRow {
 }
 
 extension Table where Row: DoublyKeyedTableRow {
-    public func lookup(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> TableRowIndex<Row>? {
+    public func find(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> TableRowIndex<Row>? {
         precondition(isSorted)
         let insertIndex = self.binarySearchIndex {
             if $0.primaryKey < primaryKey { return true }

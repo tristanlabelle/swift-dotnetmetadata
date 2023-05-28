@@ -42,11 +42,4 @@ extension TableRowIndex: Strideable {
     public func advanced(by n: Stride) -> TableRowIndex {
         .init(zeroBased: UInt32(Int(zeroBased) + n))
     }
-
-    public static func _step(
-        after current: (index: Int?, value: TableRowIndex),
-        from start: TableRowIndex,
-        by distance: Stride) -> (index: Int?, value: TableRowIndex) {
-        fatalError("TableRowIndex._step is not implemented")
-    }
 }
