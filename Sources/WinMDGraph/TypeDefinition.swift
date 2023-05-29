@@ -36,6 +36,19 @@ public class TypeDefinition {
         return ns.isEmpty ? name : "\(ns).\(name)"
     }()
 
+    public private(set) lazy var genericParams: [GenericParam] = {
+        var result: [GenericParam] = []
+        var genericParamRowIndex = database.tables.genericParam.find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0)
+            ?? database.tables.genericParam.endIndex
+        while genericParamRowIndex < database.tables.genericParam.endIndex {
+            let genericParam = database.tables.genericParam[genericParamRowIndex]
+            guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
+            result.append(GenericParam(definingType: self, tableRowIndex: genericParamRowIndex))
+            genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
+        }
+        return result
+    }()
+
     public private(set) lazy var base: TypeDefinition? = {
         assembly.resolve(tableRow.extends)
     }()

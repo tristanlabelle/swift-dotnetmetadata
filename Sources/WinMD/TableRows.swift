@@ -241,7 +241,7 @@ extension GenericParam: DoublyKeyedTableRow {
     public var primaryKey: MetadataToken { owner.metadataToken }
     public var secondaryKey: UInt16 { number }
 
-    public static var tableIndex: TableIndex { .module }
+    public static var tableIndex: TableIndex { .genericParam }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)

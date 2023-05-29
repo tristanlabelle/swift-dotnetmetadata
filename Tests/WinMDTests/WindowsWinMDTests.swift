@@ -35,6 +35,12 @@ final class WindowsWinMDTests: XCTestCase {
         XCTAssertEqual(iclosable?.fullName, "Windows.Foundation.IClosable")
     }
 
+    func testGenericParamEnumeration() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Collections.IKeyValuePair`2")?.genericParams.map({ $0.name }).sorted(),
+            [ "K", "V" ])
+    }
+
     func testMethodEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.methods.map({ $0.name }).sorted(),

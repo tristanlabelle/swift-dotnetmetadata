@@ -34,9 +34,9 @@ public enum TableIndex: UInt8 {
     case exportedType = 0x27
     case manifestResource = 0x28
     case nestedClass = 0x29
-    case genericParameter = 0x2A
+    case genericParam = 0x2A
     case methodSpecification = 0x2B
-    case genericParameterConstraint = 0x2C
+    case genericParamConstraint = 0x2C
 
     public var intValue: Int { Int(rawValue) }
 
