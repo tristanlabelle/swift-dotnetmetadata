@@ -40,7 +40,18 @@ public final class Assembly {
             (database.tables.propertyMap[$0].parent!, $0)
         })
     }()
+
     func findPropertyMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<PropertyMap>.RowIndex? {
         propertyMapByTypeDefRowIndex[typeDefRowIndex]
+    }
+
+    private lazy var eventMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<EventMap>.RowIndex] = {
+        .init(uniqueKeysWithValues: database.tables.eventMap.indices.map {
+            (database.tables.eventMap[$0].parent!, $0)
+        })
+    }()
+
+    func findEventMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<EventMap>.RowIndex? {
+        eventMapByTypeDefRowIndex[typeDefRowIndex]
     }
 }

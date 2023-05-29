@@ -79,4 +79,18 @@ public class TypeDefinition {
     public func findProperty(name: String) -> Property? {
         properties.first { $0.name == name }
     }
+
+    public private(set) lazy var events: [Event] = {
+        guard let eventMapRowIndex: Table<EventMap>.RowIndex = assembly.findEventMap(forTypeDef: tableRowIndex) else { return [] }
+        return getChildRowRange(parent: database.tables.eventMap,
+            parentRowIndex: eventMapRowIndex,
+            childTable: database.tables.event,
+            childSelector: { $0.eventList }).map {
+            Event(definingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public func findEvent(name: String) -> Event? {
+        events.first { $0.name == name }
+    }
 }

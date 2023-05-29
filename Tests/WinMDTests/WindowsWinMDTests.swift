@@ -53,6 +53,12 @@ final class WindowsWinMDTests: XCTestCase {
             [ "ErrorCode", "Id", "Status" ])
     }
 
+    func testEventEnumeration() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Devices.Enumeration.DeviceWatcher")?.events.map({ $0.name }).sorted(),
+            [ "Added", "EnumerationCompleted", "Removed", "Stopped", "Updated" ])
+    }
+
     func testTypeVisibility() throws {
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)
