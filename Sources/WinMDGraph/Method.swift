@@ -1,19 +1,20 @@
 import WinMD
 
 public final class Method {
-    public unowned let definingType: TypeDefinition
+    internal unowned let definingTypeFromMetadata: TypeDefinitionFromMetadata
     private let tableRowIndex: Table<WinMD.MethodDef>.RowIndex
-    internal var assembly: Assembly { definingType.assembly }
+    internal var assembly: AssemblyFromMetadata { definingTypeFromMetadata.assemblyFromMetadata }
     internal var context: MetadataContext { assembly.context }
     internal var database: Database { assembly.database }
 
-    init(definingType: TypeDefinition, tableRowIndex: Table<WinMD.MethodDef>.RowIndex) {
-        self.definingType = definingType
+    init(definingType: TypeDefinitionFromMetadata, tableRowIndex: Table<WinMD.MethodDef>.RowIndex) {
+        self.definingTypeFromMetadata = definingType
         self.tableRowIndex = tableRowIndex
     }
 
     private var tableRow: WinMD.MethodDef { database.tables.methodDef[tableRowIndex] }
 
+    public var definingType: TypeDefinition { definingTypeFromMetadata }
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isVirtual: Bool { tableRow.flags.contains(.virtual) }

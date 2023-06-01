@@ -19,7 +19,7 @@ public class MetadataContext {
 
         let assemblyRow = database.tables.assembly[0]
         // TODO: de-duplicate against loaded assemblies
-        let assembly = Assembly(context: self, database: database, tableRow: assemblyRow)
+        let assembly = AssemblyFromMetadata(context: self, database: database, tableRow: assemblyRow)
         loadedAssemblies.append(assembly)
         return assembly
     }

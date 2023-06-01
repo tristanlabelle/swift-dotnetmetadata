@@ -1,6 +1,20 @@
 import WinMD
 
-public final class Assembly {
+public class Assembly {
+    public var name: String { fatalError() }
+    public var types: [TypeDefinition] { fatalError() }
+    
+    public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
+        Dictionary(uniqueKeysWithValues: types.map { ($0.fullName, $0) })
+    }()
+
+    public func findTypeDefinition(fullName: String) -> TypeDefinition? {
+        typesByFullName[fullName]
+    }
+}
+
+/// Implementation for real assemblies based on loaded metadata from a PE file.
+final class AssemblyFromMetadata: Assembly {
     internal unowned let context: MetadataContext
     internal let database: Database
     private let tableRow: WinMD.Assembly
@@ -11,21 +25,15 @@ public final class Assembly {
         self.tableRow = tableRow
     }
 
-    public var name: String { database.heaps.resolve(tableRow.name) }
+    public override var name: String { database.heaps.resolve(tableRow.name) }
 
-    public private(set) lazy var types: [TypeDefinition] = {
+    private lazy var _types: [TypeDefinition] = {
         database.tables.typeDef.indices.map {
-            TypeDefinition(assembly: self, tableRowIndex: $0)
+            TypeDefinitionFromMetadata(assembly: self, tableRowIndex: $0)
         }
     }()
 
-    public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
-        Dictionary(uniqueKeysWithValues: types.map { ($0.fullName, $0) })
-    }()
-
-    public func findTypeDefinition(fullName: String) -> TypeDefinition? {
-        typesByFullName[fullName]
-    }
+    public override var types: [TypeDefinition] { _types }
 
     internal func resolve(_ codedIndex: TypeDefOrRef) -> TypeDefinition? {
         switch codedIndex {
