@@ -1,17 +1,26 @@
 import WinMD
 
 public class TypeDefinition {
-    public var assembly: Assembly { fatalError() }
+    public let assembly: Assembly
+    private let impl: any TypeDefinitionImpl
 
-    public var name: String { fatalError() }
-    public var namespace: String { fatalError() }
-    internal var metadataFlags: WinMD.TypeAttributes { fatalError() }
-    public var genericParams: [GenericParam] { fatalError() }
-    public var base: TypeDefinition? { fatalError() }
-    public var fields: [Field]  { fatalError() }
-    public var methods: [Method] { fatalError() }
-    public var properties: [Property] { fatalError() }
-    public var events: [Event] { fatalError() }
+    init(assembly: Assembly, impl: any TypeDefinitionImpl) {
+        self.assembly = assembly
+        self.impl = impl
+        impl.initialize(parent: self)
+    }
+
+    public var context: MetadataContext { assembly.context }
+
+    public var name: String { impl.name }
+    public var namespace: String { impl.namespace }
+    internal var metadataFlags: WinMD.TypeAttributes { impl.metadataFlags }
+    public var genericParams: [GenericParam] { impl.genericParams }
+    public var base: TypeDefinition? { impl.base }
+    public var fields: [Field]  { impl.fields }
+    public var methods: [Method] { impl.methods }
+    public var properties: [Property] { impl.properties }
+    public var events: [Event] { impl.events }
     
     public private(set) lazy var fullName: String = {
         let ns = namespace
@@ -40,83 +49,16 @@ public class TypeDefinition {
     public func findEvent(name: String) -> Event? { events.first { $0.name == name } }
 }
 
-public class TypeDefinitionFromMetadata: TypeDefinition {
-    internal unowned let assemblyFromMetadata: AssemblyFromMetadata
-    public override var assembly: Assembly { assemblyFromMetadata }
-    private let tableRowIndex: Table<WinMD.TypeDef>.RowIndex
-    internal var context: MetadataContext { assemblyFromMetadata.context }
-    internal var database: Database { assemblyFromMetadata.database }
+internal protocol TypeDefinitionImpl {
+    func initialize(parent: TypeDefinition)
 
-    init(assembly: AssemblyFromMetadata, tableRowIndex: Table<WinMD.TypeDef>.RowIndex) {
-        self.assemblyFromMetadata = assembly
-        self.tableRowIndex = tableRowIndex
-    }
-
-    private var tableRow: WinMD.TypeDef { database.tables.typeDef[tableRowIndex] }
-
-    public override var name: String { database.heaps.resolve(tableRow.typeName) }
-    public override var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }
-
-    internal override var metadataFlags: WinMD.TypeAttributes { tableRow.flags }
-
-    private lazy var _genericParams: [GenericParam] = {
-        var result: [GenericParam] = []
-        var genericParamRowIndex = database.tables.genericParam.find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0)
-            ?? database.tables.genericParam.endIndex
-        while genericParamRowIndex < database.tables.genericParam.endIndex {
-            let genericParam = database.tables.genericParam[genericParamRowIndex]
-            guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
-            result.append(GenericParam(definingType: self, tableRowIndex: genericParamRowIndex))
-            genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
-        }
-        return result
-    }()
-    public override var genericParams: [GenericParam] { _genericParams }
-
-    private lazy var _base: TypeDefinition? = {
-        assemblyFromMetadata.resolve(tableRow.extends)
-    }()
-    public override var base: TypeDefinition? { _base }
-
-    private lazy var _methods: [Method] = {
-        getChildRowRange(parent: database.tables.typeDef,
-            parentRowIndex: tableRowIndex,
-            childTable: database.tables.methodDef,
-            childSelector: { $0.methodList }).map {
-            Method(definingType: self, tableRowIndex: $0)
-        }
-    }()
-    public override var methods: [Method] { _methods }
-
-    private lazy var _fields: [Field] = {
-        getChildRowRange(parent: database.tables.typeDef,
-            parentRowIndex: tableRowIndex,
-            childTable: database.tables.field,
-            childSelector: { $0.fieldList }).map {
-            Field(definingType: self, tableRowIndex: $0)
-        }
-    }()
-    public override var fields: [Field] { _fields }
-
-    private lazy var _properties: [Property] = {
-        guard let propertyMapRowIndex = assemblyFromMetadata.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
-        return getChildRowRange(parent: database.tables.propertyMap,
-            parentRowIndex: propertyMapRowIndex,
-            childTable: database.tables.property,
-            childSelector: { $0.propertyList }).map {
-            Property(definingType: self, tableRowIndex: $0)
-        }
-    }()
-    public override var properties: [Property] { _properties }
-
-    private lazy var _events: [Event] = {
-        guard let eventMapRowIndex: Table<EventMap>.RowIndex = assemblyFromMetadata.findEventMap(forTypeDef: tableRowIndex) else { return [] }
-        return getChildRowRange(parent: database.tables.eventMap,
-            parentRowIndex: eventMapRowIndex,
-            childTable: database.tables.event,
-            childSelector: { $0.eventList }).map {
-            Event(definingType: self, tableRowIndex: $0)
-        }
-    }()
-    public override var events: [Event] { _events }
+    var name: String { get }
+    var namespace: String { get }
+    var metadataFlags: WinMD.TypeAttributes { get }
+    var genericParams: [GenericParam] { get }
+    var base: TypeDefinition? { get }
+    var fields: [Field]  { get }
+    var methods: [Method] { get }
+    var properties: [Property] { get }
+    var events: [Event] { get }
 }

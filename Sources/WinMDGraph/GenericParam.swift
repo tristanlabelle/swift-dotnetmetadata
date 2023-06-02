@@ -1,19 +1,17 @@
 import WinMD
 
 public final class GenericParam {
-    internal unowned let definingTypeFromMetadata: TypeDefinitionFromMetadata
+    internal unowned let definingTypeImpl: TypeDefinitionFromMetadataImpl
     private let tableRowIndex: Table<WinMD.GenericParam>.RowIndex
-    internal var assembly: AssemblyFromMetadata { definingTypeFromMetadata.assemblyFromMetadata }
-    internal var context: MetadataContext { assembly.context }
-    internal var database: Database { assembly.database }
 
-    init(definingType: TypeDefinitionFromMetadata, tableRowIndex: Table<WinMD.GenericParam>.RowIndex) {
-        self.definingTypeFromMetadata = definingType
+    init(definingTypeImpl: TypeDefinitionFromMetadataImpl, tableRowIndex: Table<WinMD.GenericParam>.RowIndex) {
+        self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
 
+    public var definingType: TypeDefinition { definingTypeImpl.parent }
+    internal var database: Database { definingTypeImpl.database }
     private var tableRow: WinMD.GenericParam { database.tables.genericParam[tableRowIndex] }
 
-    public var definingType: TypeDefinition { definingTypeFromMetadata }
     public var name: String { database.heaps.resolve(tableRow.name) }
 }
