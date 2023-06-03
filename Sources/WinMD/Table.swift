@@ -102,9 +102,7 @@ extension Table where Row: KeyedTableRow {
 extension Table where Row: DoublyKeyedTableRow {
     public func find(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> Table<Row>.RowIndex? {
         let index = self.binarySearchIndex {
-            if $0.primaryKey < primaryKey { return true }
-            if $0.primaryKey > primaryKey { return false }
-            return $0.secondaryKey < secondaryKey
+            $0.primaryKey != primaryKey ? $0.primaryKey < primaryKey : $0.secondaryKey < secondaryKey
         }
         guard index != startIndex && index != endIndex else { return nil }
 

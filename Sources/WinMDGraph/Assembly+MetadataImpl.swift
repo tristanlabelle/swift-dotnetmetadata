@@ -17,6 +17,13 @@ extension Assembly {
         }
 
         public var name: String { database.heaps.resolve(tableRow.name) }
+        public var version: AssemblyVersion {
+            .init(
+                major: tableRow.majorVersion,
+                minor: tableRow.minorVersion,
+                buildNumber: tableRow.buildNumber,
+                revisionNumber: tableRow.revisionNumber)
+        }
 
         public private(set) lazy var types: [TypeDefinition] = {
             database.tables.typeDef.indices.map { 

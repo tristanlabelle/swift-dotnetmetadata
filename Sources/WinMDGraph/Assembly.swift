@@ -13,6 +13,7 @@ public class Assembly {
     }
 
     public var name: String { impl.name }
+    public var version: AssemblyVersion { impl.version }
     public var types: [TypeDefinition] { impl.types }
     
     public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
@@ -28,5 +29,6 @@ internal protocol AssemblyImpl {
     func initialize(parent: Assembly)
 
     var name: String { get }
+    var version: AssemblyVersion { get }
     var types: [TypeDefinition] { get }
 }
