@@ -1,6 +1,8 @@
 import WinMD
 
 public class TypeDefinition {
+    internal typealias Impl = TypeDefinitionImpl
+
     public let assembly: Assembly
     private let impl: any TypeDefinitionImpl
 

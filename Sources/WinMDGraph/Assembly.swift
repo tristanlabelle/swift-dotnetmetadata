@@ -1,6 +1,8 @@
 import WinMD
 
 public class Assembly {
+    typealias Impl = AssemblyImpl
+
     public let context: MetadataContext
     private let impl: any AssemblyImpl
 

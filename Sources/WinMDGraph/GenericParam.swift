@@ -1,10 +1,10 @@
 import WinMD
 
 public final class GenericParam {
-    internal unowned let definingTypeImpl: TypeDefinitionFromMetadataImpl
+    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     private let tableRowIndex: Table<WinMD.GenericParam>.RowIndex
 
-    init(definingTypeImpl: TypeDefinitionFromMetadataImpl, tableRowIndex: Table<WinMD.GenericParam>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<WinMD.GenericParam>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }

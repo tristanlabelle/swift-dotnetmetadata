@@ -1,10 +1,10 @@
 import WinMD
 
 public final class Property {
-    internal unowned let definingTypeImpl: TypeDefinitionFromMetadataImpl
+    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     private let tableRowIndex: Table<WinMD.Property>.RowIndex
 
-    init(definingTypeImpl: TypeDefinitionFromMetadataImpl, tableRowIndex: Table<WinMD.Property>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<WinMD.Property>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }

@@ -20,7 +20,7 @@ public class MetadataContext {
 
         let assemblyRow = database.tables.assembly[0]
         // TODO: de-duplicate against loaded assemblies
-        let assemblyImpl = AssemblyFromMetadataImpl(database: database, tableRow: assemblyRow)
+        let assemblyImpl = Assembly.MetadataImpl(database: database, tableRow: assemblyRow)
         let assembly: Assembly
         if assemblyImpl.name == Mscorlib.name,
             let mscorlib = try? Mscorlib(context: self, impl: assemblyImpl, shadowing: .init()) {

@@ -1,10 +1,10 @@
 import WinMD
 
 public final class Event {
-    internal unowned let definingTypeImpl: TypeDefinitionFromMetadataImpl
+    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     private let tableRowIndex: Table<WinMD.Event>.RowIndex
 
-    init(definingTypeImpl: TypeDefinitionFromMetadataImpl, tableRowIndex: Table<WinMD.Event>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<WinMD.Event>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }

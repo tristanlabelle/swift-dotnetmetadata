@@ -1,10 +1,10 @@
 import WinMD
 
 public final class Method {
-    internal unowned let definingTypeImpl: TypeDefinitionFromMetadataImpl
+    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     private let tableRowIndex: Table<WinMD.MethodDef>.RowIndex
 
-    init(definingTypeImpl: TypeDefinitionFromMetadataImpl, tableRowIndex: Table<WinMD.MethodDef>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<WinMD.MethodDef>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
