@@ -1,8 +1,9 @@
-enum InvalidFormatError: Error {
+public enum InvalidFormatError: Error {
     case dosHeader
     case ntHeader
     case cliHeader
     case heapOffset
     case tableIndex
     case signatureBlob
+    case tableConstraint
 }
