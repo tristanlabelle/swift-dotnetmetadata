@@ -12,6 +12,22 @@ public class MetadataContext {
         self.assemblyResolver = assemblyResolver
     }
 
+    public func loadAssembly(name: String, version: AssemblyVersion, culture: String) throws -> Assembly {
+        if name == Mscorlib.name && version == AssemblyVersion.all255 {
+            if let mscorlib = self.mscorlib {
+                return mscorlib
+            }
+            else {
+                let mscorlib = try Mscorlib(context: self, impl: Mscorlib.MockMscorlibImpl(), shadowing: .init())
+                self.mscorlib = mscorlib
+                return mscorlib
+            }
+        }
+        else {
+            fatalError("Not implemented: assembly resolution")
+        }
+    }
+
     public func loadAssembly(url: URL) throws -> Assembly {
         let database = try Database(url: url)
         guard database.tables.assembly.count == 1 else {

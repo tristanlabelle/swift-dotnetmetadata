@@ -24,6 +24,10 @@ public class Assembly {
     public func findTypeDefinition(fullName: String) -> TypeDefinition? {
         typesByFullName[fullName]
     }
+
+    public func findTypeDefinition(namespace: String, name: String) -> TypeDefinition? {
+        findTypeDefinition(fullName: "\(namespace).\(name)")
+    }
 }
 
 internal protocol AssemblyImpl {

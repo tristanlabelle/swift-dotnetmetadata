@@ -548,9 +548,9 @@ extension TypeDef: TableRow {
 }
 
 public struct TypeRef {
-    var resolutionScope: ResolutionScope
-    var typeName: HeapOffset<StringHeap>
-    var typeNamespace: HeapOffset<StringHeap>
+    public var resolutionScope: ResolutionScope
+    public var typeName: HeapOffset<StringHeap>
+    public var typeNamespace: HeapOffset<StringHeap>
 }
 
 extension TypeRef: TableRow {

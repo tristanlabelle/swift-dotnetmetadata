@@ -41,6 +41,15 @@ public class TypeDefinition {
             default: fatalError()
         }
     }
+
+    public var isNested: Bool {
+        switch metadataFlags.intersection(.visibilityMask) {
+            case .public, .notPublic: return false
+            case .nestedFamily, .nestedFamORAssem, .nestedFamANDAssem,
+                .nestedAssembly, .nestedPrivate: return true
+            default: fatalError()
+        }
+    }
     
     public var isAbstract: Bool { metadataFlags.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataFlags.contains(TypeAttributes.sealed) }

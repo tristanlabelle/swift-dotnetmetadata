@@ -16,6 +16,8 @@ extension Assembly {
             self.assembly = owner
         }
 
+        private var context: MetadataContext { assembly.context }
+
         public var name: String { database.heaps.resolve(tableRow.name) }
         public var culture: String { database.heaps.resolve(tableRow.culture) }
 
@@ -38,9 +40,41 @@ extension Assembly {
         internal func resolve(_ codedIndex: TypeDefOrRef) -> TypeDefinition? {
             switch codedIndex {
                 case let .typeDef(index):
-                    return index == nil ? nil : types[Int(index!.zeroBased)]
+                    return index == nil ? nil : resolve(index!)
+                case let .typeRef(index):
+                    return index == nil ? nil : resolve(index!)
                 default: fatalError()
             }
+        }
+
+        internal func resolve(_ index: Table<TypeDef>.RowIndex) -> TypeDefinition {
+            types[Int(index.zeroBased)]
+        }
+
+        internal func resolve(_ index: Table<TypeRef>.RowIndex) -> TypeDefinition {
+            let row = database.tables.typeRef[index]
+            let name = database.heaps.resolve(row.typeName)
+            let namespace = database.heaps.resolve(row.typeNamespace)
+            switch row.resolutionScope {
+                case let .assemblyRef(index):
+                    guard let index = index else { break }
+                    return resolve(index).findTypeDefinition(namespace: namespace, name: name)!
+                default:
+                    fatalError("Not implemented: resolution scope \(row.resolutionScope)")
+            }
+            fatalError("Not implemented: null resolution scope")
+        }
+
+        internal func resolve(_ index: Table<AssemblyRef>.RowIndex) -> Assembly {
+            let row = database.tables.assemblyRef[index]
+            let name = database.heaps.resolve(row.name)
+            let culture = database.heaps.resolve(row.culture)
+            let version = AssemblyVersion(
+                major: row.majorVersion,
+                minor: row.minorVersion,
+                buildNumber: row.buildNumber,
+                revisionNumber: row.revisionNumber)
+            return try! context.loadAssembly(name: name, version: version, culture: culture)
         }
 
         private lazy var propertyMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<PropertyMap>.RowIndex] = {
