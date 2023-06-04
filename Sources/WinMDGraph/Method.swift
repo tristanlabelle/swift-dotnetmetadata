@@ -9,7 +9,7 @@ public final class Method {
         self.tableRowIndex = tableRowIndex
     }
 
-    public var definingType: TypeDefinition { definingTypeImpl.parent }
+    public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var database: Database { definingTypeImpl.database }
     private var tableRow: WinMD.MethodDef { database.tables.methodDef[tableRowIndex] }
 

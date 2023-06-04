@@ -12,11 +12,13 @@ extension Assembly {
             self.tableRow = tableRow
         }
 
-        func initialize(parent: Assembly) {
-            self.assembly = parent
+        func initialize(owner: Assembly) {
+            self.assembly = owner
         }
 
         public var name: String { database.heaps.resolve(tableRow.name) }
+        public var culture: String { database.heaps.resolve(tableRow.culture) }
+
         public var version: AssemblyVersion {
             .init(
                 major: tableRow.majorVersion,

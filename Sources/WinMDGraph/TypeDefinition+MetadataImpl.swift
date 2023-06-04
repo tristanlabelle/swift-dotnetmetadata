@@ -2,7 +2,7 @@ import WinMD
 
 extension TypeDefinition {
     final class MetadataImpl: Impl {
-        internal unowned var parent: TypeDefinition!
+        internal unowned var owner: TypeDefinition!
         internal unowned let assemblyImpl: Assembly.MetadataImpl
         private let tableRowIndex: Table<WinMD.TypeDef>.RowIndex
 
@@ -11,11 +11,11 @@ extension TypeDefinition {
             self.tableRowIndex = tableRowIndex
         }
 
-        func initialize(parent: TypeDefinition) {
-            self.parent = parent
+        func initialize(owner: TypeDefinition) {
+            self.owner = owner
         }
         
-        internal var assembly: Assembly { parent.assembly }
+        internal var assembly: Assembly { owner.assembly }
         internal var database: Database { assemblyImpl.database }
 
         private var tableRow: WinMD.TypeDef { database.tables.typeDef[tableRowIndex] }

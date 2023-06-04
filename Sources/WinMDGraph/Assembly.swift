@@ -9,11 +9,12 @@ public class Assembly {
     init(context: MetadataContext, impl: any AssemblyImpl) {
         self.context = context
         self.impl = impl
-        impl.initialize(parent: self)
+        impl.initialize(owner: self)
     }
 
     public var name: String { impl.name }
     public var version: AssemblyVersion { impl.version }
+    public var culture: String { impl.culture }
     public var types: [TypeDefinition] { impl.types }
     
     public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
@@ -26,9 +27,10 @@ public class Assembly {
 }
 
 internal protocol AssemblyImpl {
-    func initialize(parent: Assembly)
+    func initialize(owner: Assembly)
 
     var name: String { get }
     var version: AssemblyVersion { get }
+    var culture: String { get }
     var types: [TypeDefinition] { get }
 }

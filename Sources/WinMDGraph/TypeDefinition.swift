@@ -9,7 +9,7 @@ public class TypeDefinition {
     init(assembly: Assembly, impl: any TypeDefinitionImpl) {
         self.assembly = assembly
         self.impl = impl
-        impl.initialize(parent: self)
+        impl.initialize(owner: self)
     }
 
     public var context: MetadataContext { assembly.context }
@@ -52,7 +52,7 @@ public class TypeDefinition {
 }
 
 internal protocol TypeDefinitionImpl {
-    func initialize(parent: TypeDefinition)
+    func initialize(owner: TypeDefinition)
 
     var name: String { get }
     var namespace: String { get }
