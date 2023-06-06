@@ -14,8 +14,7 @@ extension Assembly {
                 impl: TypeDefinition.MockSystemTypeImpl(name: "Object", base: nil))
             systemTypes.append(object)
             systemTypes.append(contentsOf: [
-                "Enum", "Delegate",
-                "Type", "Attribute", "Exception", "String" ].map {
+                "Array", "Attribute", "Delegate", "Exception", "Type", "String" ].map {
                     TypeDefinition(
                         assembly: owner,
                         impl: TypeDefinition.MockSystemTypeImpl(name: $0, base: object))
@@ -27,9 +26,9 @@ extension Assembly {
                 impl: TypeDefinition.MockSystemTypeImpl(name: "ValueType", base: object))
             systemTypes.append(valueType)
             systemTypes.append(contentsOf: [
-                "Void",
+                "Void", "Enum",
                 "Boolean", "Char",
-                "Int8", "UInt8", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", 
+                "SByte", "Byte", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", 
                 "IntPtr", "UIntPtr",
                 "Single", "Double" ].map {
                     TypeDefinition(

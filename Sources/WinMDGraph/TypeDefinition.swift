@@ -1,6 +1,6 @@
 import WinMD
 
-public class TypeDefinition {
+public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Impl = TypeDefinitionImpl
 
     public let assembly: Assembly
@@ -23,6 +23,8 @@ public class TypeDefinition {
     public var methods: [Method] { impl.methods }
     public var properties: [Property] { impl.properties }
     public var events: [Event] { impl.events }
+
+    public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
     
     public private(set) lazy var fullName: String = {
         let ns = namespace

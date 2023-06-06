@@ -15,7 +15,7 @@ public class Mscorlib: Assembly {
     public final class SpecialTypes {
         init(assembly: Assembly) throws {
             func find(_ name: String) throws -> TypeDefinition {
-                try assembly.findTypeDefinition(fullName: "System." + name) ?? { throw MissingSpecialType() }()
+                return try assembly.findTypeDefinition(fullName: "System." + name) ?? { throw MissingSpecialType() }()
             }
 
             void = try find("Void")
