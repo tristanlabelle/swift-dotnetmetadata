@@ -10,6 +10,7 @@ public final class Field {
     }
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
+    internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
     private var tableRow: WinMD.Field { database.tables.field[tableRowIndex] }
 
@@ -30,4 +31,10 @@ public final class Field {
             default: fatalError()
         }
     }
+
+    public private(set) lazy var type: Type = {
+        let signatureBlob = database.heaps.resolve(tableRow.signature)
+        let typeSig = try! SignatureReader.readType(blob: signatureBlob)
+        return assemblyImpl.resolve(typeSig);
+    }() 
 }

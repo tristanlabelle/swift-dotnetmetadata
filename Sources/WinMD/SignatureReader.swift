@@ -1,4 +1,4 @@
-enum SignatureReader {
+public enum SignatureReader {
     public static func readType(blob: UnsafeRawBufferPointer) throws -> TypeSig {
         var remainder = blob
         let result = try consumeType(buffer: &remainder)

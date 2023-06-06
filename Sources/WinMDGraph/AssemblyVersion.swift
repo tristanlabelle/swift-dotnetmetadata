@@ -1,3 +1,5 @@
+import WinMD
+
 public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
     public static let all255 = AssemblyVersion(major: 255, minor: 255, buildNumber: 255, revisionNumber: 255)
 
@@ -18,5 +20,25 @@ public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
         } else {
             return lhs.revisionNumber < rhs.revisionNumber
         }
+    }
+}
+
+extension WinMD.AssemblyRef {
+    var version: AssemblyVersion {
+        AssemblyVersion(
+            major: majorVersion,
+            minor: minorVersion,
+            buildNumber: buildNumber,
+            revisionNumber: revisionNumber)
+    }
+}
+
+extension WinMD.Assembly {
+    var version: AssemblyVersion {
+        AssemblyVersion(
+            major: majorVersion,
+            minor: minorVersion,
+            buildNumber: buildNumber,
+            revisionNumber: revisionNumber)
     }
 }

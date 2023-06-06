@@ -37,6 +37,54 @@ extension Assembly {
             }
         }()
 
+        private lazy var propertyMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<PropertyMap>.RowIndex] = {
+            .init(uniqueKeysWithValues: database.tables.propertyMap.indices.map {
+                (database.tables.propertyMap[$0].parent!, $0)
+            })
+        }()
+
+        func findPropertyMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<PropertyMap>.RowIndex? {
+            propertyMapByTypeDefRowIndex[typeDefRowIndex]
+        }
+
+        private lazy var eventMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<EventMap>.RowIndex] = {
+            .init(uniqueKeysWithValues: database.tables.eventMap.indices.map {
+                (database.tables.eventMap[$0].parent!, $0)
+            })
+        }()
+
+        func findEventMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<EventMap>.RowIndex? {
+            eventMapByTypeDefRowIndex[typeDefRowIndex]
+        }
+
+        private lazy var mscorlib: Mscorlib = {
+            if let mscorlib = assembly as? Mscorlib {
+                return mscorlib
+            }
+
+            for assemblyRef in database.tables.assemblyRef {
+                let name = database.heaps.resolve(assemblyRef.name)
+                let culture = database.heaps.resolve(assemblyRef.culture)
+                if name == Mscorlib.name {
+                    return try! context.loadAssembly(name: name, version: assemblyRef.version, culture: culture) as! Mscorlib
+                }
+            }
+
+            fatalError("Can't load mscorlib")
+        }()
+
+        internal func resolveType(_ metadataToken: MetadataToken) -> Type? {
+            guard !metadataToken.isNull else { return nil }
+            switch metadataToken.tableIndex {
+                case .typeDef:
+                    return .simple(resolve(Table<TypeDef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)))
+                case .typeRef:
+                    return .simple(resolve(Table<TypeRef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)))
+                default:
+                    fatalError("Not implemented: \(metadataToken)")
+            }
+        }
+
         internal func resolve(_ codedIndex: TypeDefOrRef) -> TypeDefinition? {
             switch codedIndex {
                 case let .typeDef(index):
@@ -77,24 +125,19 @@ extension Assembly {
             return try! context.loadAssembly(name: name, version: version, culture: culture)
         }
 
-        private lazy var propertyMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<PropertyMap>.RowIndex] = {
-            .init(uniqueKeysWithValues: database.tables.propertyMap.indices.map {
-                (database.tables.propertyMap[$0].parent!, $0)
-            })
-        }()
-
-        func findPropertyMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<PropertyMap>.RowIndex? {
-            propertyMapByTypeDefRowIndex[typeDefRowIndex]
-        }
-
-        private lazy var eventMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<EventMap>.RowIndex] = {
-            .init(uniqueKeysWithValues: database.tables.eventMap.indices.map {
-                (database.tables.eventMap[$0].parent!, $0)
-            })
-        }()
-
-        func findEventMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<EventMap>.RowIndex? {
-            eventMapByTypeDefRowIndex[typeDefRowIndex]
+        internal func resolve(_ typeSig: TypeSig) -> Type {
+            switch typeSig {
+                case .void: return .simple(mscorlib.specialTypes.void)
+                case .boolean: return .simple(mscorlib.specialTypes.boolean)
+                case .char: return .simple(mscorlib.specialTypes.char)
+                case let .integer(size, signed): fatalError("Not implemented: resolve integer \(size) \(signed)")
+                case let .real(double): return .simple(double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single)
+                case .string: return .simple(mscorlib.specialTypes.string)
+                case .object: return .simple(mscorlib.specialTypes.object)
+                case let .valueType(metadataToken): return resolveType(metadataToken)!
+                case let .`class`(metadataToken): return resolveType(metadataToken)!
+                default: fatalError("Not implemented: resolve \(typeSig)")
+            }
         }
     }
 }
