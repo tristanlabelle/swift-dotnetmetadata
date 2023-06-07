@@ -32,4 +32,17 @@ public final class Method {
             default: fatalError()
         }
     }
+
+    public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
+        var result: [GenericMethodParam] = []
+        var genericParamRowIndex = database.tables.genericParam.find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0)
+            ?? database.tables.genericParam.endIndex
+        while genericParamRowIndex < database.tables.genericParam.endIndex {
+            let genericParam = database.tables.genericParam[genericParamRowIndex]
+            guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
+            result.append(GenericMethodParam(definingMethod: self, tableRowIndex: genericParamRowIndex))
+            genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
+        }
+        return result
+    }()
 }

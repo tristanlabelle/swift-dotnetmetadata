@@ -25,26 +25,22 @@ extension TypeDefinition {
 
         internal var metadataFlags: WinMD.TypeAttributes { tableRow.flags }
 
-        private lazy var _genericParams: [GenericParam] = { [self] in
-            var result: [GenericParam] = []
+        public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
+            var result: [GenericTypeParam] = []
             var genericParamRowIndex = database.tables.genericParam.find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0)
                 ?? database.tables.genericParam.endIndex
             while genericParamRowIndex < database.tables.genericParam.endIndex {
                 let genericParam = database.tables.genericParam[genericParamRowIndex]
                 guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
-                result.append(GenericParam(definingTypeImpl: self, tableRowIndex: genericParamRowIndex))
+                result.append(GenericTypeParam(definingTypeImpl: self, tableRowIndex: genericParamRowIndex))
                 genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
             }
             return result
         }()
-        public var genericParams: [GenericParam] { _genericParams }
 
-        private lazy var _base: TypeDefinition? = {
-            assemblyImpl.resolve(tableRow.extends)
-        }()
-        public var base: TypeDefinition? { _base }
+        public private(set) lazy var base: TypeDefinition? = assemblyImpl.resolve(tableRow.extends)
 
-        private lazy var _methods: [Method] = {
+        public private(set) lazy var methods: [Method] = {
             getChildRowRange(parent: database.tables.typeDef,
                 parentRowIndex: tableRowIndex,
                 childTable: database.tables.methodDef,
@@ -52,9 +48,8 @@ extension TypeDefinition {
                 Method(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
-        public var methods: [Method] { _methods }
 
-        private lazy var _fields: [Field] = {
+        public private(set) lazy var fields: [Field] = {
             getChildRowRange(parent: database.tables.typeDef,
                 parentRowIndex: tableRowIndex,
                 childTable: database.tables.field,
@@ -62,9 +57,8 @@ extension TypeDefinition {
                 Field(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
-        public var fields: [Field] { _fields }
 
-        private lazy var _properties: [Property] = {
+        public private(set) lazy var properties: [Property] = {
             guard let propertyMapRowIndex = assemblyImpl.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
             return getChildRowRange(parent: database.tables.propertyMap,
                 parentRowIndex: propertyMapRowIndex,
@@ -73,9 +67,8 @@ extension TypeDefinition {
                 Property(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
-        public var properties: [Property] { _properties }
 
-        private lazy var _events: [Event] = {
+        public private(set) lazy var events: [Event] = {
             guard let eventMapRowIndex: Table<EventMap>.RowIndex = assemblyImpl.findEventMap(forTypeDef: tableRowIndex) else { return [] }
             return getChildRowRange(parent: database.tables.eventMap,
                 parentRowIndex: eventMapRowIndex,
@@ -84,6 +77,5 @@ extension TypeDefinition {
                 Event(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
-        public var events: [Event] { _events }
     }
 }
