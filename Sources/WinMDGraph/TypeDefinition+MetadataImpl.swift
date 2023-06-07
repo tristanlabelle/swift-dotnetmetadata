@@ -38,7 +38,23 @@ extension TypeDefinition {
             return result
         }()
 
-        public private(set) lazy var base: TypeDefinition? = assemblyImpl.resolve(tableRow.extends)
+        public private(set) lazy var base: Type? = assemblyImpl.resolve(tableRow.extends)
+
+        public private(set) lazy var baseInterfaces: [Type] = { [self] in
+            guard let firstInterfaceImplRowIndex = database.tables.interfaceImpl.findFirst(primaryKey: MetadataToken(tableRowIndex)) else { return [] }
+
+            var interfaceImplRowIndex = firstInterfaceImplRowIndex
+            var result: [Type] = []
+            while interfaceImplRowIndex != database.tables.interfaceImpl.endIndex {
+                let interfaceImpl = database.tables.interfaceImpl[interfaceImplRowIndex]
+                guard interfaceImpl.primaryKey == MetadataToken(tableRowIndex) else { break }
+                let interface = assemblyImpl.resolve(interfaceImpl.interface)!
+                result.append(interface)
+                interfaceImplRowIndex = database.tables.interfaceImpl.index(after: interfaceImplRowIndex)
+            }
+
+            return result
+        }()
 
         public private(set) lazy var methods: [Method] = {
             getChildRowRange(parent: database.tables.typeDef,

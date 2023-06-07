@@ -35,6 +35,6 @@ public final class Field {
     public private(set) lazy var type: Type = {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
         let typeSig = try! SignatureReader.readType(blob: signatureBlob)
-        return assemblyImpl.resolve(typeSig);
+        return assemblyImpl.resolve(typeSig)
     }() 
 }

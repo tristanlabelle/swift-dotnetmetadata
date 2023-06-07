@@ -90,12 +90,23 @@ extension Table: RandomAccessCollection {
 }
 
 extension Table where Row: KeyedTableRow {
-    public func find(primaryKey: Row.PrimaryKey) -> Table<Row>.RowIndex? {
+    public func findAny(primaryKey: Row.PrimaryKey) -> Table<Row>.RowIndex? {
         let index = self.binarySearchIndex { $0.primaryKey < primaryKey }
         guard index != startIndex && index != endIndex else { return nil }
 
         let row = self[index]
         return row.primaryKey == primaryKey ? index : nil
+    }
+
+    public func findFirst(primaryKey: Row.PrimaryKey) -> Table<Row>.RowIndex? {
+        guard var firstIndex = findAny(primaryKey: primaryKey) else { return nil }
+        while firstIndex != startIndex {
+            let previousIndex = self.index(before: firstIndex)
+            let previousRow = self[previousIndex]
+            guard previousRow.primaryKey == primaryKey else { break }
+            firstIndex = previousIndex
+        }
+        return firstIndex
     }
 }
 

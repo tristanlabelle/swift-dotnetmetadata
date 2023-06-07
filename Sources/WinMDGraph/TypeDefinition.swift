@@ -18,7 +18,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var namespace: String { impl.namespace }
     internal var metadataFlags: WinMD.TypeAttributes { impl.metadataFlags }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
-    public var base: TypeDefinition? { impl.base }
+    public var base: Type? { impl.base }
+    public var baseInterfaces: [Type] { impl.baseInterfaces }
     public var fields: [Field]  { impl.fields }
     public var methods: [Method] { impl.methods }
     public var properties: [Property] { impl.properties }
@@ -70,7 +71,8 @@ internal protocol TypeDefinitionImpl {
     var namespace: String { get }
     var metadataFlags: WinMD.TypeAttributes { get }
     var genericParams: [GenericTypeParam] { get }
-    var base: TypeDefinition? { get }
+    var base: Type? { get }
+    var baseInterfaces: [Type] { get }
     var fields: [Field]  { get }
     var methods: [Method] { get }
     var properties: [Property] { get }

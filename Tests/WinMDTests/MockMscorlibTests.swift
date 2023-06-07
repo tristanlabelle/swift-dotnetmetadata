@@ -25,12 +25,24 @@ final class MockMscorlibTests: XCTestCase {
     }
 
     func testBaseTypes() throws {
-        XCTAssertNil(Self.mscorlib.specialTypes.object.base)
-        XCTAssertIdentical(Self.mscorlib.specialTypes.string.base, Self.mscorlib.specialTypes.object)
-        XCTAssertIdentical(Self.mscorlib.specialTypes.type.base, Self.mscorlib.specialTypes.object)
-        XCTAssertIdentical(Self.mscorlib.specialTypes.valueType.base, Self.mscorlib.specialTypes.object)
-        XCTAssertIdentical(Self.mscorlib.specialTypes.enum.base, Self.mscorlib.specialTypes.valueType)
-        XCTAssertIdentical(Self.mscorlib.specialTypes.int32.base, Self.mscorlib.specialTypes.valueType)
-        XCTAssertIdentical(Self.mscorlib.specialTypes.boolean.base, Self.mscorlib.specialTypes.valueType)
+        let specialTypes = Self.mscorlib.specialTypes!
+        XCTAssertNil(specialTypes.object.base)
+        Self.AssertEqual(specialTypes.string.base, specialTypes.object)
+        Self.AssertEqual(specialTypes.type.base, specialTypes.object)
+        Self.AssertEqual(specialTypes.valueType.base, specialTypes.object)
+        Self.AssertEqual(specialTypes.enum.base, specialTypes.valueType)
+        Self.AssertEqual(specialTypes.int32.base, specialTypes.valueType)
+        Self.AssertEqual(specialTypes.boolean.base, specialTypes.valueType)
+    }
+
+    static func AssertEqual(_ lhs: Type?, _ rhs: TypeDefinition?) {
+        switch (lhs, rhs) {
+        case (.none, .none):
+            return
+        case (.some(.simple(let lhs)), .some(let rhs)):
+            XCTAssertIdentical(lhs, rhs)
+        default:
+            XCTFail("Expected \(String(describing: lhs)) to equal \(String(describing: rhs))")
+        }
     }
 }

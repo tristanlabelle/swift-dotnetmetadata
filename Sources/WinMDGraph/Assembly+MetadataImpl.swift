@@ -85,13 +85,17 @@ extension Assembly {
             }
         }
 
-        internal func resolve(_ codedIndex: TypeDefOrRef) -> TypeDefinition? {
+        internal func resolve(_ codedIndex: TypeDefOrRef) -> Type? {
             switch codedIndex {
                 case let .typeDef(index):
-                    return index == nil ? nil : resolve(index!)
+                    guard let index = index else { return nil }
+                    return .simple(resolve(index))
                 case let .typeRef(index):
-                    return index == nil ? nil : resolve(index!)
-                default: fatalError()
+                    guard let index = index else { return nil }
+                    return .simple(resolve(index))
+                case let .typeSpec(index):
+                    guard let index = index else { return nil }
+                    return resolve(index)
             }
         }
 
@@ -111,6 +115,13 @@ extension Assembly {
                     fatalError("Not implemented: resolution scope \(row.resolutionScope)")
             }
             fatalError("Not implemented: null resolution scope")
+        }
+
+        internal func resolve(_ index: Table<TypeSpec>.RowIndex) -> Type {
+            let typeSpecRow = database.tables.typeSpec[index]
+            let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
+            let typeSig = try! SignatureReader.readType(blob: signatureBlob)
+            return resolve(typeSig)
         }
 
         internal func resolve(_ index: Table<AssemblyRef>.RowIndex) -> Assembly {

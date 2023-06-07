@@ -35,6 +35,18 @@ final class WindowsWinMDTests: XCTestCase {
         XCTAssertEqual(iclosable?.fullName, "Windows.Foundation.IClosable")
     }
 
+    func testBaseInterfaces() throws {
+        guard let iasyncAction = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction") else {
+            XCTFail("IAsyncAction not found")
+            return
+        }
+        guard case .simple(let typeDef) = iasyncAction.baseInterfaces[0] else {
+            XCTFail("Expected simple type")
+            return
+        }
+        XCTAssertEqual(typeDef.fullName, "Windows.Foundation.IAsyncInfo")
+    }
+
     func testGenericParamEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Collections.IKeyValuePair`2")?.genericParams.map({ $0.name }).sorted(),
