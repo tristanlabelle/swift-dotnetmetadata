@@ -65,6 +65,12 @@ final class WindowsWinMDTests: XCTestCase {
             [ "Added", "EnumerationCompleted", "Removed", "Stopped", "Updated" ])
     }
 
+    func testGenericTypeParamEnumeration() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Collections.IMap`2")?.genericParams.map({ $0.name }).sorted(),
+            [ "K", "V" ])
+    }
+
     func testTypeVisibility() throws {
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)

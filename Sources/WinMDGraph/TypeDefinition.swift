@@ -55,6 +55,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     
     public var isAbstract: Bool { metadataFlags.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataFlags.contains(TypeAttributes.sealed) }
+    public var isGeneric: Bool { !genericParams.isEmpty }
 
     public func findSingleMethod(name: String) -> Method? { methods.single { $0.name == name } }
     public func findField(name: String) -> Field? { fields.first { $0.name == name } }
