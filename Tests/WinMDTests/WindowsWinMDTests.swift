@@ -35,6 +35,18 @@ final class WindowsWinMDTests: XCTestCase {
         XCTAssertEqual(iclosable?.fullName, "Windows.Foundation.IClosable")
     }
 
+    func testBaseType() throws {
+        guard let uiElement = Self.assembly.findTypeDefinition(fullName: "Windows.UI.Xaml.UIElement") else {
+            XCTFail("UIElement not found")
+            return
+        }
+        guard case .simple(let typeDef) = uiElement.base else {
+            XCTFail("Expected simple type")
+            return
+        }
+        XCTAssertEqual(typeDef.fullName, "Windows.UI.Xaml.DependencyObject")
+    }
+
     func testBaseInterfaces() throws {
         guard let iasyncAction = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction") else {
             XCTFail("IAsyncAction not found")
@@ -108,5 +120,14 @@ final class WindowsWinMDTests: XCTestCase {
         XCTAssertEqual(guidHelper_createNewGuid?.isVirtual, false)
         XCTAssertEqual(guidHelper_createNewGuid?.isAbstract, false)
         XCTAssertEqual(guidHelper_createNewGuid?.isSpecialName, false)
+    }
+
+    func testMscorlibTypeReference() throws {
+        let point = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")!
+        guard case .simple(let typeDef) = point.base else {
+            XCTFail("Expected simple type")
+            return
+        }
+        XCTAssertEqual(typeDef.fullName, "System.ValueType")
     }
 }
