@@ -17,7 +17,7 @@ extension TypeDefinition {
         // FIXME: We'll need a few more attributes than that
         internal var metadataFlags: WinMD.TypeAttributes { WinMD.TypeAttributes.public }
 
-        public var baseInterfaces: [Type] { [] }
+        public var baseInterfaces: [BaseInterface] { [] }
         public var genericParams: [GenericTypeParam] { [] }
         public var fields: [Field]  { [] }
         public var methods: [Method] { [] }

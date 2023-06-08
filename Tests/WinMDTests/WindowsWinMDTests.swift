@@ -40,7 +40,7 @@ final class WindowsWinMDTests: XCTestCase {
             XCTFail("IAsyncAction not found")
             return
         }
-        guard case .simple(let typeDef) = iasyncAction.baseInterfaces[0] else {
+        guard case .simple(let typeDef) = iasyncAction.baseInterfaces[0].interface else {
             XCTFail("Expected simple type")
             return
         }

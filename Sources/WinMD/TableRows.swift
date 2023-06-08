@@ -567,7 +567,7 @@ extension TypeRef: TableRow {
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         var reader = TableRowReader(buffer: buffer, sizes: sizes)
         self.init(
-            resolutionScope: reader.readConstant(),
+            resolutionScope: reader.readCodedIndex(),
             typeName: reader.readHeapOffset(),
             typeNamespace: reader.readHeapOffset(last: true))
     }

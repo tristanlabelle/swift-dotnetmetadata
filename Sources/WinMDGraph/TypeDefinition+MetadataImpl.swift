@@ -40,16 +40,15 @@ extension TypeDefinition {
 
         public private(set) lazy var base: Type? = assemblyImpl.resolve(tableRow.extends)
 
-        public private(set) lazy var baseInterfaces: [Type] = { [self] in
+        public private(set) lazy var baseInterfaces: [BaseInterface] = { [self] in
             guard let firstInterfaceImplRowIndex = database.tables.interfaceImpl.findFirst(primaryKey: MetadataToken(tableRowIndex)) else { return [] }
 
             var interfaceImplRowIndex = firstInterfaceImplRowIndex
-            var result: [Type] = []
+            var result: [BaseInterface] = []
             while interfaceImplRowIndex != database.tables.interfaceImpl.endIndex {
                 let interfaceImpl = database.tables.interfaceImpl[interfaceImplRowIndex]
                 guard interfaceImpl.primaryKey == MetadataToken(tableRowIndex) else { break }
-                let interface = assemblyImpl.resolve(interfaceImpl.interface)!
-                result.append(interface)
+                result.append(BaseInterface(inheritingTypeImpl: self, tableRowIndex: interfaceImplRowIndex))
                 interfaceImplRowIndex = database.tables.interfaceImpl.index(after: interfaceImplRowIndex)
             }
 
