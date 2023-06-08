@@ -24,6 +24,7 @@ public class Mscorlib: Assembly {
             valueType = try find("ValueType")
             `enum` = try find("Enum")
             delegate = try find("Delegate")
+            multicastDelegate = try find("MulticastDelegate")
             exception = try find("Exception")
             attribute = try find("Attribute")
             string = try find("String")
@@ -31,7 +32,6 @@ public class Mscorlib: Assembly {
 
             boolean = try find("Boolean")
             char = try find("Char")
-
             byte = try find("Byte")
             sbyte = try find("SByte")
             uint16 = try find("UInt16")
@@ -44,6 +44,8 @@ public class Mscorlib: Assembly {
             intPtr = try find("IntPtr")
             single = try find("Single")
             double = try find("Double")
+
+            idisposable = try find("IDisposable")
         }
 
         public let void: TypeDefinition
@@ -52,11 +54,11 @@ public class Mscorlib: Assembly {
         public let valueType: TypeDefinition
         public let `enum`: TypeDefinition
         public let delegate: TypeDefinition
+        public let multicastDelegate: TypeDefinition
         public let exception: TypeDefinition
         public let attribute: TypeDefinition
         public let string: TypeDefinition
         public let array: TypeDefinition
-
         public let boolean: TypeDefinition
         public let char: TypeDefinition
 
@@ -72,5 +74,7 @@ public class Mscorlib: Assembly {
         public let intPtr: TypeDefinition
         public let single: TypeDefinition
         public let double: TypeDefinition
+
+        public let idisposable: TypeDefinition
     }
 }
