@@ -29,6 +29,8 @@ extension Assembly {
                 revisionNumber: tableRow.revisionNumber)
         }
 
+        public private(set) lazy var moduleName: String = database.heaps.resolve(database.tables.module[0].name)
+
         public private(set) lazy var types: [TypeDefinition] = {
             database.tables.typeDef.indices.map { 
                 TypeDefinition(
@@ -80,6 +82,8 @@ extension Assembly {
                     return .simple(resolve(Table<TypeDef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)))
                 case .typeRef:
                     return .simple(resolve(Table<TypeRef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)))
+                case .typeSpec:
+                    return resolve(Table<TypeSpec>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1))
                 default:
                     fatalError("Not implemented: \(metadataToken)")
             }
@@ -108,6 +112,10 @@ extension Assembly {
             let name = database.heaps.resolve(row.typeName)
             let namespace = database.heaps.resolve(row.typeNamespace)
             switch row.resolutionScope {
+                case let .module(index):
+                    // Assume single-module assembly
+                    guard index?.zeroBased == 0 else { break }
+                    return assembly.findTypeDefinition(namespace: namespace, name: name)!
                 case let .assemblyRef(index):
                     guard let index = index else { break }
                     return resolve(index).findTypeDefinition(namespace: namespace, name: name)!
