@@ -33,7 +33,7 @@ extension Assembly {
 
         public private(set) lazy var types: [TypeDefinition] = {
             database.tables.typeDef.indices.map { 
-                TypeDefinition(
+                TypeDefinition.create(
                     assembly: assembly,
                     impl: TypeDefinition.MetadataImpl(assemblyImpl: self, tableRowIndex: $0))
             }
@@ -79,9 +79,9 @@ extension Assembly {
             guard !metadataToken.isNull else { return nil }
             switch metadataToken.tableIndex {
                 case .typeDef:
-                    return .simple(resolve(Table<TypeDef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)))
+                    return resolve(Table<TypeDef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
                 case .typeRef:
-                    return .simple(resolve(Table<TypeRef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)))
+                    return resolve(Table<TypeRef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
                 case .typeSpec:
                     return resolve(Table<TypeSpec>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1))
                 default:
@@ -93,10 +93,10 @@ extension Assembly {
             switch codedIndex {
                 case let .typeDef(index):
                     guard let index = index else { return nil }
-                    return .simple(resolve(index))
+                    return resolve(index).bindNonGeneric()
                 case let .typeRef(index):
                     guard let index = index else { return nil }
-                    return .simple(resolve(index))
+                    return resolve(index).bindNonGeneric()
                 case let .typeSpec(index):
                     guard let index = index else { return nil }
                     return resolve(index)
@@ -146,13 +146,13 @@ extension Assembly {
 
         internal func resolve(_ typeSig: TypeSig) -> Type {
             switch typeSig {
-                case .void: return .simple(mscorlib.specialTypes.void)
-                case .boolean: return .simple(mscorlib.specialTypes.boolean)
-                case .char: return .simple(mscorlib.specialTypes.char)
+                case .void: return mscorlib.specialTypes.void.bindNonGeneric()
+                case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
+                case .char: return mscorlib.specialTypes.char.bindNonGeneric()
                 case let .integer(size, signed): fatalError("Not implemented: resolve integer \(size) \(signed)")
-                case let .real(double): return .simple(double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single)
-                case .string: return .simple(mscorlib.specialTypes.string)
-                case .object: return .simple(mscorlib.specialTypes.object)
+                case let .real(double): return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNonGeneric()
+                case .string: return mscorlib.specialTypes.string.bindNonGeneric()
+                case .object: return mscorlib.specialTypes.object.bindNonGeneric()
                 case let .valueType(metadataToken): return resolveType(metadataToken)!
                 case let .`class`(metadataToken): return resolveType(metadataToken)!
                 default: fatalError("Not implemented: resolve \(typeSig)")

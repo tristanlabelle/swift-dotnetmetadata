@@ -1,4 +1,5 @@
 import WinMD
+import Foundation
 
 public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Impl = TypeDefinitionImpl
@@ -10,6 +11,28 @@ public class TypeDefinition: CustomDebugStringConvertible {
         self.assembly = assembly
         self.impl = impl
         impl.initialize(owner: self)
+    }
+
+    internal static func create(assembly: Assembly, impl: any TypeDefinitionImpl) -> TypeDefinition {
+        if impl.metadataFlags.contains(.interface) {
+            return InterfaceDefinition(assembly: assembly, impl: impl)
+        }
+
+        if let baseDefinition = impl.base?.asUnboundDefinition,
+                let mscorlib = baseDefinition.assembly as? Mscorlib {
+            if baseDefinition === mscorlib.specialTypes.valueType {
+                return StructDefinition(assembly: assembly, impl: impl)
+            }
+            if baseDefinition === mscorlib.specialTypes.enum {
+                return EnumDefinition(assembly: assembly, impl: impl)
+            }
+            if baseDefinition === mscorlib.specialTypes.delegate
+                || baseDefinition === mscorlib.specialTypes.multicastDelegate {
+                return DelegateDefinition(assembly: assembly, impl: impl)
+            }
+        }
+        
+        return ClassDefinition(assembly: assembly, impl: impl)
     }
 
     public var context: MetadataContext { assembly.context }

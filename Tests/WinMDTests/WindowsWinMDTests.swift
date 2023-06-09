@@ -36,27 +36,15 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testBaseType() throws {
-        guard let uiElement = Self.assembly.findTypeDefinition(fullName: "Windows.UI.Xaml.UIElement") else {
-            XCTFail("UIElement not found")
-            return
-        }
-        guard case .simple(let typeDef) = uiElement.base else {
-            XCTFail("Expected simple type")
-            return
-        }
-        XCTAssertEqual(typeDef.fullName, "Windows.UI.Xaml.DependencyObject")
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.UI.Xaml.UIElement")?.base?.asUnboundDefinition?.fullName,
+            "Windows.UI.Xaml.DependencyObject")
     }
 
     func testBaseInterfaces() throws {
-        guard let iasyncAction = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction") else {
-            XCTFail("IAsyncAction not found")
-            return
-        }
-        guard case .simple(let typeDef) = iasyncAction.baseInterfaces[0].interface else {
-            XCTFail("Expected simple type")
-            return
-        }
-        XCTAssertEqual(typeDef.fullName, "Windows.Foundation.IAsyncInfo")
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction")?.base?.asUnboundDefinition?.fullName,
+            "Windows.Foundation.IAsyncInfo")
     }
 
     func testGenericParamEnumeration() throws {
@@ -123,11 +111,16 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testMscorlibTypeReference() throws {
-        let point = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")!
-        guard case .simple(let typeDef) = point.base else {
-            XCTFail("Expected simple type")
-            return
-        }
-        XCTAssertEqual(typeDef.fullName, "System.ValueType")
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.base?.asUnboundDefinition?.fullName,
+            "System.ValueType")
+    }
+
+    func testTypeDefinitionKind() throws {
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point") as? StructDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable") as? InterfaceDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.MemoryBuffer") as? ClassDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncStatus") as? EnumDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncActionCompletedHandler") as? DelegateDefinition)
     }
 }

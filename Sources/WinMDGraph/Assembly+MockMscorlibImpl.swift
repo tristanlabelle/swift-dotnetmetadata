@@ -10,7 +10,7 @@ extension Assembly {
         func initialize(owner: Assembly) {
             // System.Object and derived types
             func makeType(name: String, base: TypeDefinition?) -> TypeDefinition {
-                TypeDefinition(
+                TypeDefinition.create(
                     assembly: owner,
                     impl: TypeDefinition.MockSystemTypeImpl(name: name, base: base))
             }
@@ -37,8 +37,6 @@ extension Assembly {
                 "Single", "Double" ].map {
                     makeType(name: $0, base: valueType)
                 })
-
-            systemTypes.append(makeType(name: "IDisposable", base: nil)) // TODO: Make into an interface
         }
 
         public var name: String { "mscorlib" }

@@ -44,8 +44,6 @@ public class Mscorlib: Assembly {
             intPtr = try find("IntPtr")
             single = try find("Single")
             double = try find("Double")
-
-            idisposable = try find("IDisposable")
         }
 
         public let void: TypeDefinition
@@ -74,7 +72,5 @@ public class Mscorlib: Assembly {
         public let intPtr: TypeDefinition
         public let single: TypeDefinition
         public let double: TypeDefinition
-
-        public let idisposable: TypeDefinition
     }
 }

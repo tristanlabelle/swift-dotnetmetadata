@@ -7,7 +7,7 @@ extension TypeDefinition {
 
         internal init(name: String, base: TypeDefinition?) {
             self.name = name
-            self.base = base == nil ? nil : .simple(base!)
+            self.base = base?.bindNonGeneric()
         }
 
         func initialize(owner: TypeDefinition) {}
