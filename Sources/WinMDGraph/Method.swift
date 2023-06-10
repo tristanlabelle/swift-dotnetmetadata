@@ -10,6 +10,7 @@ public final class Method {
     }
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
+    internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
     private var tableRow: WinMD.MethodDef { database.tables.methodDef[tableRowIndex] }
 
@@ -33,6 +34,18 @@ public final class Method {
             default: fatalError()
         }
     }
+
+    private lazy var signature = try! SignatureReader.readMethodDef(blob: database.heaps.resolve(tableRow.signature))
+
+    public private(set) lazy var params: [Param] = { [self] in
+        let paramRowIndices = getChildRowRange(
+            parent: database.tables.methodDef,
+            parentRowIndex: tableRowIndex,
+            childTable: database.tables.param,
+            childSelector: { $0.paramList })
+        guard paramRowIndices.count == signature.params.count else { fatalError() }
+        return zip(paramRowIndices, signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) }
+    }()
 
     public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
         var result: [GenericMethodParam] = []

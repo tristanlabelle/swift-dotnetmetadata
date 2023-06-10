@@ -36,5 +36,5 @@ public final class Field {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
         let typeSig = try! SignatureReader.readType(blob: signatureBlob)
         return assemblyImpl.resolve(typeSig)
-    }() 
+    }()
 }

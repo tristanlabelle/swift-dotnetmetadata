@@ -146,7 +146,6 @@ extension Assembly {
 
         internal func resolve(_ typeSig: TypeSig) -> Type {
             switch typeSig {
-                case .void: return mscorlib.specialTypes.void.bindNonGeneric()
                 case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
                 case .char: return mscorlib.specialTypes.char.bindNonGeneric()
                 case let .integer(size, signed): fatalError("Not implemented: resolve integer \(size) \(signed)")

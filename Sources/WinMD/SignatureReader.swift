@@ -8,7 +8,7 @@ public enum SignatureReader {
 
     static func consumeType(buffer: inout UnsafeRawBufferPointer) throws -> TypeSig {
         switch consumeToken(buffer: &buffer) {
-            case Token.void: return .void
+            // Leaf types
             case Token.boolean: return .boolean
             case Token.char: return .char
             case Token.i1: return .integer(size: .int8, signed: true)
@@ -25,6 +25,8 @@ public enum SignatureReader {
             case Token.r8: return .real(double: true)
             case Token.object: return .object
             case Token.string: return .string
+
+            // Compound types
             default: throw InvalidFormatError.signatureBlob
         }
     }
@@ -37,21 +39,27 @@ public enum SignatureReader {
     }
 
     static func consumeMethodDef(buffer: inout UnsafeRawBufferPointer) throws -> MethodDefSig {
-        guard consumeToken(buffer: &buffer) == Token.default else {
+        guard tryConsumeToken(buffer: &buffer, token: Token.default) else {
             fatalError("Not implemented")
         }
 
         let paramCount = consumeCompressedInt(buffer: &buffer)
         let retType = try consumeType(buffer: &buffer)
-        let paramTypes = try (0 ..< paramCount).map { _ in
-            try consumeType(buffer: &buffer)
+        let params = try (0 ..< paramCount).map { _ in
+            try consumeParam(buffer: &buffer)
         }
 
         return MethodDefSig(
             hasThis: false,
             explicitThis: false,
             retType: retType,
-            params: paramTypes)
+            params: params)
+    }
+
+    static func consumeParam(buffer: inout UnsafeRawBufferPointer) throws -> ParamSig {
+        let byRef = tryConsumeToken(buffer: &buffer, token: Token.byref)
+        let type = try consumeType(buffer: &buffer)
+        return ParamSig(customMods: [], byRef: byRef, type: type)
     }
 
     public static func readField(blob: UnsafeRawBufferPointer) throws -> FieldSig {
@@ -71,6 +79,13 @@ public enum SignatureReader {
 
     static func consumeToken(buffer: inout UnsafeRawBufferPointer) -> UInt8 {
         buffer.consume(type: UInt8.self).pointee
+    }
+    
+    static func tryConsumeToken(buffer: inout UnsafeRawBufferPointer, token: UInt8) -> Bool {
+        guard buffer.count > 0 else { return false }
+        guard buffer[0] == token else { return false }
+        buffer.consume(type: UInt8.self)
+        return true
     }
 
     static func consumeCompressedInt(buffer: inout UnsafeRawBufferPointer) -> Int {

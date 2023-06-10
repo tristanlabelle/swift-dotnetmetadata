@@ -3,8 +3,8 @@ import XCTest
 @testable import WinMDGraph
 
 final class WindowsWinMDTests: XCTestCase {
-    private static var context: MetadataContext!
-    private static var assembly: Assembly!
+    internal static var context: MetadataContext!
+    internal static var assembly: Assembly!
 
     override class func setUp() {
         do {
@@ -51,42 +51,6 @@ final class WindowsWinMDTests: XCTestCase {
             "Windows.Foundation.IAsyncInfo")
     }
 
-    func testGenericParamEnumeration() throws {
-        XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Collections.IKeyValuePair`2")?.genericParams.map({ $0.name }).sorted(),
-            [ "K", "V" ])
-    }
-
-    func testMethodEnumeration() throws {
-        XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.methods.map({ $0.name }).sorted(),
-            [ "Cancel", "Close", "get_ErrorCode", "get_Id", "get_Status" ])
-    }
-
-    func testFieldEnumeration() throws {
-        XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.fields.map({ $0.name }).sorted(),
-            [ "X", "Y" ])
-    }
-
-    func testPropertyEnumeration() throws {
-        XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.properties.map({ $0.name }).sorted(),
-            [ "ErrorCode", "Id", "Status" ])
-    }
-
-    func testEventEnumeration() throws {
-        XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Devices.Enumeration.DeviceWatcher")?.events.map({ $0.name }).sorted(),
-            [ "Added", "EnumerationCompleted", "Removed", "Stopped", "Updated" ])
-    }
-
-    func testGenericTypeParamEnumeration() throws {
-        XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Collections.IMap`2")?.genericParams.map({ $0.name }).sorted(),
-            [ "K", "V" ])
-    }
-
     func testTypeVisibility() throws {
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
         XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)
@@ -126,5 +90,13 @@ final class WindowsWinMDTests: XCTestCase {
         XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.MemoryBuffer") as? ClassDefinition)
         XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncStatus") as? EnumDefinition)
         XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncActionCompletedHandler") as? DelegateDefinition)
+    }
+
+    func testMethodParamEnumeration() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncActionCompletedHandler")?
+                .findSingleMethod(name: "Invoke")?
+                .params.map { $0.name },
+            ["asyncInfo", "asyncStatus"])
     }
 }
