@@ -16,14 +16,6 @@ public enum TypeSig {
     case mvar(UInt)
 }
 
-public enum IntegerSize {
-    case _1
-    case _2
-    case _4
-    case _8
-    case native
-}
-
 public struct MethodDefSig {
     public var hasThis: Bool
     public var explicitThis: Bool

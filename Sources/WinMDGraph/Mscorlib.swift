@@ -1,4 +1,4 @@
-// The mscorlib assembly, exposing definitions for special, core CLI types
+// The mscorlib assembly, exposing definitions for special types core to the CLI
 public final class Mscorlib: Assembly {
     public static let name: String = "mscorlib"
 
@@ -75,5 +75,15 @@ public final class Mscorlib: Assembly {
         public let intPtr: StructDefinition
         public let single: StructDefinition
         public let double: StructDefinition
+
+        public func getInteger(_ size: IntegerSize, signed: Bool) -> StructDefinition {
+            switch size {
+                case .int8: return signed ? byte : sbyte
+                case .int16: return signed ? int16 : uint16
+                case .int32: return signed ? int32 : uint32
+                case .int64: return signed ? int64 : uint64
+                case .intPtr: return signed ? intPtr : uintPtr
+            }
+        }
     }
 }

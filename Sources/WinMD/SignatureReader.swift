@@ -11,16 +11,16 @@ public enum SignatureReader {
             case Token.void: return .void
             case Token.boolean: return .boolean
             case Token.char: return .char
-            case Token.i1: return .integer(size: ._1, signed: true)
-            case Token.u1: return .integer(size: ._1, signed: false)
-            case Token.i2: return .integer(size: ._2, signed: true)
-            case Token.u2: return .integer(size: ._2, signed: false)
-            case Token.i4: return .integer(size: ._4, signed: true)
-            case Token.u4: return .integer(size: ._4, signed: false)
-            case Token.i8: return .integer(size: ._8, signed: true)
-            case Token.u8: return .integer(size: ._8, signed: false)
-            case Token.i: return .integer(size: .native, signed: true)
-            case Token.u: return .integer(size: .native, signed: false)
+            case Token.i1: return .integer(size: .int8, signed: true)
+            case Token.u1: return .integer(size: .int8, signed: false)
+            case Token.i2: return .integer(size: .int16, signed: true)
+            case Token.u2: return .integer(size: .int16, signed: false)
+            case Token.i4: return .integer(size: .int32, signed: true)
+            case Token.u4: return .integer(size: .int32, signed: false)
+            case Token.i8: return .integer(size: .int64, signed: true)
+            case Token.u8: return .integer(size: .int64, signed: false)
+            case Token.i: return .integer(size: .intPtr, signed: true)
+            case Token.u: return .integer(size: .intPtr, signed: false)
             case Token.r4: return .real(double: false)
             case Token.r8: return .real(double: true)
             case Token.object: return .object
