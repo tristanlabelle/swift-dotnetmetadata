@@ -132,4 +132,6 @@ public final class StructDefinition: TypeDefinition {
 }
 
 public final class EnumDefinition: TypeDefinition {
+    public var backingField: Field { fields.single { $0.name == "value__" }! }
+    public var underlyingType: TypeDefinition { backingField.type.asUnboundDefinition! }
 }
