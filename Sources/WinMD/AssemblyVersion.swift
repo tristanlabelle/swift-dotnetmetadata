@@ -1,6 +1,5 @@
-import WinMD
-
 public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
+    public static let zero = AssemblyVersion()
     public static let all255 = AssemblyVersion(major: 255, minor: 255, buildNumber: 255, revisionNumber: 255)
 
     public var major: UInt16
@@ -9,6 +8,20 @@ public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
     public var revisionNumber: UInt16
 
     public var description: String { "\(major).\(minor).\(buildNumber).\(revisionNumber)" }
+
+    public init() {
+        self.major = 0
+        self.minor = 0
+        self.buildNumber = 0
+        self.revisionNumber = 0
+    }
+
+    public init(major: UInt16, minor: UInt16, buildNumber: UInt16 = 0, revisionNumber: UInt16 = 0) {
+        self.major = major
+        self.minor = minor
+        self.buildNumber = buildNumber
+        self.revisionNumber = revisionNumber
+    }
 
     public static func < (lhs: AssemblyVersion, rhs: AssemblyVersion) -> Bool {
         if lhs.major != rhs.major {
@@ -20,25 +33,5 @@ public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
         } else {
             return lhs.revisionNumber < rhs.revisionNumber
         }
-    }
-}
-
-extension WinMD.AssemblyRef {
-    var version: AssemblyVersion {
-        AssemblyVersion(
-            major: majorVersion,
-            minor: minorVersion,
-            buildNumber: buildNumber,
-            revisionNumber: revisionNumber)
-    }
-}
-
-extension WinMD.Assembly {
-    var version: AssemblyVersion {
-        AssemblyVersion(
-            major: majorVersion,
-            minor: minorVersion,
-            buildNumber: buildNumber,
-            revisionNumber: revisionNumber)
     }
 }
