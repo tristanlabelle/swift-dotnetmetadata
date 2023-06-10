@@ -42,8 +42,12 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testBaseInterfaces() throws {
+        guard let iasyncInfo = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction") else {
+            XCTFail("IAsyncAction not found")
+            return
+        }
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction")?.base?.asUnboundDefinition?.fullName,
+            iasyncInfo.baseInterfaces[0].interface.asUnboundDefinition?.fullName,
             "Windows.Foundation.IAsyncInfo")
     }
 

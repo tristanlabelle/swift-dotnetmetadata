@@ -6,7 +6,7 @@ public class Assembly: CustomDebugStringConvertible {
     public let context: MetadataContext
     private let impl: any AssemblyImpl
 
-    init(context: MetadataContext, impl: any AssemblyImpl) {
+    init(context: MetadataContext, impl: any AssemblyImpl) throws {
         self.context = context
         self.impl = impl
         impl.initialize(owner: self)

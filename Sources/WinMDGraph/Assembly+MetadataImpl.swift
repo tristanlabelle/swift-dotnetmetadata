@@ -3,7 +3,7 @@ import WinMD
 /// Implementation for real assemblies based on loaded metadata from a PE file.
 extension Assembly {
     final class MetadataImpl: Impl {
-        private var assembly: Assembly!
+        internal private(set) unowned var owner: Assembly!
         internal let database: Database
         private let tableRow: WinMD.Assembly
 
@@ -13,10 +13,10 @@ extension Assembly {
         }
 
         func initialize(owner: Assembly) {
-            self.assembly = owner
+            self.owner = owner
         }
 
-        private var context: MetadataContext { assembly.context }
+        private var context: MetadataContext { owner.context }
 
         public var name: String { database.heaps.resolve(tableRow.name) }
         public var culture: String { database.heaps.resolve(tableRow.culture) }
@@ -34,7 +34,7 @@ extension Assembly {
         public private(set) lazy var types: [TypeDefinition] = {
             database.tables.typeDef.indices.map { 
                 TypeDefinition.create(
-                    assembly: assembly,
+                    assembly: owner,
                     impl: TypeDefinition.MetadataImpl(assemblyImpl: self, tableRowIndex: $0))
             }
         }()
@@ -60,7 +60,7 @@ extension Assembly {
         }
 
         private lazy var mscorlib: Mscorlib = {
-            if let mscorlib = assembly as? Mscorlib {
+            if let mscorlib = owner as? Mscorlib {
                 return mscorlib
             }
 
@@ -115,7 +115,7 @@ extension Assembly {
                 case let .module(index):
                     // Assume single-module assembly
                     guard index?.zeroBased == 0 else { break }
-                    return assembly.findTypeDefinition(namespace: namespace, name: name)!
+                    return owner.findTypeDefinition(namespace: namespace, name: name)!
                 case let .assemblyRef(index):
                     guard let index = index else { break }
                     return resolve(index).findTypeDefinition(namespace: namespace, name: name)!

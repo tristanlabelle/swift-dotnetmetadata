@@ -2,7 +2,7 @@ import WinMD
 
 extension TypeDefinition {
     final class MetadataImpl: Impl {
-        internal unowned var owner: TypeDefinition!
+        internal private(set) unowned var owner: TypeDefinition!
         internal unowned let assemblyImpl: Assembly.MetadataImpl
         private let tableRowIndex: Table<WinMD.TypeDef>.RowIndex
 
@@ -14,11 +14,19 @@ extension TypeDefinition {
         func initialize(owner: TypeDefinition) {
             self.owner = owner
         }
-        
-        internal var assembly: Assembly { owner.assembly }
+
+        internal var assembly: Assembly { assemblyImpl.owner }
         internal var database: Database { assemblyImpl.database }
 
         private var tableRow: WinMD.TypeDef { database.tables.typeDef[tableRowIndex] }
+
+        internal var kind: TypeDefinitionKind {
+            // Figuring out the kind requires checking the base type,
+            // but we must be careful to not look up any other `TypeDefinition`
+            // instances since they might not have been created yet.
+            // For safety, implement this at the physical layer.
+            database.getTypeDefinitionKind(tableRow, isMscorlib: assembly.name == Mscorlib.name)
+        }
 
         public var name: String { database.heaps.resolve(tableRow.typeName) }
         public var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }

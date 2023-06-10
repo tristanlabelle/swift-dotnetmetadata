@@ -2,10 +2,12 @@ import WinMD
 
 extension TypeDefinition {
     final class MockSystemTypeImpl: Impl {
+        public let kind: TypeDefinitionKind
         public let name: String
         public let base: Type?
 
-        internal init(name: String, base: TypeDefinition?) {
+        internal init(kind: TypeDefinitionKind, name: String, base: TypeDefinition?) {
+            self.kind = kind
             self.name = name
             self.base = base?.bindNonGeneric()
         }

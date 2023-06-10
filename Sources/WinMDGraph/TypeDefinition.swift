@@ -1,5 +1,4 @@
 import WinMD
-import Foundation
 
 public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Impl = TypeDefinitionImpl
@@ -7,38 +6,21 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public let assembly: Assembly
     private let impl: any TypeDefinitionImpl
 
-    init(assembly: Assembly, impl: any TypeDefinitionImpl) {
+    required init(assembly: Assembly, impl: any TypeDefinitionImpl) {
         self.assembly = assembly
         self.impl = impl
         impl.initialize(owner: self)
     }
 
     internal static func create(assembly: Assembly, impl: any TypeDefinitionImpl) -> TypeDefinition {
-        if impl.metadataFlags.contains(.interface) {
-            return InterfaceDefinition(assembly: assembly, impl: impl)
-        }
-
-        if let baseDefinition = impl.base?.asUnboundDefinition,
-                let mscorlib = baseDefinition.assembly as? Mscorlib {
-            if baseDefinition === mscorlib.specialTypes.valueType {
-                return StructDefinition(assembly: assembly, impl: impl)
-            }
-            if baseDefinition === mscorlib.specialTypes.enum {
-                return EnumDefinition(assembly: assembly, impl: impl)
-            }
-            if baseDefinition === mscorlib.specialTypes.delegate
-                || baseDefinition === mscorlib.specialTypes.multicastDelegate {
-                return DelegateDefinition(assembly: assembly, impl: impl)
-            }
-        }
-        
-        return ClassDefinition(assembly: assembly, impl: impl)
+        impl.kind.metatype.init(assembly: assembly, impl: impl)
     }
 
     public var context: MetadataContext { assembly.context }
 
     public var name: String { impl.name }
     public var namespace: String { impl.namespace }
+    public var kind: TypeDefinitionKind { impl.kind }
     internal var metadataFlags: WinMD.TypeAttributes { impl.metadataFlags }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: Type? { impl.base }
@@ -50,10 +32,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
     
-    public private(set) lazy var fullName: String = {
-        let ns = namespace
-        return ns.isEmpty ? name : "\(ns).\(name)"
-    }()
+    public private(set) lazy var fullName: String = makeFullTypeName(namespace: namespace, name: name)
     
     public var visibility: Visibility {
         switch metadataFlags.intersection(.visibilityMask) {
@@ -92,6 +71,7 @@ internal protocol TypeDefinitionImpl {
 
     var name: String { get }
     var namespace: String { get }
+    var kind: TypeDefinitionKind { get }
     var metadataFlags: WinMD.TypeAttributes { get }
     var genericParams: [GenericTypeParam] { get }
     var base: Type? { get }
@@ -100,4 +80,8 @@ internal protocol TypeDefinitionImpl {
     var methods: [Method] { get }
     var properties: [Property] { get }
     var events: [Event] { get }
+}
+
+public func makeFullTypeName(namespace: String, name: String) -> String {
+    namespace.isEmpty ? name : "\(namespace).\(name)"
 }

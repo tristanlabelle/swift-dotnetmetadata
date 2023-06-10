@@ -18,7 +18,7 @@ public class MetadataContext {
                 return mscorlib
             }
             else {
-                let mscorlib = try Mscorlib(context: self, impl: Mscorlib.MockMscorlibImpl(), shadowing: .init())
+                let mscorlib = try Mscorlib(context: self, impl: Mscorlib.MockMscorlibImpl())
                 self.mscorlib = mscorlib
                 return mscorlib
             }
@@ -39,7 +39,7 @@ public class MetadataContext {
         let assemblyImpl = Assembly.MetadataImpl(database: database, tableRow: assemblyRow)
         let assembly: Assembly
         if assemblyImpl.name == Mscorlib.name,
-            let mscorlib = try? Mscorlib(context: self, impl: assemblyImpl, shadowing: .init()) {
+            let mscorlib = try? Mscorlib(context: self, impl: assemblyImpl) {
 
             if self.mscorlib == nil {
                 self.mscorlib = mscorlib
@@ -48,7 +48,7 @@ public class MetadataContext {
             assembly = mscorlib
         }
         else {
-            assembly = Assembly(context: self, impl: assemblyImpl)
+            assembly = try Assembly(context: self, impl: assemblyImpl)
         }
 
         loadedAssemblies.append(assembly)

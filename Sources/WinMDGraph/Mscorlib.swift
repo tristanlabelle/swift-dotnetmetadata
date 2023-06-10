@@ -1,12 +1,11 @@
 // The mscorlib assembly, exposing definitions for special, core CLI types
-public class Mscorlib: Assembly {
+public final class Mscorlib: Assembly {
     public static let name: String = "mscorlib"
 
     struct MissingSpecialType: Error {}
-    struct Shadowing {}
 
-    init(context: MetadataContext, impl: any AssemblyImpl, shadowing: Shadowing) throws {
-        super.init(context: context, impl: impl)
+    override init(context: MetadataContext, impl: any AssemblyImpl) throws {
+        try super.init(context: context, impl: impl)
         specialTypes = try SpecialTypes(assembly: self)
     }
 
@@ -14,8 +13,12 @@ public class Mscorlib: Assembly {
 
     public final class SpecialTypes {
         init(assembly: Assembly) throws {
-            func find(_ name: String) throws -> TypeDefinition {
-                return try assembly.findTypeDefinition(fullName: "System." + name) ?? { throw MissingSpecialType() }()
+            func find<T: TypeDefinition>(_ name: String) throws -> T {
+                guard let typeDefinition = assembly.findTypeDefinition(fullName: "System." + name),
+                        let typeDefinition = typeDefinition as? T else {
+                    throw MissingSpecialType()
+                }
+                return typeDefinition
             }
 
             void = try find("Void")
@@ -46,31 +49,31 @@ public class Mscorlib: Assembly {
             double = try find("Double")
         }
 
-        public let void: TypeDefinition
-        public let object: TypeDefinition
-        public let type: TypeDefinition
-        public let valueType: TypeDefinition
-        public let `enum`: TypeDefinition
-        public let delegate: TypeDefinition
-        public let multicastDelegate: TypeDefinition
-        public let exception: TypeDefinition
-        public let attribute: TypeDefinition
-        public let string: TypeDefinition
-        public let array: TypeDefinition
-        public let boolean: TypeDefinition
-        public let char: TypeDefinition
+        public let void: StructDefinition
+        public let object: ClassDefinition
+        public let type: ClassDefinition
+        public let valueType: ClassDefinition
+        public let `enum`: ClassDefinition
+        public let delegate: ClassDefinition
+        public let multicastDelegate: ClassDefinition
+        public let exception: ClassDefinition
+        public let attribute: ClassDefinition
+        public let string: ClassDefinition
+        public let array: ClassDefinition
 
-        public let byte: TypeDefinition
-        public let sbyte: TypeDefinition
-        public let uint16: TypeDefinition
-        public let int16: TypeDefinition
-        public let uint32: TypeDefinition
-        public let int32: TypeDefinition
-        public let uint64: TypeDefinition
-        public let int64: TypeDefinition
-        public let uintPtr: TypeDefinition
-        public let intPtr: TypeDefinition
-        public let single: TypeDefinition
-        public let double: TypeDefinition
+        public let boolean: StructDefinition
+        public let char: StructDefinition
+        public let byte: StructDefinition
+        public let sbyte: StructDefinition
+        public let uint16: StructDefinition
+        public let int16: StructDefinition
+        public let uint32: StructDefinition
+        public let int32: StructDefinition
+        public let uint64: StructDefinition
+        public let int64: StructDefinition
+        public let uintPtr: StructDefinition
+        public let intPtr: StructDefinition
+        public let single: StructDefinition
+        public let double: StructDefinition
     }
 }
