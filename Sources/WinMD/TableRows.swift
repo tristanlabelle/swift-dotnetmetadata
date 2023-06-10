@@ -24,6 +24,14 @@ public struct Assembly {
     public var publicKey: HeapOffset<BlobHeap>
     public var name: HeapOffset<StringHeap>
     public var culture: HeapOffset<StringHeap>
+
+    public var version: AssemblyVersion {
+        .init(
+            major: majorVersion,
+            minor: minorVersion,
+            buildNumber: buildNumber,
+            revisionNumber: revisionNumber)
+    }
 }
 
 extension Assembly: TableRow {
@@ -65,6 +73,14 @@ public struct AssemblyRef {
     public var name: HeapOffset<StringHeap>
     public var culture: HeapOffset<StringHeap>
     public var hashValue: HeapOffset<BlobHeap>
+    
+    public var version: AssemblyVersion {
+        .init(
+            major: majorVersion,
+            minor: minorVersion,
+            buildNumber: buildNumber,
+            revisionNumber: revisionNumber)
+    }
 }
 
 extension AssemblyRef: TableRow {
