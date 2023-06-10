@@ -1,26 +1,60 @@
 import WinMD
 
+internal enum TypeDefinitionKind {
+    case `class`
+    case interface
+    case delegate
+    case `struct`
+    case `enum`
+}
+
+internal protocol TypeDefinitionImpl {
+    func initialize(owner: TypeDefinition)
+
+    var name: String { get }
+    var namespace: String { get }
+    var kind: TypeDefinitionKind { get }
+    var metadataFlags: WinMD.TypeAttributes { get }
+    var genericParams: [GenericTypeParam] { get }
+    var base: Type? { get }
+    var baseInterfaces: [BaseInterface] { get }
+    var fields: [Field]  { get }
+    var methods: [Method] { get }
+    var properties: [Property] { get }
+    var events: [Event] { get }
+}
+
+public func makeFullTypeName(namespace: String, name: String) -> String {
+    namespace.isEmpty ? name : "\(namespace).\(name)"
+}
+
 public class TypeDefinition: CustomDebugStringConvertible {
+    internal typealias Kind = TypeDefinitionKind
     internal typealias Impl = TypeDefinitionImpl
 
     public let assembly: Assembly
     private let impl: any TypeDefinitionImpl
 
-    required init(assembly: Assembly, impl: any TypeDefinitionImpl) {
+    fileprivate init(assembly: Assembly, impl: any TypeDefinitionImpl) {
         self.assembly = assembly
         self.impl = impl
         impl.initialize(owner: self)
     }
 
     internal static func create(assembly: Assembly, impl: any TypeDefinitionImpl) -> TypeDefinition {
-        impl.kind.metatype.init(assembly: assembly, impl: impl)
+        switch impl.kind {
+            case .class: return ClassDefinition(assembly: assembly, impl: impl)
+            case .interface: return InterfaceDefinition(assembly: assembly, impl: impl)
+            case .delegate: return DelegateDefinition(assembly: assembly, impl: impl)
+            case .struct: return StructDefinition(assembly: assembly, impl: impl)
+            case .enum: return EnumDefinition(assembly: assembly, impl: impl)
+        }
     }
 
     public var context: MetadataContext { assembly.context }
 
     public var name: String { impl.name }
     public var namespace: String { impl.namespace }
-    public var kind: TypeDefinitionKind { impl.kind }
     internal var metadataFlags: WinMD.TypeAttributes { impl.metadataFlags }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: Type? { impl.base }
@@ -31,6 +65,12 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var events: [Event] { impl.events }
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
+
+    public var unboundBase: TypeDefinition? {
+        guard let base = base else { return nil }
+        guard case .definition(let base) = base else { return nil }
+        return base.definition
+    }
     
     public private(set) lazy var fullName: String = makeFullTypeName(namespace: namespace, name: name)
     
@@ -60,28 +100,36 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isSealed: Bool { metadataFlags.contains(TypeAttributes.sealed) }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
-    public func findSingleMethod(name: String) -> Method? { methods.single { $0.name == name } }
-    public func findField(name: String) -> Field? { fields.first { $0.name == name } }
-    public func findProperty(name: String) -> Property? { properties.first { $0.name == name } }
-    public func findEvent(name: String) -> Event? { events.first { $0.name == name } }
+    public func findSingleMethod(name: String, inherited: Bool = false) -> Method? {
+        methods.single { $0.name == name } ?? (inherited ? unboundBase?.findSingleMethod(name: name, inherited: true) : nil)
+    }
+
+    public func findField(name: String, inherited: Bool = false) -> Field? {
+        fields.first { $0.name == name } ?? (inherited ? unboundBase?.findField(name: name, inherited: true) : nil)
+    }
+
+    public func findProperty(name: String, inherited: Bool = false) -> Property? {
+        properties.first { $0.name == name } ?? (inherited ? unboundBase?.findProperty(name: name, inherited: true) : nil)
+    }
+
+    public func findEvent(name: String, inherited: Bool = false) -> Event? {
+        events.first { $0.name == name } ?? (inherited ? unboundBase?.findEvent(name: name, inherited: true) : nil)
+    }
 }
 
-internal protocol TypeDefinitionImpl {
-    func initialize(owner: TypeDefinition)
-
-    var name: String { get }
-    var namespace: String { get }
-    var kind: TypeDefinitionKind { get }
-    var metadataFlags: WinMD.TypeAttributes { get }
-    var genericParams: [GenericTypeParam] { get }
-    var base: Type? { get }
-    var baseInterfaces: [BaseInterface] { get }
-    var fields: [Field]  { get }
-    var methods: [Method] { get }
-    var properties: [Property] { get }
-    var events: [Event] { get }
+public final class ClassDefinition: TypeDefinition {
+    public var overridesFinalize: Bool { findSingleMethod(name: "Finalize") != nil }
 }
 
-public func makeFullTypeName(namespace: String, name: String) -> String {
-    namespace.isEmpty ? name : "\(namespace).\(name)"
+public final class InterfaceDefinition: TypeDefinition {
+}
+
+public final class DelegateDefinition: TypeDefinition {
+    public var invokeMethod: Method { findSingleMethod(name: "Invoke")! }
+}
+
+public final class StructDefinition: TypeDefinition {
+}
+
+public final class EnumDefinition: TypeDefinition {
 }

@@ -14,4 +14,9 @@ public final class BaseInterface {
     internal var database: Database { inheritingTypeImpl.database }
     private var tableRow: WinMD.InterfaceImpl { database.tables.interfaceImpl[tableRowIndex] }
     public var interface: Type { assemblyImpl.resolve(tableRow.interface)! }
+
+    public var unboundInterface: TypeDefinition! {
+        guard case .definition(let interface) = interface else { fatalError() }
+        return interface.definition
+    }
 }

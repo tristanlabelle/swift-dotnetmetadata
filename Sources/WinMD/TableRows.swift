@@ -589,7 +589,6 @@ extension TypeRef: TableRow {
     }
 }
 
-
 public struct TypeSpec {
     public var signature: HeapOffset<BlobHeap>
 }

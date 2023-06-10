@@ -37,7 +37,7 @@ final class WindowsWinMDTests: XCTestCase {
 
     func testBaseType() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.UI.Xaml.UIElement")?.base?.asUnboundDefinition?.fullName,
+            Self.assembly.findTypeDefinition(fullName: "Windows.UI.Xaml.UIElement")?.unboundBase?.fullName,
             "Windows.UI.Xaml.DependencyObject")
     }
 
@@ -47,7 +47,7 @@ final class WindowsWinMDTests: XCTestCase {
             return
         }
         XCTAssertEqual(
-            iasyncInfo.baseInterfaces[0].interface.asUnboundDefinition?.fullName,
+            iasyncInfo.baseInterfaces[0].unboundInterface?.fullName,
             "Windows.Foundation.IAsyncInfo")
     }
 
@@ -116,7 +116,7 @@ final class WindowsWinMDTests: XCTestCase {
 
     func testMscorlibTypeReference() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.base?.asUnboundDefinition?.fullName,
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.unboundBase?.fullName,
             "System.ValueType")
     }
 
