@@ -4,10 +4,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "DotNetMDPhysical",
+    name: "DotNetMD",
     products: [
         .library(
-            name: "DotNetMDPhysical",
+            name: "DotNetMD",
             targets: ["DotNetMDPhysical", "DotNetMDLogical"]),
         .executable(
             name: "Sample",
