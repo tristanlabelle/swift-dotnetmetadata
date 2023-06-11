@@ -31,7 +31,7 @@ extension Assembly {
             systemTypes.append(valueType)
             systemTypes.append(makeType(kind: .class, name: "Enum", base: valueType))
             systemTypes.append(contentsOf: [
-                "Void",
+                "Void", "TypedReference",
                 "Boolean", "Char",
                 "SByte", "Byte", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", 
                 "IntPtr", "UIntPtr",

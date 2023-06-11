@@ -23,11 +23,12 @@ public final class Mscorlib: Assembly {
 
             void = try find("Void")
             object = try find("Object")
-            type = try find("Type")
             valueType = try find("ValueType")
             `enum` = try find("Enum")
             delegate = try find("Delegate")
             multicastDelegate = try find("MulticastDelegate")
+            type = try find("Type")
+            typedReference = try find("TypedReference")
             exception = try find("Exception")
             attribute = try find("Attribute")
             string = try find("String")
@@ -51,11 +52,12 @@ public final class Mscorlib: Assembly {
 
         public let void: StructDefinition
         public let object: ClassDefinition
-        public let type: ClassDefinition
         public let valueType: ClassDefinition
         public let `enum`: ClassDefinition
         public let delegate: ClassDefinition
         public let multicastDelegate: ClassDefinition
+        public let type: ClassDefinition
+        public let typedReference: StructDefinition
         public let exception: ClassDefinition
         public let attribute: ClassDefinition
         public let string: ClassDefinition
