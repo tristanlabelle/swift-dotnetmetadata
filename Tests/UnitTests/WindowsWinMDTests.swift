@@ -15,7 +15,7 @@ final class WindowsWinMDTests: XCTestCase {
             let unionMetadataPath = "\(programFilesX86Path)\\Windows Kits\\10\\UnionMetadata"
             let windowsSDKVersions = try FileManager.default.contentsOfDirectory(atPath: unionMetadataPath)
             guard let latestWindowsSDKVersion = windowsSDKVersions.filter({ $0.starts(with: "10.0.") }).max() else { return }
-            let url = URL(fileURLWithPath: "\(unionMetadataPath)\\\(latestWindowsSDKVersion)\\Windows.DotNetMDPhysical")
+            let url = URL(fileURLWithPath: "\(unionMetadataPath)\\\(latestWindowsSDKVersion)\\Windows.winmd")
             
             assembly = try? context.loadAssembly(url: url)
         }
