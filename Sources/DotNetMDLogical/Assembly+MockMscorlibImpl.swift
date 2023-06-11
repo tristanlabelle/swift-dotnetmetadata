@@ -1,6 +1,6 @@
-import WinMD
+import DotNetMDPhysical
 
-/// WinMD files refer to mscorlib 255.255.255.255, which is not a real assembly,
+/// DotNetMDPhysical files refer to mscorlib 255.255.255.255, which is not a real assembly,
 /// but we still want to have definitions for fundamental types like System.Object,
 /// System.ValueType, System.Int32, System.String, System.Enum, etc.
 extension Assembly {

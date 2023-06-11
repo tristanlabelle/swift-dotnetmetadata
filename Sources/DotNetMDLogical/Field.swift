@@ -1,10 +1,10 @@
-import WinMD
+import DotNetMDPhysical
 
 public final class Field {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    private let tableRowIndex: Table<WinMD.Field>.RowIndex
+    private let tableRowIndex: Table<DotNetMDPhysical.Field>.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<WinMD.Field>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Field>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
@@ -12,7 +12,7 @@ public final class Field {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
-    private var tableRow: WinMD.Field { database.tables.field[tableRowIndex] }
+    private var tableRow: DotNetMDPhysical.Field { database.tables.field[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }

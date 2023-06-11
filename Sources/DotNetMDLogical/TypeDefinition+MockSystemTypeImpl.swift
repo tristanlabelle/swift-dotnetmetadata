@@ -1,4 +1,4 @@
-import WinMD
+import DotNetMDPhysical
 
 extension TypeDefinition {
     final class MockSystemTypeImpl: Impl {
@@ -17,7 +17,7 @@ extension TypeDefinition {
         public var namespace: String { "System" }
 
         // FIXME: We'll need a few more attributes than that
-        internal var metadataFlags: WinMD.TypeAttributes { WinMD.TypeAttributes.public }
+        internal var metadataFlags: DotNetMDPhysical.TypeAttributes { DotNetMDPhysical.TypeAttributes.public }
 
         public var baseInterfaces: [BaseInterface] { [] }
         public var genericParams: [GenericTypeParam] { [] }

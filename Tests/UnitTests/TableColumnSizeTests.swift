@@ -1,5 +1,5 @@
 import XCTest
-@testable import WinMD
+@testable import DotNetMDPhysical
 
 final class TableColumnSizeTests: XCTestCase {
     func testCodedIndexTagBitCount() throws {

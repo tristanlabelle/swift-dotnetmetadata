@@ -1,32 +1,33 @@
+import Foundation
 import XCTest
-@testable import WinMDGraph
+@testable import DotNetMDLogical
 
 extension WindowsWinMDTests {
-    func testGenericTypeParamEnumeration() throws {
+    func testTypeGenericParamEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Collections.IKeyValuePair`2")?.genericParams.map({ $0.name }).sorted(),
             [ "K", "V" ])
     }
 
-    func testMethodEnumeration() throws {
+    func testTypeMethodEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.methods.map({ $0.name }).sorted(),
             [ "Cancel", "Close", "get_ErrorCode", "get_Id", "get_Status" ])
     }
 
-    func testFieldEnumeration() throws {
+    func testTypeFieldEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.fields.map({ $0.name }).sorted(),
             [ "X", "Y" ])
     }
 
-    func testPropertyEnumeration() throws {
+    func testTypePropertyEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?.properties.map({ $0.name }).sorted(),
             [ "ErrorCode", "Id", "Status" ])
     }
 
-    func testEventEnumeration() throws {
+    func testTypeEventEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Devices.Enumeration.DeviceWatcher")?.events.map({ $0.name }).sorted(),
             [ "Added", "EnumerationCompleted", "Removed", "Stopped", "Updated" ])

@@ -1,10 +1,10 @@
 import struct Foundation.URL
-import WinMD
-import WinMDGraph
+import DotNetMDPhysical
+import DotNetMDLogical
 
 struct AssemblyNotFound: Error {}
 
-let url = URL(fileURLWithPath: #"C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.22000.0\Windows.winmd"#)
+let url = URL(fileURLWithPath: #"C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.22000.0\Windows.DotNetMDPhysical"#)
 
 let database = try Database(url: url)
 let assemblyRef = database.tables.assemblyRef[0]

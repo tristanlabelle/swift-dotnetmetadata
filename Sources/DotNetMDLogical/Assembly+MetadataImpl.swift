@@ -1,13 +1,13 @@
-import WinMD
+import DotNetMDPhysical
 
 /// Implementation for real assemblies based on loaded metadata from a PE file.
 extension Assembly {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: Assembly!
         internal let database: Database
-        private let tableRow: WinMD.Assembly
+        private let tableRow: DotNetMDPhysical.Assembly
 
-        internal init(database: Database, tableRow: WinMD.Assembly) {
+        internal init(database: Database, tableRow: DotNetMDPhysical.Assembly) {
             self.database = database
             self.tableRow = tableRow
         }

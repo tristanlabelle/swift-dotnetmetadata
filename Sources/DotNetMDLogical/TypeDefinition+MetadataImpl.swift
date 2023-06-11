@@ -1,12 +1,12 @@
-import WinMD
+import DotNetMDPhysical
 
 extension TypeDefinition {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: TypeDefinition!
         internal unowned let assemblyImpl: Assembly.MetadataImpl
-        private let tableRowIndex: Table<WinMD.TypeDef>.RowIndex
+        private let tableRowIndex: Table<DotNetMDPhysical.TypeDef>.RowIndex
 
-        init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: Table<WinMD.TypeDef>.RowIndex) {
+        init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.TypeDef>.RowIndex) {
             self.assemblyImpl = assemblyImpl
             self.tableRowIndex = tableRowIndex
         }
@@ -18,7 +18,7 @@ extension TypeDefinition {
         internal var assembly: Assembly { assemblyImpl.owner }
         internal var database: Database { assemblyImpl.database }
 
-        private var tableRow: WinMD.TypeDef { database.tables.typeDef[tableRowIndex] }
+        private var tableRow: DotNetMDPhysical.TypeDef { database.tables.typeDef[tableRowIndex] }
 
         internal var kind: TypeDefinitionKind {
             // Figuring out the kind requires checking the base type,
@@ -31,7 +31,7 @@ extension TypeDefinition {
         public var name: String { database.heaps.resolve(tableRow.typeName) }
         public var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }
 
-        internal var metadataFlags: WinMD.TypeAttributes { tableRow.flags }
+        internal var metadataFlags: DotNetMDPhysical.TypeAttributes { tableRow.flags }
 
         public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
             var result: [GenericTypeParam] = []

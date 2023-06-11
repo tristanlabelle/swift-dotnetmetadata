@@ -1,4 +1,4 @@
-import WinMD
+import DotNetMDPhysical
 
 internal enum TypeDefinitionKind {
     case `class`
@@ -14,7 +14,7 @@ internal protocol TypeDefinitionImpl {
     var name: String { get }
     var namespace: String { get }
     var kind: TypeDefinitionKind { get }
-    var metadataFlags: WinMD.TypeAttributes { get }
+    var metadataFlags: DotNetMDPhysical.TypeAttributes { get }
     var genericParams: [GenericTypeParam] { get }
     var base: Type? { get }
     var baseInterfaces: [BaseInterface] { get }
@@ -55,7 +55,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var name: String { impl.name }
     public var namespace: String { impl.namespace }
-    internal var metadataFlags: WinMD.TypeAttributes { impl.metadataFlags }
+    internal var metadataFlags: DotNetMDPhysical.TypeAttributes { impl.metadataFlags }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: Type? { impl.base }
     public var baseInterfaces: [BaseInterface] { impl.baseInterfaces }

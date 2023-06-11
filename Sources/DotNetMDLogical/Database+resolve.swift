@@ -1,7 +1,7 @@
-import WinMD
+import DotNetMDPhysical
 
 extension Database {
-    func getTypeDefinitionKind(_ tableRow: WinMD.TypeDef, isMscorlib: Bool) -> TypeDefinitionKind {
+    func getTypeDefinitionKind(_ tableRow: DotNetMDPhysical.TypeDef, isMscorlib: Bool) -> TypeDefinitionKind {
         if tableRow.flags.contains(.interface) {
             return .interface
         }

@@ -1,4 +1,4 @@
-import WinMD
+import DotNetMDPhysical
 
 func getChildRowRange<Parent, Child>(
     parent: Table<Parent>,

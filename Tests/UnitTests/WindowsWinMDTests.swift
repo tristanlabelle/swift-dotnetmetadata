@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import WinMDGraph
+@testable import DotNetMDLogical
 
 final class WindowsWinMDTests: XCTestCase {
     internal static var context: MetadataContext!
@@ -15,7 +15,7 @@ final class WindowsWinMDTests: XCTestCase {
             let unionMetadataPath = "\(programFilesX86Path)\\Windows Kits\\10\\UnionMetadata"
             let windowsSDKVersions = try FileManager.default.contentsOfDirectory(atPath: unionMetadataPath)
             guard let latestWindowsSDKVersion = windowsSDKVersions.filter({ $0.starts(with: "10.0.") }).max() else { return }
-            let url = URL(fileURLWithPath: "\(unionMetadataPath)\\\(latestWindowsSDKVersion)\\Windows.winmd")
+            let url = URL(fileURLWithPath: "\(unionMetadataPath)\\\(latestWindowsSDKVersion)\\Windows.DotNetMDPhysical")
             
             assembly = try? context.loadAssembly(url: url)
         }

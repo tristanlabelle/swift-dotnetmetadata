@@ -1,11 +1,11 @@
-import WinMD
+import DotNetMDPhysical
 
 public final class Param {
     public unowned let method: Method
-    private let tableRowIndex: Table<WinMD.Param>.RowIndex
-    private let signature: WinMD.ParamSig
+    private let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex
+    private let signature: DotNetMDPhysical.ParamSig
 
-    init(method: Method, tableRowIndex: Table<WinMD.Param>.RowIndex, signature: WinMD.ParamSig) {
+    init(method: Method, tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex, signature: DotNetMDPhysical.ParamSig) {
         self.method = method
         self.tableRowIndex = tableRowIndex
         self.signature = signature
@@ -13,7 +13,7 @@ public final class Param {
 
     internal var assemblyImpl: Assembly.MetadataImpl { method.assemblyImpl }
     internal var database: Database { method.database }
-    private var tableRow: WinMD.Param { database.tables.param[tableRowIndex] }
+    private var tableRow: DotNetMDPhysical.Param { database.tables.param[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.sequence) }

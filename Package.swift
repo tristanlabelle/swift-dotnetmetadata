@@ -4,27 +4,27 @@
 import PackageDescription
 
 let package = Package(
-    name: "WinMD",
+    name: "DotNetMDPhysical",
     products: [
         .library(
-            name: "WinMD",
-            targets: ["WinMD", "WinMDGraph"]),
+            name: "DotNetMDPhysical",
+            targets: ["DotNetMDPhysical", "DotNetMDLogical"]),
         .executable(
             name: "Sample",
             targets: ["Sample"])
     ],
     targets: [
         .target(
-            name: "WinMD"),
+            name: "DotNetMDPhysical"),
         .target(
-            name: "WinMDGraph",
-            dependencies: [ "WinMD" ]),
+            name: "DotNetMDLogical",
+            dependencies: [ "DotNetMDPhysical" ]),
         .executableTarget(
             name: "Sample",
-            dependencies: [ "WinMD", "WinMDGraph" ],
+            dependencies: [ "DotNetMDPhysical", "DotNetMDLogical" ],
             path: "Sample"),
         .testTarget(
-            name: "WinMDTests",
-            dependencies: [ "WinMD", "WinMDGraph" ])
+            name: "UnitTests",
+            dependencies: [ "DotNetMDPhysical", "DotNetMDLogical" ])
     ]
 )
