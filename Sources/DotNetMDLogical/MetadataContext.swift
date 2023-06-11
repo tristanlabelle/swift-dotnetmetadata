@@ -54,4 +54,8 @@ public class MetadataContext {
         loadedAssemblies.append(assembly)
         return assembly
     }
+
+    public func loadAssembly(path: String) throws -> Assembly {
+        try loadAssembly(url: URL(fileURLWithPath: path))
+    }
 }
