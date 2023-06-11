@@ -106,7 +106,7 @@ final class WindowsWinMDTests: XCTestCase {
     func testMethodReturnType() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IPropertyValue")?
-                .findSingleMethod(name: "GetChar16")?.params[0].type.asUnboundDefinition?.fullName,
+                .findSingleMethod(name: "GetChar16")?.returnType.asUnboundDefinition?.fullName,
             "System.Char")
 
         XCTAssertEqual(
