@@ -32,25 +32,14 @@ public struct ParamSig {
 
 public struct MethodDefSig {
     public var hasThis: Bool
-    public var explicitThis: Bool
+    public var explicitThis: TypeSig?
     // default/vararg/generic
     public var retType: TypeSig
     public var params: [ParamSig]
 }
 
-extension MethodDefSig {
-    public init(blob: UnsafeRawBufferPointer) throws {
-        self = try SignatureReader.readMethodDef(blob: blob)
-    }
-}
-
 public struct FieldSig {
     // customMods
     public var type: TypeSig
-}
 
-extension FieldSig {
-    public init(blob: UnsafeRawBufferPointer) throws {
-        self = try SignatureReader.readField(blob: blob)
-    }
 }

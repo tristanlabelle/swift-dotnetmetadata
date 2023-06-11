@@ -128,7 +128,7 @@ extension Assembly {
         internal func resolve(_ index: Table<TypeSpec>.RowIndex) -> Type {
             let typeSpecRow = database.tables.typeSpec[index]
             let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
-            let typeSig = try! SignatureReader.readType(blob: signatureBlob)
+            let typeSig = try! TypeSig(blob: signatureBlob)
             return resolve(typeSig)
         }
 

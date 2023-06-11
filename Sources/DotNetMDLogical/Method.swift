@@ -35,7 +35,7 @@ public final class Method {
         }
     }
 
-    private lazy var signature = try! SignatureReader.readMethodDef(blob: database.heaps.resolve(tableRow.signature))
+    private lazy var signature = try! MethodDefSig(blob: database.heaps.resolve(tableRow.signature))
 
     public private(set) lazy var params: [Param] = { [self] in
         let paramRowIndices = getChildRowRange(
