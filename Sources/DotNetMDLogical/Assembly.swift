@@ -15,7 +15,7 @@ public class Assembly: CustomDebugStringConvertible {
     public var name: String { impl.name }
     public var version: AssemblyVersion { impl.version }
     public var culture: String { impl.culture }
-    public var types: [TypeDefinition] { impl.types }
+    public var definedTypes: [TypeDefinition] { impl.definedTypes }
 
     public var debugDescription: String {
         var result = "\(name), Version=\(version)"
@@ -24,15 +24,15 @@ public class Assembly: CustomDebugStringConvertible {
     }
 
     public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
-        Dictionary(uniqueKeysWithValues: types.map { ($0.fullName, $0) })
+        Dictionary(uniqueKeysWithValues: definedTypes.map { ($0.fullName, $0) })
     }()
 
-    public func findTypeDefinition(fullName: String) -> TypeDefinition? {
+    public func findDefinedType(fullName: String) -> TypeDefinition? {
         typesByFullName[fullName]
     }
 
-    public func findTypeDefinition(namespace: String, name: String) -> TypeDefinition? {
-        findTypeDefinition(fullName: "\(namespace).\(name)")
+    public func findDefinedType(namespace: String, name: String) -> TypeDefinition? {
+        findDefinedType(fullName: "\(namespace).\(name)")
     }
 }
 
@@ -42,5 +42,5 @@ internal protocol AssemblyImpl {
     var name: String { get }
     var version: AssemblyVersion { get }
     var culture: String { get }
-    var types: [TypeDefinition] { get }
+    var definedTypes: [TypeDefinition] { get }
 }

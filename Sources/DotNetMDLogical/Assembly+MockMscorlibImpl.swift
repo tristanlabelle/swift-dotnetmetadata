@@ -43,6 +43,6 @@ extension Assembly {
         public var name: String { "mscorlib" }
         public var version: AssemblyVersion { .all255 }
         public var culture: String { "" }
-        public var types: [TypeDefinition] { systemTypes }
+        public var definedTypes: [TypeDefinition] { systemTypes }
     }
 }

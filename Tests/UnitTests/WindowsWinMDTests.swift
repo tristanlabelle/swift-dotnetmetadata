@@ -29,7 +29,7 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testTypeName() throws {
-        let iclosable = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")
+        let iclosable = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IClosable")
         XCTAssertEqual(iclosable?.name, "IClosable")
         XCTAssertEqual(iclosable?.namespace, "Windows.Foundation")
         XCTAssertEqual(iclosable?.fullName, "Windows.Foundation.IClosable")
@@ -37,12 +37,12 @@ final class WindowsWinMDTests: XCTestCase {
 
     func testBaseType() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.UI.Xaml.UIElement")?.unboundBase?.fullName,
+            Self.assembly.findDefinedType(fullName: "Windows.UI.Xaml.UIElement")?.unboundBase?.fullName,
             "Windows.UI.Xaml.DependencyObject")
     }
 
     func testBaseInterfaces() throws {
-        guard let iasyncInfo = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncAction") else {
+        guard let iasyncInfo = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncAction") else {
             XCTFail("IAsyncAction not found")
             return
         }
@@ -52,25 +52,25 @@ final class WindowsWinMDTests: XCTestCase {
     }
 
     func testTypeVisibility() throws {
-        XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
-        XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)
+        XCTAssertEqual(Self.assembly.findDefinedType(fullName: "Windows.Foundation.IStringable")?.visibility, .public)
+        XCTAssertEqual(Self.assembly.findDefinedType(fullName: "Windows.Foundation.IDeferral")?.visibility, .assembly)
     }
 
     func testTypeFlags() throws {
-        let guidHelper = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.GuidHelper")!
+        let guidHelper = Self.assembly.findDefinedType(fullName: "Windows.Foundation.GuidHelper")!
         XCTAssert(guidHelper.isAbstract)
         XCTAssert(guidHelper.isSealed)
     }
 
     func testMethodFlags() throws {
-        let iasyncInfo_get_Id = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncInfo")?
+        let iasyncInfo_get_Id = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncInfo")?
             .findSingleMethod(name: "get_Id")
         XCTAssertEqual(iasyncInfo_get_Id?.isStatic, false)
         XCTAssertEqual(iasyncInfo_get_Id?.isVirtual, true)
         XCTAssertEqual(iasyncInfo_get_Id?.isAbstract, true)
         XCTAssertEqual(iasyncInfo_get_Id?.isSpecialName, true)
 
-        let guidHelper_createNewGuid = Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.GuidHelper")?
+        let guidHelper_createNewGuid = Self.assembly.findDefinedType(fullName: "Windows.Foundation.GuidHelper")?
             .findSingleMethod(name: "CreateNewGuid")
         XCTAssertEqual(guidHelper_createNewGuid?.isStatic, true)
         XCTAssertEqual(guidHelper_createNewGuid?.isVirtual, false)
@@ -80,51 +80,51 @@ final class WindowsWinMDTests: XCTestCase {
 
     func testMscorlibTypeReference() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.unboundBase?.fullName,
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.Point")?.unboundBase?.fullName,
             "System.ValueType")
     }
 
     func testTypeDefinitionKind() throws {
-        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point") as? StructDefinition)
-        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable") as? InterfaceDefinition)
-        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.MemoryBuffer") as? ClassDefinition)
-        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncStatus") as? EnumDefinition)
-        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncActionCompletedHandler") as? DelegateDefinition)
+        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.Point") as? StructDefinition)
+        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.IClosable") as? InterfaceDefinition)
+        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.MemoryBuffer") as? ClassDefinition)
+        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncStatus") as? EnumDefinition)
+        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncActionCompletedHandler") as? DelegateDefinition)
     }
 
     func testMethodParamEnumeration() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncActionCompletedHandler")?
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncActionCompletedHandler")?
                 .findSingleMethod(name: "Invoke")?.params.map { $0.name },
             ["asyncInfo", "asyncStatus"])
 
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")?
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.IClosable")?
                 .findSingleMethod(name: "Close")?.params.count, 0)
     }
     
     func testMethodReturnType() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IPropertyValue")?
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.IPropertyValue")?
                 .findSingleMethod(name: "GetChar16")?.returnType.asUnboundDefinition?.fullName,
             "System.Char")
 
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")?
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.IClosable")?
                 .findSingleMethod(name: "Close")?.returnType.asUnboundDefinition?.fullName,
             "System.Void")
     }
 
     func testMethodParamType() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.PropertyValue")?
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.PropertyValue")?
                 .findSingleMethod(name: "CreateUInt16")?.params[0].type.asUnboundDefinition?.fullName,
             "System.UInt16")
     }
 
     func testFieldType() throws {
         XCTAssertEqual(
-            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.Point")?
                 .findField(name: "X")?.type.asUnboundDefinition?.fullName,
             "System.Single")
     }

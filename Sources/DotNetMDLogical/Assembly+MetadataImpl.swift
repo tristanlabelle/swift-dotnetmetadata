@@ -31,7 +31,7 @@ extension Assembly {
 
         public private(set) lazy var moduleName: String = database.heaps.resolve(database.tables.module[0].name)
 
-        public private(set) lazy var types: [TypeDefinition] = {
+        public private(set) lazy var definedTypes: [TypeDefinition] = {
             database.tables.typeDef.indices.map { 
                 TypeDefinition.create(
                     assembly: owner,
@@ -104,7 +104,7 @@ extension Assembly {
         }
 
         internal func resolve(_ index: Table<TypeDef>.RowIndex) -> TypeDefinition {
-            types[Int(index.zeroBased)]
+            definedTypes[Int(index.zeroBased)]
         }
 
         internal func resolve(_ index: Table<TypeRef>.RowIndex) -> TypeDefinition {
@@ -115,10 +115,10 @@ extension Assembly {
                 case let .module(index):
                     // Assume single-module assembly
                     guard index?.zeroBased == 0 else { break }
-                    return owner.findTypeDefinition(namespace: namespace, name: name)!
+                    return owner.findDefinedType(namespace: namespace, name: name)!
                 case let .assemblyRef(index):
                     guard let index = index else { break }
-                    return resolve(index).findTypeDefinition(namespace: namespace, name: name)!
+                    return resolve(index).findDefinedType(namespace: namespace, name: name)!
                 default:
                     fatalError("Not implemented: resolution scope \(row.resolutionScope)")
             }

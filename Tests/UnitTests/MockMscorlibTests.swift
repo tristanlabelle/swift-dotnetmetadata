@@ -16,11 +16,11 @@ final class MockMscorlibTests: XCTestCase {
     }
 
     func testFindTypes() throws {
-        XCTAssertNotNil(Self.mscorlib.findTypeDefinition(fullName: "System.Object"))
-        XCTAssertNotNil(Self.mscorlib.findTypeDefinition(fullName: "System.Int32"))
-        XCTAssertNotNil(Self.mscorlib.findTypeDefinition(fullName: "System.String"))
-        XCTAssertNotNil(Self.mscorlib.findTypeDefinition(fullName: "System.Boolean"))
-        XCTAssertNotNil(Self.mscorlib.findTypeDefinition(fullName: "System.Type"))
+        XCTAssertNotNil(Self.mscorlib.findDefinedType(fullName: "System.Object"))
+        XCTAssertNotNil(Self.mscorlib.findDefinedType(fullName: "System.Int32"))
+        XCTAssertNotNil(Self.mscorlib.findDefinedType(fullName: "System.String"))
+        XCTAssertNotNil(Self.mscorlib.findDefinedType(fullName: "System.Boolean"))
+        XCTAssertNotNil(Self.mscorlib.findDefinedType(fullName: "System.Type"))
     }
 
     func testBaseTypes() throws {
