@@ -148,7 +148,7 @@ extension Assembly {
             switch typeSig {
                 case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
                 case .char: return mscorlib.specialTypes.char.bindNonGeneric()
-                case let .integer(size, signed): fatalError("Not implemented: resolve integer \(size) \(signed)")
+                case let .integer(size, signed): return mscorlib.specialTypes.getInteger(size, signed: signed).bindNonGeneric()
                 case let .real(double): return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNonGeneric()
                 case .string: return mscorlib.specialTypes.string.bindNonGeneric()
                 case .object: return mscorlib.specialTypes.object.bindNonGeneric()

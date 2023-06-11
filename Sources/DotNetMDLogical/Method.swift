@@ -37,15 +37,40 @@ public final class Method {
 
     private lazy var signature = try! MethodDefSig(blob: database.heaps.resolve(tableRow.signature))
 
-    public private(set) lazy var params: [Param] = { [self] in
+    private lazy var returnAndParams: (ReturnParam, [Param]) = { [self] in
         let paramRowIndices = getChildRowRange(
             parent: database.tables.methodDef,
             parentRowIndex: tableRowIndex,
             childTable: database.tables.param,
             childSelector: { $0.paramList })
-        guard paramRowIndices.count == signature.params.count else { fatalError() }
-        return zip(paramRowIndices, signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) }
+
+        if paramRowIndices.isEmpty || database.tables.param[paramRowIndices.lowerBound].sequence > 0 {
+            // No Param row for the return param
+            guard case .void = signature.returnParam.type else {
+                fatalError("No entry in Param table for return param, but signature return type is not void")
+            }
+            guard paramRowIndices.count == signature.params.count else {
+                fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (no return param), \(signature.params.count) in signature")
+            }
+            return (
+                ReturnParam(method: self, tableRowIndex: nil, signature: signature.returnParam),
+                zip(paramRowIndices, signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
+        }
+        else {
+            // First Param row is the return param
+            guard paramRowIndices.count == signature.params.count + 1 else {
+                fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (includes return param), \(signature.params.count) in signature")
+            }
+            return (
+                ReturnParam(method: self, tableRowIndex: paramRowIndices.lowerBound, signature: signature.returnParam),
+                zip(paramRowIndices.dropFirst(), signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
+        }
     }()
+
+    public var returnParam: ReturnParam { returnAndParams.0 }
+    public var params: [Param] { returnAndParams.1 }
+
+    public var returnType: Type { returnParam.type }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
         var result: [GenericMethodParam] = []

@@ -1,4 +1,5 @@
 public enum TypeSig {
+    case void
     case boolean
     case char
     case integer(size: IntegerSize, signed: Bool)
@@ -34,12 +35,11 @@ public struct MethodDefSig {
     public var hasThis: Bool
     public var explicitThis: TypeSig?
     // default/vararg/generic
-    public var retType: TypeSig
+    public var returnParam: ParamSig
     public var params: [ParamSig]
 }
 
 public struct FieldSig {
-    // customMods
+    public var customMods: [CustomMod]
     public var type: TypeSig
-
 }

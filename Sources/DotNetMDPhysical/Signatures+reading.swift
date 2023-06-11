@@ -25,6 +25,9 @@ extension TypeSig {
             case SigToken.ElementType.object: self = .object
             case SigToken.ElementType.string: self = .string
 
+            case SigToken.ElementType.`class`: self = .class(try consumeTypeDefOrRefEncoded(buffer: &buffer))
+            case SigToken.ElementType.valueType: self = .valueType(try consumeTypeDefOrRefEncoded(buffer: &buffer))
+
             // Compound types
             default: throw InvalidFormatError.signatureBlob
         }
@@ -48,8 +51,7 @@ extension MethodDefSig {
         }
 
         var paramCount = Int(consumeCompressedUInt(buffer: &buffer))
-
-        let retType = try TypeSig(consuming: &buffer)
+        let returnParam = try ParamSig(consuming: &buffer, return: true)
 
         let explicitThis: TypeSig?
         if hasExplicitThis {
@@ -61,22 +63,27 @@ extension MethodDefSig {
         }
 
         let params = try (0 ..< paramCount).map { _ in
-            try ParamSig(consuming: &buffer)
+            try ParamSig(consuming: &buffer, return: false)
         }
 
         self.init(
             hasThis: hasThis,
             explicitThis: explicitThis,
-            retType: retType,
+            returnParam: returnParam,
             params: params)
     }
 }
 
 extension ParamSig {
-    init(consuming buffer: inout UnsafeRawBufferPointer) throws {
-        let byRef = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.byref)
-        let type = try TypeSig(consuming: &buffer)
-        self.init(customMods: [], byRef: byRef, type: type)
+    init(consuming buffer: inout UnsafeRawBufferPointer, return: Bool) throws {
+        if `return` && SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.void) {
+            self.init(customMods: [], byRef: false, type: .void)
+        }
+        else {
+            let byRef = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.byref)
+            let type = try TypeSig(consuming: &buffer)
+            self.init(customMods: [], byRef: byRef, type: type)
+        }
     }
 }
 
@@ -88,10 +95,26 @@ extension FieldSig {
     }
 
     init(consuming buffer: inout UnsafeRawBufferPointer) throws {
-        guard SigToken.consume(buffer: &buffer) == SigToken.CallingConvention.field else {
+        guard SigToken.tryConsume(buffer: &buffer, token: SigToken.CallingConvention.field) else {
             throw InvalidFormatError.signatureBlob
         }
 
-        self.init(type: try TypeSig(consuming: &buffer))
+        self.init(
+            customMods: [],
+            type: try TypeSig(consuming: &buffer))
+    }
+}
+
+// §II.23.2.8
+fileprivate func consumeTypeDefOrRefEncoded(buffer: inout UnsafeRawBufferPointer) throws -> MetadataToken {
+    let encoded = consumeCompressedUInt(buffer: &buffer)
+    let tag = encoded & 0b11
+    let index = encoded >> 2
+
+    switch tag {
+        case 0: return .init(tableIndex: .typeDef, oneBasedRowIndex: index)
+        case 1: return .init(tableIndex: .typeRef, oneBasedRowIndex: index)
+        case 2: return .init(tableIndex: .typeSpec, oneBasedRowIndex: index)
+        default: throw InvalidFormatError.signatureBlob
     }
 }

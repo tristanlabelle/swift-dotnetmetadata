@@ -95,8 +95,37 @@ final class WindowsWinMDTests: XCTestCase {
     func testMethodParamEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.AsyncActionCompletedHandler")?
-                .findSingleMethod(name: "Invoke")?
-                .params.map { $0.name },
+                .findSingleMethod(name: "Invoke")?.params.map { $0.name },
             ["asyncInfo", "asyncStatus"])
+
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")?
+                .findSingleMethod(name: "Close")?.params.count, 0)
+    }
+    
+    func testMethodReturnType() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IPropertyValue")?
+                .findSingleMethod(name: "GetChar16")?.params[0].type.asUnboundDefinition?.fullName,
+            "System.Char")
+
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IClosable")?
+                .findSingleMethod(name: "Close")?.returnType.asUnboundDefinition?.fullName,
+            "System.Void")
+    }
+
+    func testMethodParamType() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.PropertyValue")?
+                .findSingleMethod(name: "CreateUInt16")?.params[0].type.asUnboundDefinition?.fullName,
+            "System.UInt16")
+    }
+
+    func testFieldType() throws {
+        XCTAssertEqual(
+            Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?
+                .findField(name: "X")?.type.asUnboundDefinition?.fullName,
+            "System.Single")
     }
 }

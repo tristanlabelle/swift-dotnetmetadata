@@ -32,9 +32,10 @@ public final class Field {
         }
     }
 
-    public private(set) lazy var type: Type = {
+    private lazy var signature: FieldSig = {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
-        let typeSig = try! TypeSig(blob: signatureBlob)
-        return assemblyImpl.resolve(typeSig)
+        return try! FieldSig(blob: signatureBlob)
     }()
+
+    public private(set) lazy var type: Type = assemblyImpl.resolve(signature.type)
 }
