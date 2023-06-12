@@ -68,7 +68,7 @@ extension TypeDefinition {
                 parentRowIndex: tableRowIndex,
                 childTable: database.tables.methodDef,
                 childSelector: { $0.methodList }).map {
-                Method(definingTypeImpl: self, tableRowIndex: $0)
+                Method.create(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
 

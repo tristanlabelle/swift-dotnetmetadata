@@ -1,12 +1,22 @@
 import DotNetMDPhysical
 
-public final class Method {
+public class Method {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     private let tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex) {
+    fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
+    }
+
+    internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex) -> Method {
+        let name = definingTypeImpl.database.heaps.resolve(definingTypeImpl.database.tables.methodDef[tableRowIndex].name)
+        if name == ".ctor" {
+            return Constructor(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
+        }
+        else {
+            return Method(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
+        }
     }
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
@@ -84,4 +94,8 @@ public final class Method {
         }
         return result
     }()
+}
+
+public final class Constructor: Method {
+
 }

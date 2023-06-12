@@ -92,6 +92,11 @@ final class WindowsWinMDTests: XCTestCase {
         XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncActionCompletedHandler") as? DelegateDefinition)
     }
 
+    func testMethodKind() throws {
+        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.MemoryBuffer")?
+            .findSingleMethod(name: ".ctor") as? Constructor)
+    }
+
     func testMethodParamEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncActionCompletedHandler")?
