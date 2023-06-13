@@ -4,7 +4,7 @@ extension TypeDefinition {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: TypeDefinition!
         internal unowned let assemblyImpl: Assembly.MetadataImpl
-        private let tableRowIndex: Table<DotNetMDPhysical.TypeDef>.RowIndex
+        internal let tableRowIndex: Table<DotNetMDPhysical.TypeDef>.RowIndex
 
         init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.TypeDef>.RowIndex) {
             self.assemblyImpl = assemblyImpl
@@ -100,5 +100,20 @@ extension TypeDefinition {
                 Event(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
+
+        internal func getAccessors(token: MetadataToken) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
+            var result = [(method: Method, attributes: MethodSemanticsAttributes)].init()
+            guard var semanticsRowIndex = database.tables.methodSemantics.findFirst(primaryKey: token) else { return result }
+            while semanticsRowIndex != database.tables.methodSemantics.endIndex {
+                let semanticsRow = database.tables.methodSemantics[semanticsRowIndex]
+                guard semanticsRow.primaryKey == token else { break }
+
+                let method = methods.first { $0.tableRowIndex == semanticsRow.method }!
+                result.append((method, semanticsRow.semantics))
+                semanticsRowIndex = database.tables.methodSemantics.index(after: semanticsRowIndex)
+            }
+
+            return result
+        }
     }
 }

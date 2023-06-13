@@ -2,7 +2,7 @@ import DotNetMDPhysical
 
 public final class BaseInterface {
     internal unowned let inheritingTypeImpl: TypeDefinition.MetadataImpl
-    private let tableRowIndex: Table<DotNetMDPhysical.InterfaceImpl>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDPhysical.InterfaceImpl>.RowIndex
 
     init(inheritingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.InterfaceImpl>.RowIndex) {
         self.inheritingTypeImpl = inheritingTypeImpl

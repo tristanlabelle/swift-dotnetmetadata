@@ -2,7 +2,7 @@ import DotNetMDPhysical
 
 public final class Field {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    private let tableRowIndex: Table<DotNetMDPhysical.Field>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDPhysical.Field>.RowIndex
 
     init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Field>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl

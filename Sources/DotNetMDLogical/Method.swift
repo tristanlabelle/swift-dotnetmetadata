@@ -2,7 +2,7 @@ import DotNetMDPhysical
 
 public class Method {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    private let tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex
 
     fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl

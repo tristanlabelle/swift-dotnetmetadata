@@ -16,7 +16,7 @@ public class ParamBase {
 }
 
 public final class Param: ParamBase {
-    private let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex
 
     init(method: Method, tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex, signature: DotNetMDPhysical.ParamSig) {
         self.tableRowIndex = tableRowIndex
@@ -30,7 +30,7 @@ public final class Param: ParamBase {
 }
 
 public final class ReturnParam: ParamBase {
-    private let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex?
+    internal let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex?
 
     init(method: Method, tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex?, signature: DotNetMDPhysical.ParamSig) {
         self.tableRowIndex = tableRowIndex

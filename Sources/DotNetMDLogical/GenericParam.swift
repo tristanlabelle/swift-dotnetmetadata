@@ -1,7 +1,7 @@
 import DotNetMDPhysical
 
 public class GenericParam {
-    private let tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex
 
     init(tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex) {
         self.tableRowIndex = tableRowIndex
