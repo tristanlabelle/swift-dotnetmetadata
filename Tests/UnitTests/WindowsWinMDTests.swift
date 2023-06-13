@@ -111,26 +111,26 @@ final class WindowsWinMDTests: XCTestCase {
     func testMethodReturnType() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.IPropertyValue")?
-                .findSingleMethod(name: "GetChar16")?.returnType.asUnboundDefinition?.fullName,
+                .findSingleMethod(name: "GetChar16")?.returnType.asUnbound?.fullName,
             "System.Char")
 
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.IClosable")?
-                .findSingleMethod(name: "Close")?.returnType.asUnboundDefinition?.fullName,
+                .findSingleMethod(name: "Close")?.returnType.asUnbound?.fullName,
             "System.Void")
     }
 
     func testMethodParamType() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.PropertyValue")?
-                .findSingleMethod(name: "CreateUInt16")?.params[0].type.asUnboundDefinition?.fullName,
+                .findSingleMethod(name: "CreateUInt16")?.params[0].type.asUnbound?.fullName,
             "System.UInt16")
     }
 
     func testFieldType() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.Point")?
-                .findField(name: "X")?.type.asUnboundDefinition?.fullName,
+                .findField(name: "X")?.type.asUnbound?.fullName,
             "System.Single")
     }
 }

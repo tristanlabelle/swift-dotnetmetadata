@@ -1,15 +1,16 @@
-public enum Type {
-    case definition(BoundDefinition)
-    indirect case array(element: Type)
+/// A type with no unbound generic type parameters.
+public enum BoundType {
+    case definition(Definition)
+    indirect case array(element: BoundType)
     case genericArgument(param: GenericParam)
-    indirect case pointer(element: Type)
+    indirect case pointer(element: BoundType)
 
     /// A type definition with any and all generic arguments bound.
-    public struct BoundDefinition {
+    public struct Definition {
         public let definition: TypeDefinition
-        public let genericArgs: [Type]
+        public let genericArgs: [BoundType]
 
-        public init(_ definition: TypeDefinition, genericArgs: [Type]) {
+        public init(_ definition: TypeDefinition, genericArgs: [BoundType]) {
             precondition(definition.genericParams.count == genericArgs.count)
             self.definition = definition
             self.genericArgs = genericArgs
@@ -17,8 +18,8 @@ public enum Type {
     }
 }
 
-extension Type {
-    public var asUnboundDefinition: TypeDefinition? {
+extension BoundType {
+    public var asUnbound: TypeDefinition? {
         switch self {
             case .definition(let bound): return bound.definition
             default: return nil
@@ -26,8 +27,8 @@ extension Type {
     }
 }
 
-extension Type: Equatable {
-    public static func ==(lhs: Type, rhs: Type) -> Bool {
+extension BoundType: Equatable {
+    public static func ==(lhs: BoundType, rhs: BoundType) -> Bool {
         switch (lhs, rhs) {
             case (.definition(let lhs), .definition(let rhs)):
                 return lhs.definition === rhs.definition && lhs.genericArgs == rhs.genericArgs
@@ -44,11 +45,11 @@ extension Type: Equatable {
 }
 
 extension TypeDefinition {
-    public func bind(genericArgs: [Type]) -> Type {
+    public func bind(genericArgs: [BoundType]) -> BoundType {
         .definition(.init(self, genericArgs: genericArgs))
     }
 
-    public func bindNonGeneric() -> Type {
+    public func bindNonGeneric() -> BoundType {
         .definition(.init(self, genericArgs: []))
     }
 }

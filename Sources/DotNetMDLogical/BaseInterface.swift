@@ -13,7 +13,7 @@ public final class BaseInterface {
     internal var assemblyImpl: Assembly.MetadataImpl { inheritingTypeImpl.assemblyImpl }
     internal var database: Database { inheritingTypeImpl.database }
     private var tableRow: DotNetMDPhysical.InterfaceImpl { database.tables.interfaceImpl[tableRowIndex] }
-    public var interface: Type { assemblyImpl.resolve(tableRow.interface)! }
+    public var interface: BoundType { assemblyImpl.resolve(tableRow.interface)! }
 
     public var unboundInterface: TypeDefinition! {
         guard case .definition(let interface) = interface else { fatalError() }

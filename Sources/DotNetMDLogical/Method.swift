@@ -80,7 +80,7 @@ public class Method {
     public var returnParam: ReturnParam { returnAndParams.0 }
     public var params: [Param] { returnAndParams.1 }
 
-    public var returnType: Type { returnParam.type }
+    public var returnType: BoundType { returnParam.type }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
         var result: [GenericMethodParam] = []

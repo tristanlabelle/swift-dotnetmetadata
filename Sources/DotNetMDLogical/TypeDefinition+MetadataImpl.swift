@@ -46,7 +46,7 @@ extension TypeDefinition {
             return result
         }()
 
-        public private(set) lazy var base: Type? = assemblyImpl.resolve(tableRow.extends)
+        public private(set) lazy var base: BoundType? = assemblyImpl.resolve(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = { [self] in
             guard let firstInterfaceImplRowIndex = database.tables.interfaceImpl.findFirst(primaryKey: MetadataToken(tableRowIndex)) else { return [] }

@@ -4,7 +4,7 @@ extension TypeDefinition {
     final class MockSystemTypeImpl: Impl {
         public let kind: TypeDefinitionKind
         public let name: String
-        public let base: Type?
+        public let base: BoundType?
 
         internal init(kind: TypeDefinitionKind, name: String, base: TypeDefinition?) {
             self.kind = kind

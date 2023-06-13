@@ -12,7 +12,7 @@ public class ParamBase {
     internal var assemblyImpl: Assembly.MetadataImpl { method.assemblyImpl }
     internal var database: Database { method.database }
 
-    public private(set) lazy var type: Type = assemblyImpl.resolve(signature.type)
+    public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type)
 }
 
 public final class Param: ParamBase {

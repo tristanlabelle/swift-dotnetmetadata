@@ -16,7 +16,7 @@ internal protocol TypeDefinitionImpl {
     var kind: TypeDefinitionKind { get }
     var metadataFlags: DotNetMDPhysical.TypeAttributes { get }
     var genericParams: [GenericTypeParam] { get }
-    var base: Type? { get }
+    var base: BoundType? { get }
     var baseInterfaces: [BaseInterface] { get }
     var fields: [Field]  { get }
     var methods: [Method] { get }
@@ -57,7 +57,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var namespace: String { impl.namespace }
     internal var metadataFlags: DotNetMDPhysical.TypeAttributes { impl.metadataFlags }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
-    public var base: Type? { impl.base }
+    public var base: BoundType? { impl.base }
     public var baseInterfaces: [BaseInterface] { impl.baseInterfaces }
     public var fields: [Field]  { impl.fields }
     public var methods: [Method] { impl.methods }
@@ -133,5 +133,5 @@ public final class StructDefinition: TypeDefinition {
 
 public final class EnumDefinition: TypeDefinition {
     public var backingField: Field { fields.single { $0.name == "value__" }! }
-    public var underlyingType: TypeDefinition { backingField.type.asUnboundDefinition! }
+    public var underlyingType: TypeDefinition { backingField.type.asUnbound! }
 }

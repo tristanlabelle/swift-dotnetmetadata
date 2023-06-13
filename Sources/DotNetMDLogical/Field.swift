@@ -37,5 +37,5 @@ public final class Field {
         return try! FieldSig(blob: signatureBlob)
     }()
 
-    public private(set) lazy var type: Type = assemblyImpl.resolve(signature.type)
+    public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type)
 }

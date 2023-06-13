@@ -75,7 +75,7 @@ extension Assembly {
             fatalError("Can't load mscorlib")
         }()
 
-        internal func resolveType(_ metadataToken: MetadataToken) -> Type? {
+        internal func resolveType(_ metadataToken: MetadataToken) -> BoundType? {
             guard !metadataToken.isNull else { return nil }
             switch metadataToken.tableIndex {
                 case .typeDef:
@@ -89,7 +89,7 @@ extension Assembly {
             }
         }
 
-        internal func resolve(_ codedIndex: TypeDefOrRef) -> Type? {
+        internal func resolve(_ codedIndex: TypeDefOrRef) -> BoundType? {
             switch codedIndex {
                 case let .typeDef(index):
                     guard let index = index else { return nil }
@@ -125,7 +125,7 @@ extension Assembly {
             fatalError("Not implemented: null resolution scope")
         }
 
-        internal func resolve(_ index: Table<TypeSpec>.RowIndex) -> Type {
+        internal func resolve(_ index: Table<TypeSpec>.RowIndex) -> BoundType {
             let typeSpecRow = database.tables.typeSpec[index]
             let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
             let typeSig = try! TypeSig(blob: signatureBlob)
@@ -144,7 +144,7 @@ extension Assembly {
             return try! context.loadAssembly(name: name, version: version, culture: culture)
         }
 
-        internal func resolve(_ typeSig: TypeSig) -> Type {
+        internal func resolve(_ typeSig: TypeSig) -> BoundType {
             switch typeSig {
                 case .void: return mscorlib.specialTypes.void.bindNonGeneric()
                 case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
