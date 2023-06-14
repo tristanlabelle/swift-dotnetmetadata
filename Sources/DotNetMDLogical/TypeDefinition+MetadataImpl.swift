@@ -87,7 +87,7 @@ extension TypeDefinition {
                 parentRowIndex: propertyMapRowIndex,
                 childTable: database.tables.property,
                 childSelector: { $0.propertyList }).map {
-                Property(definingTypeImpl: self, tableRowIndex: $0)
+                Property.create(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
 

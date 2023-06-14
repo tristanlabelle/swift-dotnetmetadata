@@ -34,6 +34,24 @@ extension TypeSig {
     }
 }
 
+extension FieldSig {
+    public init(blob: UnsafeRawBufferPointer) throws {
+        var remainder = blob
+        try self.init(consuming: &remainder)
+        if remainder.count > 0 { throw InvalidFormatError.signatureBlob }
+    }
+
+    init(consuming buffer: inout UnsafeRawBufferPointer) throws {
+        guard SigToken.tryConsume(buffer: &buffer, token: SigToken.CallingConvention.field) else {
+            throw InvalidFormatError.signatureBlob
+        }
+
+        self.init(
+            customMods: [],
+            type: try TypeSig(consuming: &buffer))
+    }
+}
+
 extension MethodDefSig {
     public init(blob: UnsafeRawBufferPointer) throws {
         var remainder = blob
@@ -87,7 +105,7 @@ extension ParamSig {
     }
 }
 
-extension FieldSig {
+extension PropertySig {
     public init(blob: UnsafeRawBufferPointer) throws {
         var remainder = blob
         try self.init(consuming: &remainder)
@@ -95,13 +113,22 @@ extension FieldSig {
     }
 
     init(consuming buffer: inout UnsafeRawBufferPointer) throws {
-        guard SigToken.tryConsume(buffer: &buffer, token: SigToken.CallingConvention.field) else {
+        let hasThis = SigToken.tryConsume(buffer: &buffer, token: SigToken.CallingConvention.property | SigToken.CallingConvention.hasThis)
+        guard hasThis || SigToken.tryConsume(buffer: &buffer, token: SigToken.CallingConvention.property) else {
             throw InvalidFormatError.signatureBlob
         }
 
+        let paramCount = Int(consumeCompressedUInt(buffer: &buffer))
+        let type = try TypeSig(consuming: &buffer)
+        let params = try (0 ..< paramCount).map { _ in
+            try ParamSig(consuming: &buffer, return: false)
+        }
+
         self.init(
+            hasThis: hasThis,
             customMods: [],
-            type: try TypeSig(consuming: &buffer))
+            type: type,
+            params: params)
     }
 }
 

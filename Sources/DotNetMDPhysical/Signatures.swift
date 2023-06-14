@@ -31,6 +31,11 @@ public struct ParamSig {
     public var type: TypeSig
 }
 
+public struct FieldSig {
+    public var customMods: [CustomMod]
+    public var type: TypeSig
+}
+
 public struct MethodDefSig {
     public var hasThis: Bool
     public var explicitThis: TypeSig?
@@ -39,7 +44,9 @@ public struct MethodDefSig {
     public var params: [ParamSig]
 }
 
-public struct FieldSig {
+public struct PropertySig {
+    public var hasThis: Bool
     public var customMods: [CustomMod]
     public var type: TypeSig
+    public var params: [ParamSig]
 }

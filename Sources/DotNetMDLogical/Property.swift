@@ -1,12 +1,25 @@
 import DotNetMDPhysical
 
-public final class Property {
+public class Property {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     internal let tableRowIndex: Table<DotNetMDPhysical.Property>.RowIndex
+    internal let propertySig: PropertySig
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Property>.RowIndex) {
+    fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Property>.RowIndex, propertySig: PropertySig) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
+        self.propertySig = propertySig
+    }
+
+    internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Property>.RowIndex) -> Property {
+        let row = definingTypeImpl.database.tables.property[tableRowIndex]
+        let propertySig = try! PropertySig(blob: definingTypeImpl.database.heaps.resolve(row.type))
+        if propertySig.params.count == 0 {
+            return Property(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
+        }
+        else {
+            return Indexer(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
+        }
     }
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
@@ -16,11 +29,8 @@ public final class Property {
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 
-    public private(set) lazy var type: BoundType = {
-        let typeSig = try! TypeSig(blob: database.heaps.resolve(tableRow.type))
-        return assemblyImpl.resolve(typeSig)
-    }()
-    
+    public private(set) lazy var type: BoundType = assemblyImpl.resolve(propertySig.type)
+
     private struct Accessors {
         var getter: Method?
         var setter: Method?
@@ -44,5 +54,11 @@ public final class Property {
 
     public var visibility: Visibility {
         (getter ?? setter ?? otherAccessors.first)?.visibility ?? .public
+    }
+}
+
+public final class Indexer: Property {
+    internal override init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Property>.RowIndex, propertySig: PropertySig) {
+        super.init(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
     }
 }
