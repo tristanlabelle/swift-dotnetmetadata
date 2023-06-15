@@ -1,15 +1,15 @@
-import DotNetMDPhysical
+import DotNetMDFormat
 
 public class Method {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    internal let tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDFormat.MethodDef>.RowIndex
 
-    fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex) {
+    fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.MethodDef>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
 
-    internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.MethodDef>.RowIndex) -> Method {
+    internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.MethodDef>.RowIndex) -> Method {
         let name = definingTypeImpl.database.heaps.resolve(definingTypeImpl.database.tables.methodDef[tableRowIndex].name)
         if name == ".ctor" {
             return Constructor(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
@@ -22,7 +22,7 @@ public class Method {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
-    private var tableRow: DotNetMDPhysical.MethodDef { database.tables.methodDef[tableRowIndex] }
+    private var tableRow: DotNetMDFormat.MethodDef { database.tables.methodDef[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }

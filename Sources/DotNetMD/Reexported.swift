@@ -1,4 +1,4 @@
-import DotNetMDPhysical
+import DotNetMDFormat
 
-public typealias AssemblyVersion = DotNetMDPhysical.AssemblyVersion
-public typealias IntegerSize = DotNetMDPhysical.IntegerSize
+public typealias AssemblyVersion = DotNetMDFormat.AssemblyVersion
+public typealias IntegerSize = DotNetMDFormat.IntegerSize

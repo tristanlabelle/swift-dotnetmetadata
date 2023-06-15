@@ -1,7 +1,7 @@
 import struct Foundation.URL
-import DotNetMDPhysical
+import DotNetMDFormat
 
-public typealias AssemblyResolver = (DotNetMDPhysical.AssemblyRef) throws -> Database
+public typealias AssemblyResolver = (DotNetMDFormat.AssemblyRef) throws -> Database
 
 public class MetadataContext {
     private let assemblyResolver: AssemblyResolver
@@ -31,7 +31,7 @@ public class MetadataContext {
     public func loadAssembly(url: URL) throws -> Assembly {
         let database = try Database(url: url)
         guard database.tables.assembly.count == 1 else {
-            throw DotNetMDPhysical.InvalidFormatError.tableConstraint
+            throw DotNetMDFormat.InvalidFormatError.tableConstraint
         }
 
         let assemblyRow = database.tables.assembly[0]

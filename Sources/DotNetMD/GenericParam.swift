@@ -1,14 +1,14 @@
-import DotNetMDPhysical
+import DotNetMDFormat
 
 public class GenericParam {
-    internal let tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex
 
-    init(tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex) {
+    init(tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex) {
         self.tableRowIndex = tableRowIndex
     }
 
     internal var database: Database { fatalError() }
-    private var tableRow: DotNetMDPhysical.GenericParam { database.tables.genericParam[tableRowIndex] }
+    private var tableRow: DotNetMDFormat.GenericParam { database.tables.genericParam[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.number) }
@@ -17,7 +17,7 @@ public class GenericParam {
 public final class GenericTypeParam: GenericParam {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         super.init(tableRowIndex: tableRowIndex)
     }
@@ -29,7 +29,7 @@ public final class GenericTypeParam: GenericParam {
 public final class GenericMethodParam: GenericParam {
     public let definingMethod: Method
 
-    init(definingMethod: Method, tableRowIndex: Table<DotNetMDPhysical.GenericParam>.RowIndex) {
+    init(definingMethod: Method, tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex) {
         self.definingMethod = definingMethod
         super.init(tableRowIndex: tableRowIndex)
     }

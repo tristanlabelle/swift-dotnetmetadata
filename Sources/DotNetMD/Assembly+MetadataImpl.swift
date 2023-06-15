@@ -1,13 +1,13 @@
-import DotNetMDPhysical
+import DotNetMDFormat
 
 /// Implementation for real assemblies based on loaded metadata from a PE file.
 extension Assembly {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: Assembly!
         internal let database: Database
-        private let tableRow: DotNetMDPhysical.Assembly
+        private let tableRow: DotNetMDFormat.Assembly
 
-        internal init(database: Database, tableRow: DotNetMDPhysical.Assembly) {
+        internal init(database: Database, tableRow: DotNetMDFormat.Assembly) {
             self.database = database
             self.tableRow = tableRow
         }

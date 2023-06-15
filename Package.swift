@@ -8,23 +8,23 @@ let package = Package(
     products: [
         .library(
             name: "DotNetMD",
-            targets: ["DotNetMDPhysical", "DotNetMD"]),
+            targets: ["DotNetMDFormat", "DotNetMD"]),
         .executable(
             name: "Sample",
             targets: ["Sample"])
     ],
     targets: [
         .target(
-            name: "DotNetMDPhysical"),
+            name: "DotNetMDFormat"),
         .target(
             name: "DotNetMD",
-            dependencies: [ "DotNetMDPhysical" ]),
+            dependencies: [ "DotNetMDFormat" ]),
         .executableTarget(
             name: "Sample",
-            dependencies: [ "DotNetMDPhysical", "DotNetMD" ],
+            dependencies: [ "DotNetMDFormat", "DotNetMD" ],
             path: "Sample"),
         .testTarget(
             name: "UnitTests",
-            dependencies: [ "DotNetMDPhysical", "DotNetMD" ])
+            dependencies: [ "DotNetMDFormat", "DotNetMD" ])
     ]
 )

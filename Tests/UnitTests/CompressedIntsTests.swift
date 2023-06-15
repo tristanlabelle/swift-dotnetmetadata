@@ -1,5 +1,5 @@
 import XCTest
-@testable import DotNetMDPhysical
+@testable import DotNetMDFormat
 
 final class CompressedIntsTests: XCTestCase {
     func testUnsigned() {

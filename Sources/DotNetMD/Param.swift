@@ -1,10 +1,10 @@
-import DotNetMDPhysical
+import DotNetMDFormat
 
 public class ParamBase {
     public unowned let method: Method
-    fileprivate let signature: DotNetMDPhysical.ParamSig
+    fileprivate let signature: DotNetMDFormat.ParamSig
 
-    fileprivate init(method: Method, signature: DotNetMDPhysical.ParamSig) {
+    fileprivate init(method: Method, signature: DotNetMDFormat.ParamSig) {
         self.method = method
         self.signature = signature
     }
@@ -18,14 +18,14 @@ public class ParamBase {
 }
 
 public final class Param: ParamBase {
-    internal let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex
 
-    init(method: Method, tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex, signature: DotNetMDPhysical.ParamSig) {
+    init(method: Method, tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex, signature: DotNetMDFormat.ParamSig) {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }
 
-    private var tableRow: DotNetMDPhysical.Param { database.tables.param[tableRowIndex] }
+    private var tableRow: DotNetMDFormat.Param { database.tables.param[tableRowIndex] }
 
     public var name: String? { database.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.sequence) - 1 }
@@ -36,9 +36,9 @@ public final class Param: ParamBase {
 }
 
 public final class ReturnParam: ParamBase {
-    internal let tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex?
+    internal let tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex?
 
-    init(method: Method, tableRowIndex: Table<DotNetMDPhysical.Param>.RowIndex?, signature: DotNetMDPhysical.ParamSig) {
+    init(method: Method, tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex?, signature: DotNetMDFormat.ParamSig) {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }

@@ -1,10 +1,10 @@
-import DotNetMDPhysical
+import DotNetMDFormat
 
 public final class Event {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    internal let tableRowIndex: Table<DotNetMDPhysical.Event>.RowIndex
+    internal let tableRowIndex: Table<DotNetMDFormat.Event>.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDPhysical.Event>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.Event>.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
@@ -12,7 +12,7 @@ public final class Event {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
-    private var tableRow: DotNetMDPhysical.Event { database.tables.event[tableRowIndex] }
+    private var tableRow: DotNetMDFormat.Event { database.tables.event[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 

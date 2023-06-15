@@ -1,6 +1,6 @@
 import Foundation
 
-/// A view of the CLI metadata embedded in a DotNetMDPhysical file.
+/// A view of the CLI metadata embedded in a DotNetMDFormat file.
 public final class Database {
     private struct MetadataRoot {
         var majorVersion: UInt16, minorVersion: UInt16
