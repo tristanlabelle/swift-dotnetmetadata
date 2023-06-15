@@ -1,5 +1,4 @@
 // swift-tools-version: 5.8
-// The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
@@ -8,10 +7,7 @@ let package = Package(
     products: [
         .library(
             name: "DotNetMD",
-            targets: ["DotNetMDFormat", "DotNetMD"]),
-        .executable(
-            name: "Sample",
-            targets: ["Sample"])
+            targets: ["DotNetMDFormat", "DotNetMD"])
     ],
     targets: [
         .target(
@@ -19,10 +15,6 @@ let package = Package(
         .target(
             name: "DotNetMD",
             dependencies: [ "DotNetMDFormat" ]),
-        .executableTarget(
-            name: "Sample",
-            dependencies: [ "DotNetMDFormat", "DotNetMD" ],
-            path: "Sample"),
         .testTarget(
             name: "UnitTests",
             dependencies: [ "DotNetMDFormat", "DotNetMD" ])
