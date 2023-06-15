@@ -8,7 +8,7 @@ let package = Package(
     products: [
         .library(
             name: "DotNetMD",
-            targets: ["DotNetMDPhysical", "DotNetMDLogical"]),
+            targets: ["DotNetMDPhysical", "DotNetMD"]),
         .executable(
             name: "Sample",
             targets: ["Sample"])
@@ -17,14 +17,14 @@ let package = Package(
         .target(
             name: "DotNetMDPhysical"),
         .target(
-            name: "DotNetMDLogical",
+            name: "DotNetMD",
             dependencies: [ "DotNetMDPhysical" ]),
         .executableTarget(
             name: "Sample",
-            dependencies: [ "DotNetMDPhysical", "DotNetMDLogical" ],
+            dependencies: [ "DotNetMDPhysical", "DotNetMD" ],
             path: "Sample"),
         .testTarget(
             name: "UnitTests",
-            dependencies: [ "DotNetMDPhysical", "DotNetMDLogical" ])
+            dependencies: [ "DotNetMDPhysical", "DotNetMD" ])
     ]
 )

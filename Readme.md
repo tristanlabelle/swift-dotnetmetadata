@@ -6,7 +6,7 @@ A Swift library for reading and inspecting .NET metadata, including WinMD files,
 
 ```swift
 import struct Foundation.URL
-import DotNetMDLogical
+import DotNetMD
 
 struct AssemblyNotFound: Error {}
 let context = MetadataContext(assemblyResolver: { _ in throw AssemblyNotFound() })
@@ -23,8 +23,8 @@ print("}")
 
 The library consists in two layered modules:
 
-- **Physical**: Provides a strongly-typed view of the metadata tables, heaps and signatures in a memory-mapped .NET portable executable file.
-- **Logical**: Provides an object model for .NET concepts of assemblies, types and members, including resolution of cross-assembly references, similar to the `System.Reflection` APIs.
+- `DotNetMDPhysical` (physical layer): Provides a strongly-typed view of the metadata tables, heaps and signatures in a memory-mapped .NET portable executable file.
+- `DotNetMD` (logical layer): Provides an object model for .NET concepts of assemblies, types and members, including resolution of cross-assembly references, similar to the `System.Reflection` APIs.
 
 The logical layer can represent a mock `mscorlib` assembly and its core types to support inspecting `.winmd` files, which reference an unresolvable `mscorlib, Version=255.255.255.255`.
 

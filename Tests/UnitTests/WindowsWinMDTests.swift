@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import DotNetMDLogical
+@testable import DotNetMD
 
 final class WindowsWinMDTests: XCTestCase {
     internal static var context: MetadataContext!

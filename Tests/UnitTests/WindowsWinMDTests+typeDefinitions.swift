@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import DotNetMDLogical
+@testable import DotNetMD
 
 extension WindowsWinMDTests {
     func testTypeName() throws {

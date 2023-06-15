@@ -1,5 +1,5 @@
 import struct Foundation.URL
-import DotNetMDLogical
+import DotNetMD
 
 struct AssemblyNotFound: Error {}
 let context = MetadataContext(assemblyResolver: { _ in throw AssemblyNotFound() })

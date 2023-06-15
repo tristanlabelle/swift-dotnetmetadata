@@ -1,5 +1,5 @@
 import XCTest
-@testable import DotNetMDLogical
+@testable import DotNetMD
 
 final class MockMscorlibTests: XCTestCase {
     private static var context: MetadataContext!
