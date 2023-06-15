@@ -29,7 +29,7 @@ public class Property {
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 
-    public private(set) lazy var type: BoundType = assemblyImpl.resolve(propertySig.type)
+    public private(set) lazy var type: BoundType = assemblyImpl.resolve(propertySig.type, typeContext: definingType)
 
     private struct Accessors {
         var getter: Method?

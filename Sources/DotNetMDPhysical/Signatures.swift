@@ -6,23 +6,18 @@ public enum TypeSig {
     case real(double: Bool)
     case string
     case object
-    indirect case ptr(TypeSig)
-    case valueType(MetadataToken)
-    case `class`(MetadataToken)
-    case `var`(UInt)
+    indirect case ptr(target: TypeSig)
+    case valueType(token: TypeDefOrRef)
+    case `class`(token: TypeDefOrRef)
+    case `var`(index: UInt32)
     case fnptr
-    indirect case szarray(TypeSig)
-    case mvar(UInt)
+    indirect case szarray(customMods: [CustomMod], element: TypeSig)
+    case mvar(index: UInt32)
 }
 
 public struct CustomMod {
     public var isRequired: Bool
-    public var type: ModType
-    
-    public enum ModType {
-        case def(Table<TypeDef>.RowIndex)
-        case ref(Table<TypeRef>.RowIndex)
-    }
+    public var type: TypeDefOrRef
 }
 
 public struct ParamSig {

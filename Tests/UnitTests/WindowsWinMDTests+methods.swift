@@ -59,4 +59,10 @@ extension WindowsWinMDTests {
                 .findSingleMethod(name: "CreateUInt16")?.params[0].type.asUnbound?.fullName,
             "System.UInt16")
     }
+
+    func testParamByRef() throws {
+        XCTAssertEqual(
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.GuidHelper")?
+                .findSingleMethod(name: "Equals")?.params[0].isByRef, true)
+    }
 }

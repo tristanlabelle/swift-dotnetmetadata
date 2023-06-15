@@ -12,7 +12,9 @@ public class ParamBase {
     internal var assemblyImpl: Assembly.MetadataImpl { method.assemblyImpl }
     internal var database: Database { method.database }
 
-    public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type)
+    public var isByRef: Bool { signature.byRef }
+
+    public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type, typeContext: method.definingType, methodContext: method)
 }
 
 public final class Param: ParamBase {
@@ -27,6 +29,10 @@ public final class Param: ParamBase {
 
     public var name: String? { database.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.sequence) - 1 }
+
+    public var isIn: Bool { tableRow.flags.contains(.in) }
+    public var isOut: Bool { tableRow.flags.contains(.out) }
+    public var isOptional: Bool { tableRow.flags.contains(.optional) }
 }
 
 public final class ReturnParam: ParamBase {

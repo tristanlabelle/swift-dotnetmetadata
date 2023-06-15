@@ -56,9 +56,6 @@ public class Method {
 
         if paramRowIndices.isEmpty || database.tables.param[paramRowIndices.lowerBound].sequence > 0 {
             // No Param row for the return param
-            guard case .void = signature.returnParam.type else {
-                fatalError("No entry in Param table for return param, but signature return type is not void")
-            }
             guard paramRowIndices.count == signature.params.count else {
                 fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (no return param), \(signature.params.count) in signature")
             }

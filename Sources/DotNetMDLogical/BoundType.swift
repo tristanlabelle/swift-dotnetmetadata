@@ -2,7 +2,7 @@
 public enum BoundType {
     case definition(Definition)
     indirect case array(element: BoundType)
-    case genericArgument(param: GenericParam)
+    case genericArg(param: GenericParam)
     indirect case pointer(element: BoundType)
 
     /// A type definition with any and all generic arguments bound.
@@ -34,7 +34,7 @@ extension BoundType: Equatable {
                 return lhs.definition === rhs.definition && lhs.genericArgs == rhs.genericArgs
             case (.array(let lhs), .array(let rhs)):
                 return lhs == rhs
-            case (.genericArgument(let lhs), .genericArgument(let rhs)):
+            case (.genericArg(let lhs), .genericArg(let rhs)):
                 return lhs === rhs
             case (.pointer(let lhs), .pointer(let rhs)):
                 return lhs == rhs

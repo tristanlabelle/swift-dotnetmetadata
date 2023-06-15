@@ -144,17 +144,24 @@ extension Assembly {
             return try! context.loadAssembly(name: name, version: version, culture: culture)
         }
 
-        internal func resolve(_ typeSig: TypeSig) -> BoundType {
+        internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {
             switch typeSig {
                 case .void: return mscorlib.specialTypes.void.bindNonGeneric()
                 case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
                 case .char: return mscorlib.specialTypes.char.bindNonGeneric()
-                case let .integer(size, signed): return mscorlib.specialTypes.getInteger(size, signed: signed).bindNonGeneric()
-                case let .real(double): return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNonGeneric()
+                case let .integer(size, signed):
+                    return mscorlib.specialTypes.getInteger(size, signed: signed).bindNonGeneric()
+                case let .real(double):
+                    return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNonGeneric()
                 case .string: return mscorlib.specialTypes.string.bindNonGeneric()
                 case .object: return mscorlib.specialTypes.object.bindNonGeneric()
-                case let .valueType(metadataToken): return resolveType(metadataToken)!
-                case let .`class`(metadataToken): return resolveType(metadataToken)!
+                case let .valueType(typeDefOrRef): return resolve(typeDefOrRef)!
+                case let .`class`(typeDefOrRef): return resolve(typeDefOrRef)!
+                case let .szarray(_, element):
+                    return .array(element: resolve(element, typeContext: typeContext, methodContext: methodContext))
+                case let .var(index):
+                    guard let typeContext else { fatalError("Missing a type context for resolving a generic parameter reference") }
+                    return .genericArg(param: typeContext.genericParams[Int(index)])
                 default: fatalError("Not implemented: resolve \(typeSig)")
             }
         }
