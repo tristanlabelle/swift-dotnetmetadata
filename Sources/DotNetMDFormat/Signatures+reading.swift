@@ -8,7 +8,8 @@ extension TypeSig {
     }
 
     init(consuming buffer: inout UnsafeRawBufferPointer) throws {
-        switch SigToken.consume(buffer: &buffer) {
+        let token = SigToken.consume(buffer: &buffer)
+        switch token {
             // Leaf types
             case SigToken.ElementType.boolean: self = .boolean
             case SigToken.ElementType.char: self = .char
@@ -27,20 +28,38 @@ extension TypeSig {
             case SigToken.ElementType.object: self = .object
             case SigToken.ElementType.string: self = .string
 
-            case SigToken.ElementType.`class`: self = .class(token: try consumeTypeDefOrRefEncoded(buffer: &buffer, allowSpec: true))
-            case SigToken.ElementType.valueType: self = .valueType(token: try consumeTypeDefOrRefEncoded(buffer: &buffer, allowSpec: true))
+            case SigToken.ElementType.`class`, SigToken.ElementType.valueType, SigToken.ElementType.genericInst:
+                let `class`: Bool
+                if token == SigToken.ElementType.genericInst {
+                    `class` = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.`class`)
+                    guard `class` || SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.valueType) else {
+                        throw InvalidFormatError.signatureBlob
+                    }
+                }
+                else {
+                    `class` = token == SigToken.ElementType.`class`
+                }
+
+                let index = try consumeTypeDefOrRefEncoded(buffer: &buffer, allowSpec: true)
+
+                let genericArgs: [TypeSig]
+                if token == SigToken.ElementType.genericInst {
+                    let genericArgCount = try consumeSigUInt(buffer: &buffer)
+                    genericArgs = try (0..<genericArgCount).map { _ in try TypeSig(consuming: &buffer) }
+                }
+                else {
+                    genericArgs = []
+                }
+
+                self = .defOrRef(index: index, class: `class`, genericArgs: genericArgs)
 
             case SigToken.ElementType.szarray:
                 let customMods = try consumeCustomMods(buffer: &buffer)
                 self = .szarray(customMods: customMods, element: try TypeSig(consuming: &buffer))
 
-            case SigToken.ElementType.var:
-                let index = consumeCompressedUInt(buffer: &buffer)
-                self = .var(index: index)
-
-            case SigToken.ElementType.mvar:
-                let index = consumeCompressedUInt(buffer: &buffer)
-                self = .mvar(index: index)
+            case SigToken.ElementType.var, SigToken.ElementType.mvar:
+                let index = try consumeSigUInt(buffer: &buffer)
+                self = .genericArg(index: index, method: token == SigToken.ElementType.mvar)
 
             case let b:
                 print(b)
@@ -84,7 +103,7 @@ extension MethodDefSig {
             fatalError("Not implemented")
         }
 
-        var paramCount = Int(consumeCompressedUInt(buffer: &buffer))
+        var paramCount = try consumeSigUInt(buffer: &buffer)
         let returnParam = try ParamSig(consuming: &buffer, return: true)
 
         let explicitThis: TypeSig?
@@ -135,7 +154,7 @@ extension PropertySig {
             throw InvalidFormatError.signatureBlob
         }
 
-        let paramCount = Int(consumeCompressedUInt(buffer: &buffer))
+        let paramCount = try consumeSigUInt(buffer: &buffer)
         let customMods = try consumeCustomMods(buffer: &buffer)
         let type = try TypeSig(consuming: &buffer)
         let params = try (0 ..< paramCount).map { _ in
@@ -150,9 +169,14 @@ extension PropertySig {
     }
 }
 
+
+fileprivate func consumeSigUInt(buffer: inout UnsafeRawBufferPointer) throws -> UInt32 {
+    try consumeCompressedUInt(buffer: &buffer) ?? { throw InvalidFormatError.signatureBlob }()
+}
+
 // §II.23.2.8
 fileprivate func consumeTypeDefOrRefEncoded(buffer: inout UnsafeRawBufferPointer, allowSpec: Bool) throws -> TypeDefOrRef {
-    let encoded = consumeCompressedUInt(buffer: &buffer)
+    let encoded = try consumeSigUInt(buffer: &buffer)
     let tag = encoded & 0b11
     let index = encoded >> 2
 

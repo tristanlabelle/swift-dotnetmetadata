@@ -7,12 +7,10 @@ public enum TypeSig {
     case string
     case object
     indirect case ptr(target: TypeSig)
-    case valueType(token: TypeDefOrRef)
-    case `class`(token: TypeDefOrRef)
-    case `var`(index: UInt32)
-    case fnptr
+    indirect case defOrRef(index: TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
+    case genericArg(index: UInt32, method: Bool)
     indirect case szarray(customMods: [CustomMod], element: TypeSig)
-    case mvar(index: UInt32)
+    case fnptr
 }
 
 public struct CustomMod {

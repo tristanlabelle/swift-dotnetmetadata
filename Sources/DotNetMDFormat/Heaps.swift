@@ -49,7 +49,7 @@ public class BlobHeap: Heap {
 
     public func resolve(at offset: UInt32) -> UnsafeRawBufferPointer {
         var remainder = buffer.sub(offset: Int(offset))
-        let size = consumeCompressedUInt(buffer: &remainder)
+        let size = consumeCompressedUInt(buffer: &remainder)!
         return remainder.sub(offset: 0, count: Int(size))
     }
 }

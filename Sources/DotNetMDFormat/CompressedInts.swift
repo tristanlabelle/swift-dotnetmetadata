@@ -1,5 +1,7 @@
 // §II.23.2 / §II.24.2.4, for unsigned integers:
-internal func consumeCompressedUInt(buffer: inout UnsafeRawBufferPointer) -> UInt32 {
+internal func consumeCompressedUInt(buffer: inout UnsafeRawBufferPointer) -> UInt32? {
+    guard buffer.count > 0 else { return nil }
+
     let firstByte = buffer.consume(type: UInt8.self).pointee
     // 23.2> If the value lies between 0 (0x00) and 127 (0x7F), inclusive, encode as a one-byte
     // 23.2> integer (bit 7 is clear, value held in bits 6 through 0)
@@ -27,7 +29,7 @@ internal func consumeCompressedUInt(buffer: inout UnsafeRawBufferPointer) -> UIn
             return (UInt32(firstByte & 0x1F) << 24) | (UInt32(secondByte) << 16) | (UInt32(thirdByte) << 8) | UInt32(fourthByte)
         }
         else {
-            fatalError("Unexpected compressed int")
+            return nil
         }
     }
 }

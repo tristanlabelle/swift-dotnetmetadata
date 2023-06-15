@@ -3,7 +3,7 @@ import XCTest
 
 final class CompressedIntsTests: XCTestCase {
     func testUnsigned() {
-        func decompressUnsigned(_ bytes: UInt8...) -> UInt32 {
+        func decompressUnsigned(_ bytes: UInt8...) -> UInt32? {
             bytes.withUnsafeBufferPointer { buffer in
                 var remainder = UnsafeRawBufferPointer(buffer)
                 let result = consumeCompressedUInt(buffer: &remainder)

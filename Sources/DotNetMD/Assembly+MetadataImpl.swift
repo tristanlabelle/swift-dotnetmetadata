@@ -149,19 +149,42 @@ extension Assembly {
                 case .void: return mscorlib.specialTypes.void.bindNonGeneric()
                 case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
                 case .char: return mscorlib.specialTypes.char.bindNonGeneric()
+
                 case let .integer(size, signed):
                     return mscorlib.specialTypes.getInteger(size, signed: signed).bindNonGeneric()
+
                 case let .real(double):
                     return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNonGeneric()
+
                 case .string: return mscorlib.specialTypes.string.bindNonGeneric()
                 case .object: return mscorlib.specialTypes.object.bindNonGeneric()
-                case let .valueType(typeDefOrRef): return resolve(typeDefOrRef)!
-                case let .`class`(typeDefOrRef): return resolve(typeDefOrRef)!
+
+                case let .defOrRef(index, _, genericArgs):
+                    if genericArgs.count > 0 {
+                        let genericArgs = genericArgs.map { resolve($0, typeContext: typeContext, methodContext: methodContext) }
+                        switch index {
+                            case let .typeDef(index): return resolve(index!).bind(genericArgs: genericArgs)
+                            case let .typeRef(index): return resolve(index!).bind(genericArgs: genericArgs)
+                            default: fatalError("Not implemented: unexpected generic type reference")
+                        }
+                    }
+                    else {
+                        return resolve(index)!
+                    }
+
                 case let .szarray(_, element):
                     return .array(element: resolve(element, typeContext: typeContext, methodContext: methodContext))
-                case let .var(index):
-                    guard let typeContext else { fatalError("Missing a type context for resolving a generic parameter reference") }
-                    return .genericArg(param: typeContext.genericParams[Int(index)])
+
+                case let .genericArg(index, method):
+                    if method {
+                        guard methodContext != nil else { fatalError("Missing a method context for resolving a generic parameter reference") }
+                        fatalError("Not implemented: resolve generic method arg")
+                    }
+                    else {
+                        guard let typeContext else { fatalError("Missing a type context for resolving a generic parameter reference") }
+                        return .genericArg(param: typeContext.genericParams[Int(index)])
+                    }
+
                 default: fatalError("Not implemented: resolve \(typeSig)")
             }
         }
