@@ -10,8 +10,8 @@ extension WindowsWinMDTests {
     }
 
     func testEventType() throws {
-        guard let loggingChannel = Self.assembly.findDefinedType(fullName: "Windows.Foundation.Diagnostics.ILoggingChannel") else {
-            XCTFail("Could not find ILoggingChannel")
+        guard let imemoryBufferReference = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IMemoryBufferReference") else {
+            XCTFail("Could not find IMemoryBufferReference")
             return
         }
 
@@ -21,9 +21,9 @@ extension WindowsWinMDTests {
         }
 
         XCTAssertEqual(
-            loggingChannel.findEvent(name: "LoggingEnabled")?.type,
+            imemoryBufferReference.findEvent(name: "Closed")?.type,
             typedEventHandler.bind(genericArgs: [
-                loggingChannel.bindNonGeneric(),
+                imemoryBufferReference.bindNonGeneric(),
                 Self.context.mscorlib!.specialTypes.object.bindNonGeneric()
             ]))
     }

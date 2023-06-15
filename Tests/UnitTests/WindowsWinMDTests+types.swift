@@ -20,4 +20,22 @@ extension WindowsWinMDTests {
             iasyncOperation.findSingleMethod(name: "GetResults")?.returnType,
             BoundType.genericArg(param: iasyncOperation.genericParams[0]))
     }
+
+    func testGenericInstType() throws {
+        guard let iasyncOperation = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncOperation`1") else {
+            XCTFail("Couldn't find IAsyncOperation`1")
+            return
+        }
+
+        guard let iasyncOperationCompletedHandler = Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncOperationCompletedHandler`1") else {
+            XCTFail("Couldn't find AsyncOperationCompletedHandler`1")
+            return
+        }
+
+        XCTAssertEqual(
+            iasyncOperation.findProperty(name: "Completed")?.type,
+            iasyncOperationCompletedHandler.bind(genericArgs: [
+                BoundType.genericArg(param: iasyncOperation.genericParams[0])
+            ]))
+    }
 }
