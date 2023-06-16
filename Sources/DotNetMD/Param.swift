@@ -33,6 +33,19 @@ public final class Param: ParamBase {
     public var isIn: Bool { tableRow.flags.contains(.in) }
     public var isOut: Bool { tableRow.flags.contains(.out) }
     public var isOptional: Bool { tableRow.flags.contains(.optional) }
+
+    public private(set) lazy var defaultValue: Constant? = { () -> Constant? in
+        guard tableRow.flags.contains(.hasDefault) else { return nil }
+        guard let constantRowIndex = database.tables.constant.findAny(primaryKey: MetadataToken(tableRowIndex)) else {
+            return nil
+        }
+
+        let constantRow = database.tables.constant[constantRowIndex]
+        guard constantRow.type != .nullRef else { return .null }
+
+        let blob = database.heaps.resolve(constantRow.value)
+        return try! Constant(buffer: blob, type: constantRow.type)
+    }()
 }
 
 public final class ReturnParam: ParamBase {

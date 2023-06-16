@@ -116,7 +116,7 @@ extension AssemblyRef: TableRow {
 }
 
 public struct Constant {
-    public var type: UInt16
+    public var type: ConstantType
     public var parent: HasConstant
     public var value: HeapOffset<BlobHeap>
 }
@@ -129,6 +129,7 @@ extension Constant: KeyedTableRow {
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.type)
+            .addingPaddingByte()
             .addingCodedIndex(\.parent)
             .addingHeapOffset(\.value)
             .size
@@ -136,8 +137,10 @@ extension Constant: KeyedTableRow {
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         var reader = TableRowReader(buffer: buffer, sizes: sizes)
+        let type: ConstantType = reader.readConstant()
+        let _: UInt8 = reader.readConstant()
         self.init(
-            type: reader.readConstant(),
+            type: type,
             parent: reader.readCodedIndex(),
             value: reader.readHeapOffset(last: true))
     }

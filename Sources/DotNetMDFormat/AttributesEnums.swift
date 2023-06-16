@@ -1,10 +1,33 @@
 // Avoid using "enum: UInt32" since that doesn't make the type 32-bit sized.
+public struct ConstantType: RawRepresentable, Hashable {
+    public let rawValue: UInt8
+    public init(rawValue: UInt8) {
+        self.rawValue = rawValue
+    }
+
+    public static let boolean = Self(rawValue: 0x02)
+    public static let char = Self(rawValue: 0x03)
+    public static let i1 = Self(rawValue: 0x04)
+    public static let u1 = Self(rawValue: 0x05)
+    public static let i2 = Self(rawValue: 0x06)
+    public static let u2 = Self(rawValue: 0x07)
+    public static let i4 = Self(rawValue: 0x08)
+    public static let u4 = Self(rawValue: 0x09)
+    public static let i8 = Self(rawValue: 0x0a)
+    public static let u8 = Self(rawValue: 0x0b)
+    public static let r4 = Self(rawValue: 0x0c)
+    public static let r8 = Self(rawValue: 0x0d)
+    public static let string = Self(rawValue: 0x0e)
+
+    public static let nullRef = Self(rawValue: 0x12)
+}
+
 public struct EventAttributes: OptionSet {
     public let rawValue: UInt16
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let specialName = Self(rawValue: 0x200)
     public static let rtSpecialName = Self(rawValue: 0x400)
 }
@@ -14,7 +37,7 @@ public struct FieldAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let fieldAccessMask = Self(rawValue: 0x7)
     public static let compilerControlled = Self([])
     public static let `private` = Self(rawValue: 0x1)
@@ -42,7 +65,7 @@ public struct GenericParamAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let varianceMask = Self(rawValue: 0x3)
     public static let none = Self([])
     public static let covariant = Self(rawValue: 0x1)
@@ -59,7 +82,7 @@ public struct MethodAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let memberAccessMask = Self(rawValue: 0x7)
     public static let compilerControlled = Self([])
     public static let `private` = Self(rawValue: 0x1)
@@ -68,7 +91,7 @@ public struct MethodAttributes: OptionSet {
     public static let family = Self(rawValue: 0x4)
     public static let famORAssem = Self(rawValue: 0x5)
     public static let `public` = Self(rawValue: 0x6)
-    
+
     public static let `static` = Self(rawValue: 0x10)
     public static let `final` = Self(rawValue: 0x20)
     public static let virtual = Self(rawValue: 0x40)
@@ -79,10 +102,10 @@ public struct MethodAttributes: OptionSet {
     public static let strict = Self(rawValue: 0x200)
     public static let abstract = Self(rawValue: 0x400)
     public static let specialName = Self(rawValue: 0x800)
-    
+
     public static let pinvokeImpl = Self(rawValue: 0x2000)
     public static let unmanagedExport = Self(rawValue: 0x8)
-    
+
     public static let rtSpecialName = Self(rawValue: 0x1000)
     public static let hasSecurity = Self(rawValue: 0x4000)
     public static let requireSecObject = Self(rawValue: 0x8000)
@@ -93,7 +116,7 @@ public struct MethodImplAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let codeTypeMaskMask = Self(rawValue: 0x3)
     public static let il = Self([])
     public static let native = Self(rawValue: 0x1)
@@ -118,7 +141,7 @@ public struct MethodSemanticsAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let setter = Self(rawValue: 0x1)
     public static let getter = Self(rawValue: 0x2)
     public static let other = Self(rawValue: 0x4)
@@ -132,7 +155,7 @@ public struct ParamAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let `in` = Self(rawValue: 0x1)
     public static let out = Self(rawValue: 0x2)
     public static let optional = Self(rawValue: 0x10)
@@ -146,7 +169,7 @@ public struct PropertyAttributes: OptionSet {
     public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
-    
+
     public static let specialName = Self(rawValue: 0x200)
     public static let rtSpecialName = Self(rawValue: 0x400)
     public static let hasDefault = Self(rawValue: 0x1000)

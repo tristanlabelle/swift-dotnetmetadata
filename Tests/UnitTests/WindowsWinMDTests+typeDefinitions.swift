@@ -44,10 +44,24 @@ extension WindowsWinMDTests {
         XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncStatus") as? EnumDefinition)
         XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncActionCompletedHandler") as? DelegateDefinition)
     }
-    
+
     func testTypeGenericParamEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.Collections.IKeyValuePair`2")?.genericParams.map({ $0.name }).sorted(),
             [ "K", "V" ])
+    }
+
+    func testEnum() throws {
+        guard let asyncStatus = Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncStatus") as? EnumDefinition else {
+            XCTFail("AsyncStatus not found")
+            return
+        }
+
+        XCTAssertIdentical(asyncStatus.underlyingType, Self.context.mscorlib!.specialTypes.int32)
+
+        XCTAssertEqual(asyncStatus.findField(name: "Started")?.literalValue, Constant.i4(0))
+        XCTAssertEqual(asyncStatus.findField(name: "Completed")?.literalValue, Constant.i4(1))
+        XCTAssertEqual(asyncStatus.findField(name: "Canceled")?.literalValue, Constant.i4(2))
+        XCTAssertEqual(asyncStatus.findField(name: "Error")?.literalValue, Constant.i4(3))
     }
 }

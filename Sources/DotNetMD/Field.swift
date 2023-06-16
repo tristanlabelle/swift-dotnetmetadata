@@ -17,7 +17,6 @@ public final class Field {
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
-    public var isLiteral: Bool { tableRow.flags.contains(.literal) }
 
     public var visibility: Visibility {
         switch tableRow.flags.intersection(.fieldAccessMask) {
@@ -38,4 +37,17 @@ public final class Field {
     }()
 
     public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type, typeContext: definingType)
+
+    public private(set) lazy var literalValue: Constant? = { () -> Constant? in
+        guard tableRow.flags.contains(.literal) else { return nil }
+        guard let constantRowIndex = database.tables.constant.findAny(primaryKey: MetadataToken(tableRowIndex)) else {
+            return nil
+        }
+    
+        let constantRow = database.tables.constant[constantRowIndex]
+        guard constantRow.type != .nullRef else { return .null }
+
+        let blob = database.heaps.resolve(constantRow.value)
+        return try! Constant(buffer: blob, type: constantRow.type)
+    }()
 }
