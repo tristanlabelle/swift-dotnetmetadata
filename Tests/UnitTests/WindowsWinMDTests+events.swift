@@ -20,7 +20,7 @@ extension WindowsWinMDTests {
             return
         }
 
-        XCTAssertEqual(
+        try XCTAssertEqual(
             imemoryBufferReference.findEvent(name: "Closed")?.type,
             typedEventHandler.bind(genericArgs: [
                 imemoryBufferReference.bindNonGeneric(),

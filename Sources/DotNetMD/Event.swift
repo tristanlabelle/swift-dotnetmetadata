@@ -16,7 +16,8 @@ public final class Event {
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 
-    public private(set) lazy var type: BoundType = assemblyImpl.resolve(tableRow.eventType)!
+    private lazy var _type = Result { assemblyImpl.resolve(tableRow.eventType)! }
+    public var type: BoundType { get throws { try _type.get() } }
 
     private struct Accessors {
         var add: Method?
