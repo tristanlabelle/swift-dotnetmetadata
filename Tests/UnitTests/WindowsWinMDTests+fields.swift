@@ -10,7 +10,7 @@ extension WindowsWinMDTests {
     }
 
     func testFieldType() throws {
-        XCTAssertEqual(
+        try XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.Point")?
                 .findField(name: "X")?.type.asUnbound?.fullName,
             "System.Single")

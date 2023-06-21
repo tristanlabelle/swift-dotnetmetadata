@@ -25,7 +25,7 @@ public final class Event {
         var others: [Method] = []
     }
 
-    private lazy var accessors: Accessors = { [self] in
+    private lazy var accessors = Result { [self] in
         var accessors = Accessors()
         for entry in definingTypeImpl.getAccessors(token: MetadataToken(tableRowIndex)) {
             if entry.attributes == .addOn { accessors.add = entry.method }
@@ -35,14 +35,14 @@ public final class Event {
             else { fatalError("Unexpected event accessor attributes value") }
         }
         return accessors
-    }()
+    }
 
-    public var add: Method? { accessors.add }
-    public var remove: Method? { accessors.remove }
-    public var fire: Method? { accessors.fire }
-    public var otherAccessors: [Method] { accessors.others }
+    public var add: Method? { get throws { try accessors.get().add } }
+    public var remove: Method? { get throws { try accessors.get().remove } }
+    public var fire: Method? { get throws { try accessors.get().fire } }
+    public var otherAccessors: [Method] { get throws { try accessors.get().others } }
 
     public var visibility: Visibility {
-        (add ?? remove ?? fire ?? otherAccessors.first)?.visibility ?? .public
+        get throws { try (add ?? remove ?? fire ?? otherAccessors.first)?.visibility ?? .public }
     }
 }

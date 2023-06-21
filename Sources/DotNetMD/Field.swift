@@ -31,14 +31,15 @@ public final class Field {
         }
     }
 
-    private lazy var signature: FieldSig = {
+    private lazy var signature = Result {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
         return try! FieldSig(blob: signatureBlob)
-    }()
+    }
 
-    public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type, typeContext: definingType)
+    private lazy var _type = Result { try assemblyImpl.resolve(signature.get().type, typeContext: definingType) }
+    public var type: BoundType { get throws { try _type.get() } }
 
-    public private(set) lazy var literalValue: Constant? = { () -> Constant? in
+    private lazy var _literalValue = Result { () -> Constant? in
         guard tableRow.flags.contains(.literal) else { return nil }
         guard let constantRowIndex = database.tables.constant.findAny(primaryKey: MetadataToken(tableRowIndex)) else {
             return nil
@@ -49,5 +50,6 @@ public final class Field {
 
         let blob = database.heaps.resolve(constantRow.value)
         return try! Constant(buffer: blob, type: constantRow.type)
-    }()
+    }
+    public var literalValue: Constant? { get throws { try _literalValue.get() } }
 }

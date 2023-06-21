@@ -4,7 +4,7 @@ import XCTest
 
 extension WindowsWinMDTests {
     func testArrayType() throws {
-        XCTAssertEqual(
+        try XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.IPropertyValue")?
                 .findSingleMethod(name: "GetDoubleArray")?.params[0].type,
             BoundType.array(element: Self.context.mscorlib!.specialTypes.double.bindNonGeneric()))
@@ -16,7 +16,7 @@ extension WindowsWinMDTests {
             return
         }
 
-        XCTAssertEqual(
+        try XCTAssertEqual(
             iasyncOperation.findSingleMethod(name: "GetResults")?.returnType,
             BoundType.genericArg(param: iasyncOperation.genericParams[0]))
     }
@@ -32,7 +32,7 @@ extension WindowsWinMDTests {
             return
         }
 
-        XCTAssertEqual(
+        try XCTAssertEqual(
             iasyncOperation.findProperty(name: "Completed")?.type,
             iasyncOperationCompletedHandler.bind(genericArgs: [
                 BoundType.genericArg(param: iasyncOperation.genericParams[0])

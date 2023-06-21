@@ -29,7 +29,8 @@ public class Property {
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 
-    public private(set) lazy var type: BoundType = assemblyImpl.resolve(propertySig.type, typeContext: definingType)
+    private lazy var _type = Result { assemblyImpl.resolve(propertySig.type, typeContext: definingType) }
+    public var type: BoundType { get throws { try _type.get() } }
 
     private struct Accessors {
         var getter: Method?
@@ -37,7 +38,7 @@ public class Property {
         var others: [Method] = []
     }
 
-    private lazy var accessors: Accessors = { [self] in
+    private lazy var accessors = Result { [self] in
         var accessors = Accessors()
         for entry in definingTypeImpl.getAccessors(token: MetadataToken(tableRowIndex)) {
             if entry.attributes == .getter { accessors.getter = entry.method }
@@ -46,14 +47,14 @@ public class Property {
             else { fatalError("Unexpected property accessor attributes value") }
         }
         return accessors
-    }()
+    }
 
-    public var getter: Method? { accessors.getter }
-    public var setter: Method? { accessors.setter }
-    public var otherAccessors: [Method] { accessors.others }
+    public var getter: Method? { get throws { try accessors.get().getter } }
+    public var setter: Method? { get throws { try accessors.get().setter } }
+    public var otherAccessors: [Method] { get throws { try accessors.get().others } }
 
     public var visibility: Visibility {
-        (getter ?? setter ?? otherAccessors.first)?.visibility ?? .public
+        get throws { try (getter ?? setter ?? otherAccessors.first)?.visibility ?? .public }
     }
 }
 

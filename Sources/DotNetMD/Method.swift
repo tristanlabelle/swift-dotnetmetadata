@@ -45,14 +45,16 @@ public class Method {
         }
     }
 
-    private lazy var signature = try! MethodDefSig(blob: database.heaps.resolve(tableRow.signature))
+    private lazy var signature = Result { try MethodDefSig(blob: database.heaps.resolve(tableRow.signature)) }
 
-    private lazy var returnAndParams: (ReturnParam, [Param]) = { [self] in
+    private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result { [self] in
         let paramRowIndices = getChildRowRange(
             parent: database.tables.methodDef,
             parentRowIndex: tableRowIndex,
             childTable: database.tables.param,
             childSelector: { $0.paramList })
+
+        let signature = try self.signature.get()
 
         if paramRowIndices.isEmpty || database.tables.param[paramRowIndices.lowerBound].sequence > 0 {
             // No Param row for the return param
@@ -72,12 +74,12 @@ public class Method {
                 ReturnParam(method: self, tableRowIndex: paramRowIndices.lowerBound, signature: signature.returnParam),
                 zip(paramRowIndices.dropFirst(), signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
         }
-    }()
+    }
 
-    public var returnParam: ReturnParam { returnAndParams.0 }
-    public var params: [Param] { returnAndParams.1 }
+    public var returnParam: ReturnParam { get throws { try returnAndParams.get().0 } }
+    public var params: [Param] { get throws { try returnAndParams.get().1 } }
 
-    public var returnType: BoundType { returnParam.type }
+    public var returnType: BoundType { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
         var result: [GenericMethodParam] = []

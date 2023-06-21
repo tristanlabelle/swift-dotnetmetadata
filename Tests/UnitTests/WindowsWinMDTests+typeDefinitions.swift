@@ -57,11 +57,11 @@ extension WindowsWinMDTests {
             return
         }
 
-        XCTAssertIdentical(asyncStatus.underlyingType, Self.context.mscorlib!.specialTypes.int32)
+        try XCTAssertIdentical(asyncStatus.underlyingType, Self.context.mscorlib!.specialTypes.int32)
 
-        XCTAssertEqual(asyncStatus.findField(name: "Started")?.literalValue, Constant.int32(0))
-        XCTAssertEqual(asyncStatus.findField(name: "Completed")?.literalValue, Constant.int32(1))
-        XCTAssertEqual(asyncStatus.findField(name: "Canceled")?.literalValue, Constant.int32(2))
-        XCTAssertEqual(asyncStatus.findField(name: "Error")?.literalValue, Constant.int32(3))
+        try XCTAssertEqual(asyncStatus.findField(name: "Started")?.literalValue, Constant.int32(0))
+        try XCTAssertEqual(asyncStatus.findField(name: "Completed")?.literalValue, Constant.int32(1))
+        try XCTAssertEqual(asyncStatus.findField(name: "Canceled")?.literalValue, Constant.int32(2))
+        try XCTAssertEqual(asyncStatus.findField(name: "Error")?.literalValue, Constant.int32(3))
     }
 }

@@ -10,7 +10,7 @@ extension WindowsWinMDTests {
     }
 
     func testPropertyType() throws {
-        XCTAssertEqual(
+        try XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "Windows.Foundation.Uri")?
                 .findProperty(name: "Domain")?.type.asUnbound?.fullName,
             "System.String")
@@ -19,12 +19,12 @@ extension WindowsWinMDTests {
     func testPropertyAccessors() throws {
         let iasyncAction_Completed = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncAction")?
                 .findProperty(name: "Completed")
-        XCTAssertNotNil(iasyncAction_Completed?.getter)
-        XCTAssertNotNil(iasyncAction_Completed?.setter)
+        try XCTAssertNotNil(iasyncAction_Completed?.getter)
+        try XCTAssertNotNil(iasyncAction_Completed?.setter)
         
         let iasyncInfo_Status = Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncInfo")?
                 .findProperty(name: "Status")
-        XCTAssertNotNil(iasyncInfo_Status?.getter)
-        XCTAssertNil(iasyncInfo_Status?.setter)
+        try XCTAssertNotNil(iasyncInfo_Status?.getter)
+        try XCTAssertNil(iasyncInfo_Status?.setter)
     }
 }
