@@ -66,6 +66,12 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 
+    public var nameWithoutGenericSuffix: String {
+        let name = name
+        guard let index = name.firstIndex(of: "`") else { return name }
+        return String(name[..<index])
+    }
+
     public var unboundBase: TypeDefinition? {
         guard let base = base else { return nil }
         guard case .definition(let base) = base else { return nil }
