@@ -21,6 +21,7 @@ extension Database {
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
         public let genericParam: Table<GenericParam>
+        public let genericParamConstraint: Table<GenericParamConstraint>
 
         init(buffer: UnsafeRawBufferPointer, sizes: TableSizes, sortedBits: UInt64) {
             var remainder = buffer
@@ -45,6 +46,7 @@ extension Database {
             assembly = Self.consume(&remainder, sizes, sortedBits)
             assemblyRef = Self.consume(&remainder, sizes, sortedBits)
             genericParam = Self.consume(&remainder, sizes, sortedBits)
+            genericParamConstraint = Self.consume(&remainder, sizes, sortedBits)
         }
 
         private static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ sizes: TableSizes, _ sortedBits: UInt64) -> Table<Row> where Row: TableRow {

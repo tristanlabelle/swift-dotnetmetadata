@@ -35,8 +35,8 @@ extension TypeDefinition {
 
         public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
             var result: [GenericTypeParam] = []
-            var genericParamRowIndex = database.tables.genericParam.find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0)
-                ?? database.tables.genericParam.endIndex
+            guard var genericParamRowIndex = database.tables.genericParam
+                .find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0) else { return result }
             while genericParamRowIndex < database.tables.genericParam.endIndex {
                 let genericParam = database.tables.genericParam[genericParamRowIndex]
                 guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
@@ -49,10 +49,9 @@ extension TypeDefinition {
         public private(set) lazy var base: BoundType? = assemblyImpl.resolve(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = { [self] in
-            guard let firstInterfaceImplRowIndex = database.tables.interfaceImpl.findFirst(primaryKey: MetadataToken(tableRowIndex)) else { return [] }
-
-            var interfaceImplRowIndex = firstInterfaceImplRowIndex
             var result: [BaseInterface] = []
+            guard var interfaceImplRowIndex = database.tables.interfaceImpl
+                .findFirst(primaryKey: MetadataToken(tableRowIndex)) else { return [] }
             while interfaceImplRowIndex != database.tables.interfaceImpl.endIndex {
                 let interfaceImpl = database.tables.interfaceImpl[interfaceImplRowIndex]
                 guard interfaceImpl.primaryKey == MetadataToken(tableRowIndex) else { break }

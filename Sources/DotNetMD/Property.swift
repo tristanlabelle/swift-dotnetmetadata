@@ -53,9 +53,14 @@ public class Property {
     public var setter: Method? { get throws { try accessors.get().setter } }
     public var otherAccessors: [Method] { get throws { try accessors.get().others } }
 
-    public var visibility: Visibility {
-        get throws { try (getter ?? setter ?? otherAccessors.first)?.visibility ?? .public }
-    }
+    // CLS adds some uniformity guarantees:
+    // §II.22.28 "All methods for a given Property or Event shall have the same accessibility"
+    private var anyAccessor: Method? { get throws { try getter ?? setter ?? otherAccessors.first } }
+    public var visibility: Visibility { get throws { try anyAccessor?.visibility ?? .public } }
+    public var isStatic: Bool { get throws { try anyAccessor?.isStatic ?? false } }
+    public var isVirtual: Bool { get throws { try anyAccessor?.isAbstract ?? false } }
+    public var isAbstract: Bool { get throws { try anyAccessor?.isVirtual ?? false } }
+    public var isFinal: Bool { get throws { try anyAccessor?.isFinal ?? false } }
 }
 
 public final class Indexer: Property {

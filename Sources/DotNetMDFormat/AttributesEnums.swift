@@ -71,7 +71,7 @@ public struct GenericParamAttributes: OptionSet {
     public static let covariant = Self(rawValue: 0x1)
     public static let contravariant = Self(rawValue: 0x2)
 
-    public static let specialConstaintMask = Self(rawValue: 0x1C)
+    public static let specialConstraintMask = Self(rawValue: 0x1C)
     public static let referenceTypeConstraint = Self(rawValue: 0x4)
     public static let notNullableValueTypeConstraint = Self(rawValue: 0x8)
     public static let defaultConstructorConstraint = Self(rawValue: 0x10)

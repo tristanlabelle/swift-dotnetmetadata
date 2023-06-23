@@ -281,6 +281,31 @@ extension GenericParam: DoublyKeyedTableRow {
     }
 }
 
+public struct GenericParamConstraint {
+    public var owner: Table<GenericParam>.RowIndex?
+    public var constraint: TypeDefOrRef
+}
+
+extension GenericParamConstraint: KeyedTableRow {
+    public var primaryKey: MetadataToken { .init(owner) }
+
+    public static var tableIndex: TableIndex { .genericParamConstraint }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingTableRowIndex(\.owner)
+            .addingCodedIndex(\.constraint)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        var reader = TableRowReader(buffer: buffer, sizes: sizes)
+        self.init(
+            owner: reader.readTableRowIndex(),
+            constraint: reader.readCodedIndex(last: true))
+    }
+}
+
 public struct InterfaceImpl {
     public var `class`: Table<TypeDef>.RowIndex?
     public var interface: TypeDefOrRef
