@@ -52,17 +52,18 @@ extension Assembly: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            hashAlgId: reader.readConstant(),
-            majorVersion: reader.readConstant(),
-            minorVersion: reader.readConstant(),
-            buildNumber: reader.readConstant(),
-            revisionNumber: reader.readConstant(),
-            flags: reader.readConstant(),
-            publicKey: reader.readHeapOffset(),
-            name: reader.readHeapOffset(),
-            culture: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                hashAlgId: $0.readConstant(),
+                majorVersion: $0.readConstant(),
+                minorVersion: $0.readConstant(),
+                buildNumber: $0.readConstant(),
+                revisionNumber: $0.readConstant(),
+                flags: $0.readConstant(),
+                publicKey: $0.readHeapOffset(),
+                name: $0.readHeapOffset(),
+                culture: $0.readHeapOffset())
+        }
     }
 }
 
@@ -101,17 +102,18 @@ extension AssemblyRef: TableRow {
     }
     
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            majorVersion: reader.readConstant(),
-            minorVersion: reader.readConstant(),
-            buildNumber: reader.readConstant(),
-            revisionNumber: reader.readConstant(),
-            flags: reader.readConstant(),
-            publicKeyOrToken: reader.readHeapOffset(),
-            name: reader.readHeapOffset(),
-            culture: reader.readHeapOffset(),
-            hashValue: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                majorVersion: $0.readConstant(),
+                minorVersion: $0.readConstant(),
+                buildNumber: $0.readConstant(),
+                revisionNumber: $0.readConstant(),
+                flags: $0.readConstant(),
+                publicKeyOrToken: $0.readHeapOffset(),
+                name: $0.readHeapOffset(),
+                culture: $0.readHeapOffset(),
+                hashValue: $0.readHeapOffset())
+        }
     }
 }
 
@@ -136,13 +138,14 @@ extension Constant: KeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        let type: ConstantType = reader.readConstant()
-        let _: UInt8 = reader.readConstant()
-        self.init(
-            type: type,
-            parent: reader.readCodedIndex(),
-            value: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            let type: ConstantType = $0.readConstant()
+            let _: UInt8 = $0.readConstant()
+            return Self(
+                type: type,
+                parent: $0.readCodedIndex(),
+                value: $0.readHeapOffset())
+        }
     }
 }
 
@@ -166,11 +169,12 @@ extension CustomAttribute: KeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            parent: reader.readCodedIndex(),
-            type: reader.readCodedIndex(),
-            value: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                parent: $0.readCodedIndex(),
+                type: $0.readCodedIndex(),
+                value: $0.readHeapOffset())
+        }
     }
 }
 
@@ -192,11 +196,12 @@ extension Event: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            eventFlags: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            eventType: reader.readCodedIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                eventFlags: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                eventType: $0.readCodedIndex())
+        }
     }
 }
 
@@ -216,10 +221,11 @@ extension EventMap: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            parent: reader.readTableRowIndex(),
-            eventList: reader.readTableRowIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                parent: $0.readTableRowIndex(),
+                eventList: $0.readTableRowIndex())
+        }
     }
 }
 
@@ -241,11 +247,12 @@ extension Field: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            flags: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            signature: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                flags: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                signature: $0.readHeapOffset())
+        }
     }
 }
 
@@ -272,12 +279,13 @@ extension GenericParam: DoublyKeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            number: reader.readConstant(),
-            flags: reader.readConstant(),
-            owner: reader.readCodedIndex(),
-            name: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                number: $0.readConstant(),
+                flags: $0.readConstant(),
+                owner: $0.readCodedIndex(),
+                name: $0.readHeapOffset())
+        }
     }
 }
 
@@ -299,10 +307,11 @@ extension GenericParamConstraint: KeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            owner: reader.readTableRowIndex(),
-            constraint: reader.readCodedIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                owner: $0.readTableRowIndex(),
+                constraint: $0.readCodedIndex())
+        }
     }
 }
 
@@ -325,10 +334,11 @@ extension InterfaceImpl: DoublyKeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            class: reader.readTableRowIndex(),
-            interface: reader.readCodedIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                class: $0.readTableRowIndex(),
+                interface: $0.readCodedIndex())
+        }
     }
 }
 
@@ -350,11 +360,12 @@ extension MemberRef: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            class: reader.readCodedIndex(),
-            name: reader.readHeapOffset(),
-            signature: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                class: $0.readCodedIndex(),
+                name: $0.readHeapOffset(),
+                signature: $0.readHeapOffset())
+        }
     }
 }
 
@@ -382,14 +393,15 @@ extension MethodDef: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            rva: reader.readConstant(),
-            implFlags: reader.readConstant(),
-            flags: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            signature: reader.readHeapOffset(),
-            paramList: reader.readTableRowIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                rva: $0.readConstant(),
+                implFlags: $0.readConstant(),
+                flags: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                signature: $0.readHeapOffset(),
+                paramList: $0.readTableRowIndex())
+        }
     }
 }
 
@@ -413,11 +425,12 @@ extension MethodImpl: KeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            class: reader.readTableRowIndex(),
-            methodBody: reader.readCodedIndex(),
-            methodDeclaration: reader.readCodedIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                class: $0.readTableRowIndex(),
+                methodBody: $0.readCodedIndex(),
+                methodDeclaration: $0.readCodedIndex())
+        }
     }
 }
 
@@ -441,11 +454,12 @@ extension MethodSemantics: KeyedTableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            semantics: reader.readConstant(),
-            method: reader.readTableRowIndex(),
-            association: reader.readCodedIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                semantics: $0.readConstant(),
+                method: $0.readTableRowIndex(),
+                association: $0.readCodedIndex())
+        }
     }
 }
 
@@ -471,13 +485,14 @@ extension Module: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            generation: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            mvid: reader.readHeapOffset(),
-            encId: reader.readHeapOffset(),
-            encBaseId: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                generation: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                mvid: $0.readHeapOffset(),
+                encId: $0.readHeapOffset(),
+                encBaseId: $0.readHeapOffset())
+        }
     }
 }
 
@@ -499,11 +514,12 @@ extension Param: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            flags: reader.readConstant(),
-            sequence: reader.readConstant(),
-            name: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                flags: $0.readConstant(),
+                sequence: $0.readConstant(),
+                name: $0.readHeapOffset())
+        }
     }
 }
 
@@ -525,11 +541,12 @@ extension Property: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            flags: reader.readConstant(),
-            name: reader.readHeapOffset(),
-            type: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                flags: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                type: $0.readHeapOffset())
+        }
     }
 }
 
@@ -549,10 +566,11 @@ extension PropertyMap: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            parent: reader.readTableRowIndex(),
-            propertyList: reader.readTableRowIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                parent: $0.readTableRowIndex(),
+                propertyList: $0.readTableRowIndex())
+        }
     }
 }
 
@@ -580,14 +598,15 @@ extension TypeDef: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            flags: reader.readConstant(),
-            typeName: reader.readHeapOffset(),
-            typeNamespace: reader.readHeapOffset(),
-            extends: reader.readCodedIndex(),
-            fieldList: reader.readTableRowIndex(),
-            methodList: reader.readTableRowIndex(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                flags: $0.readConstant(),
+                typeName: $0.readHeapOffset(),
+                typeNamespace: $0.readHeapOffset(),
+                extends: $0.readCodedIndex(),
+                fieldList: $0.readTableRowIndex(),
+                methodList: $0.readTableRowIndex())
+        }
     }
 }
 
@@ -609,11 +628,12 @@ extension TypeRef: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            resolutionScope: reader.readCodedIndex(),
-            typeName: reader.readHeapOffset(),
-            typeNamespace: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                resolutionScope: $0.readCodedIndex(),
+                typeName: $0.readHeapOffset(),
+                typeNamespace: $0.readHeapOffset())
+        }
     }
 }
 
@@ -631,8 +651,9 @@ extension TypeSpec: TableRow {
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
-        var reader = TableRowReader(buffer: buffer, sizes: sizes)
-        self.init(
-            signature: reader.readHeapOffset(last: true))
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                signature: $0.readHeapOffset())
+        }
     }
 }
