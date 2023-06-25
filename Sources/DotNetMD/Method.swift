@@ -83,8 +83,8 @@ public class Method {
 
     public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
         var result: [GenericMethodParam] = []
-        var genericParamRowIndex = database.tables.genericParam.find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0)
-            ?? database.tables.genericParam.endIndex
+        guard var genericParamRowIndex = database.tables.genericParam
+            .findFirst(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0) else { return result }
         while genericParamRowIndex < database.tables.genericParam.endIndex {
             let genericParam = database.tables.genericParam[genericParamRowIndex]
             guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }

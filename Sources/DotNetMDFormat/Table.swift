@@ -91,8 +91,8 @@ extension Table: RandomAccessCollection {
 
 extension Table where Row: KeyedTableRow {
     public func findAny(primaryKey: Row.PrimaryKey) -> Table<Row>.RowIndex? {
-        let index = self.binarySearchIndex { $0.primaryKey < primaryKey }
-        guard index != startIndex && index != endIndex else { return nil }
+        let index = self.binarySearchIndex(isBefore: { $0.primaryKey < primaryKey })
+        guard index != endIndex else { return nil }
 
         let row = self[index]
         return row.primaryKey == primaryKey ? index : nil
@@ -111,13 +111,23 @@ extension Table where Row: KeyedTableRow {
 }
 
 extension Table where Row: DoublyKeyedTableRow {
-    public func find(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> Table<Row>.RowIndex? {
-        let index = self.binarySearchIndex {
-            $0.primaryKey != primaryKey ? $0.primaryKey < primaryKey : $0.secondaryKey < secondaryKey
-        }
-        guard index != startIndex && index != endIndex else { return nil }
+    public func findAny(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> Table<Row>.RowIndex? {
+        let index = self.binarySearchIndex(
+            isBefore: { $0.primaryKey != primaryKey ? $0.primaryKey < primaryKey : $0.secondaryKey < secondaryKey })
+        guard index != endIndex else { return nil }
 
         let row = self[index]
         return row.primaryKey == primaryKey && row.secondaryKey == secondaryKey ? index : nil
+    }
+
+    public func findFirst(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> Table<Row>.RowIndex? {
+        guard var firstIndex = findAny(primaryKey: primaryKey, secondaryKey: secondaryKey) else { return nil }
+        while firstIndex != startIndex {
+            let previousIndex = self.index(before: firstIndex)
+            let previousRow = self[previousIndex]
+            guard previousRow.primaryKey == primaryKey && previousRow.secondaryKey == secondaryKey else { break }
+            firstIndex = previousIndex
+        }
+        return firstIndex
     }
 }

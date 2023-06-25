@@ -36,7 +36,7 @@ extension TypeDefinition {
         public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
             var result: [GenericTypeParam] = []
             guard var genericParamRowIndex = database.tables.genericParam
-                .find(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0) else { return result }
+                .findFirst(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0) else { return result }
             while genericParamRowIndex < database.tables.genericParam.endIndex {
                 let genericParam = database.tables.genericParam[genericParamRowIndex]
                 guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }

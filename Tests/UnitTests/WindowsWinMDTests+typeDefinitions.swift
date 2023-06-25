@@ -46,9 +46,15 @@ extension WindowsWinMDTests {
     }
 
     func testTypeGenericParamEnumeration() throws {
+        // Interface with 1 generic parameter
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "Windows.Foundation.Collections.IKeyValuePair`2")?.genericParams.map({ $0.name }).sorted(),
-            [ "K", "V" ])
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncActionWithProgress`1")?.genericParams.map({ $0.name }),
+            [ "TProgress" ])
+
+        // Delegate with 2 generic parameters
+        XCTAssertEqual(
+            Self.assembly.findDefinedType(fullName: "Windows.Foundation.AsyncOperationProgressHandler`2")?.genericParams.map({ $0.name }),
+            [ "TResult", "TProgress" ])
     }
 
     func testEnum() throws {
