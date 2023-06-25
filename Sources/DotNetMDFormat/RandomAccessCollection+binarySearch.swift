@@ -1,5 +1,5 @@
 extension RandomAccessCollection {
-    func binarySearch<Key>(key: Key, selector: (Element) -> Key, lessThan: (Key, Key) -> Bool) -> BinarySearchResult<Index> {
+    func binarySearch<Key>(for key: Key, selector: (Element) -> Key, lessThan: (Key, Key) -> Bool) -> BinarySearchResult<Index> {
         var low = startIndex
         var high = endIndex
         while low != high {
@@ -16,14 +16,14 @@ extension RandomAccessCollection {
             : .absent(insertAt: low)
     }
 
-    func binarySearch<Key: Comparable>(key: Key, selector: (Element) -> Key) -> BinarySearchResult<Index> {
-        binarySearch(key: key, selector: selector, lessThan: <)
+    func binarySearch<Key: Comparable>(for key: Key, selector: (Element) -> Key) -> BinarySearchResult<Index> {
+        binarySearch(for: key, selector: selector, lessThan: <)
     }
 }
 
 extension RandomAccessCollection where Element: Comparable {
-    func binarySearch(_ key: Element) -> BinarySearchResult<Index> {
-        binarySearch(key: key, selector: { $0 })
+    func binarySearch(for key: Element) -> BinarySearchResult<Index> {
+        binarySearch(for: key, selector: { $0 })
     }
 }
 

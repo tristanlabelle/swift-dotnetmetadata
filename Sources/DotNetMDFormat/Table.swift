@@ -92,7 +92,8 @@ extension Table: RandomAccessCollection {
 extension Table where Row: KeyedTableRow {
     public func findAny(primaryKey: Row.PrimaryKey) -> Table<Row>.RowIndex? {
         guard case let .present(at: index) = self.binarySearch(
-            key: primaryKey, selector: { $0.primaryKey }) else { return nil }
+            for: primaryKey,
+            selector: { $0.primaryKey }) else { return nil }
         return index
     }
 
@@ -111,7 +112,9 @@ extension Table where Row: KeyedTableRow {
 extension Table where Row: DoublyKeyedTableRow {
     public func findAny(primaryKey: Row.PrimaryKey, secondaryKey: Row.SecondaryKey) -> Table<Row>.RowIndex? {
         guard case let .present(at: index) = self.binarySearch(
-            key: (primaryKey, secondaryKey), selector: { ($0.primaryKey, $0.secondaryKey) }, lessThan: <) else { return nil }
+            for: (primaryKey, secondaryKey),
+            selector: { ($0.primaryKey, $0.secondaryKey) },
+            lessThan: <) else { return nil }
         return index
     }
 
