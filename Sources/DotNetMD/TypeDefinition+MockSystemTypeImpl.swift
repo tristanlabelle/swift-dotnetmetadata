@@ -5,19 +5,23 @@ extension TypeDefinition {
         public let kind: TypeDefinitionKind
         public let name: String
         public let base: BoundType?
+        internal let metadataAttributes: TypeAttributes
 
-        internal init(kind: TypeDefinitionKind, name: String, base: TypeDefinition?) {
+        internal init(
+            kind: TypeDefinitionKind,
+            name: String,
+            base: TypeDefinition?,
+            metadataAttributes: TypeAttributes) {
+
             self.kind = kind
             self.name = name
             self.base = base?.bindNonGeneric()
+            self.metadataAttributes = metadataAttributes
         }
 
         func initialize(owner: TypeDefinition) {}
 
         public var namespace: String { "System" }
-
-        // FIXME: We'll need a few more attributes than that
-        internal var metadataFlags: DotNetMDFormat.TypeAttributes { DotNetMDFormat.TypeAttributes.public }
 
         public var baseInterfaces: [BaseInterface] { [] }
         public var genericParams: [GenericTypeParam] { [] }

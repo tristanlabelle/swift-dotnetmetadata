@@ -31,7 +31,7 @@ extension TypeDefinition {
         public var name: String { database.heaps.resolve(tableRow.typeName) }
         public var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }
 
-        internal var metadataFlags: DotNetMDFormat.TypeAttributes { tableRow.flags }
+        internal var metadataAttributes: DotNetMDFormat.TypeAttributes { tableRow.flags }
 
         public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
             var result: [GenericTypeParam] = []

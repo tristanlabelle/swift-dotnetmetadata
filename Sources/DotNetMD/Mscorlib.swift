@@ -48,6 +48,7 @@ public final class Mscorlib: Assembly {
             intPtr = try find("IntPtr")
             single = try find("Single")
             double = try find("Double")
+            guid = try find("Guid")
         }
 
         public let void: StructDefinition
@@ -77,6 +78,7 @@ public final class Mscorlib: Assembly {
         public let intPtr: StructDefinition
         public let single: StructDefinition
         public let double: StructDefinition
+        public let guid: StructDefinition
 
         public func getInteger(_ size: IntegerSize, signed: Bool) -> StructDefinition {
             switch size {

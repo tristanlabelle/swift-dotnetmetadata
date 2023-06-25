@@ -8,35 +8,48 @@ extension Assembly {
         private var systemTypes: [TypeDefinition] = []
 
         func initialize(owner: Assembly) {
-            // System.Object and derived types
-            func makeType(kind: TypeDefinitionKind, name: String, base: TypeDefinition?) -> TypeDefinition {
-                TypeDefinition.create(
+            func makeClass(name: String, base: TypeDefinition?, abstract: Bool = false, sealed: Bool = false) -> TypeDefinition {
+                var metadataAttributes: TypeAttributes = [.public, .serializable]
+                if abstract { metadataAttributes.insert(.abstract) }
+                if sealed { metadataAttributes.insert(.sealed) }
+                return TypeDefinition.create(
                     assembly: owner,
-                    impl: TypeDefinition.MockSystemTypeImpl(kind: kind, name: name, base: base))
+                    impl: TypeDefinition.MockSystemTypeImpl(
+                        kind: .class,
+                        name: name,
+                        base: base,
+                        metadataAttributes: metadataAttributes))
             }
 
-            let object = makeType(kind: .class, name: "Object", base: nil)
+            let object = makeClass(name: "Object", base: nil)
             systemTypes.append(object)
-            systemTypes.append(contentsOf: [
-                "Array", "Attribute", "Exception", "Type", "String" ].map {
-                    makeType(kind: .class, name: $0, base: object)
-                })
+            systemTypes.append(makeClass(name: "Array", base: object, abstract: true))
+            systemTypes.append(makeClass(name: "Attribute", base: object, abstract: true))
+            systemTypes.append(makeClass(name: "Exception", base: object))
+            systemTypes.append(makeClass(name: "Type", base: object, abstract: true))
+            systemTypes.append(makeClass(name: "String", base: object, sealed: true))
 
-            let delegate = makeType(kind: .class, name: "Delegate", base: object)
+            let delegate = makeClass(name: "Delegate", base: object, abstract: true)
             systemTypes.append(delegate)
-            systemTypes.append(makeType(kind: .class, name: "MulticastDelegate", base: delegate))
+            systemTypes.append(makeClass(name: "MulticastDelegate", base: delegate, abstract: true))
 
             // System.ValueType and derived types
-            let valueType = makeType(kind: .class, name: "ValueType", base: object)
+            let valueType = makeClass(name: "ValueType", base: object, abstract: true)
             systemTypes.append(valueType)
-            systemTypes.append(makeType(kind: .class, name: "Enum", base: valueType))
+            systemTypes.append(makeClass(name: "Enum", base: valueType, abstract: true))
             systemTypes.append(contentsOf: [
-                "Void", "TypedReference",
+                "Void", "TypedReference", "Guid",
                 "Boolean", "Char",
                 "SByte", "Byte", "Int16", "UInt16", "Int32", "UInt32", "Int64", "UInt64", 
                 "IntPtr", "UIntPtr",
                 "Single", "Double" ].map {
-                    makeType(kind: .struct, name: $0, base: valueType)
+                    TypeDefinition.create(
+                        assembly: owner,
+                        impl: TypeDefinition.MockSystemTypeImpl(
+                            kind: .struct,
+                            name: $0,
+                            base: valueType,
+                            metadataAttributes: [.public, .serializable, .sealed]))
                 })
         }
 

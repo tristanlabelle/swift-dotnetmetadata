@@ -14,7 +14,7 @@ internal protocol TypeDefinitionImpl {
     var name: String { get }
     var namespace: String { get }
     var kind: TypeDefinitionKind { get }
-    var metadataFlags: DotNetMDFormat.TypeAttributes { get }
+    var metadataAttributes: DotNetMDFormat.TypeAttributes { get }
     var genericParams: [GenericTypeParam] { get }
     var base: BoundType? { get }
     var baseInterfaces: [BaseInterface] { get }
@@ -55,7 +55,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var name: String { impl.name }
     public var namespace: String { impl.namespace }
-    internal var metadataFlags: DotNetMDFormat.TypeAttributes { impl.metadataFlags }
+    internal var metadataAttributes: DotNetMDFormat.TypeAttributes { impl.metadataAttributes }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: BoundType? { impl.base }
     public var baseInterfaces: [BaseInterface] { impl.baseInterfaces }
@@ -81,7 +81,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public private(set) lazy var fullName: String = makeFullTypeName(namespace: namespace, name: name)
     
     public var visibility: Visibility {
-        switch metadataFlags.intersection(.visibilityMask) {
+        switch metadataAttributes.intersection(.visibilityMask) {
             case .public: return .public
             case .notPublic: return .assembly
             case .nestedFamily: return .family
@@ -94,7 +94,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     }
 
     public var isNested: Bool {
-        switch metadataFlags.intersection(.visibilityMask) {
+        switch metadataAttributes.intersection(.visibilityMask) {
             case .public, .notPublic: return false
             case .nestedFamily, .nestedFamORAssem, .nestedFamANDAssem,
                 .nestedAssembly, .nestedPrivate: return true
@@ -102,8 +102,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
         }
     }
     
-    public var isAbstract: Bool { metadataFlags.contains(TypeAttributes.abstract) }
-    public var isSealed: Bool { metadataFlags.contains(TypeAttributes.sealed) }
+    public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
+    public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
     public func findSingleMethod(name: String, inherited: Bool = false) -> Method? {
