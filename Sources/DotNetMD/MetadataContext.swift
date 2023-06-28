@@ -12,6 +12,11 @@ public class MetadataContext {
         self.assemblyResolver = assemblyResolver
     }
 
+    public convenience init() {
+        struct AssemblyNotFound: Error {}
+        self.init(assemblyResolver: { _ in throw AssemblyNotFound() })
+    }
+
     public func loadAssembly(name: String, version: AssemblyVersion, culture: String) throws -> Assembly {
         if name == Mscorlib.name && version == AssemblyVersion.all255 {
             if let mscorlib = self.mscorlib {

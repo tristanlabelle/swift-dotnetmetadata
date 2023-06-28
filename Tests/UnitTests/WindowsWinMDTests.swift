@@ -8,8 +8,7 @@ final class WindowsWinMDTests: XCTestCase {
 
     override class func setUp() {
         do {
-            struct AssemblyNotFound: Error {}
-            context = MetadataContext(assemblyResolver: { _ in throw AssemblyNotFound() })
+            context = MetadataContext()
 
             let programFilesX86Path = ProcessInfo.processInfo.environment["ProgramFiles(x86)"] ?? #"C:\Program Files (x86)"#
             let unionMetadataPath = "\(programFilesX86Path)\\Windows Kits\\10\\UnionMetadata"

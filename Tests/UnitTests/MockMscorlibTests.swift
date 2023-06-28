@@ -6,8 +6,7 @@ final class MockMscorlibTests: XCTestCase {
     private static var mscorlib: Mscorlib!
 
     override class func setUp() {
-        struct AssemblyNotFound: Error {}
-        context = MetadataContext(assemblyResolver: { _ in throw AssemblyNotFound() })
+        context = MetadataContext()
         mscorlib = try? context.loadAssembly(name: Mscorlib.name, version: .all255, culture: "") as? Mscorlib
     }
 
