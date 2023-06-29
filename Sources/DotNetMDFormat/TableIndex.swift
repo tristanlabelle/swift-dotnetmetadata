@@ -10,7 +10,7 @@ public enum TableIndex: UInt8 {
     case constant = 0x0B
     case customAttribute = 0x0C
     case fieldMarshal = 0x0D
-    case declarativeSecurity = 0x0E
+    case declSecurity = 0x0E
     case classLayout = 0x0F
     case fieldLayout = 0x10
     case standAloneSig = 0x11

@@ -178,6 +178,33 @@ extension CustomAttribute: KeyedTableRow {
     }
 }
 
+public struct DeclSecurity {
+    public var action: UInt16
+    public var parent: HasDeclSecurity
+    public var permissionSet: HeapOffset<BlobHeap>
+}
+
+extension DeclSecurity: TableRow {
+    public static var tableIndex: TableIndex { .declSecurity }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.action)
+            .addingCodedIndex(\.parent)
+            .addingHeapOffset(\.permissionSet)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                action: $0.readConstant(),
+                parent: $0.readCodedIndex(),
+                permissionSet: $0.readHeapOffset())
+        }
+    }
+}
+
 public struct Event {
     public var eventFlags: EventAttributes
     public var name: HeapOffset<StringHeap>
@@ -252,6 +279,30 @@ extension Field: TableRow {
                 flags: $0.readConstant(),
                 name: $0.readHeapOffset(),
                 signature: $0.readHeapOffset())
+        }
+    }
+}
+
+public struct FieldMarshal {
+    public var parent: HasFieldMarshal
+    public var nativeType: HeapOffset<BlobHeap>
+}
+
+extension FieldMarshal: TableRow {
+    public static var tableIndex: TableIndex { .fieldMarshal }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingCodedIndex(\.parent)
+            .addingHeapOffset(\.nativeType)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                parent: $0.readCodedIndex(),
+                nativeType: $0.readHeapOffset())
         }
     }
 }

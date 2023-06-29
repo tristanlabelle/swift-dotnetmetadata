@@ -14,6 +14,10 @@ public final class TableSizes {
     public var guidHeapOffsetSize: Int { (heapSizingBits & 2) == 0 ? 2 : 4 }
     public var blobHeapOffsetSize: Int { (heapSizingBits & 4) == 0 ? 2 : 4 }
 
+    public func getRowCount(_ tableIndex: Int) -> Int {
+        Int(tableRowCounts[tableIndex])
+    }
+
     public func getRowCount(_ tableIndex: TableIndex) -> Int {
         Int(tableRowCounts[Int(tableIndex.rawValue)])
     }

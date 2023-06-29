@@ -11,6 +11,8 @@ extension Database {
         public let memberRef: Table<MemberRef>
         public let constant: Table<Constant>
         public let customAttribute: Table<CustomAttribute>
+        public let fieldMarshal: Table<FieldMarshal>
+        public let declSecurity: Table<DeclSecurity>
         public let eventMap: Table<EventMap>
         public let event: Table<Event>
         public let propertyMap: Table<PropertyMap>
@@ -25,35 +27,47 @@ extension Database {
 
         init(buffer: UnsafeRawBufferPointer, sizes: TableSizes, sortedBits: UInt64) {
             var remainder = buffer
-            // In TableIndex order
-            module = Self.consume(&remainder, sizes, sortedBits)
-            typeRef = Self.consume(&remainder, sizes, sortedBits)
-            typeDef = Self.consume(&remainder, sizes, sortedBits)
-            field = Self.consume(&remainder, sizes, sortedBits)
-            methodDef = Self.consume(&remainder, sizes, sortedBits)
-            param = Self.consume(&remainder, sizes, sortedBits)
-            interfaceImpl = Self.consume(&remainder, sizes, sortedBits)
-            memberRef = Self.consume(&remainder, sizes, sortedBits)
-            constant = Self.consume(&remainder, sizes, sortedBits)
-            customAttribute = Self.consume(&remainder, sizes, sortedBits)
-            eventMap = Self.consume(&remainder, sizes, sortedBits)
-            event = Self.consume(&remainder, sizes, sortedBits)
-            propertyMap = Self.consume(&remainder, sizes, sortedBits)
-            property = Self.consume(&remainder, sizes, sortedBits)
-            methodSemantics = Self.consume(&remainder, sizes, sortedBits)
-            methodImpl = Self.consume(&remainder, sizes, sortedBits)
-            typeSpec = Self.consume(&remainder, sizes, sortedBits)
-            assembly = Self.consume(&remainder, sizes, sortedBits)
-            assemblyRef = Self.consume(&remainder, sizes, sortedBits)
-            genericParam = Self.consume(&remainder, sizes, sortedBits)
-            genericParamConstraint = Self.consume(&remainder, sizes, sortedBits)
-        }
+            var nextTableIndex = 0
 
-        private static func consume<Row>(_ buffer: inout UnsafeRawBufferPointer, _ sizes: TableSizes, _ sortedBits: UInt64) -> Table<Row> where Row: TableRow {
-            let rowCount = sizes.getRowCount(Row.tableIndex)
-            let size = Row.getSize(sizes: sizes) * rowCount
-            let sorted = ((sortedBits >> Row.tableIndex.rawValue) & 1) == 1
-            return Table(buffer: buffer.consume(count: size), sizes: sizes, sorted: sorted)
+            // We must read all tables in order and without any gaps
+            func consume<Row: TableRow>() -> Table<Row> {
+                // Make sure we're not skipping any tables with non-zero rows
+                while nextTableIndex < Row.tableIndex.rawValue {
+                    guard sizes.getRowCount(nextTableIndex) == 0
+                    else { fatalError("Not implemented: reading \(TableIndex(rawValue: UInt8(nextTableIndex))!) metadata table") }
+                    nextTableIndex += 1
+                }
+
+                let rowCount = sizes.getRowCount(Row.tableIndex)
+                let size = Row.getSize(sizes: sizes) * rowCount
+                let sorted = ((sortedBits >> Row.tableIndex.rawValue) & 1) == 1
+                nextTableIndex += 1
+                return Table(buffer: remainder.consume(count: size), sizes: sizes, sorted: sorted)
+            } 
+
+            module = consume()
+            typeRef = consume()
+            typeDef = consume()
+            field = consume()
+            methodDef = consume()
+            param = consume()
+            interfaceImpl = consume()
+            memberRef = consume()
+            constant = consume()
+            customAttribute = consume()
+            fieldMarshal = consume()
+            declSecurity = consume()
+            eventMap = consume()
+            event = consume()
+            propertyMap = consume()
+            property = consume()
+            methodSemantics = consume()
+            methodImpl = consume()
+            typeSpec = consume()
+            assembly = consume()
+            assemblyRef = consume()
+            genericParam = consume()
+            genericParamConstraint = consume()
         }
     }
 }
