@@ -197,6 +197,31 @@ public enum HasCustomAttribute: CodedIndex {
     }
 }
 
+public enum Implementation: CodedIndex {
+    case file(Table<File>.RowIndex?)
+    case assemblyRef(Table<AssemblyRef>.RowIndex?)
+    case exportedType(oneBasedIndex: UInt32)
+
+    public static let tables: [TableIndex?] = [ .file, .assemblyRef, .exportedType ]
+
+    public init(tag: UInt8, oneBasedIndex: UInt32) {
+        switch tag {
+            case 0: self = .file(.init(oneBased: oneBasedIndex))
+            case 1: self = .assemblyRef(.init(oneBased: oneBasedIndex))
+            case 2: self = .exportedType(oneBasedIndex: oneBasedIndex)
+            default: fatalError()
+        }
+    }
+
+    public var metadataToken: MetadataToken {
+        switch self {
+            case let .file(rowIndex): return .init(rowIndex)
+            case let .assemblyRef(rowIndex): return .init(rowIndex)
+            case let .exportedType(oneBasedRowIndex): return .init(tableIndex: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
+        }
+    }
+}
+
 public enum MemberForwarded: CodedIndex {
     case field(Table<Field>.RowIndex?)
     case methodDef(Table<MethodDef>.RowIndex?)

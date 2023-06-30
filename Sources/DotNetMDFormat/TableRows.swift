@@ -525,6 +525,36 @@ extension InterfaceImpl: DoublyKeyedTableRow {
     }
 }
 
+public struct ManifestResource {
+    public var offset: UInt32
+    public var flags: ManifestResourceAttributes
+    public var name: HeapOffset<StringHeap>
+    public var implementation: Implementation
+}
+
+extension ManifestResource: TableRow {
+    public static var tableIndex: TableIndex { .manifestResource }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.offset)
+            .addingConstant(\.flags)
+            .addingHeapOffset(\.name)
+            .addingCodedIndex(\.implementation)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                offset: $0.readConstant(),
+                flags: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                implementation: $0.readCodedIndex())
+        }
+    }
+}
+
 public struct MemberRef {
     public var `class`: MemberRefParent
     public var name: HeapOffset<StringHeap>

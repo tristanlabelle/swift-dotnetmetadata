@@ -87,6 +87,17 @@ public struct GenericParamAttributes: OptionSet {
     public static let defaultConstructorConstraint = Self(rawValue: 0x10)
 }
 
+public struct ManifestResourceAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+
+    public static let visibilityMask = Self(rawValue: 0x7)
+    public static let `public` = Self(rawValue: 0x1)
+    public static let `private` = Self(rawValue: 0x2)
+}
+
 public struct MethodAttributes: OptionSet {
     public let rawValue: UInt16
     public init(rawValue: UInt16) {

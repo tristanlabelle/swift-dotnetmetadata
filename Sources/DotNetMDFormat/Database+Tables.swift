@@ -29,6 +29,7 @@ extension Database {
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
         public let file: Table<File>
+        public let manifestResource: Table<ManifestResource>
         public let genericParam: Table<GenericParam>
         public let genericParamConstraint: Table<GenericParamConstraint>
 
@@ -80,6 +81,7 @@ extension Database {
             assembly = consume()
             assemblyRef = consume()
             file = consume()
+            manifestResource = consume()
             genericParam = consume()
             genericParamConstraint = consume()
         }
