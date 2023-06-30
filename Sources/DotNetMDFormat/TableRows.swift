@@ -676,6 +676,30 @@ extension MethodSemantics: KeyedTableRow {
     }
 }
 
+public struct MethodSpec {
+    public var method: MethodDefOrRef
+    public var instantiation: HeapOffset<BlobHeap>
+}
+
+extension MethodSpec: TableRow {
+    public static var tableIndex: TableIndex { .methodSpec }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingCodedIndex(\.method)
+            .addingHeapOffset(\.instantiation)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                method: $0.readCodedIndex(),
+                instantiation: $0.readHeapOffset())
+        }
+    }
+}
+
 public struct Module {
     public var generation: UInt16
     public var name: HeapOffset<StringHeap>

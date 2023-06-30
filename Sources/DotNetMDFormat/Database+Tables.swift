@@ -32,6 +32,7 @@ extension Database {
         public let manifestResource: Table<ManifestResource>
         public let nestedClass: Table<NestedClass>
         public let genericParam: Table<GenericParam>
+        public let methodSpec: Table<MethodSpec>
         public let genericParamConstraint: Table<GenericParamConstraint>
 
         init(buffer: UnsafeRawBufferPointer, sizes: TableSizes, sortedBits: UInt64) {
@@ -85,6 +86,7 @@ extension Database {
             manifestResource = consume()
             nestedClass = consume()
             genericParam = consume()
+            methodSpec = consume()
             genericParamConstraint = consume()
         }
     }
