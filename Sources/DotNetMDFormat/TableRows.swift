@@ -676,6 +676,27 @@ extension PropertyMap: TableRow {
     }
 }
 
+public struct StandAloneSig {
+    public var signature: HeapOffset<BlobHeap>
+}
+
+extension StandAloneSig: TableRow {
+    public static var tableIndex: TableIndex { .standAloneSig }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingHeapOffset(\.signature)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                signature: $0.readHeapOffset())
+        }
+    }
+}
+
 public struct TypeDef {
     public var flags: TypeAttributes
     public var typeName: HeapOffset<StringHeap>

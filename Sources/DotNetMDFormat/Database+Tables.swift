@@ -15,6 +15,7 @@ extension Database {
         public let declSecurity: Table<DeclSecurity>
         public let classLayout: Table<ClassLayout>
         public let fieldLayout: Table<FieldLayout>
+        public let standAloneSig: Table<StandAloneSig>
         public let eventMap: Table<EventMap>
         public let event: Table<Event>
         public let propertyMap: Table<PropertyMap>
@@ -61,6 +62,7 @@ extension Database {
             declSecurity = consume()
             classLayout = consume()
             fieldLayout = consume()
+            standAloneSig = consume()
             eventMap = consume()
             event = consume()
             propertyMap = consume()
