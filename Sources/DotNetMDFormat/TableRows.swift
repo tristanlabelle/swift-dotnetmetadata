@@ -730,6 +730,30 @@ extension ModuleRef: TableRow {
     }
 }
 
+public struct NestedClass {
+    public var nestedClass: Table<TypeDef>.RowIndex?
+    public var enclosingClass: Table<TypeDef>.RowIndex?
+}
+
+extension NestedClass: TableRow {
+    public static var tableIndex: TableIndex { .nestedClass }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingTableRowIndex(\.nestedClass)
+            .addingTableRowIndex(\.enclosingClass)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                nestedClass: $0.readTableRowIndex(),
+                enclosingClass: $0.readTableRowIndex())
+        }
+    }
+}
+
 public struct Param {
     public var flags: ParamAttributes
     public var sequence: UInt16
