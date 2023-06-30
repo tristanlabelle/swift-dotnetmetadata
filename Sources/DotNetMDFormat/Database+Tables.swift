@@ -13,6 +13,8 @@ extension Database {
         public let customAttribute: Table<CustomAttribute>
         public let fieldMarshal: Table<FieldMarshal>
         public let declSecurity: Table<DeclSecurity>
+        public let classLayout: Table<ClassLayout>
+        public let fieldLayout: Table<FieldLayout>
         public let eventMap: Table<EventMap>
         public let event: Table<Event>
         public let propertyMap: Table<PropertyMap>
@@ -57,6 +59,8 @@ extension Database {
             customAttribute = consume()
             fieldMarshal = consume()
             declSecurity = consume()
+            classLayout = consume()
+            fieldLayout = consume()
             eventMap = consume()
             event = consume()
             propertyMap = consume()

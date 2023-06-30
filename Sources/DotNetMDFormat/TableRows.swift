@@ -117,6 +117,33 @@ extension AssemblyRef: TableRow {
     }
 }
 
+public struct ClassLayout {
+    public var packingSize: UInt16
+    public var classSize: UInt32
+    public var parent: Table<TypeDef>.RowIndex?
+}
+
+extension ClassLayout: TableRow {
+    public static var tableIndex: TableIndex { .classLayout }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.packingSize)
+            .addingConstant(\.classSize)
+            .addingTableRowIndex(\.parent)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                packingSize: $0.readConstant(),
+                classSize: $0.readConstant(),
+                parent: $0.readTableRowIndex())
+        }
+    }
+}
+
 public struct Constant {
     public var type: ConstantType
     public var parent: HasConstant
@@ -279,6 +306,30 @@ extension Field: TableRow {
                 flags: $0.readConstant(),
                 name: $0.readHeapOffset(),
                 signature: $0.readHeapOffset())
+        }
+    }
+}
+
+public struct FieldLayout {
+    public var offset: UInt32
+    public var field: Table<Field>.RowIndex?
+}
+
+extension FieldLayout: TableRow {
+    public static var tableIndex: TableIndex { .fieldLayout }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.offset)
+            .addingTableRowIndex(\.field)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                offset: $0.readConstant(),
+                field: $0.readTableRowIndex())
         }
     }
 }
