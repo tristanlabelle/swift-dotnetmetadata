@@ -28,6 +28,7 @@ extension Database {
         public let fieldRva: Table<FieldRva>
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
+        public let file: Table<File>
         public let genericParam: Table<GenericParam>
         public let genericParamConstraint: Table<GenericParamConstraint>
 
@@ -78,6 +79,7 @@ extension Database {
             fieldRva = consume()
             assembly = consume()
             assemblyRef = consume()
+            file = consume()
             genericParam = consume()
             genericParamConstraint = consume()
         }

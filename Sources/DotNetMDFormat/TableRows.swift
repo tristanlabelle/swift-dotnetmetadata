@@ -382,6 +382,33 @@ extension FieldRva: TableRow {
     }
 }
 
+public struct File {
+    public var flags: FileAttributes
+    public var name: HeapOffset<StringHeap>
+    public var hashValue: HeapOffset<BlobHeap>
+}
+
+extension File: TableRow {
+    public static var tableIndex: TableIndex { .file }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.flags)
+            .addingHeapOffset(\.name)
+            .addingHeapOffset(\.hashValue)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                flags: $0.readConstant(),
+                name: $0.readHeapOffset(),
+                hashValue: $0.readHeapOffset())
+        }
+    }
+}
+
 public struct GenericParam {
     public var number: UInt16
     public var flags: GenericParamAttributes

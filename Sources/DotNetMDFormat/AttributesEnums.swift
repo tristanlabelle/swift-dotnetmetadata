@@ -60,6 +60,16 @@ public struct FieldAttributes: OptionSet {
     public static let hasFieldRVA = Self(rawValue: 0x100)
 }
 
+public struct FileAttributes: OptionSet {
+    public let rawValue: UInt32
+    public init(rawValue: UInt32) {
+        self.rawValue = rawValue
+    }
+
+    public static let containsMetadata = Self([])
+    public static let containsNoMetadata = Self(rawValue: 0x1)
+}
+
 public struct GenericParamAttributes: OptionSet {
     public let rawValue: UInt16
     public init(rawValue: UInt16) {
