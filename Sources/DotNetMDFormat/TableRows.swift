@@ -358,6 +358,30 @@ extension FieldMarshal: TableRow {
     }
 }
 
+public struct FieldRva {
+    public var rva: UInt32
+    public var field: Table<Field>.RowIndex?
+}
+
+extension FieldRva: TableRow {
+    public static var tableIndex: TableIndex { .fieldRva }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.rva)
+            .addingTableRowIndex(\.field)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                rva: $0.readConstant(),
+                field: $0.readTableRowIndex())
+        }
+    }
+}
+
 public struct GenericParam {
     public var number: UInt16
     public var flags: GenericParamAttributes

@@ -25,6 +25,7 @@ extension Database {
         public let moduleRef: Table<ModuleRef>
         public let typeSpec: Table<TypeSpec>
         public let implMap: Table<ImplMap>
+        public let fieldRva: Table<FieldRva>
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
         public let genericParam: Table<GenericParam>
@@ -74,6 +75,7 @@ extension Database {
             moduleRef = consume()
             typeSpec = consume()
             implMap = consume()
+            fieldRva = consume()
             assembly = consume()
             assemblyRef = consume()
             genericParam = consume()
