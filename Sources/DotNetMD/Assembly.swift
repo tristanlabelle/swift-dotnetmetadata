@@ -24,15 +24,25 @@ public class Assembly: CustomDebugStringConvertible {
     }
 
     public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
-        Dictionary(uniqueKeysWithValues: definedTypes.map { ($0.fullName, $0) })
+        let definedTypes = impl.definedTypes
+        var dict = [String: TypeDefinition](minimumCapacity: definedTypes.count)
+        for definedType in definedTypes {
+            guard !definedType.isNested else { continue }
+            dict[definedType.fullName] = definedType
+        }
+        return dict
     }()
 
     public func findDefinedType(fullName: String) -> TypeDefinition? {
         typesByFullName[fullName]
     }
 
-    public func findDefinedType(namespace: String, name: String) -> TypeDefinition? {
-        findDefinedType(fullName: "\(namespace).\(name)")
+    public func findDefinedType(namespace: String?, name: String) -> TypeDefinition? {
+        findDefinedType(fullName: makeFullTypeName(namespace: namespace, name: name))
+    }
+
+    public func findDefinedType(namespace: String?, enclosingName: String, nestedNames: [String]) -> TypeDefinition? {
+        findDefinedType(fullName: makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames))
     }
 }
 

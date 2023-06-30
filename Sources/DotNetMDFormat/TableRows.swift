@@ -759,7 +759,9 @@ public struct NestedClass {
     public var enclosingClass: Table<TypeDef>.RowIndex?
 }
 
-extension NestedClass: TableRow {
+extension NestedClass: KeyedTableRow {
+    public var primaryKey: MetadataToken { .init(nestedClass) }
+
     public static var tableIndex: TableIndex { .nestedClass }
 
     public static func getSize(sizes: TableSizes) -> Int {

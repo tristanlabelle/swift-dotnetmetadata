@@ -12,9 +12,10 @@ internal protocol TypeDefinitionImpl {
     func initialize(owner: TypeDefinition)
 
     var name: String { get }
-    var namespace: String { get }
+    var namespace: String? { get }
     var kind: TypeDefinitionKind { get }
     var metadataAttributes: DotNetMDFormat.TypeAttributes { get }
+    var enclosingType: TypeDefinition? { get }
     var genericParams: [GenericTypeParam] { get }
     var base: BoundType? { get }
     var baseInterfaces: [BaseInterface] { get }
@@ -24,13 +25,35 @@ internal protocol TypeDefinitionImpl {
     var events: [Event] { get }
 }
 
-public func makeFullTypeName(namespace: String, name: String) -> String {
-    namespace.isEmpty ? name : "\(namespace).\(name)"
+public func makeFullTypeName(namespace: String?, name: String) -> String {
+    if let namespace {
+        return "\(namespace).\(name)"
+    } else {
+        return name
+    }
+}
+
+public func makeFullTypeName(namespace: String?, enclosingName: String, nestedNames: [String]) -> String {
+    var result: String
+    if let namespace {
+        result = "\(namespace).\(enclosingName)"
+    }
+    else {
+        result = enclosingName
+    }
+    for nestedName in nestedNames {
+        result.append(TypeDefinition.nestedTypeSeparator)
+        result += nestedName
+    }
+    return result
 }
 
 public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Kind = TypeDefinitionKind
     internal typealias Impl = TypeDefinitionImpl
+
+    public static let nestedTypeSeparator: Character = "/"
+    public static let genericParamCountSeparator: Character = "`"
 
     public let assembly: Assembly
     private let impl: any TypeDefinitionImpl
@@ -54,8 +77,9 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var context: MetadataContext { assembly.context }
 
     public var name: String { impl.name }
-    public var namespace: String { impl.namespace }
+    public var namespace: String? { impl.namespace }
     internal var metadataAttributes: DotNetMDFormat.TypeAttributes { impl.metadataAttributes }
+    public var enclosingType: TypeDefinition? { impl.enclosingType }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: BoundType? { impl.base }
     public var baseInterfaces: [BaseInterface] { impl.baseInterfaces }
@@ -68,7 +92,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var nameWithoutGenericSuffix: String {
         let name = name
-        guard let index = name.firstIndex(of: "`") else { return name }
+        guard let index = name.firstIndex(of: Self.genericParamCountSeparator) else { return name }
         return String(name[..<index])
     }
 
@@ -77,17 +101,22 @@ public class TypeDefinition: CustomDebugStringConvertible {
         guard case .definition(let base) = base else { return nil }
         return base.definition
     }
-    
-    public private(set) lazy var fullName: String = makeFullTypeName(namespace: namespace, name: name)
+
+    public private(set) lazy var fullName: String = {
+        if let enclosingType {
+            assert(namespace == nil)
+            return "\(enclosingType.fullName)\(Self.nestedTypeSeparator)\(name)"
+        }
+        return makeFullTypeName(namespace: namespace, name: name)
+    }()
     
     public var visibility: Visibility {
         switch metadataAttributes.intersection(.visibilityMask) {
-            case .public: return .public
-            case .notPublic: return .assembly
+            case .public, .nestedPublic: return .public
+            case .notPublic, .nestedAssembly: return .assembly
             case .nestedFamily: return .family
             case .nestedFamORAssem: return .familyOrAssembly
             case .nestedFamANDAssem: return .familyAndAssembly
-            case .nestedAssembly: return .assembly
             case .nestedPrivate: return .private
             default: fatalError()
         }
@@ -96,7 +125,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isNested: Bool {
         switch metadataAttributes.intersection(.visibilityMask) {
             case .public, .notPublic: return false
-            case .nestedFamily, .nestedFamORAssem, .nestedFamANDAssem,
+            case .nestedPublic, .nestedFamily,
+                .nestedFamORAssem, .nestedFamANDAssem,
                 .nestedAssembly, .nestedPrivate: return true
             default: fatalError()
         }

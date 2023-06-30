@@ -29,9 +29,22 @@ extension TypeDefinition {
         }
 
         public var name: String { database.heaps.resolve(tableRow.typeName) }
-        public var namespace: String { database.heaps.resolve(tableRow.typeNamespace) }
+
+        public var namespace: String? {
+            let tableRow = tableRow
+            // Normally, no namespace is represented by a zero string heap index
+            guard tableRow.typeNamespace.value != 0 else { return nil }
+            let value = database.heaps.resolve(tableRow.typeNamespace)
+            return value.isEmpty ? nil : value
+        }
 
         internal var metadataAttributes: DotNetMDFormat.TypeAttributes { tableRow.flags }
+
+        public private(set) lazy var enclosingType: TypeDefinition? = {
+            guard let nestedClassRowIndex = database.tables.nestedClass.findAny(primaryKey: MetadataToken(tableRowIndex)) else { return nil }
+            guard let enclosingTypeDefRowIndex = database.tables.nestedClass[nestedClassRowIndex].enclosingClass else { return nil }
+            return assemblyImpl.resolve(enclosingTypeDefRowIndex)
+        }()
 
         public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
             var result: [GenericTypeParam] = []
