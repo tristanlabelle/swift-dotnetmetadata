@@ -598,6 +598,27 @@ extension Module: TableRow {
     }
 }
 
+public struct ModuleRef {
+    public var name: HeapOffset<StringHeap>
+}
+
+extension ModuleRef: TableRow {
+    public static var tableIndex: TableIndex { .moduleRef }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingHeapOffset(\.name)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                name: $0.readHeapOffset())
+        }
+    }
+}
+
 public struct Param {
     public var flags: ParamAttributes
     public var sequence: UInt16

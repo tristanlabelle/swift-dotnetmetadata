@@ -22,6 +22,7 @@ extension Database {
         public let property: Table<Property>
         public let methodSemantics: Table<MethodSemantics>
         public let methodImpl: Table<MethodImpl>
+        public let moduleRef: Table<ModuleRef>
         public let typeSpec: Table<TypeSpec>
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
@@ -69,6 +70,7 @@ extension Database {
             property = consume()
             methodSemantics = consume()
             methodImpl = consume()
+            moduleRef = consume()
             typeSpec = consume()
             assembly = consume()
             assemblyRef = consume()
