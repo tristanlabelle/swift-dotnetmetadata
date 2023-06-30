@@ -136,14 +136,14 @@ public enum HasCustomAttribute: CodedIndex {
     case declSecurity(Table<DeclSecurity>.RowIndex?)
     case property(Table<Property>.RowIndex?)
     case event(Table<Event>.RowIndex?)
-    case standAloneSig(oneBasedIndex: UInt32)
-    case moduleRef(oneBasedIndex: UInt32)
+    case standAloneSig(Table<StandAloneSig>.RowIndex?)
+    case moduleRef(Table<ModuleRef>.RowIndex?)
     case typeSpec(Table<TypeSpec>.RowIndex?)
     case assembly(Table<Assembly>.RowIndex?)
     case assemblyRef(Table<AssemblyRef>.RowIndex?)
-    case file(oneBasedIndex: UInt32)
+    case file(Table<File>.RowIndex?)
     case exportedType(oneBasedIndex: UInt32)
-    case manifestResource(oneBasedIndex: UInt32)
+    case manifestResource(Table<ManifestResource>.RowIndex?)
 
     public static let tables: [TableIndex?] = [
         .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
@@ -165,9 +165,14 @@ public enum HasCustomAttribute: CodedIndex {
             case 8: self = .declSecurity(.init(oneBased: oneBasedIndex))
             case 9: self = .property(.init(oneBased: oneBasedIndex))
             case 10: self = .event(.init(oneBased: oneBasedIndex))
+            case 11: self = .standAloneSig(.init(oneBased: oneBasedIndex))
+            case 12: self = .moduleRef(.init(oneBased: oneBasedIndex))
             case 13: self = .typeSpec(.init(oneBased: oneBasedIndex))
             case 14: self = .assembly(.init(oneBased: oneBasedIndex))
             case 15: self = .assemblyRef(.init(oneBased: oneBasedIndex))
+            case 16: self = .file(.init(oneBased: oneBasedIndex))
+            case 17: self = .exportedType(oneBasedIndex: oneBasedIndex)
+            case 18: self = .manifestResource(.init(oneBased: oneBasedIndex))
             default: fatalError()
         }
     }
@@ -185,14 +190,14 @@ public enum HasCustomAttribute: CodedIndex {
             case let .declSecurity(rowIndex): return .init(rowIndex)
             case let .property(rowIndex): return .init(rowIndex)
             case let .event(rowIndex): return .init(rowIndex)
-            case let .standAloneSig(oneBasedRowIndex): return .init(tableIndex: .standAloneSig, oneBasedRowIndex: oneBasedRowIndex)
-            case let .moduleRef(oneBasedRowIndex): return .init(tableIndex: .moduleRef, oneBasedRowIndex: oneBasedRowIndex)
+            case let .standAloneSig(rowIndex): return .init(rowIndex)
+            case let .moduleRef(rowIndex): return .init(rowIndex)
             case let .typeSpec(rowIndex): return .init(rowIndex)
             case let .assembly(rowIndex): return .init(rowIndex)
             case let .assemblyRef(rowIndex): return .init(rowIndex)
-            case let .file(oneBasedRowIndex): return .init(tableIndex: .file, oneBasedRowIndex: oneBasedRowIndex)
+            case let .file(rowIndex): return .init(rowIndex)
             case let .exportedType(oneBasedRowIndex): return .init(tableIndex: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
-            case let .manifestResource(oneBasedRowIndex): return .init(tableIndex: .manifestResource, oneBasedRowIndex: oneBasedRowIndex)
+            case let .manifestResource(rowIndex): return .init(rowIndex)
         }
     }
 }
@@ -247,7 +252,7 @@ public enum MemberForwarded: CodedIndex {
 public enum MemberRefParent: CodedIndex {
     case typeDef(Table<TypeDef>.RowIndex?)
     case typeRef(Table<TypeRef>.RowIndex?)
-    case moduleRef(oneBasedIndex: UInt32)
+    case moduleRef(Table<ModuleRef>.RowIndex?)
     case methodDef(Table<MethodDef>.RowIndex?)
     case typeSpec(Table<TypeSpec>.RowIndex?)
 
@@ -257,6 +262,7 @@ public enum MemberRefParent: CodedIndex {
         switch tag {
             case 0: self = .typeDef(.init(oneBased: oneBasedIndex))
             case 1: self = .typeRef(.init(oneBased: oneBasedIndex))
+            case 2: self = .moduleRef(.init(oneBased: oneBasedIndex))
             case 3: self = .methodDef(.init(oneBased: oneBasedIndex))
             case 4: self = .typeSpec(.init(oneBased: oneBasedIndex))
             default: fatalError()
@@ -267,7 +273,7 @@ public enum MemberRefParent: CodedIndex {
         switch self {
             case let .typeDef(rowIndex): return .init(rowIndex)
             case let .typeRef(rowIndex): return .init(rowIndex)
-            case let .moduleRef(oneBasedRowIndex): return .init(tableIndex: .moduleRef, oneBasedRowIndex: oneBasedRowIndex)
+            case let .moduleRef(rowIndex): return .init(rowIndex)
             case let .methodDef(rowIndex): return .init(rowIndex)
             case let .typeSpec(rowIndex): return .init(rowIndex)
         }
@@ -298,7 +304,7 @@ public enum MethodDefOrRef: CodedIndex {
 
 public enum ResolutionScope: CodedIndex {
     case module(Table<Module>.RowIndex?)
-    case moduleRef(oneBasedIndex: UInt32)
+    case moduleRef(Table<ModuleRef>.RowIndex?)
     case assemblyRef(Table<AssemblyRef>.RowIndex?)
     case typeRef(Table<TypeRef>.RowIndex?)
 
@@ -307,6 +313,7 @@ public enum ResolutionScope: CodedIndex {
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
             case 0: self = .module(.init(oneBased: oneBasedIndex))
+            case 1: self = .moduleRef(.init(oneBased: oneBasedIndex))
             case 2: self = .assemblyRef(.init(oneBased: oneBasedIndex))
             case 3: self = .typeRef(.init(oneBased: oneBasedIndex))
             default: fatalError()
@@ -316,7 +323,7 @@ public enum ResolutionScope: CodedIndex {
     public var metadataToken: MetadataToken {
         switch self {
             case let .module(rowIndex): return .init(rowIndex)
-            case let .moduleRef(oneBasedRowIndex): return .init(tableIndex: .moduleRef, oneBasedRowIndex: oneBasedRowIndex)
+            case let .moduleRef(rowIndex): return .init(rowIndex)
             case let .assemblyRef(rowIndex): return .init(rowIndex)
             case let .typeRef(rowIndex): return .init(rowIndex)
         }
