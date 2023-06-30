@@ -22,7 +22,7 @@ public enum TableIndex: UInt8 {
     case methodImpl = 0x19
     case moduleRef = 0x1A
     case typeSpec = 0x1B
-    case implementationMap = 0x1C
+    case implMap = 0x1C
     case fieldRva = 0x1D
     case assembly = 0x20
     case assemblyProcessor = 0x21

@@ -417,6 +417,36 @@ extension GenericParamConstraint: KeyedTableRow {
     }
 }
 
+public struct ImplMap {
+    public var mappingFlags: PInvokeAttributes
+    public var memberForwarded: MemberForwarded
+    public var importName: HeapOffset<StringHeap>
+    public var importScope: Table<ModuleRef>.RowIndex?
+}
+
+extension ImplMap: TableRow {
+    public static var tableIndex: TableIndex { .implMap }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.mappingFlags)
+            .addingCodedIndex(\.memberForwarded)
+            .addingHeapOffset(\.importName)
+            .addingTableRowIndex(\.importScope)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                mappingFlags: $0.readConstant(),
+                memberForwarded: $0.readCodedIndex(),
+                importName: $0.readHeapOffset(),
+                importScope: $0.readTableRowIndex())
+        }
+    }
+}
+
 public struct InterfaceImpl {
     public var `class`: Table<TypeDef>.RowIndex?
     public var interface: TypeDefOrRef

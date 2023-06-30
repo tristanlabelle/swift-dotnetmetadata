@@ -24,6 +24,7 @@ extension Database {
         public let methodImpl: Table<MethodImpl>
         public let moduleRef: Table<ModuleRef>
         public let typeSpec: Table<TypeSpec>
+        public let implMap: Table<ImplMap>
         public let assembly: Table<Assembly>
         public let assemblyRef: Table<AssemblyRef>
         public let genericParam: Table<GenericParam>
@@ -72,6 +73,7 @@ extension Database {
             methodImpl = consume()
             moduleRef = consume()
             typeSpec = consume()
+            implMap = consume()
             assembly = consume()
             assemblyRef = consume()
             genericParam = consume()

@@ -197,6 +197,28 @@ public enum HasCustomAttribute: CodedIndex {
     }
 }
 
+public enum MemberForwarded: CodedIndex {
+    case field(Table<Field>.RowIndex?)
+    case methodDef(Table<MethodDef>.RowIndex?)
+
+    public static let tables: [TableIndex?] = [ .field, .methodDef ]
+
+    public init(tag: UInt8, oneBasedIndex: UInt32) {
+        switch tag {
+            case 0: self = .field(.init(oneBased: oneBasedIndex))
+            case 1: self = .methodDef(.init(oneBased: oneBasedIndex))
+            default: fatalError()
+        }
+    }
+
+    public var metadataToken: MetadataToken {
+        switch self {
+            case let .field(rowIndex): return .init(rowIndex)
+            case let .methodDef(rowIndex): return .init(rowIndex)
+        }
+    }
+}
+
 public enum MemberRefParent: CodedIndex {
     case typeDef(Table<TypeDef>.RowIndex?)
     case typeRef(Table<TypeRef>.RowIndex?)

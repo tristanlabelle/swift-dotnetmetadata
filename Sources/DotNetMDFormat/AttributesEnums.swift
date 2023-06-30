@@ -164,6 +164,30 @@ public struct ParamAttributes: OptionSet {
     public static let unused = Self(rawValue: 0xcfe0)
 }
 
+public struct PInvokeAttributes: OptionSet {
+    public let rawValue: UInt16
+    public init(rawValue: UInt16) {
+        self.rawValue = rawValue
+    }
+
+    public static let noMangle = Self(rawValue: 0x1)
+
+    public static let charSetMask = Self(rawValue: 0x6)
+    public static let charSetNotSpec = Self([])
+    public static let charSetAnsi = Self(rawValue: 0x2)
+    public static let charSetUnicode = Self(rawValue: 0x4)
+    public static let charSetAuto = Self(rawValue: 0x6)
+
+    public static let supportsLastError = Self(rawValue: 0x40)
+
+    public static let callConvMask = Self(rawValue: 0x700)
+    public static let callConvWinapi = Self(rawValue: 0x100)
+    public static let callConvCdecl = Self(rawValue: 0x200)
+    public static let callConvStdcall = Self(rawValue: 0x300)
+    public static let callConvThiscall = Self(rawValue: 0x400)
+    public static let callConvFastcall = Self(rawValue: 0x500)
+}
+
 public struct PropertyAttributes: OptionSet {
     public let rawValue: UInt16
     public init(rawValue: UInt16) {
