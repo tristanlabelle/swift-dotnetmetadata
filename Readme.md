@@ -10,8 +10,8 @@ A Swift library for reading and inspecting .NET metadata, including WinMD files,
 import DotNetMD
 
 let context = MetadataContext()
-let assembly = try context.loadAssembly(path: #"C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.22000.0\Windows.winmd"#)
-let typeDefinition = assembly.findDefinedType(fullName: "Windows.Foundation.IClosable")!
+let assembly = try context.loadAssembly(path: #"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll"#)
+let typeDefinition = assembly.findDefinedType(fullName: "System.IDisposable")!
 print("interface \(typeDefinition.name) {")
 for method in typeDefinition.methods {
     print("  void \(method.name)()")
