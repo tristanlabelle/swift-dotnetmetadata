@@ -2,6 +2,8 @@
 
 A Swift library for reading and inspecting .NET metadata, including WinMD files, following the [ECMA-335, Common Language Infrastructure (CLI)](https://www.ecma-international.org/publications-and-standards/standards/ecma-335/) standard.
 
+![example branch parameter](https://github.com/tristanlabelle/swift-dotnetmd/actions/workflows/build-and-test.yml/badge.svg?branch=main)
+
 ## Example
 
 ```swift
