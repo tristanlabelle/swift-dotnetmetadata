@@ -10,6 +10,16 @@ extension DotNet45MscorlibTests {
             [ "EventSourceCreated", "EventWritten" ])
     }
 
+    func testEventAccessors() throws {
+        guard let event = Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?.findEvent(name: "EventSourceCreated") else {
+            XCTFail("Could not find System.Diagnostics.Tracing.EventListener.EventSourceCreated")
+            return
+        }
+
+        try XCTAssertEqual(event.addAccessor?.name, "add_EventSourceCreated")
+        try XCTAssertEqual(event.removeAccessor?.name, "remove_EventSourceCreated")
+    }
+
     func testEventType() throws {
         guard let console = Self.assembly.findDefinedType(fullName: "System.Console") else {
             XCTFail("Could not find System.Console")

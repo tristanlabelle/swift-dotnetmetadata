@@ -38,12 +38,19 @@ public final class Event {
         return accessors
     }
 
-    public var add: Method? { get throws { try accessors.get().add } }
-    public var remove: Method? { get throws { try accessors.get().remove } }
-    public var fire: Method? { get throws { try accessors.get().fire } }
+    public var addAccessor: Method? { get throws { try accessors.get().add } }
+    public var removeAccessor: Method? { get throws { try accessors.get().remove } }
+    public var fireAccessor: Method? { get throws { try accessors.get().fire } }
     public var otherAccessors: [Method] { get throws { try accessors.get().others } }
 
-    public var visibility: Visibility {
-        get throws { try (add ?? remove ?? fire ?? otherAccessors.first)?.visibility ?? .public }
+    private var anyAccessor: Method? {
+        get throws {
+            let accessors = try self.accessors.get()
+            return accessors.add ?? accessors.remove ?? accessors.fire ?? accessors.others.first
+        }
     }
+
+    // CLS adds some uniformity guarantees:
+    // §II.22.28 "All methods for a given Property or Event shall have the same accessibility"
+    public var visibility: Visibility { get throws { try anyAccessor?.visibility ?? .public } }
 }
