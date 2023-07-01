@@ -24,6 +24,14 @@ extension DotNet45MscorlibTests {
         XCTAssertEqual(environment_SpecialFolder?.fullName, "System.Environment/SpecialFolder")
     }
 
+    func testEnclosingType() throws {
+        XCTAssertIdentical(
+            Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder")?.enclosingType,
+            Self.assembly.findDefinedType(fullName: "System.Environment"))
+
+        XCTAssertNil(Self.assembly.findDefinedType(fullName: "System.Environment")?.enclosingType)
+    }
+
     func testBaseType() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "System.ValueType")?.unboundBase?.fullName,
