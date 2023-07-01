@@ -1,6 +1,6 @@
 # DotNetMD
 
-A Swift library for reading and inspecting .NET metadata, including WinMD files, following the [ECMA-335, Common Language Infrastructure (CLI)](https://www.ecma-international.org/publications-and-standards/standards/ecma-335/) standard.
+A Swift library for reading and inspecting .NET metadata, including WinMD files, following the [ECMA-335, Common Language Infrastructure (CLI)](https://www.ecma-international.org/publications-and-standards/standards/ecma-335/) standard. Parsing IL is currently out of scope, but not off the table in the future.
 
 ![example branch parameter](https://github.com/tristanlabelle/swift-dotnetmd/actions/workflows/build-and-test.yml/badge.svg?branch=main)
 
@@ -17,6 +17,25 @@ for method in typeDefinition.methods {
     print("  void \(method.name)()")
 }
 print("}")
+```
+
+`Package.swift`:
+
+```swift
+// swift-tools-version: 5.8
+import PackageDescription
+
+let package = Package(
+    name: "MyPackage",
+    dependencies: [
+        .package(url: "https://github.com/tristanlabelle/swift-dotnetmd", branch: "main")
+    ],
+    targets: [
+        .executableTarget(name: "MyTarget", dependencies: [
+            .product(name: "DotNetMD", package: "swift-dotnetmd")
+        ])
+    ]
+)
 ```
 
 ## Architecture
