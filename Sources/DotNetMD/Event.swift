@@ -1,6 +1,10 @@
 import DotNetMDFormat
 
 public final class Event {
+    public static let addAccessorPrefix = "add_"
+    public static let removeAccessorPrefix = "remove_"
+    public static let raiseAccessorPrefix = "raise_"
+
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     internal let tableRowIndex: Table<DotNetMDFormat.Event>.RowIndex
 
@@ -28,7 +32,7 @@ public final class Event {
 
     private lazy var accessors = Result { [self] in
         var accessors = Accessors()
-        for entry in definingTypeImpl.getAccessors(token: MetadataToken(tableRowIndex)) {
+        for entry in definingTypeImpl.getAccessors(owner: .event(tableRowIndex)) {
             if entry.attributes == .addOn { accessors.add = entry.method }
             else if entry.attributes == .removeOn { accessors.remove = entry.method }
             else if entry.attributes == .fire { accessors.fire = entry.method }

@@ -41,33 +41,27 @@ extension TypeDefinition {
         internal var metadataAttributes: DotNetMDFormat.TypeAttributes { tableRow.flags }
 
         public private(set) lazy var enclosingType: TypeDefinition? = {
-            guard let nestedClassRowIndex = database.tables.nestedClass.findAny(primaryKey: MetadataToken(tableRowIndex)) else { return nil }
+            guard let nestedClassRowIndex = database.tables.nestedClass.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
             guard let enclosingTypeDefRowIndex = database.tables.nestedClass[nestedClassRowIndex].enclosingClass else { return nil }
             return assemblyImpl.resolve(enclosingTypeDefRowIndex)
         }()
 
-        public private(set) lazy var genericParams: [GenericTypeParam] = { [self] in
-            var result: [GenericTypeParam] = []
-            guard var genericParamRowIndex = database.tables.genericParam
-                .findFirst(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0) else { return result }
-            while genericParamRowIndex < database.tables.genericParam.endIndex {
-                let genericParam = database.tables.genericParam[genericParamRowIndex]
-                guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
-                result.append(GenericTypeParam(definingTypeImpl: self, tableRowIndex: genericParamRowIndex))
-                genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
+        public private(set) lazy var genericParams: [GenericTypeParam] = {
+            GenericParam.resolve(from: database, forOwner: .typeDef(tableRowIndex)) {
+                GenericTypeParam(definingTypeImpl: self, tableRowIndex: $0)
             }
-            return result
         }()
 
         public private(set) lazy var base: BoundType? = assemblyImpl.resolve(tableRow.extends)
 
-        public private(set) lazy var baseInterfaces: [BaseInterface] = { [self] in
+        public private(set) lazy var baseInterfaces: [BaseInterface] = {
+            let primaryKey = MetadataToken(tableRowIndex).tableKey
             var result: [BaseInterface] = []
             guard var interfaceImplRowIndex = database.tables.interfaceImpl
-                .findFirst(primaryKey: MetadataToken(tableRowIndex)) else { return [] }
+                .findFirst(primaryKey: primaryKey) else { return [] }
             while interfaceImplRowIndex != database.tables.interfaceImpl.endIndex {
                 let interfaceImpl = database.tables.interfaceImpl[interfaceImplRowIndex]
-                guard interfaceImpl.primaryKey == MetadataToken(tableRowIndex) else { break }
+                guard interfaceImpl.primaryKey == primaryKey else { break }
                 result.append(BaseInterface(inheritingTypeImpl: self, tableRowIndex: interfaceImplRowIndex))
                 interfaceImplRowIndex = database.tables.interfaceImpl.index(after: interfaceImplRowIndex)
             }
@@ -113,12 +107,13 @@ extension TypeDefinition {
             }
         }()
 
-        internal func getAccessors(token: MetadataToken) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
+        internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
+            let primaryKey = owner.metadataToken.tableKey
             var result = [(method: Method, attributes: MethodSemanticsAttributes)].init()
-            guard var semanticsRowIndex = database.tables.methodSemantics.findFirst(primaryKey: token) else { return result }
+            guard var semanticsRowIndex = database.tables.methodSemantics.findFirst(primaryKey: primaryKey) else { return result }
             while semanticsRowIndex != database.tables.methodSemantics.endIndex {
                 let semanticsRow = database.tables.methodSemantics[semanticsRowIndex]
-                guard semanticsRow.primaryKey == token else { break }
+                guard semanticsRow.primaryKey == primaryKey else { break }
 
                 let method = methods.first { $0.tableRowIndex == semanticsRow.method }!
                 result.append((method, semanticsRow.semantics))

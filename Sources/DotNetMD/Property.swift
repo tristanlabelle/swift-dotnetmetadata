@@ -1,6 +1,9 @@
 import DotNetMDFormat
 
 public class Property {
+    public static let getterPrefix = "get_"
+    public static let setterPrefix = "set_"
+
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     internal let tableRowIndex: Table<DotNetMDFormat.Property>.RowIndex
     internal let propertySig: PropertySig
@@ -40,7 +43,7 @@ public class Property {
 
     private lazy var accessors = Result { [self] in
         var accessors = Accessors()
-        for entry in definingTypeImpl.getAccessors(token: MetadataToken(tableRowIndex)) {
+        for entry in definingTypeImpl.getAccessors(owner: .property(tableRowIndex)) {
             if entry.attributes == .getter { accessors.getter = entry.method }
             else if entry.attributes == .setter { accessors.setter = entry.method }
             else if entry.attributes == .other { accessors.others.append(entry.method) }

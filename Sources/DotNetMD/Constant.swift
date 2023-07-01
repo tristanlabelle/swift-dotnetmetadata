@@ -41,3 +41,20 @@ extension Constant {
         }
     }
 }
+
+extension Constant {
+    init?(database: Database, owner: HasConstant) throws {
+        guard let rowIndex = database.tables.constant.findAny(primaryKey: MetadataToken(owner).tableKey) else {
+            return nil
+        }
+
+        let constantRow = database.tables.constant[rowIndex]
+        guard constantRow.type != .nullRef else {
+            self = .null
+            return
+        }
+
+        let blob = database.heaps.resolve(constantRow.value)
+        self = try Constant(buffer: blob, type: constantRow.type)
+    }
+}

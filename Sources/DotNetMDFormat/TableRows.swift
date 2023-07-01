@@ -151,7 +151,7 @@ public struct Constant {
 }
 
 extension Constant: KeyedTableRow {
-    public var primaryKey: MetadataToken { parent.metadataToken }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
 
     public static var tableIndex: TableIndex { .constant }
 
@@ -183,7 +183,7 @@ public struct CustomAttribute {
 }
 
 extension CustomAttribute: KeyedTableRow {
-    public var primaryKey: MetadataToken { parent.metadataToken }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
 
     public static var tableIndex: TableIndex { .customAttribute }
 
@@ -417,7 +417,7 @@ public struct GenericParam {
 }
 
 extension GenericParam: DoublyKeyedTableRow {
-    public var primaryKey: MetadataToken { owner.metadataToken }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(owner).tableKey }
     public var secondaryKey: UInt16 { number }
 
     public static var tableIndex: TableIndex { .genericParam }
@@ -448,7 +448,7 @@ public struct GenericParamConstraint {
 }
 
 extension GenericParamConstraint: KeyedTableRow {
-    public var primaryKey: MetadataToken { .init(owner) }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(owner).tableKey }
 
     public static var tableIndex: TableIndex { .genericParamConstraint }
 
@@ -504,8 +504,8 @@ public struct InterfaceImpl {
 }
 
 extension InterfaceImpl: DoublyKeyedTableRow {
-    public var primaryKey: MetadataToken { .init(`class`) }
-    public var secondaryKey: MetadataToken { interface.metadataToken }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(`class`).tableKey }
+    public var secondaryKey: MetadataToken.TableKey { MetadataToken(interface).tableKey }
 
     public static var tableIndex: TableIndex { .interfaceImpl }
 
@@ -625,7 +625,7 @@ public struct MethodImpl {
 }
 
 extension MethodImpl: KeyedTableRow {
-    public var primaryKey: MetadataToken { .init(`class`) }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(`class`).tableKey }
 
     public static var tableIndex: TableIndex { .methodImpl }
 
@@ -654,7 +654,7 @@ public struct MethodSemantics {
 }
 
 extension MethodSemantics: KeyedTableRow {
-    public var primaryKey: MetadataToken { association.metadataToken }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(association).tableKey }
 
     public static var tableIndex: TableIndex { .methodSemantics }
 
@@ -760,7 +760,7 @@ public struct NestedClass {
 }
 
 extension NestedClass: KeyedTableRow {
-    public var primaryKey: MetadataToken { .init(nestedClass) }
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(nestedClass).tableKey }
 
     public static var tableIndex: TableIndex { .nestedClass }
 

@@ -81,17 +81,10 @@ public class Method {
 
     public var returnType: BoundType { get throws { try returnParam.type } }
 
-    public private(set) lazy var genericParams: [GenericMethodParam] = { [self] in
-        var result: [GenericMethodParam] = []
-        guard var genericParamRowIndex = database.tables.genericParam
-            .findFirst(primaryKey: MetadataToken(tableRowIndex), secondaryKey: 0) else { return result }
-        while genericParamRowIndex < database.tables.genericParam.endIndex {
-            let genericParam = database.tables.genericParam[genericParamRowIndex]
-            guard genericParam.primaryKey == MetadataToken(tableRowIndex) && genericParam.number == result.count else { break }
-            result.append(GenericMethodParam(definingMethod: self, tableRowIndex: genericParamRowIndex))
-            genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
+    public private(set) lazy var genericParams: [GenericMethodParam] = {
+        GenericParam.resolve(from: database, forOwner: .methodDef(tableRowIndex)) {
+            GenericMethodParam(definingMethod: self, tableRowIndex: $0)
         }
-        return result
     }()
 }
 

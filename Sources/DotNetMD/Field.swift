@@ -39,17 +39,9 @@ public final class Field {
     private lazy var _type = Result { try assemblyImpl.resolve(signature.get().type, typeContext: definingType) }
     public var type: BoundType { get throws { try _type.get() } }
 
-    private lazy var _literalValue = Result { () -> Constant? in
-        guard tableRow.flags.contains(.literal) else { return nil }
-        guard let constantRowIndex = database.tables.constant.findAny(primaryKey: MetadataToken(tableRowIndex)) else {
-            return nil
-        }
-    
-        let constantRow = database.tables.constant[constantRowIndex]
-        guard constantRow.type != .nullRef else { return .null }
-
-        let blob = database.heaps.resolve(constantRow.value)
-        return try! Constant(buffer: blob, type: constantRow.type)
+    private lazy var _literalValue = Result {
+        guard tableRow.flags.contains(.literal) else { return nil as Constant? }
+        return try Constant(database: database, owner: .field(tableRowIndex))
     }
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
 }
