@@ -5,7 +5,6 @@ A Swift library for reading and inspecting .NET metadata, including WinMD files,
 ## Example
 
 ```swift
-import struct Foundation.URL
 import DotNetMD
 
 let context = MetadataContext()
@@ -22,11 +21,11 @@ print("}")
 
 The library consists in two layered modules:
 
-- `DotNetMDFormat` (physical layer): Implements low-level decoding of the .NET portable executable file format and provides a strongly-typed view of the metadata tables, heaps and signatures.
 - `DotNetMD` (logical layer): Provides an object model for .NET concepts of assemblies, types and members, including resolution of cross-assembly references, similar to the `System.Reflection` APIs.
+- `DotNetMDFormat` (physical layer): Implements low-level decoding of the .NET portable executable file format and provides a strongly-typed view of the metadata tables, heaps and signatures.
 
 The logical layer can represent a mock `mscorlib` assembly and its core types to support inspecting `.winmd` files, which reference an unresolvable `mscorlib, Version=255.255.255.255`.
 
 ### Error Handling
 
-The code currently makes liberal use of `!` and `fatalError`, making it unsuitable for some production scenarios. The plan is to progressively transition to throwing errors as needed, and the expectation is that most of the Logical API will be marked `throws`, to fail at a fine granularity in the presence of a few pieces of malformed data.
+The code currently makes liberal use of `!` and `fatalError`, making it unsuitable for some production scenarios. The plan is to progressively transition to throwing errors as needed, and the expectation is that most of the logical layer API will be marked `throws`, to fail at a fine granularity in the presence of a few pieces of malformed data.
