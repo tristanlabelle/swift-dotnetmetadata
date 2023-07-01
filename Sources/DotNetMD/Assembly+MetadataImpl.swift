@@ -89,7 +89,7 @@ extension Assembly {
             }
         }
 
-        internal func resolve(_ codedIndex: TypeDefOrRef) -> BoundType? {
+        internal func resolve(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType? {
             switch codedIndex {
                 case let .typeDef(index):
                     guard let index = index else { return nil }
@@ -99,7 +99,7 @@ extension Assembly {
                     return resolve(index).bindNonGeneric()
                 case let .typeSpec(index):
                     guard let index = index else { return nil }
-                    return resolve(index)
+                    return resolve(index, typeContext: typeContext, methodContext: methodContext)
             }
         }
 
@@ -125,11 +125,11 @@ extension Assembly {
             fatalError("Not implemented: null resolution scope")
         }
 
-        internal func resolve(_ index: Table<TypeSpec>.RowIndex) -> BoundType {
+        internal func resolve(_ index: Table<TypeSpec>.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {
             let typeSpecRow = database.tables.typeSpec[index]
             let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
             let typeSig = try! TypeSig(blob: signatureBlob)
-            return resolve(typeSig)
+            return resolve(typeSig, typeContext: typeContext, methodContext: methodContext)
         }
 
         internal func resolve(_ index: Table<AssemblyRef>.RowIndex) -> Assembly {

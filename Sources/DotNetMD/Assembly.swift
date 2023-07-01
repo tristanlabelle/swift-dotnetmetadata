@@ -27,7 +27,6 @@ public class Assembly: CustomDebugStringConvertible {
         let definedTypes = impl.definedTypes
         var dict = [String: TypeDefinition](minimumCapacity: definedTypes.count)
         for definedType in definedTypes {
-            guard !definedType.isNested else { continue }
             dict[definedType.fullName] = definedType
         }
         return dict

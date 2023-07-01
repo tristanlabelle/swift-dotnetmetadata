@@ -3,7 +3,7 @@ import XCTest
 import WinSDK
 @testable import DotNetMD
 
-final class DotNet45Tests: XCTestCase {
+final class DotNet45MscorlibTests: XCTestCase {
     internal static var context: MetadataContext!
     internal static var assembly: Assembly!
 
@@ -15,6 +15,10 @@ final class DotNet45Tests: XCTestCase {
 
     override func setUpWithError() throws {
         try XCTSkipIf(Self.assembly == nil)
+    }
+
+    func testIsMscorlib() throws {
+        XCTAssertNotNil(Self.assembly as? Mscorlib)
     }
 
     func testTypeLookup() throws {
