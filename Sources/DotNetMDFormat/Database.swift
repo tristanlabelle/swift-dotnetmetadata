@@ -1,3 +1,4 @@
+import CInterop
 import Foundation
 
 /// A view of the CLI metadata embedded in a DotNetMDFormat file.
@@ -16,13 +17,13 @@ public final class Database {
     public init(file: Data) throws {
         self.file = file
         let data = file.withUnsafeBytes { $0 }
-        let peView = try PE.View(file: data)
+        let peView = try PEView(file: data)
 
         let cliHeader = peView.resolve(peView.dataDirectories[14]) // IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR
-            .bindMemory(offset: 0, to: PE.ImageCor20Header.self)
-        guard cliHeader.pointee.cb == MemoryLayout<PE.ImageCor20Header>.stride else { throw InvalidFormatError.cliHeader }
+            .bindMemory(offset: 0, to: CINTEROP_IMAGE_COR20_HEADER.self)
+        guard cliHeader.pointee.cb == MemoryLayout<CINTEROP_IMAGE_COR20_HEADER>.stride else { throw InvalidFormatError.cliHeader }
 
-        let metadataSection = peView.resolve(virtualAddress: cliHeader.pointee.metaData.virtualAddress, size: cliHeader.pointee.metaData.size)
+        let metadataSection = peView.resolve(virtualAddress: cliHeader.pointee.MetaData.VirtualAddress, size: cliHeader.pointee.MetaData.Size)
         let metadataRoot = try Self.readMetadataRoot(metadataSection: metadataSection)
 
         heaps = Heaps(

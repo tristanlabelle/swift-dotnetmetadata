@@ -1,10 +1,18 @@
+#ifndef PE_HEADER
+#define PE_HEADER
+
 #include <stdint.h>
 
-#define IMAGE_DOS_SIGNATURE 0x5A4D // MZ
-#define IMAGE_NT_SIGNATURE 0x00004550 // PE\0\0
+// CINTEROP_ prefixes are a workaround for a compiler crash
+// because of ambiguous name references due to an implicitly
+// included winnt.h.
 
-#define IMAGE_SIZEOF_SHORT_NAME 8
-#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
+#define CINTEROP_IMAGE_DOS_SIGNATURE 0x5A4D // MZ
+#define CINTEROP_IMAGE_NT_SIGNATURE 0x00004550 // PE\0\0
+#define CINTEROP_IMAGE_NT_OPTIONAL_HDR32_MAGIC 0x10b
+#define CINTEROP_IMAGE_NT_OPTIONAL_HDR64_MAGIC 0x20b
+#define CINTEROP_IMAGE_SIZEOF_SHORT_NAME 8
+#define CINTEROP_IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
 
 typedef struct {
     uint16_t e_magic;
@@ -26,7 +34,7 @@ typedef struct {
     uint16_t e_oeminfo;
     uint16_t e_res2[10];
     int32_t e_lfanew;
-} IMAGE_DOS_HEADER;
+} CINTEROP_IMAGE_DOS_HEADER;
 
 typedef struct {
     uint16_t Machine;
@@ -36,12 +44,12 @@ typedef struct {
     uint32_t NumberOfSymbols;
     uint16_t SizeOfOptionalHeader;
     uint16_t Characteristics;
-} IMAGE_FILE_HEADER;
+} CINTEROP_IMAGE_FILE_HEADER;
 
 typedef struct {
     uint32_t VirtualAddress;
     uint32_t Size;
-} IMAGE_DATA_DIRECTORY;
+} CINTEROP_IMAGE_DATA_DIRECTORY;
 
 typedef struct {
     uint16_t Magic;
@@ -70,14 +78,14 @@ typedef struct {
     uint32_t SizeOfHeapCommit;
     uint32_t LoaderFlags;
     uint32_t NumberOfRvaAndSizes;
-    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-} IMAGE_OPTIONAL_HEADER32;
+    CINTEROP_IMAGE_DATA_DIRECTORY DataDirectory[CINTEROP_IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+} CINTEROP_IMAGE_OPTIONAL_HEADER32;
 
 typedef struct {
     uint32_t Signature;
-    IMAGE_FILE_HEADER FileHeader;
-    IMAGE_OPTIONAL_HEADER32 optionalHeader;
-} IMAGE_NT_HEADERS32;
+    CINTEROP_IMAGE_FILE_HEADER FileHeader;
+    CINTEROP_IMAGE_OPTIONAL_HEADER32 OptionalHeader;
+} CINTEROP_IMAGE_NT_HEADERS32;
 
 typedef struct {
     uint16_t Magic;
@@ -104,18 +112,18 @@ typedef struct {
     uint64_t SizeOfHeapReserve;
     uint64_t SizeOfHeapCommit;
     uint32_t LoaderFlags;
-    uint32_t numberOfRvaAndSizes;
-    IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-} IMAGE_OPTIONAL_HEADER64;
+    uint32_t NumberOfRvaAndSizes;
+    CINTEROP_IMAGE_DATA_DIRECTORY DataDirectory[CINTEROP_IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
+} CINTEROP_IMAGE_OPTIONAL_HEADER64;
 
 typedef struct {
     uint32_t Signature;
-    IMAGE_FILE_HEADER FileHeader;
-    IMAGE_OPTIONAL_HEADER64 OptionalHeader;
-} IMAGE_NT_HEADERS64;
+    CINTEROP_IMAGE_FILE_HEADER FileHeader;
+    CINTEROP_IMAGE_OPTIONAL_HEADER64 OptionalHeader;
+} CINTEROP_IMAGE_NT_HEADERS64;
 
 typedef struct {
-    uint8_t Name[IMAGE_SIZEOF_SHORT_NAME];
+    uint8_t Name[CINTEROP_IMAGE_SIZEOF_SHORT_NAME];
     union {
         uint32_t PhysicalAddress;
         uint32_t VirtualSize;
@@ -128,4 +136,6 @@ typedef struct {
     uint16_t NumberOfRelocations;
     uint16_t NumberOfLineNumbers;
     uint32_t Characteristics;
-} IMAGE_SECTION_HEADER;
+} CINTEROP_IMAGE_SECTION_HEADER;
+
+#endif

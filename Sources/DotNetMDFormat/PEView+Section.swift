@@ -1,6 +1,8 @@
-extension PE {
-    public struct SectionView {
-        let header: UnsafePointer<ImageSectionHeader>
+import CInterop
+
+extension PEView {
+    public struct Section {
+        let header: UnsafePointer<CINTEROP_IMAGE_SECTION_HEADER>
         let data: UnsafeRawBufferPointer
 
         var name: String {
@@ -9,12 +11,12 @@ extension PE {
         }
 
         func contains(virtualAddress: UInt32) -> Bool {
-            virtualAddress >= header.pointee.virtualAddress && virtualAddress < header.pointee.virtualAddress + header.pointee.virtualSize
+            virtualAddress >= header.pointee.VirtualAddress && virtualAddress < header.pointee.VirtualAddress + header.pointee.Misc.VirtualSize
         }
 
         func resolve(virtualAddress: UInt32, size: UInt32) -> UnsafeRawBufferPointer {
             precondition(self.contains(virtualAddress: virtualAddress))
-            return data.sub(offset: Int(virtualAddress - header.pointee.virtualAddress), count: Int(size))
+            return data.sub(offset: Int(virtualAddress - header.pointee.VirtualAddress), count: Int(size))
         }
     }
 }
