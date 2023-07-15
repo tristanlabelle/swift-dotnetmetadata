@@ -89,8 +89,8 @@ extension DotNet45MscorlibTests {
             return
         }
 
-        try XCTAssertEqual(dayOfWeek.underlyingType.fullName, "System.Int32")
-        try XCTAssertEqual(dayOfWeek.findField(name: "Sunday")?.literalValue, Constant.int32(0))
-        try XCTAssertEqual(dayOfWeek.findField(name: "Thursday")?.literalValue, Constant.int32(4))
+        XCTAssertEqual(try dayOfWeek.underlyingType.fullName, "System.Int32")
+        XCTAssertEqual(try dayOfWeek.findField(name: "Sunday")?.literalValue, Constant.int32(0))
+        XCTAssertEqual(try dayOfWeek.findField(name: "Thursday")?.literalValue, Constant.int32(4))
     }
 }

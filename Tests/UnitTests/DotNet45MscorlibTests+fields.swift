@@ -10,8 +10,8 @@ extension DotNet45MscorlibTests {
     }
 
     func testFieldType() throws {
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Nullable`1")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.Nullable`1")?
                 .findField(name: "hasValue")?.type.asUnbound?.fullName,
             "System.Boolean")
     }

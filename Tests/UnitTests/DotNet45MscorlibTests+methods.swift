@@ -32,38 +32,50 @@ extension DotNet45MscorlibTests {
     }
 
     func testMethodParamEnumeration() throws {
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Object")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.Object")?
                 .findSingleMethod(name: "ReferenceEquals")?.params.map { $0.name },
             [ "objA", "objB" ])
 
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Object")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.Object")?
                 .findSingleMethod(name: "ToString")?.params.count, 0)
     }
-    
+
+    func testMethodHasReturnValue() throws {
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.Object")?
+                .findSingleMethod(name: "ToString")?.hasReturnValue,
+            true)
+
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.IDisposable")?
+                .findSingleMethod(name: "Dispose")?.hasReturnValue,
+            false)
+    }
+
     func testMethodReturnType() throws {
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Object")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.Object")?
                 .findSingleMethod(name: "ToString")?.returnType.asUnbound?.fullName,
             "System.String")
 
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.IDisposable")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.IDisposable")?
                 .findSingleMethod(name: "Dispose")?.returnType.asUnbound?.fullName,
             "System.Void")
     }
 
     func testMethodParamType() throws {
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.String")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.String")?
                 .findSingleMethod(name: "IsNullOrEmpty")?.params[0].type.asUnbound?.fullName,
             "System.String")
     }
 
     func testParamByRef() throws {
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Guid")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.Guid")?
                 .findSingleMethod(name: "TryParse")?.params.map { $0.isByRef },
             [ false, true ])
     }

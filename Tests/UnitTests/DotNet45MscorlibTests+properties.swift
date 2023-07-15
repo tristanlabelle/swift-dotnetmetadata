@@ -10,8 +10,8 @@ extension DotNet45MscorlibTests {
     }
  
     func testPropertyType() throws {
-        try XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.String")?
+        XCTAssertEqual(
+            try Self.assembly.findDefinedType(fullName: "System.String")?
                 .findProperty(name: "Length")?.type.asUnbound?.fullName,
             "System.Int32")
     }

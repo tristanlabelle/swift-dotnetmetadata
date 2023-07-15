@@ -47,7 +47,7 @@ public class Method {
 
     private lazy var signature = Result { try MethodDefSig(blob: database.heaps.resolve(tableRow.signature)) }
 
-    private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result { [self] in
+    private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result {
         let paramRowIndices = getChildRowRange(
             parent: database.tables.methodDef,
             parentRowIndex: tableRowIndex,
@@ -78,6 +78,15 @@ public class Method {
 
     public var returnParam: ReturnParam { get throws { try returnAndParams.get().0 } }
     public var params: [Param] { get throws { try returnAndParams.get().1 } }
+
+    public var hasReturnValue: Bool {
+        get throws {
+            switch try signature.get().returnParam.type {
+                case .void: return false
+                default: return true
+            }
+        }
+    }
 
     public var returnType: BoundType { get throws { try returnParam.type } }
 

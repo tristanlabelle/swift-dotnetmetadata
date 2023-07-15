@@ -48,4 +48,11 @@ public final class ReturnParam: ParamBase {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }
+
+    public var isVoid: Bool {
+        switch signature.type {
+            case .void: return true
+            default: return false
+        }
+    }
 }

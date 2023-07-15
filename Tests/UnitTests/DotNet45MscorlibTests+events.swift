@@ -16,8 +16,8 @@ extension DotNet45MscorlibTests {
             return
         }
 
-        try XCTAssertEqual(event.addAccessor?.name, "add_EventSourceCreated")
-        try XCTAssertEqual(event.removeAccessor?.name, "remove_EventSourceCreated")
+        XCTAssertEqual(try event.addAccessor?.name, "add_EventSourceCreated")
+        XCTAssertEqual(try event.removeAccessor?.name, "remove_EventSourceCreated")
     }
 
     func testEventType() throws {
@@ -31,8 +31,8 @@ extension DotNet45MscorlibTests {
             return
         }
 
-        try XCTAssertEqual(
-            console.findEvent(name: "CancelKeyPress")?.handlerType,
+        XCTAssertEqual(
+            try console.findEvent(name: "CancelKeyPress")?.handlerType,
             consoleCancelEventHandler.bindNonGeneric())
     }
 }
