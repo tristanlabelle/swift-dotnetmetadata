@@ -11,7 +11,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "DotNetMDFormat"),
+            name: "CInterop"),
+        .target(
+            name: "DotNetMDFormat",
+            dependencies: [ "CInterop" ]),
         .target(
             name: "DotNetMD",
             dependencies: [ "DotNetMDFormat" ]),
