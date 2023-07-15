@@ -13,6 +13,7 @@
 #define CINTEROP_IMAGE_NT_OPTIONAL_HDR64_MAGIC 0x20b
 #define CINTEROP_IMAGE_SIZEOF_SHORT_NAME 8
 #define CINTEROP_IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
+#define CINTEROP_IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR 14
 
 typedef struct {
     uint16_t e_magic;
@@ -137,5 +138,22 @@ typedef struct {
     uint16_t NumberOfLineNumbers;
     uint32_t Characteristics;
 } CINTEROP_IMAGE_SECTION_HEADER;
+
+typedef struct {
+    uint32_t cb;
+    uint16_t MajorRuntimeVersion, MinorRuntimeVersion;
+    CINTEROP_IMAGE_DATA_DIRECTORY MetaData;
+    uint32_t Flags;
+    union {
+        uint32_t EntryPointToken;
+        uint32_t EntryPointRVA;
+    };
+    CINTEROP_IMAGE_DATA_DIRECTORY Resources;
+    CINTEROP_IMAGE_DATA_DIRECTORY StrongNameSignature;
+    CINTEROP_IMAGE_DATA_DIRECTORY CodeManagerTable;
+    CINTEROP_IMAGE_DATA_DIRECTORY VTableFixups;
+    CINTEROP_IMAGE_DATA_DIRECTORY ExportAddressTableJumps;
+    CINTEROP_IMAGE_DATA_DIRECTORY ManagedNativeHeader;
+} CINTEROP_IMAGE_COR20_HEADER;
 
 #endif

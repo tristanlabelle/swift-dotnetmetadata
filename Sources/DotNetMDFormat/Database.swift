@@ -19,7 +19,7 @@ public final class Database {
         let data = file.withUnsafeBytes { $0 }
         let peView = try PEView(file: data)
 
-        let cliHeader = peView.resolve(peView.dataDirectories[14]) // IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR
+        let cliHeader = peView.resolve(peView.dataDirectories[Int(CINTEROP_IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR)])
             .bindMemory(offset: 0, to: CINTEROP_IMAGE_COR20_HEADER.self)
         guard cliHeader.pointee.cb == MemoryLayout<CINTEROP_IMAGE_COR20_HEADER>.stride else { throw InvalidFormatError.cliHeader }
 
@@ -33,17 +33,17 @@ public final class Database {
 
         var tablesStreamRemainder = Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#~"])
         let tablesStreamHeader = tablesStreamRemainder.consume(type: MetadataTablesStreamHeader.self)
-        guard tablesStreamHeader.pointee.majorVersion == 2 && tablesStreamHeader.pointee.minorVersion == 0 else {
+        guard tablesStreamHeader.pointee.MajorVersion == 2 && tablesStreamHeader.pointee.MinorVersion == 0 else {
             throw InvalidFormatError.cliHeader
         }
 
         let tableRowCounts = (0 ..< TableIndex.count).map {
-            let isTablePresent = (tablesStreamHeader.pointee.valid & (TableIndex.BitSet(1) << $0)) != 0
+            let isTablePresent = (tablesStreamHeader.pointee.Valid & (TableIndex.BitSet(1) << $0)) != 0
             return isTablePresent ? tablesStreamRemainder.consume(type: UInt32.self).pointee : UInt32(0)
         }
 
-        let tableSizes = TableSizes(heapSizingBits: tablesStreamHeader.pointee.heapSizes, tableRowCounts: tableRowCounts)
-        tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes, sortedBits: tablesStreamHeader.pointee.sorted)
+        let tableSizes = TableSizes(heapSizingBits: tablesStreamHeader.pointee.HeapSizes, tableRowCounts: tableRowCounts)
+        tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes, sortedBits: tablesStreamHeader.pointee.Sorted)
     }
 
     public convenience init(url: URL) throws {
@@ -52,33 +52,33 @@ public final class Database {
 
     private static func getStream(metadataSection: UnsafeRawBufferPointer, header: MetadataStreamHeader?) -> UnsafeRawBufferPointer {
         guard let header = header else { return UnsafeRawBufferPointer.empty }
-        return metadataSection.sub(offset: Int(header.offset), count: Int(header.size))
+        return metadataSection.sub(offset: Int(header.Offset), count: Int(header.Size))
     }
 
     private static func readMetadataRoot(metadataSection: UnsafeRawBufferPointer) throws -> MetadataRoot {
         var remainder = metadataSection
 
         let beforeVersion = remainder.consume(type: MetadataRoot_BeforeVersion.self)
-        guard beforeVersion.pointee.signature == 0x424a5342 else { throw InvalidFormatError.cliHeader }
+        guard beforeVersion.pointee.Signature == 0x424a5342 else { throw InvalidFormatError.cliHeader }
 
-        let versionStringPaddedLength = (Int(beforeVersion.pointee.length) + 3) & ~0x3
+        let versionStringPaddedLength = (Int(beforeVersion.pointee.Length) + 3) & ~0x3
         let versionStringPaddedBytes = remainder.consume(count: versionStringPaddedLength)
-        let versionString = String(bytes: versionStringPaddedBytes.sub(offset: 0, count: Int(beforeVersion.pointee.length)), encoding: .utf8)!
+        let versionString = String(bytes: versionStringPaddedBytes.sub(offset: 0, count: Int(beforeVersion.pointee.Length)), encoding: .utf8)!
 
         let afterVersion = remainder.consume(type: MetadataRoot_AfterVersion.self)
 
         var streamHeaders: [String: MetadataStreamHeader] = [:]
-        for _ in 0 ..< Int(afterVersion.pointee.streams) {
+        for _ in 0 ..< Int(afterVersion.pointee.Streams) {
             let streamHeader = remainder.consume(type: MetadataStreamHeader.self)
             let streamName = remainder.consumeDwordPaddedUTF8String()
             streamHeaders[streamName] = streamHeader.pointee
         }
 
         return MetadataRoot(
-            majorVersion: beforeVersion.pointee.majorVersion,
-            minorVersion: beforeVersion.pointee.minorVersion,
+            majorVersion: beforeVersion.pointee.MajorVersion,
+            minorVersion: beforeVersion.pointee.MinorVersion,
             versionString: versionString,
-            flags: afterVersion.pointee.flags,
+            flags: afterVersion.pointee.Flags,
             streamHeaders: streamHeaders)
     }
 }
