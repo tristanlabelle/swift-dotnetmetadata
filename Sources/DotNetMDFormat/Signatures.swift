@@ -13,6 +13,42 @@ public enum TypeSig {
     case fnptr
 }
 
+public struct CustomAttrib {
+    public var fixedArgs: [Elem]
+    public var namedArgs: [NamedArg]
+
+    public struct NamedArg {
+        public var memberKind: MemberKind
+        public var name: String
+        public var value: Elem
+    }
+
+    public enum MemberKind {
+        case field
+        case property
+    }
+
+    public enum Elem {
+        // TODO: Consolidate with Constant enum
+        case boolean(Bool)
+        case char(UTF16.CodeUnit)
+        case int8(Int8)
+        case uint8(UInt8)
+        case int16(Int16)
+        case uint16(UInt16)
+        case int32(Int32)
+        case uint32(UInt32)
+        case int64(Int64)
+        case uint64(UInt64)
+        case single(Float)
+        case double(Double)
+        case string(String)
+        case type(fullName: String, assemblyName: String, assemblyVersion: AssemblyVersion, assemblyCulture: String, assemblyPublicKey: [UInt8])
+        indirect case boxed(Elem)
+        case array([Elem])
+    }
+}
+
 public struct CustomMod {
     public var isRequired: Bool
     public var type: TypeDefOrRef
