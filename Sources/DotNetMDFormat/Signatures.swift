@@ -9,11 +9,11 @@ public enum TypeSig {
     indirect case ptr(target: TypeSig)
     indirect case defOrRef(index: TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
     case genericArg(index: UInt32, method: Bool)
-    indirect case szarray(customMods: [CustomMod], element: TypeSig)
+    indirect case szarray(customMods: [CustomModSig], element: TypeSig)
     case fnptr
 }
 
-public struct CustomAttrib {
+public struct CustomAttribSig {
     public var fixedArgs: [Elem]
     public var namedArgs: [NamedArg]
 
@@ -29,39 +29,26 @@ public struct CustomAttrib {
     }
 
     public enum Elem {
-        // TODO: Consolidate with Constant enum
-        case boolean(Bool)
-        case char(UTF16.CodeUnit)
-        case int8(Int8)
-        case uint8(UInt8)
-        case int16(Int16)
-        case uint16(UInt16)
-        case int32(Int32)
-        case uint32(UInt32)
-        case int64(Int64)
-        case uint64(UInt64)
-        case single(Float)
-        case double(Double)
-        case string(String)
+        case constant(Constant)
         case type(fullName: String, assemblyName: String, assemblyVersion: AssemblyVersion, assemblyCulture: String, assemblyPublicKey: [UInt8])
         indirect case boxed(Elem)
         case array([Elem])
     }
 }
 
-public struct CustomMod {
+public struct CustomModSig {
     public var isRequired: Bool
     public var type: TypeDefOrRef
 }
 
 public struct ParamSig {
-    public var customMods: [CustomMod]
+    public var customMods: [CustomModSig]
     public var byRef: Bool
     public var type: TypeSig
 }
 
 public struct FieldSig {
-    public var customMods: [CustomMod]
+    public var customMods: [CustomModSig]
     public var type: TypeSig
 }
 
@@ -75,7 +62,7 @@ public struct MethodDefSig {
 
 public struct PropertySig {
     public var hasThis: Bool
-    public var customMods: [CustomMod]
+    public var customMods: [CustomModSig]
     public var type: TypeSig
     public var params: [ParamSig]
 }

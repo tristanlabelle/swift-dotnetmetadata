@@ -192,8 +192,8 @@ fileprivate func consumeTypeDefOrRefEncoded(buffer: inout UnsafeRawBufferPointer
     throw InvalidFormatError.signatureBlob
 }
 
-fileprivate func consumeCustomMods(buffer: inout UnsafeRawBufferPointer) throws -> [CustomMod] {
-    var customMods: [CustomMod] = []
+fileprivate func consumeCustomMods(buffer: inout UnsafeRawBufferPointer) throws -> [CustomModSig] {
+    var customMods: [CustomModSig] = []
     while true {
         let isRequired = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.cmodReqd)
         guard isRequired || SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.cmodOpt) else {

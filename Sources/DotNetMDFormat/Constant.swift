@@ -16,7 +16,7 @@ public enum Constant: Hashable {
 }
 
 extension Constant {
-    init(buffer: UnsafeRawBufferPointer, type: ConstantType) throws {
+    public init(buffer: UnsafeRawBufferPointer, type: ConstantType) throws {
         switch (type, buffer.count) {
             case (.boolean, 1): self = .boolean(buffer.loadUnaligned(as: UInt8.self) != 0)
             case (.char, 2): self = .char(buffer.loadUnaligned(as: UTF16.CodeUnit.self))
@@ -41,7 +41,7 @@ extension Constant {
 }
 
 extension Constant {
-    init?(database: Database, owner: HasConstant) throws {
+    public init?(database: Database, owner: HasConstant) throws {
         guard let rowIndex = database.tables.constant.findAny(primaryKey: MetadataToken(owner).tableKey) else {
             return nil
         }
