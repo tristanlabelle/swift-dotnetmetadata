@@ -4,7 +4,7 @@ import XCTest
 final class TableColumnSizeTests: XCTestCase {
     func testCodedIndexTagBitCount() throws {
         enum TwoCaseCodedIndex: CodedIndex {
-            static let tables: [TableIndex?] = [ nil, nil ]
+            static let tables: [TableID?] = [ nil, nil ]
             init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
             var metadataToken: MetadataToken { fatalError() } 
         }
@@ -12,7 +12,7 @@ final class TableColumnSizeTests: XCTestCase {
         XCTAssertEqual(TwoCaseCodedIndex.tagBitCount, 1)
 
         enum ThreeCaseCodedIndex: CodedIndex {
-            static let tables: [TableIndex?] = [ nil, nil, nil ]
+            static let tables: [TableID?] = [ nil, nil, nil ]
             init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
             var metadataToken: MetadataToken { fatalError() }
         }
@@ -20,7 +20,7 @@ final class TableColumnSizeTests: XCTestCase {
         XCTAssertEqual(ThreeCaseCodedIndex.tagBitCount, 2)
 
         enum FourCaseCodedIndex: CodedIndex {
-            static let tables: [TableIndex?] = [ nil, nil, nil, nil ]
+            static let tables: [TableID?] = [ nil, nil, nil, nil ]
             init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
             var metadataToken: MetadataToken { fatalError() }
         }
@@ -30,10 +30,10 @@ final class TableColumnSizeTests: XCTestCase {
 
     func testRowIndexSize() throws {
         func getRowIndexSize(rowCount: UInt32) -> Int {
-            let tableIndex = TableIndex.typeDef
-            var tableRowCounts = Array(repeating: UInt32(0), count: TableIndex.count)
-            tableRowCounts[tableIndex.intValue] = rowCount
-            return TableSizes(heapSizingBits: 0, tableRowCounts: tableRowCounts).getTableRowIndexSize(tableIndex)
+            let tableID = TableID.typeDef
+            var tableRowCounts = Array(repeating: UInt32(0), count: TableID.count)
+            tableRowCounts[tableID.intValue] = rowCount
+            return TableSizes(heapSizingBits: 0, tableRowCounts: tableRowCounts).getTableRowIndexSize(tableID)
         }
 
         XCTAssertEqual(getRowIndexSize(rowCount: 0), 2)

@@ -3,7 +3,7 @@ public enum InvalidFormatError: Error {
     case ntHeader
     case cliHeader
     case heapOffset
-    case tableIndex
+    case tableID
     case signatureBlob
     case tableConstraint
 }

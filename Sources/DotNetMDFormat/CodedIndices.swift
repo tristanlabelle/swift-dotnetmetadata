@@ -1,5 +1,5 @@
 public protocol CodedIndex: Hashable {
-    static var tables: [TableIndex?] { get }
+    static var tables: [TableID?] { get }
     init(tag: UInt8, oneBasedIndex: UInt32)
     var metadataToken: MetadataToken { get }
 }
@@ -12,7 +12,7 @@ public enum CustomAttributeType: CodedIndex {
     case methodDef(MethodDefTable.RowIndex?)
     case memberRef(MemberRefTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ nil, nil, .methodDef, .memberRef, nil ]
+    public static let tables: [TableID?] = [ nil, nil, .methodDef, .memberRef, nil ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -35,7 +35,7 @@ public enum HasConstant: CodedIndex {
     case param(ParamTable.RowIndex?)
     case property(PropertyTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .field, .param, .property ]
+    public static let tables: [TableID?] = [ .field, .param, .property ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -60,7 +60,7 @@ public enum HasDeclSecurity: CodedIndex {
     case methodDef(MethodDefTable.RowIndex?)
     case assembly(AssemblyTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .typeDef, .methodDef, .assembly ]
+    public static let tables: [TableID?] = [ .typeDef, .methodDef, .assembly ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -84,7 +84,7 @@ public enum HasFieldMarshal: CodedIndex {
     case field(FieldTable.RowIndex?)
     case param(ParamTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .field, .param ]
+    public static let tables: [TableID?] = [ .field, .param ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -106,7 +106,7 @@ public enum HasSemantics: CodedIndex {
     case event(EventTable.RowIndex?)
     case property(PropertyTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .event, .property ]
+    public static let tables: [TableID?] = [ .event, .property ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -145,7 +145,7 @@ public enum HasCustomAttribute: CodedIndex {
     case exportedType(oneBasedIndex: UInt32)
     case manifestResource(ManifestResourceTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [
+    public static let tables: [TableID?] = [
         .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
         .memberRef, .module, .declSecurity, .property, .event, .standAloneSig,
         .moduleRef, .typeSpec, .assembly, .assemblyRef, .file, .exportedType,
@@ -196,7 +196,7 @@ public enum HasCustomAttribute: CodedIndex {
             case let .assembly(rowIndex): return .init(rowIndex)
             case let .assemblyRef(rowIndex): return .init(rowIndex)
             case let .file(rowIndex): return .init(rowIndex)
-            case let .exportedType(oneBasedRowIndex): return .init(tableIndex: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
+            case let .exportedType(oneBasedRowIndex): return .init(tableID: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
             case let .manifestResource(rowIndex): return .init(rowIndex)
         }
     }
@@ -207,7 +207,7 @@ public enum Implementation: CodedIndex {
     case assemblyRef(AssemblyRefTable.RowIndex?)
     case exportedType(oneBasedIndex: UInt32)
 
-    public static let tables: [TableIndex?] = [ .file, .assemblyRef, .exportedType ]
+    public static let tables: [TableID?] = [ .file, .assemblyRef, .exportedType ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -222,7 +222,7 @@ public enum Implementation: CodedIndex {
         switch self {
             case let .file(rowIndex): return .init(rowIndex)
             case let .assemblyRef(rowIndex): return .init(rowIndex)
-            case let .exportedType(oneBasedRowIndex): return .init(tableIndex: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
+            case let .exportedType(oneBasedRowIndex): return .init(tableID: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
         }
     }
 }
@@ -231,7 +231,7 @@ public enum MemberForwarded: CodedIndex {
     case field(FieldTable.RowIndex?)
     case methodDef(MethodDefTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .field, .methodDef ]
+    public static let tables: [TableID?] = [ .field, .methodDef ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -256,7 +256,7 @@ public enum MemberRefParent: CodedIndex {
     case methodDef(MethodDefTable.RowIndex?)
     case typeSpec(TypeSpecTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
+    public static let tables: [TableID?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -284,7 +284,7 @@ public enum MethodDefOrRef: CodedIndex {
     case methodDef(MethodDefTable.RowIndex?)
     case memberRef(MemberRefTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .methodDef, .memberRef ]
+    public static let tables: [TableID?] = [ .methodDef, .memberRef ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -308,7 +308,7 @@ public enum ResolutionScope: CodedIndex {
     case assemblyRef(AssemblyRefTable.RowIndex?)
     case typeRef(TypeRefTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
+    public static let tables: [TableID?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -335,7 +335,7 @@ public enum TypeDefOrRef: CodedIndex {
     case typeRef(TypeRefTable.RowIndex?)
     case typeSpec(TypeSpecTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .typeDef, .typeRef, .typeSpec ]
+    public static let tables: [TableID?] = [ .typeDef, .typeRef, .typeSpec ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {
@@ -359,7 +359,7 @@ public enum TypeOrMethodDef: CodedIndex {
     case typeDef(TypeDefTable.RowIndex?)
     case methodDef(MethodDefTable.RowIndex?)
 
-    public static let tables: [TableIndex?] = [ .typeDef, .methodDef ]
+    public static let tables: [TableID?] = [ .typeDef, .methodDef ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
         switch tag {

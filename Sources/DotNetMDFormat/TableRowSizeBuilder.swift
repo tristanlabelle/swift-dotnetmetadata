@@ -21,7 +21,7 @@ internal struct TableRowSizeBuilder<Row> where Row: TableRow {
     }
     
     public func addingTableRowIndex<T: TableRow>(_: KeyPath<Row, TableRowIndex<T>?>) -> Self {
-        adding(size: sizes.getTableRowIndexSize(T.tableIndex))
+        adding(size: sizes.getTableRowIndexSize(T.tableID))
     }
     
     public func addingCodedIndex<T: CodedIndex>(_: KeyPath<Row, T>) -> Self {

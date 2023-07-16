@@ -77,7 +77,7 @@ extension Assembly {
 
         internal func resolveType(_ metadataToken: MetadataToken) -> BoundType? {
             guard !metadataToken.isNull else { return nil }
-            switch metadataToken.tableIndex {
+            switch metadataToken.tableID {
                 case .typeDef:
                     return resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
                 case .typeRef:

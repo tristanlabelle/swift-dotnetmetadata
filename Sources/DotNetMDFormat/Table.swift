@@ -11,8 +11,8 @@ public final class Table<Row> where Row: TableRow {
         self.isSorted = sorted
     }
 
-    public static var index: TableIndex { Row.tableIndex }
-    public var count: Int { sizes.getRowCount(Row.tableIndex) }
+    public static var id: TableID { Row.tableID }
+    public var count: Int { sizes.getRowCount(Row.tableID) }
     public var rowSize: Int { buffer.count / count }
 
     public subscript(zeroBasedIndex: Int) -> Row {

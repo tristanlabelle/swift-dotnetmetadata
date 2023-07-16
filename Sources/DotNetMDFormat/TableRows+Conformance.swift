@@ -1,6 +1,6 @@
 
 extension TableRows.Assembly: TableRow {
-    public static var tableIndex: TableIndex { .assembly }
+    public static var tableID: TableID { .assembly }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -33,7 +33,7 @@ extension TableRows.Assembly: TableRow {
 }
 
 extension TableRows.AssemblyRef: TableRow {
-    public static var tableIndex: TableIndex { .assemblyRef }
+    public static var tableID: TableID { .assemblyRef }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -66,7 +66,7 @@ extension TableRows.AssemblyRef: TableRow {
 }
 
 extension TableRows.ClassLayout: TableRow {
-    public static var tableIndex: TableIndex { .classLayout }
+    public static var tableID: TableID { .classLayout }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -89,7 +89,7 @@ extension TableRows.ClassLayout: TableRow {
 extension TableRows.Constant: KeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
 
-    public static var tableIndex: TableIndex { .constant }
+    public static var tableID: TableID { .constant }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -115,7 +115,7 @@ extension TableRows.Constant: KeyedTableRow {
 extension TableRows.CustomAttribute: KeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
 
-    public static var tableIndex: TableIndex { .customAttribute }
+    public static var tableID: TableID { .customAttribute }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -136,7 +136,7 @@ extension TableRows.CustomAttribute: KeyedTableRow {
 }
 
 extension TableRows.DeclSecurity: TableRow {
-    public static var tableIndex: TableIndex { .declSecurity }
+    public static var tableID: TableID { .declSecurity }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -157,7 +157,7 @@ extension TableRows.DeclSecurity: TableRow {
 }
 
 extension TableRows.Event: TableRow {
-    public static var tableIndex: TableIndex { .event }
+    public static var tableID: TableID { .event }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -178,7 +178,7 @@ extension TableRows.Event: TableRow {
 }
 
 extension TableRows.EventMap: TableRow {
-    public static var tableIndex: TableIndex { .eventMap }
+    public static var tableID: TableID { .eventMap }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -197,7 +197,7 @@ extension TableRows.EventMap: TableRow {
 }
 
 extension TableRows.Field: TableRow {
-    public static var tableIndex: TableIndex { .field }
+    public static var tableID: TableID { .field }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -218,7 +218,7 @@ extension TableRows.Field: TableRow {
 }
 
 extension TableRows.FieldLayout: TableRow {
-    public static var tableIndex: TableIndex { .fieldLayout }
+    public static var tableID: TableID { .fieldLayout }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -237,7 +237,7 @@ extension TableRows.FieldLayout: TableRow {
 }
 
 extension TableRows.FieldMarshal: TableRow {
-    public static var tableIndex: TableIndex { .fieldMarshal }
+    public static var tableID: TableID { .fieldMarshal }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -256,7 +256,7 @@ extension TableRows.FieldMarshal: TableRow {
 }
 
 extension TableRows.FieldRva: TableRow {
-    public static var tableIndex: TableIndex { .fieldRva }
+    public static var tableID: TableID { .fieldRva }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -275,7 +275,7 @@ extension TableRows.FieldRva: TableRow {
 }
 
 extension TableRows.File: TableRow {
-    public static var tableIndex: TableIndex { .file }
+    public static var tableID: TableID { .file }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -299,7 +299,7 @@ extension TableRows.GenericParam: DoublyKeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(owner).tableKey }
     public var secondaryKey: UInt16 { number }
 
-    public static var tableIndex: TableIndex { .genericParam }
+    public static var tableID: TableID { .genericParam }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -324,7 +324,7 @@ extension TableRows.GenericParam: DoublyKeyedTableRow {
 extension TableRows.GenericParamConstraint: KeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(owner).tableKey }
 
-    public static var tableIndex: TableIndex { .genericParamConstraint }
+    public static var tableID: TableID { .genericParamConstraint }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -343,7 +343,7 @@ extension TableRows.GenericParamConstraint: KeyedTableRow {
 }
 
 extension TableRows.ImplMap: TableRow {
-    public static var tableIndex: TableIndex { .implMap }
+    public static var tableID: TableID { .implMap }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -369,7 +369,7 @@ extension TableRows.InterfaceImpl: DoublyKeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(`class`).tableKey }
     public var secondaryKey: MetadataToken.TableKey { MetadataToken(interface).tableKey }
 
-    public static var tableIndex: TableIndex { .interfaceImpl }
+    public static var tableID: TableID { .interfaceImpl }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -388,7 +388,7 @@ extension TableRows.InterfaceImpl: DoublyKeyedTableRow {
 }
 
 extension TableRows.ManifestResource: TableRow {
-    public static var tableIndex: TableIndex { .manifestResource }
+    public static var tableID: TableID { .manifestResource }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -411,7 +411,7 @@ extension TableRows.ManifestResource: TableRow {
 }
 
 extension TableRows.MemberRef: TableRow {
-    public static var tableIndex: TableIndex { .memberRef }
+    public static var tableID: TableID { .memberRef }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -432,7 +432,7 @@ extension TableRows.MemberRef: TableRow {
 }
 
 extension TableRows.MethodDef: TableRow {
-    public static var tableIndex: TableIndex { .methodDef }
+    public static var tableID: TableID { .methodDef }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -461,7 +461,7 @@ extension TableRows.MethodDef: TableRow {
 extension TableRows.MethodImpl: KeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(`class`).tableKey }
 
-    public static var tableIndex: TableIndex { .methodImpl }
+    public static var tableID: TableID { .methodImpl }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -484,7 +484,7 @@ extension TableRows.MethodImpl: KeyedTableRow {
 extension TableRows.MethodSemantics: KeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(association).tableKey }
 
-    public static var tableIndex: TableIndex { .methodSemantics }
+    public static var tableID: TableID { .methodSemantics }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -505,7 +505,7 @@ extension TableRows.MethodSemantics: KeyedTableRow {
 }
 
 extension TableRows.MethodSpec: TableRow {
-    public static var tableIndex: TableIndex { .methodSpec }
+    public static var tableID: TableID { .methodSpec }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -524,7 +524,7 @@ extension TableRows.MethodSpec: TableRow {
 }
 
 extension TableRows.Module: TableRow {
-    public static var tableIndex: TableIndex { .module }
+    public static var tableID: TableID { .module }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -549,7 +549,7 @@ extension TableRows.Module: TableRow {
 }
 
 extension TableRows.ModuleRef: TableRow {
-    public static var tableIndex: TableIndex { .moduleRef }
+    public static var tableID: TableID { .moduleRef }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -568,7 +568,7 @@ extension TableRows.ModuleRef: TableRow {
 extension TableRows.NestedClass: KeyedTableRow {
     public var primaryKey: MetadataToken.TableKey { MetadataToken(nestedClass).tableKey }
 
-    public static var tableIndex: TableIndex { .nestedClass }
+    public static var tableID: TableID { .nestedClass }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -587,7 +587,7 @@ extension TableRows.NestedClass: KeyedTableRow {
 }
 
 extension TableRows.Param: TableRow {
-    public static var tableIndex: TableIndex { .param }
+    public static var tableID: TableID { .param }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -608,7 +608,7 @@ extension TableRows.Param: TableRow {
 }
 
 extension TableRows.Property: TableRow {
-    public static var tableIndex: TableIndex { .property }
+    public static var tableID: TableID { .property }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -629,7 +629,7 @@ extension TableRows.Property: TableRow {
 }
 
 extension TableRows.PropertyMap: TableRow {
-    public static var tableIndex: TableIndex { .propertyMap }
+    public static var tableID: TableID { .propertyMap }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -648,7 +648,7 @@ extension TableRows.PropertyMap: TableRow {
 }
 
 extension TableRows.StandAloneSig: TableRow {
-    public static var tableIndex: TableIndex { .standAloneSig }
+    public static var tableID: TableID { .standAloneSig }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -665,7 +665,7 @@ extension TableRows.StandAloneSig: TableRow {
 }
 
 extension TableRows.TypeDef: TableRow {
-    public static var tableIndex: TableIndex { .typeDef }
+    public static var tableID: TableID { .typeDef }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -692,7 +692,7 @@ extension TableRows.TypeDef: TableRow {
 }
 
 extension TableRows.TypeRef: TableRow {
-    public static var tableIndex: TableIndex { .typeRef }
+    public static var tableID: TableID { .typeRef }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -713,7 +713,7 @@ extension TableRows.TypeRef: TableRow {
 }
 
 extension TableRows.TypeSpec: TableRow {
-    public static var tableIndex: TableIndex { .typeSpec }
+    public static var tableID: TableID { .typeSpec }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)

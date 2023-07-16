@@ -1,4 +1,6 @@
-public enum TableIndex: UInt8 {
+// Identifies a metadata table by the value that identifies it in metadata tokens,
+// which is also the order of appearance in the metadata stream.
+public enum TableID: UInt8 {
     case module = 0x00
     case typeRef = 0x01
     case typeDef = 0x02

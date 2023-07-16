@@ -1,6 +1,6 @@
 extension Database {
     public class Tables {
-        // In TableIndex order
+        // In TableID order
         public let module: ModuleTable
         public let typeRef: TypeRefTable
         public let typeDef: TypeDefTable
@@ -42,15 +42,15 @@ extension Database {
             // We must read all tables in order and without any gaps
             func consume<Row: TableRow>() -> Table<Row> {
                 // Make sure we're not skipping any tables with non-zero rows
-                while nextTableIndex < Row.tableIndex.rawValue {
+                while nextTableIndex < Row.tableID.rawValue {
                     guard sizes.getRowCount(nextTableIndex) == 0
-                    else { fatalError("Not implemented: reading \(TableIndex(rawValue: UInt8(nextTableIndex))!) metadata table") }
+                    else { fatalError("Not implemented: reading \(TableID(rawValue: UInt8(nextTableIndex))!) metadata table") }
                     nextTableIndex += 1
                 }
 
-                let rowCount = sizes.getRowCount(Row.tableIndex)
+                let rowCount = sizes.getRowCount(Row.tableID)
                 let size = Row.getSize(sizes: sizes) * rowCount
-                let sorted = ((sortedBits >> Row.tableIndex.rawValue) & 1) == 1
+                let sorted = ((sortedBits >> Row.tableID.rawValue) & 1) == 1
                 nextTableIndex += 1
                 return Table(buffer: remainder.consume(count: size), sizes: sizes, sorted: sorted)
             } 

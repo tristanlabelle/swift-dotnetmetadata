@@ -5,7 +5,7 @@ public final class TableSizes {
     public let heapSizingBits: UInt8
 
     public init(heapSizingBits: UInt8, tableRowCounts: [UInt32]) {
-        precondition(tableRowCounts.count == TableIndex.count)
+        precondition(tableRowCounts.count == TableID.count)
         self.heapSizingBits = heapSizingBits
         self.tableRowCounts = tableRowCounts
     }
@@ -14,16 +14,16 @@ public final class TableSizes {
     public var guidHeapOffsetSize: Int { (heapSizingBits & 2) == 0 ? 2 : 4 }
     public var blobHeapOffsetSize: Int { (heapSizingBits & 4) == 0 ? 2 : 4 }
 
-    public func getRowCount(_ tableIndex: Int) -> Int {
-        Int(tableRowCounts[tableIndex])
+    public func getRowCount(_ tableID: Int) -> Int {
+        Int(tableRowCounts[tableID])
     }
 
-    public func getRowCount(_ tableIndex: TableIndex) -> Int {
-        Int(tableRowCounts[Int(tableIndex.rawValue)])
+    public func getRowCount(_ tableID: TableID) -> Int {
+        Int(tableRowCounts[Int(tableID.rawValue)])
     }
     
     public func getRowCount<Row>(_: Row.Type) -> Int where Row: TableRow {
-        getRowCount(Row.tableIndex)
+        getRowCount(Row.tableID)
     }
 
     public func getHeapOffsetSize<T>(_: T.Type) -> Int where T: Heap {
@@ -33,16 +33,16 @@ public final class TableSizes {
         fatalError("Unexpeted heap type \(T.self)")
     }
 
-    public func getTableRowIndexSize(_ tableIndex: TableIndex) -> Int {
+    public func getTableRowIndexSize(_ tableID: TableID) -> Int {
         // §II.24.2.6:
         // > If e is a simple index into a table with index i,
         // > it is stored using 2 bytes if table i has less than 2^16 rows,
         // > otherwise it is stored using 4 bytes.
-        getRowCount(tableIndex) < 0x10000 ? 2 : 4
+        getRowCount(tableID) < 0x10000 ? 2 : 4
     }
     
     public func getTableRowIndexSize<Row>(_: Row.Type) -> Int where Row: TableRow {
-        getTableRowIndexSize(Row.tableIndex)
+        getTableRowIndexSize(Row.tableID)
     }
 
     public func getCodedIndexSize<T>(_: T.Type) -> Int where T: CodedIndex {
