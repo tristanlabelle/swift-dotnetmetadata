@@ -18,14 +18,14 @@ public class ParamBase {
 }
 
 public final class Param: ParamBase {
-    internal let tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex
+    internal let tableRowIndex: ParamTable.RowIndex
 
-    init(method: Method, tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex, signature: DotNetMDFormat.ParamSig) {
+    init(method: Method, tableRowIndex: ParamTable.RowIndex, signature: DotNetMDFormat.ParamSig) {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }
 
-    private var tableRow: DotNetMDFormat.Param { database.tables.param[tableRowIndex] }
+    private var tableRow: ParamTable.Row { database.tables.param[tableRowIndex] }
 
     public var name: String? { database.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.sequence) - 1 }
@@ -42,9 +42,9 @@ public final class Param: ParamBase {
 }
 
 public final class ReturnParam: ParamBase {
-    internal let tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex?
+    internal let tableRowIndex: ParamTable.RowIndex?
 
-    init(method: Method, tableRowIndex: Table<DotNetMDFormat.Param>.RowIndex?, signature: DotNetMDFormat.ParamSig) {
+    init(method: Method, tableRowIndex: ParamTable.RowIndex?, signature: DotNetMDFormat.ParamSig) {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }

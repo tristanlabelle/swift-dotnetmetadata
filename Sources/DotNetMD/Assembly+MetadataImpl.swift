@@ -5,9 +5,9 @@ extension Assembly {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: Assembly!
         internal let database: Database
-        private let tableRow: DotNetMDFormat.Assembly
+        private let tableRow: AssemblyTable.Row
 
-        internal init(database: Database, tableRow: DotNetMDFormat.Assembly) {
+        internal init(database: Database, tableRow: AssemblyTable.Row) {
             self.database = database
             self.tableRow = tableRow
         }
@@ -39,23 +39,23 @@ extension Assembly {
             }
         }()
 
-        private lazy var propertyMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<PropertyMap>.RowIndex] = {
+        private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowIndex: PropertyMapTable.RowIndex] = {
             .init(uniqueKeysWithValues: database.tables.propertyMap.indices.map {
                 (database.tables.propertyMap[$0].parent!, $0)
             })
         }()
 
-        func findPropertyMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<PropertyMap>.RowIndex? {
+        func findPropertyMap(forTypeDef typeDefRowIndex: TypeDefTable.RowIndex) -> PropertyMapTable.RowIndex? {
             propertyMapByTypeDefRowIndex[typeDefRowIndex]
         }
 
-        private lazy var eventMapByTypeDefRowIndex: [Table<TypeDef>.RowIndex: Table<EventMap>.RowIndex] = {
+        private lazy var eventMapByTypeDefRowIndex: [TypeDefTable.RowIndex: EventMapTable.RowIndex] = {
             .init(uniqueKeysWithValues: database.tables.eventMap.indices.map {
                 (database.tables.eventMap[$0].parent!, $0)
             })
         }()
 
-        func findEventMap(forTypeDef typeDefRowIndex: Table<TypeDef>.RowIndex) -> Table<EventMap>.RowIndex? {
+        func findEventMap(forTypeDef typeDefRowIndex: TypeDefTable.RowIndex) -> EventMapTable.RowIndex? {
             eventMapByTypeDefRowIndex[typeDefRowIndex]
         }
 
@@ -79,11 +79,11 @@ extension Assembly {
             guard !metadataToken.isNull else { return nil }
             switch metadataToken.tableIndex {
                 case .typeDef:
-                    return resolve(Table<TypeDef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
+                    return resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
                 case .typeRef:
-                    return resolve(Table<TypeRef>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
+                    return resolve(TypeRefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
                 case .typeSpec:
-                    return resolve(Table<TypeSpec>.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1))
+                    return resolve(TypeSpecTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1))
                 default:
                     fatalError("Not implemented: \(metadataToken)")
             }
@@ -103,11 +103,11 @@ extension Assembly {
             }
         }
 
-        internal func resolve(_ index: Table<TypeDef>.RowIndex) -> TypeDefinition {
+        internal func resolve(_ index: TypeDefTable.RowIndex) -> TypeDefinition {
             definedTypes[Int(index.zeroBased)]
         }
 
-        internal func resolve(_ index: Table<TypeRef>.RowIndex) -> TypeDefinition {
+        internal func resolve(_ index: TypeRefTable.RowIndex) -> TypeDefinition {
             let row = database.tables.typeRef[index]
             let name = database.heaps.resolve(row.typeName)
             let namespace = database.heaps.resolve(row.typeNamespace)
@@ -125,14 +125,14 @@ extension Assembly {
             fatalError("Not implemented: null resolution scope")
         }
 
-        internal func resolve(_ index: Table<TypeSpec>.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {
+        internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {
             let typeSpecRow = database.tables.typeSpec[index]
             let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
             let typeSig = try! TypeSig(blob: signatureBlob)
             return resolve(typeSig, typeContext: typeContext, methodContext: methodContext)
         }
 
-        internal func resolve(_ index: Table<AssemblyRef>.RowIndex) -> Assembly {
+        internal func resolve(_ index: AssemblyRefTable.RowIndex) -> Assembly {
             let row = database.tables.assemblyRef[index]
             let name = database.heaps.resolve(row.name)
             let culture = database.heaps.resolve(row.culture)

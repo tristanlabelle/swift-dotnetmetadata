@@ -1,15 +1,15 @@
 import DotNetMDFormat
 
 public class GenericParam {
-    internal let tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex
+    internal let tableRowIndex: GenericParamTable.RowIndex
 
-    init(tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex) {
+    init(tableRowIndex: GenericParamTable.RowIndex) {
         self.tableRowIndex = tableRowIndex
     }
 
     internal var assemblyImpl: Assembly.MetadataImpl { fatalError() }
     internal var database: Database { fatalError() }
-    private var tableRow: DotNetMDFormat.GenericParam { database.tables.genericParam[tableRowIndex] }
+    private var tableRow: GenericParamTable.Row { database.tables.genericParam[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.number) }
@@ -38,7 +38,7 @@ public class GenericParam {
     internal static func resolve<ConcreteGenericParam: DotNetMD.GenericParam>(
         from database: Database,
         forOwner owner: TypeOrMethodDef,
-        factory: (Table<DotNetMDFormat.GenericParam>.RowIndex) -> ConcreteGenericParam) -> [ConcreteGenericParam] {
+        factory: (GenericParamTable.RowIndex) -> ConcreteGenericParam) -> [ConcreteGenericParam] {
 
         let primaryKey = owner.metadataToken.tableKey
         var result: [ConcreteGenericParam] = []
@@ -57,7 +57,7 @@ public class GenericParam {
 public final class GenericTypeParam: GenericParam {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: GenericParamTable.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         super.init(tableRowIndex: tableRowIndex)
     }
@@ -70,7 +70,7 @@ public final class GenericTypeParam: GenericParam {
 public final class GenericMethodParam: GenericParam {
     public let definingMethod: Method
 
-    init(definingMethod: Method, tableRowIndex: Table<DotNetMDFormat.GenericParam>.RowIndex) {
+    init(definingMethod: Method, tableRowIndex: GenericParamTable.RowIndex) {
         self.definingMethod = definingMethod
         super.init(tableRowIndex: tableRowIndex)
     }

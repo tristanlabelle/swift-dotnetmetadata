@@ -4,9 +4,9 @@ extension TypeDefinition {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: TypeDefinition!
         internal unowned let assemblyImpl: Assembly.MetadataImpl
-        internal let tableRowIndex: Table<DotNetMDFormat.TypeDef>.RowIndex
+        internal let tableRowIndex: TypeDefTable.RowIndex
 
-        init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.TypeDef>.RowIndex) {
+        init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: TypeDefTable.RowIndex) {
             self.assemblyImpl = assemblyImpl
             self.tableRowIndex = tableRowIndex
         }
@@ -18,7 +18,7 @@ extension TypeDefinition {
         internal var assembly: Assembly { assemblyImpl.owner }
         internal var database: Database { assemblyImpl.database }
 
-        private var tableRow: DotNetMDFormat.TypeDef { database.tables.typeDef[tableRowIndex] }
+        private var tableRow: TypeDefTable.Row { database.tables.typeDef[tableRowIndex] }
 
         internal var kind: TypeDefinitionKind {
             // Figuring out the kind requires checking the base type,
@@ -98,7 +98,7 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var events: [Event] = {
-            guard let eventMapRowIndex: Table<EventMap>.RowIndex = assemblyImpl.findEventMap(forTypeDef: tableRowIndex) else { return [] }
+            guard let eventMapRowIndex: EventMapTable.RowIndex = assemblyImpl.findEventMap(forTypeDef: tableRowIndex) else { return [] }
             return getChildRowRange(parent: database.tables.eventMap,
                 parentRowIndex: eventMapRowIndex,
                 childTable: database.tables.event,

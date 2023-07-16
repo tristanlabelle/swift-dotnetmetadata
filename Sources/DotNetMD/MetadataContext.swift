@@ -1,7 +1,7 @@
 import struct Foundation.URL
 import DotNetMDFormat
 
-public typealias AssemblyResolver = (DotNetMDFormat.AssemblyRef) throws -> Database
+public typealias AssemblyResolver = (AssemblyRefTable.Row) throws -> Database
 
 public class MetadataContext {
     private let assemblyResolver: AssemblyResolver

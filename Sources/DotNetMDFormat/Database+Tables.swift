@@ -1,39 +1,39 @@
 extension Database {
     public class Tables {
         // In TableIndex order
-        public let module: Table<Module>
-        public let typeRef: Table<TypeRef>
-        public let typeDef: Table<TypeDef>
-        public let field: Table<Field>
-        public let methodDef: Table<MethodDef>
-        public let param: Table<Param>
-        public let interfaceImpl: Table<InterfaceImpl>
-        public let memberRef: Table<MemberRef>
-        public let constant: Table<Constant>
-        public let customAttribute: Table<CustomAttribute>
-        public let fieldMarshal: Table<FieldMarshal>
-        public let declSecurity: Table<DeclSecurity>
-        public let classLayout: Table<ClassLayout>
-        public let fieldLayout: Table<FieldLayout>
-        public let standAloneSig: Table<StandAloneSig>
-        public let eventMap: Table<EventMap>
-        public let event: Table<Event>
-        public let propertyMap: Table<PropertyMap>
-        public let property: Table<Property>
-        public let methodSemantics: Table<MethodSemantics>
-        public let methodImpl: Table<MethodImpl>
-        public let moduleRef: Table<ModuleRef>
-        public let typeSpec: Table<TypeSpec>
-        public let implMap: Table<ImplMap>
-        public let fieldRva: Table<FieldRva>
-        public let assembly: Table<Assembly>
-        public let assemblyRef: Table<AssemblyRef>
-        public let file: Table<File>
-        public let manifestResource: Table<ManifestResource>
-        public let nestedClass: Table<NestedClass>
-        public let genericParam: Table<GenericParam>
-        public let methodSpec: Table<MethodSpec>
-        public let genericParamConstraint: Table<GenericParamConstraint>
+        public let module: ModuleTable
+        public let typeRef: TypeRefTable
+        public let typeDef: TypeDefTable
+        public let field: FieldTable
+        public let methodDef: MethodDefTable
+        public let param: ParamTable
+        public let interfaceImpl: InterfaceImplTable
+        public let memberRef: MemberRefTable
+        public let constant: ConstantTable
+        public let customAttribute: CustomAttributeTable
+        public let fieldMarshal: FieldMarshalTable
+        public let declSecurity: DeclSecurityTable
+        public let classLayout: ClassLayoutTable
+        public let fieldLayout: FieldLayoutTable
+        public let standAloneSig: StandAloneSigTable
+        public let eventMap: EventMapTable
+        public let event: EventTable
+        public let propertyMap: PropertyMapTable
+        public let property: PropertyTable
+        public let methodSemantics: MethodSemanticsTable
+        public let methodImpl: MethodImplTable
+        public let moduleRef: ModuleRefTable
+        public let typeSpec: TypeSpecTable
+        public let implMap: ImplMapTable
+        public let fieldRva: FieldRvaTable
+        public let assembly: AssemblyTable
+        public let assemblyRef: AssemblyRefTable
+        public let file: FileTable
+        public let manifestResource: ManifestResourceTable
+        public let nestedClass: NestedClassTable
+        public let genericParam: GenericParamTable
+        public let methodSpec: MethodSpecTable
+        public let genericParamConstraint: GenericParamConstraintTable
 
         init(buffer: UnsafeRawBufferPointer, sizes: TableSizes, sortedBits: UInt64) {
             var remainder = buffer

@@ -2,9 +2,9 @@ import DotNetMDFormat
 
 public final class Field {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    internal let tableRowIndex: Table<DotNetMDFormat.Field>.RowIndex
+    internal let tableRowIndex: FieldTable.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.Field>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: FieldTable.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
@@ -12,7 +12,7 @@ public final class Field {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
-    private var tableRow: DotNetMDFormat.Field { database.tables.field[tableRowIndex] }
+    private var tableRow: FieldTable.Row { database.tables.field[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }

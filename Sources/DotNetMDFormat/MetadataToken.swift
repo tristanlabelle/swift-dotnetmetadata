@@ -16,12 +16,12 @@ public struct MetadataToken: Hashable, Comparable {
     public init(nullOf tableIndex: TableIndex) {
         rawValue = UInt32(tableIndex.rawValue) << 24
     }
-    
-    public init<Row: TableRow>(_ rowIndex: Table<Row>.RowIndex) {
+
+    public init<Row: TableRow>(_ rowIndex: TableRowIndex<Row>) {
         self.init(tableIndex: Row.tableIndex, oneBasedRowIndex: rowIndex.oneBased)
     }
 
-    public init<Row: TableRow>(_ rowIndex: Table<Row>.RowIndex?) {
+    public init<Row: TableRow>(_ rowIndex: TableRowIndex<Row>?) {
         self.init(tableIndex: Row.tableIndex, oneBasedRowIndex: rowIndex?.oneBased ?? 0)
     }
 

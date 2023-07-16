@@ -7,15 +7,15 @@ extension Database {
         public let guid: GuidHeap
         public let blob: BlobHeap
         
-        public func resolve(_ offset: HeapOffset<StringHeap>) -> String {
+        public func resolve(_ offset: StringHeap.Offset) -> String {
             string.resolve(at: offset.value)
         }
         
-        public func resolve(_ offset: HeapOffset<GuidHeap>) -> UUID {
+        public func resolve(_ offset: GuidHeap.Offset) -> UUID {
             guid.resolve(at: offset.value)
         }
         
-        public func resolve(_ offset: HeapOffset<BlobHeap>) -> UnsafeRawBufferPointer {
+        public func resolve(_ offset: BlobHeap.Offset) -> UnsafeRawBufferPointer {
             blob.resolve(at: offset.value)
         }
     }

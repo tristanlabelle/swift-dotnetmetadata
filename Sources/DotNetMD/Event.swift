@@ -6,9 +6,9 @@ public final class Event {
     public static let raiseAccessorPrefix = "raise_"
 
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
-    internal let tableRowIndex: Table<DotNetMDFormat.Event>.RowIndex
+    internal let tableRowIndex: EventTable.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: Table<DotNetMDFormat.Event>.RowIndex) {
+    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: EventTable.RowIndex) {
         self.definingTypeImpl = definingTypeImpl
         self.tableRowIndex = tableRowIndex
     }
@@ -16,7 +16,7 @@ public final class Event {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var database: Database { definingTypeImpl.database }
-    private var tableRow: DotNetMDFormat.Event { database.tables.event[tableRowIndex] }
+    private var tableRow: EventTable.Row { database.tables.event[tableRowIndex] }
 
     public var name: String { database.heaps.resolve(tableRow.name) }
 

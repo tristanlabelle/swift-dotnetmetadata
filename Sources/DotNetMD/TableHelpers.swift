@@ -2,9 +2,9 @@ import DotNetMDFormat
 
 func getChildRowRange<Parent, Child>(
     parent: Table<Parent>,
-    parentRowIndex: Table<Parent>.RowIndex,
+    parentRowIndex: TableRowIndex<Parent>,
     childTable: Table<Child>,
-    childSelector: (Parent) -> Table<Child>.RowIndex?) -> Range<Table<Child>.RowIndex>
+    childSelector: (Parent) -> TableRowIndex<Child>?) -> Range<TableRowIndex<Child>>
     where Parent : TableRow, Child: TableRow {
     guard let firstChildIndex = childSelector(parent[parentRowIndex]) else {
         return childTable.endIndex ..< childTable.endIndex

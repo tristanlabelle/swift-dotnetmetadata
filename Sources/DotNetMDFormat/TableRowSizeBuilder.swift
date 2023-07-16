@@ -16,15 +16,15 @@ internal struct TableRowSizeBuilder<Row> where Row: TableRow {
         adding(size: MemoryLayout<T>.stride)
     }
 
-    public func addingHeapOffset<T>(_: KeyPath<Row, HeapOffset<T>>) -> Self where T: Heap {
+    public func addingHeapOffset<T: Heap>(_: KeyPath<Row, HeapOffset<T>>) -> Self {
         adding(size: sizes.getHeapOffsetSize(T.self))
     }
     
-    public func addingTableRowIndex<T>(_: KeyPath<Row, Table<T>.RowIndex?>) -> Self where T: TableRow {
+    public func addingTableRowIndex<T: TableRow>(_: KeyPath<Row, TableRowIndex<T>?>) -> Self {
         adding(size: sizes.getTableRowIndexSize(T.tableIndex))
     }
     
-    public func addingCodedIndex<T>(_: KeyPath<Row, T>) -> Self where T: CodedIndex {
+    public func addingCodedIndex<T: CodedIndex>(_: KeyPath<Row, T>) -> Self {
         adding(size: sizes.getCodedIndexSize(T.self))
     }
 

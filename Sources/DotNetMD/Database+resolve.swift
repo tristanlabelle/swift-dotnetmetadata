@@ -1,7 +1,7 @@
 import DotNetMDFormat
 
 extension Database {
-    func getTypeDefinitionKind(_ tableRow: DotNetMDFormat.TypeDef, isMscorlib: Bool) -> TypeDefinitionKind {
+    func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row, isMscorlib: Bool) -> TypeDefinitionKind {
         if tableRow.flags.contains(.interface) {
             return .interface
         }

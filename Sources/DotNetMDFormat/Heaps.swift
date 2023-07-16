@@ -65,3 +65,7 @@ public struct HeapOffset<Type> where Type: Heap {
         heap.resolve(at: value)
     }
 }
+
+extension Heap {
+    public typealias Offset = HeapOffset<Self>
+}
