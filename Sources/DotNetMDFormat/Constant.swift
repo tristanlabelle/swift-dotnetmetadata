@@ -1,8 +1,6 @@
-import DotNetMDFormat
-
 public enum Constant: Hashable {
     case boolean(Bool)
-    case char(UInt16)
+    case char(UTF16.CodeUnit)
     case int8(Int8)
     case uint8(UInt8)
     case int16(Int16)
@@ -21,7 +19,7 @@ extension Constant {
     init(buffer: UnsafeRawBufferPointer, type: ConstantType) throws {
         switch (type, buffer.count) {
             case (.boolean, 1): self = .boolean(buffer.loadUnaligned(as: UInt8.self) != 0)
-            case (.char, 2): self = .char(buffer.loadUnaligned(as: UInt16.self))
+            case (.char, 2): self = .char(buffer.loadUnaligned(as: UTF16.CodeUnit.self))
             case (.i1, 1): self = .int8(buffer.loadUnaligned(as: Int8.self))
             case (.u1, 1): self = .uint8(buffer.loadUnaligned(as: UInt8.self))
             case (.i2, 2): self = .int16(buffer.loadUnaligned(as: Int16.self))
