@@ -23,6 +23,7 @@ internal protocol TypeDefinitionImpl {
     var methods: [Method] { get }
     var properties: [Property] { get }
     var events: [Event] { get }
+    var customAttributes: [CustomAttribute] { get }
 }
 
 public func makeFullTypeName(namespace: String?, name: String) -> String {
@@ -87,6 +88,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var methods: [Method] { impl.methods }
     public var properties: [Property] { impl.properties }
     public var events: [Event] { impl.events }
+    public var customAttributes: [CustomAttribute] { impl.customAttributes }
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 

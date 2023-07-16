@@ -47,26 +47,17 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var genericParams: [GenericTypeParam] = {
-            GenericParam.resolve(from: database, forOwner: .typeDef(tableRowIndex)) {
-                GenericTypeParam(definingTypeImpl: self, tableRowIndex: $0)
+            database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {
+                rowIndex, _ in GenericTypeParam(definingTypeImpl: self, tableRowIndex: rowIndex)
             }
         }()
 
         public private(set) lazy var base: BoundType? = assemblyImpl.resolve(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = {
-            let primaryKey = MetadataToken(tableRowIndex).tableKey
-            var result: [BaseInterface] = []
-            guard var interfaceImplRowIndex = database.tables.interfaceImpl
-                .findFirst(primaryKey: primaryKey) else { return [] }
-            while interfaceImplRowIndex != database.tables.interfaceImpl.endIndex {
-                let interfaceImpl = database.tables.interfaceImpl[interfaceImplRowIndex]
-                guard interfaceImpl.primaryKey == primaryKey else { break }
-                result.append(BaseInterface(inheritingTypeImpl: self, tableRowIndex: interfaceImplRowIndex))
-                interfaceImplRowIndex = database.tables.interfaceImpl.index(after: interfaceImplRowIndex)
+            database.tables.interfaceImpl.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {
+                rowIndex, _ in BaseInterface(inheritingTypeImpl: self, tableRowIndex: rowIndex)
             }
-
-            return result
         }()
 
         public private(set) lazy var methods: [Method] = {
@@ -107,20 +98,15 @@ extension TypeDefinition {
             }
         }()
 
+        public private(set) lazy var customAttributes: [CustomAttribute] = {
+            assemblyImpl.getCustomAttributes(owner: .typeDef(tableRowIndex))
+        }()
+
         internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
-            let primaryKey = owner.metadataToken.tableKey
-            var result = [(method: Method, attributes: MethodSemanticsAttributes)].init()
-            guard var semanticsRowIndex = database.tables.methodSemantics.findFirst(primaryKey: primaryKey) else { return result }
-            while semanticsRowIndex != database.tables.methodSemantics.endIndex {
-                let semanticsRow = database.tables.methodSemantics[semanticsRowIndex]
-                guard semanticsRow.primaryKey == primaryKey else { break }
-
-                let method = methods.first { $0.tableRowIndex == semanticsRow.method }!
-                result.append((method, semanticsRow.semantics))
-                semanticsRowIndex = database.tables.methodSemantics.index(after: semanticsRowIndex)
+            database.tables.methodSemantics.findAll(primaryKey: owner.metadataToken.tableKey) { rowIndex, row in 
+                let method = methods.first { $0.tableRowIndex == row.method }!
+                return (method, row.semantics)
             }
-
-            return result
         }
     }
 }

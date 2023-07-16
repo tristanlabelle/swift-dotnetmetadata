@@ -74,6 +74,12 @@ extension Assembly {
             fatalError("Can't load mscorlib")
         }()
 
+        internal func getCustomAttributes(owner: HasCustomAttribute) -> [CustomAttribute] {
+            database.tables.customAttribute.findAll(primaryKey: owner.metadataToken.tableKey) {
+                rowIndex, _ in CustomAttribute(tableRowIndex: rowIndex, assemblyImpl: self)
+            }
+        }
+
         internal func resolveType(_ metadataToken: MetadataToken) -> BoundType? {
             guard !metadataToken.isNull else { return nil }
             switch metadataToken.tableID {
@@ -179,6 +185,41 @@ extension Assembly {
                     }
 
                 default: fatalError("Not implemented: resolve \(typeSig)")
+            }
+        }
+
+        internal func resolveMethod(_ codedIndex: MemberRefParent, name: String) throws -> Method? {
+            switch codedIndex {
+                case let .typeDef(index):
+                    guard let index = index else { return nil }
+                    return resolve(index).findSingleMethod(name: name)
+                case let .typeRef(index):
+                    guard let index = index else { return nil }
+                    return resolve(index).findSingleMethod(name: name)
+                default:
+                    fatalError("Not implemented: Resolving \(codedIndex)")
+            }
+        }
+
+        internal func resolve(_ index: MethodDefTable.RowIndex) -> Method {
+            // Requires lookup from MethodDef to Type
+            fatalError("Not implemented: resolve(MethodDefTable.RowIndex)")
+        }
+
+        internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
+            let row = database.tables.memberRef[index]
+            let name = database.heaps.resolve(row.name)
+            return try resolveMethod(row.class, name: name)
+        }
+
+        internal func resolve(_ codedIndex: CustomAttributeType) throws -> Method? {
+            switch codedIndex {
+                case .methodDef(let index):
+                    guard let index = index else { return nil }
+                    return resolve(index)
+                case .memberRef(let index):
+                    guard let index = index else { return nil }
+                    return try resolveMethod(index)
             }
         }
     }

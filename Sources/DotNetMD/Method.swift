@@ -91,9 +91,13 @@ public class Method {
     public var returnType: BoundType { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = {
-        GenericParam.resolve(from: database, forOwner: .methodDef(tableRowIndex)) {
-            GenericMethodParam(definingMethod: self, tableRowIndex: $0)
+        database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {
+            rowIndex, _ in GenericMethodParam(definingMethod: self, tableRowIndex: rowIndex)
         }
+    }()
+
+    public private(set) lazy var customAttributes: [CustomAttribute] = {
+        assemblyImpl.getCustomAttributes(owner: .methodDef(tableRowIndex))
     }()
 }
 

@@ -6,7 +6,7 @@ extension Table where Row: KeyedTableRow {
         return index
     }
 
-    public func findFirst(primaryKey: Row.PrimaryKey) -> RowIndex? {
+    fileprivate func findFirst(primaryKey: Row.PrimaryKey) -> RowIndex? {
         guard var firstIndex = findAny(primaryKey: primaryKey) else { return nil }
         while firstIndex != startIndex {
             let previousIndex = self.index(before: firstIndex)
@@ -14,7 +14,26 @@ extension Table where Row: KeyedTableRow {
             guard previousRow.primaryKey == primaryKey else { break }
             firstIndex = previousIndex
         }
+        
         return firstIndex
+    }
+
+    public func findAll<T>(primaryKey: Row.PrimaryKey, mapping: (RowIndex, Row) throws -> T) rethrows -> [T] {
+        var result = [T].init()
+        guard var rowIndex = findFirst(primaryKey: primaryKey) else { return result }
+        while rowIndex != endIndex {
+            let row = self[rowIndex]
+            guard row.primaryKey == primaryKey else { break }
+
+            result.append(try mapping(rowIndex, row))
+            rowIndex = index(after: rowIndex)
+        }
+
+        return result
+    }
+
+    public func findAll(primaryKey: Row.PrimaryKey) -> [RowIndex] {
+        findAll(primaryKey: primaryKey) { rowIndex, _ in rowIndex }
     }
 }
 

@@ -144,12 +144,15 @@ public enum HasCustomAttribute: CodedIndex {
     case file(FileTable.RowIndex?)
     case exportedType(oneBasedIndex: UInt32)
     case manifestResource(ManifestResourceTable.RowIndex?)
+    case genericParam(GenericParamTable.RowIndex?)
+    case genericParamConstraint(GenericParamConstraintTable.RowIndex?)
+    case methodSpec(MethodSpecTable.RowIndex?)
 
     public static let tables: [TableID?] = [
         .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
         .memberRef, .module, .declSecurity, .property, .event, .standAloneSig,
         .moduleRef, .typeSpec, .assembly, .assemblyRef, .file, .exportedType,
-        .manifestResource
+        .manifestResource, .genericParam, .genericParamConstraint, .methodSpec
     ]
 
     public init(tag: UInt8, oneBasedIndex: UInt32) {
@@ -173,6 +176,9 @@ public enum HasCustomAttribute: CodedIndex {
             case 16: self = .file(.init(oneBased: oneBasedIndex))
             case 17: self = .exportedType(oneBasedIndex: oneBasedIndex)
             case 18: self = .manifestResource(.init(oneBased: oneBasedIndex))
+            case 19: self = .genericParam(.init(oneBased: oneBasedIndex))
+            case 20: self = .genericParamConstraint(.init(oneBased: oneBasedIndex))
+            case 21: self = .methodSpec(.init(oneBased: oneBasedIndex))
             default: fatalError()
         }
     }
@@ -198,6 +204,9 @@ public enum HasCustomAttribute: CodedIndex {
             case let .file(rowIndex): return .init(rowIndex)
             case let .exportedType(oneBasedRowIndex): return .init(tableID: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
             case let .manifestResource(rowIndex): return .init(rowIndex)
+            case let .genericParam(rowIndex): return .init(rowIndex)
+            case let .genericParamConstraint(rowIndex): return .init(rowIndex)
+            case let .methodSpec(rowIndex): return .init(rowIndex)
         }
     }
 }

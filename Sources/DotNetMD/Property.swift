@@ -70,6 +70,10 @@ public class Property {
     public var isVirtual: Bool { get throws { try anyAccessor?.isAbstract ?? false } }
     public var isAbstract: Bool { get throws { try anyAccessor?.isVirtual ?? false } }
     public var isFinal: Bool { get throws { try anyAccessor?.isFinal ?? false } }
+
+    public private(set) lazy var customAttributes: [CustomAttribute] = {
+        assemblyImpl.getCustomAttributes(owner: .property(tableRowIndex))
+    }()
 }
 
 public final class Indexer: Property {

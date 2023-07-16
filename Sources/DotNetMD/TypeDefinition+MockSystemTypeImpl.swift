@@ -29,5 +29,6 @@ extension TypeDefinition {
         public var methods: [Method] { [] }
         public var properties: [Property] { [] }
         public var events: [Event] { [] }
+        public var customAttributes: [CustomAttribute] { [] }
     }
 }

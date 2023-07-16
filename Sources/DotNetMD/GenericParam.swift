@@ -19,39 +19,16 @@ public class GenericParam {
     public var hasDefaultConstructor: Bool { tableRow.flags.contains(.defaultConstructorConstraint) }
 
     private lazy var _constraints = Result {
-        let key = MetadataToken(tableRowIndex).tableKey
-        var result: [BoundType] = []
-        guard var constraintRowIndex = database.tables.genericParamConstraint
-            .findFirst(primaryKey: key) else { return result }
-        while constraintRowIndex != database.tables.genericParamConstraint.endIndex {
-            let constraintRow = database.tables.genericParamConstraint[constraintRowIndex]
-            guard constraintRow.primaryKey == key else { break }
-            result.append(assemblyImpl.resolve(constraintRow.constraint)!)
-            constraintRowIndex = database.tables.genericParamConstraint.index(after: constraintRowIndex)
+        database.tables.genericParamConstraint.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey) {
+            _, row in assemblyImpl.resolve(row.constraint)!
         }
-
-        return result
     }
 
     public var constraints: [BoundType] { get throws { try _constraints.get() } }
 
-    internal static func resolve<ConcreteGenericParam: DotNetMD.GenericParam>(
-        from database: Database,
-        forOwner owner: TypeOrMethodDef,
-        factory: (GenericParamTable.RowIndex) -> ConcreteGenericParam) -> [ConcreteGenericParam] {
-
-        let primaryKey = owner.metadataToken.tableKey
-        var result: [ConcreteGenericParam] = []
-        guard var genericParamRowIndex = database.tables.genericParam
-            .findFirst(primaryKey: primaryKey, secondaryKey: 0) else { return result }
-        while genericParamRowIndex < database.tables.genericParam.endIndex {
-            let genericParam = database.tables.genericParam[genericParamRowIndex]
-            guard genericParam.primaryKey == primaryKey && genericParam.number == result.count else { break }
-            result.append(factory(genericParamRowIndex))
-            genericParamRowIndex = database.tables.genericParam.index(after: genericParamRowIndex)
-        }
-        return result
-    }
+    public private(set) lazy var customAttributes: [CustomAttribute] = {
+        assemblyImpl.getCustomAttributes(owner: .genericParam(tableRowIndex))
+    }()
 }
 
 public final class GenericTypeParam: GenericParam {

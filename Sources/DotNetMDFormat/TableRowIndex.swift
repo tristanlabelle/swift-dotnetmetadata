@@ -5,13 +5,10 @@
 /// > that is, it behaves like a null reference.)
 /// To leverage the Swift type system better, we represent them as zero-based
 /// and use Optional<TableRowIndex> to represent nullability.
-public struct TableRowIndex<Row>: Hashable, Comparable {
+public struct TableRowIndex<Row: TableRow>: Hashable, Comparable {
     // Imitate a UInt24 using 3 bytes since values never exceed 0xFF_FF_FF and so Optional<TableRowIndex> is 4 bytes.
     private let low16: UInt16
     private let high8: UInt8
-
-    public var zeroBased: UInt32 { (UInt32(high8) << 16) | UInt32(low16) }
-    public var oneBased: UInt32 { zeroBased + 1 }
 
     public init(zeroBased: UInt32) {
         precondition(zeroBased < 0xFF_FF_FF)
@@ -24,6 +21,10 @@ public struct TableRowIndex<Row>: Hashable, Comparable {
         guard oneBased != 0 else { return nil }
         self.init(zeroBased: oneBased - 1)
     }
+
+    public var zeroBased: UInt32 { (UInt32(high8) << 16) | UInt32(low16) }
+    public var oneBased: UInt32 { zeroBased + 1 }
+    public var metadataToken: MetadataToken { .init(self) }
 
     public static func < (lhs: TableRowIndex<Row>, rhs: TableRowIndex<Row>) -> Bool {
         return lhs.zeroBased < rhs.zeroBased
