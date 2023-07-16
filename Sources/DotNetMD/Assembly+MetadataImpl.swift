@@ -65,10 +65,9 @@ extension Assembly {
             }
 
             for assemblyRef in database.tables.assemblyRef {
-                let name = database.heaps.resolve(assemblyRef.name)
-                let culture = database.heaps.resolve(assemblyRef.culture)
-                if name == Mscorlib.name {
-                    return try! context.loadAssembly(name: name, version: assemblyRef.version, culture: culture) as! Mscorlib
+                let identity = AssemblyIdentity(fromRow: assemblyRef, in: database)
+                if identity.name == Mscorlib.name {
+                    return try! context.loadAssembly(identity: identity) as! Mscorlib
                 }
             }
 
@@ -134,14 +133,8 @@ extension Assembly {
 
         internal func resolve(_ index: AssemblyRefTable.RowIndex) -> Assembly {
             let row = database.tables.assemblyRef[index]
-            let name = database.heaps.resolve(row.name)
-            let culture = database.heaps.resolve(row.culture)
-            let version = AssemblyVersion(
-                major: row.majorVersion,
-                minor: row.minorVersion,
-                buildNumber: row.buildNumber,
-                revisionNumber: row.revisionNumber)
-            return try! context.loadAssembly(name: name, version: version, culture: culture)
+            let identity = AssemblyIdentity(fromRow: row, in: database)
+            return try! context.loadAssembly(identity: identity)
         }
 
         internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {

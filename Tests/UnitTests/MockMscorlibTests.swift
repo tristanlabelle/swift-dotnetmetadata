@@ -7,7 +7,8 @@ final class MockMscorlibTests: XCTestCase {
 
     override class func setUp() {
         context = MetadataContext()
-        mscorlib = try? context.loadAssembly(name: Mscorlib.name, version: .all255, culture: "") as? Mscorlib
+        let identity = AssemblyIdentity(name: Mscorlib.name, version: AssemblyVersion.all255)
+        mscorlib = try? context.loadAssembly(identity: identity) as? Mscorlib
     }
 
     override func setUpWithError() throws {

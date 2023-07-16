@@ -30,7 +30,7 @@ public struct CustomAttribSig {
 
     public enum Elem {
         case constant(Constant)
-        case type(fullName: String, assemblyName: String, assemblyVersion: AssemblyVersion, assemblyCulture: String, assemblyPublicKey: [UInt8])
+        case type(fullName: String, assembly: AssemblyIdentity)
         indirect case boxed(Elem)
         case array([Elem])
     }

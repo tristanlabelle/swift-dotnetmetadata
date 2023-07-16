@@ -1,7 +1,7 @@
 import struct Foundation.URL
 import DotNetMDFormat
 
-public typealias AssemblyResolver = (AssemblyRefTable.Row) throws -> Database
+public typealias AssemblyResolver = (AssemblyIdentity) throws -> Database
 
 public class MetadataContext {
     private let assemblyResolver: AssemblyResolver
@@ -17,8 +17,8 @@ public class MetadataContext {
         self.init(assemblyResolver: { _ in throw AssemblyNotFound() })
     }
 
-    public func loadAssembly(name: String, version: AssemblyVersion, culture: String) throws -> Assembly {
-        if name == Mscorlib.name && version == AssemblyVersion.all255 {
+    public func loadAssembly(identity: AssemblyIdentity) throws -> Assembly {
+        if identity.name == Mscorlib.name && identity.version == AssemblyVersion.all255 {
             if let mscorlib = self.mscorlib {
                 return mscorlib
             }
