@@ -3,7 +3,7 @@ import XCTest
 import WinSDK
 @testable import DotNetMD
 
-final class DotNet45MscorlibTests: XCTestCase {
+final class NetFX45MscorlibTests: XCTestCase {
     internal static var context: MetadataContext!
     internal static var assembly: Assembly!
 

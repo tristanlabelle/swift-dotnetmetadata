@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-extension DotNet45MscorlibTests {
+extension NetFX45MscorlibTests {
     func testArrayType() throws {
         guard let arraySegment = Self.assembly.findDefinedType(fullName: "System.ArraySegment`1") else {
             XCTFail("Couldn't find System.ArraySegment`1")

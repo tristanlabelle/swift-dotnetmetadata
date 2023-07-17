@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-extension DotNet45MscorlibTests {
+extension NetFX45MscorlibTests {
     func testTypeEventEnumeration() throws {
         try XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?.events

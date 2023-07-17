@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-extension DotNet45MscorlibTests {
+extension NetFX45MscorlibTests {
     func testTypeMethodEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "System.Collections.Generic.IEqualityComparer`1")?.methods.map({ $0.name }).sorted(),

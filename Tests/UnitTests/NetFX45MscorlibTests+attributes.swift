@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-extension DotNet45MscorlibTests {
+extension NetFX45MscorlibTests {
     func testTypeAttributes() throws {
         XCTAssertEqual(
             try Self.assembly.findDefinedType(fullName: "System.IDisposable")?.attributes

@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-extension DotNet45MscorlibTests {
+extension NetFX45MscorlibTests {
     func testTypePropertyEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "System.IAsyncResult")?.properties.map({ $0.name }).sorted(),

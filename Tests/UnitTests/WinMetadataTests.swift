@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-final class SystemWinMetadataWinMDTests: XCTestCase {
+final class WinMetadataTests: XCTestCase {
     internal static var context: MetadataContext!
     internal static var assembly: Assembly!
 

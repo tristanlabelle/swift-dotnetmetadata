@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import DotNetMD
 
-extension DotNet45MscorlibTests {
+extension NetFX45MscorlibTests {
     func testTypeName_topLevelNamespace() throws {
         let object = Self.assembly.findDefinedType(fullName: "System.Object")
         XCTAssertEqual(object?.name, "Object")
