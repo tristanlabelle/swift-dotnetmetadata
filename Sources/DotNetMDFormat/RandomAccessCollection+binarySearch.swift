@@ -1,19 +1,24 @@
 extension RandomAccessCollection {
     func binarySearch<Key>(for key: Key, selector: (Element) -> Key, lessThan: (Key, Key) -> Bool) -> BinarySearchResult<Index> {
-        var low = startIndex
-        var high = endIndex
-        while low != high {
-            let mid = index(low, offsetBy: distance(from: low, to: high)/2)
-            if lessThan(selector(self[mid]), key) {
-                low = index(after: mid)
-            } else {
-                high = mid
+        guard !isEmpty else { return .absent(insertAt: startIndex) }
+
+        var lowIndex = startIndex
+        var highIndex = endIndex
+        while true {
+            let midIndex = index(lowIndex, offsetBy: distance(from: lowIndex, to: highIndex) / 2)
+            let midKey = selector(self[midIndex])
+            if lessThan(key, midKey) { // key < midKey
+                highIndex = midIndex
+                guard lowIndex != highIndex else { return .absent(insertAt: lowIndex) }
+            }
+            else if lessThan(midKey, key) { // key > midKey
+                lowIndex = index(after: midIndex)
+                guard lowIndex != endIndex else { return .absent(insertAt: endIndex) }
+            }
+            else {
+                return .present(at: midIndex)
             }
         }
-
-        return low != endIndex && !lessThan(key, selector(self[low]))
-            ? .present(at: low)
-            : .absent(insertAt: low)
     }
 
     func binarySearch<Key: Comparable>(for key: Key, selector: (Element) -> Key) -> BinarySearchResult<Index> {
