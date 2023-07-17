@@ -1,6 +1,6 @@
 import DotNetMDFormat
 
-public final class CustomAttribute {
+public final class Attribute {
     internal let assemblyImpl: Assembly.MetadataImpl
     internal let tableRowIndex: CustomAttributeTable.RowIndex
 

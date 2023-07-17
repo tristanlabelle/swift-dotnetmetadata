@@ -74,9 +74,9 @@ extension Assembly {
             fatalError("Can't load mscorlib")
         }()
 
-        internal func getCustomAttributes(owner: HasCustomAttribute) -> [CustomAttribute] {
+        internal func getAttributes(owner: HasCustomAttribute) -> [Attribute] {
             database.tables.customAttribute.findAll(primaryKey: owner.metadataToken.tableKey) {
-                rowIndex, _ in CustomAttribute(tableRowIndex: rowIndex, assemblyImpl: self)
+                rowIndex, _ in Attribute(tableRowIndex: rowIndex, assemblyImpl: self)
             }
         }
 

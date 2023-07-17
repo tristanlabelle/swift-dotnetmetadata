@@ -58,7 +58,7 @@ public final class Event {
     // §II.22.28 "All methods for a given Property or Event shall have the same accessibility"
     public var visibility: Visibility { get throws { try anyAccessor?.visibility ?? .public } }
 
-    public private(set) lazy var customAttributes: [CustomAttribute] = {
-        assemblyImpl.getCustomAttributes(owner: .event(tableRowIndex))
+    public private(set) lazy var attributes: [Attribute] = {
+        assemblyImpl.getAttributes(owner: .event(tableRowIndex))
     }()
 }

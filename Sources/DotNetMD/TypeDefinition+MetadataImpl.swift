@@ -98,8 +98,8 @@ extension TypeDefinition {
             }
         }()
 
-        public private(set) lazy var customAttributes: [CustomAttribute] = {
-            assemblyImpl.getCustomAttributes(owner: .typeDef(tableRowIndex))
+        public private(set) lazy var attributes: [Attribute] = {
+            assemblyImpl.getAttributes(owner: .typeDef(tableRowIndex))
         }()
 
         internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {

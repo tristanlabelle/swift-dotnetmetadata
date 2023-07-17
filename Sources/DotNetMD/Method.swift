@@ -96,8 +96,8 @@ public class Method {
         }
     }()
 
-    public private(set) lazy var customAttributes: [CustomAttribute] = {
-        assemblyImpl.getCustomAttributes(owner: .methodDef(tableRowIndex))
+    public private(set) lazy var attributes: [Attribute] = {
+        assemblyImpl.getAttributes(owner: .methodDef(tableRowIndex))
     }()
 }
 

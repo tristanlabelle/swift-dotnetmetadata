@@ -45,7 +45,7 @@ public final class Field {
     }
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
 
-    public private(set) lazy var customAttributes: [CustomAttribute] = {
-        assemblyImpl.getCustomAttributes(owner: .field(tableRowIndex))
+    public private(set) lazy var attributes: [Attribute] = {
+        assemblyImpl.getAttributes(owner: .field(tableRowIndex))
     }()
 }

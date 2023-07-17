@@ -71,8 +71,8 @@ public class Property {
     public var isAbstract: Bool { get throws { try anyAccessor?.isVirtual ?? false } }
     public var isFinal: Bool { get throws { try anyAccessor?.isFinal ?? false } }
 
-    public private(set) lazy var customAttributes: [CustomAttribute] = {
-        assemblyImpl.getCustomAttributes(owner: .property(tableRowIndex))
+    public private(set) lazy var attributes: [Attribute] = {
+        assemblyImpl.getAttributes(owner: .property(tableRowIndex))
     }()
 }
 
