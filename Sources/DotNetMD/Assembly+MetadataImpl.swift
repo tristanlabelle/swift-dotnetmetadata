@@ -201,9 +201,13 @@ extension Assembly {
             }
         }
 
-        internal func resolve(_ index: MethodDefTable.RowIndex) -> Method {
-            // Requires lookup from MethodDef to Type
-            fatalError("Not implemented: resolve(MethodDefTable.RowIndex)")
+        internal func resolve(_ methodDefRowIndex: MethodDefTable.RowIndex) -> Method {
+            guard let typeDefRowIndex = database.tables.typeDef.findMethodOwner(methodDefRowIndex) else {
+                fatalError("No owner found for method \(methodDefRowIndex)")
+            }
+
+            let methodIndex = methodDefRowIndex.zeroBased - database.tables.typeDef[typeDefRowIndex].methodList!.zeroBased
+            return resolve(typeDefRowIndex).methods[Int(methodIndex)]
         }
 
         internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
