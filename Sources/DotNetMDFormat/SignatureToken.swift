@@ -82,7 +82,10 @@ enum SigToken {
         static let explicitThis: UInt8 = 0x40
     }
 
-    enum CustomAttr {
+    enum CustomAttrib {
+        static let prolog: UInt16 = 0x0001
+        static let prolog_0: UInt8 = 0x01
+        static let prolog_1: UInt8 = 0x00
         static let boxedObject: UInt8 = 0x51
         static let field: UInt8 = 0x53
         static let property: UInt8 = 0x54
