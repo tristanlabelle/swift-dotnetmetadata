@@ -14,7 +14,7 @@ public class ParamBase {
 
     public var isByRef: Bool { signature.byRef }
 
-    public private(set) lazy var type: BoundType = assemblyImpl.resolve(signature.type, typeContext: method.definingType, methodContext: method)
+    public private(set) lazy var type: TypeNode = assemblyImpl.resolve(signature.type, typeContext: method.definingType, methodContext: method)
 }
 
 public final class Param: ParamBase {

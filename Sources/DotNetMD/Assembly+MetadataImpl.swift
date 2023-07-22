@@ -80,31 +80,39 @@ extension Assembly {
             }
         }
 
-        internal func resolveType(_ metadataToken: MetadataToken) -> BoundType? {
+        internal func resolveType(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode? {
             guard !metadataToken.isNull else { return nil }
             switch metadataToken.tableID {
                 case .typeDef:
-                    return resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
+                    return resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
                 case .typeRef:
-                    return resolve(TypeRefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNonGeneric()
+                    return resolve(TypeRefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
                 case .typeSpec:
-                    return resolve(TypeSpecTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1))
+                    return resolve(TypeSpecTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1), typeContext: typeContext, methodContext: methodContext)
                 default:
                     fatalError("Not implemented: \(metadataToken)")
             }
         }
 
-        internal func resolve(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType? {
+        internal func resolve(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode? {
             switch codedIndex {
                 case let .typeDef(index):
                     guard let index = index else { return nil }
-                    return resolve(index).bindNonGeneric()
+                    return resolve(index).bindNode()
                 case let .typeRef(index):
                     guard let index = index else { return nil }
-                    return resolve(index).bindNonGeneric()
+                    return resolve(index).bindNode()
                 case let .typeSpec(index):
                     guard let index = index else { return nil }
                     return resolve(index, typeContext: typeContext, methodContext: methodContext)
+            }
+        }
+
+        internal func resolveOptionalBoundType(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType? {
+            guard let typeNode = resolve(codedIndex, typeContext: typeContext, methodContext: methodContext) else { return nil }
+            switch typeNode {
+                case .bound(let bound): return bound
+                default: fatalError("Expected a bound type definition")
             }
         }
 
@@ -130,7 +138,7 @@ extension Assembly {
             fatalError("Not implemented: null resolution scope")
         }
 
-        internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {
+        internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode {
             let typeSpecRow = database.tables.typeSpec[index]
             let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
             let typeSig = try! TypeSig(blob: signatureBlob)
@@ -143,27 +151,27 @@ extension Assembly {
             return try! context.loadAssembly(identity: identity)
         }
 
-        internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType {
+        internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode {
             switch typeSig {
-                case .void: return mscorlib.specialTypes.void.bindNonGeneric()
-                case .boolean: return mscorlib.specialTypes.boolean.bindNonGeneric()
-                case .char: return mscorlib.specialTypes.char.bindNonGeneric()
+                case .void: return mscorlib.specialTypes.void.bindNode()
+                case .boolean: return mscorlib.specialTypes.boolean.bindNode()
+                case .char: return mscorlib.specialTypes.char.bindNode()
 
                 case let .integer(size, signed):
-                    return mscorlib.specialTypes.getInteger(size, signed: signed).bindNonGeneric()
+                    return mscorlib.specialTypes.getInteger(size, signed: signed).bindNode()
 
                 case let .real(double):
-                    return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNonGeneric()
+                    return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNode()
 
-                case .string: return mscorlib.specialTypes.string.bindNonGeneric()
-                case .object: return mscorlib.specialTypes.object.bindNonGeneric()
+                case .string: return mscorlib.specialTypes.string.bindNode()
+                case .object: return mscorlib.specialTypes.object.bindNode()
 
                 case let .defOrRef(index, _, genericArgs):
                     if genericArgs.count > 0 {
                         let genericArgs = genericArgs.map { resolve($0, typeContext: typeContext, methodContext: methodContext) }
                         switch index {
-                            case let .typeDef(index): return resolve(index!).bind(genericArgs: genericArgs)
-                            case let .typeRef(index): return resolve(index!).bind(genericArgs: genericArgs)
+                            case let .typeDef(index): return resolve(index!).bind(genericArgs: genericArgs).asNode
+                            case let .typeRef(index): return resolve(index!).bind(genericArgs: genericArgs).asNode
                             default: fatalError("Not implemented: unexpected generic type reference")
                         }
                     }

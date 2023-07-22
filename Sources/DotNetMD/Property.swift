@@ -33,7 +33,7 @@ public class Property {
     public var name: String { database.heaps.resolve(tableRow.name) }
 
     private lazy var _type = Result { assemblyImpl.resolve(propertySig.type, typeContext: definingType) }
-    public var type: BoundType { get throws { try _type.get() } }
+    public var type: TypeNode { get throws { try _type.get() } }
 
     private struct Accessors {
         var getter: Method?

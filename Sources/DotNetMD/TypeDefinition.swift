@@ -49,6 +49,7 @@ public func makeFullTypeName(namespace: String?, enclosingName: String, nestedNa
     return result
 }
 
+/// An unbound type definition, which may have generic parameters.
 public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Kind = TypeDefinitionKind
     internal typealias Impl = TypeDefinitionImpl
@@ -98,12 +99,6 @@ public class TypeDefinition: CustomDebugStringConvertible {
         return String(name[..<index])
     }
 
-    public var unboundBase: TypeDefinition? {
-        guard let base = base else { return nil }
-        guard case .definition(let base) = base else { return nil }
-        return base.definition
-    }
-
     public private(set) lazy var fullName: String = {
         if let enclosingType {
             assert(namespace == nil)
@@ -139,24 +134,24 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isGeneric: Bool { !genericParams.isEmpty }
 
     public func findSingleMethod(name: String, inherited: Bool = false) -> Method? {
-        methods.single { $0.name == name } ?? (inherited ? unboundBase?.findSingleMethod(name: name, inherited: true) : nil)
+        methods.single { $0.name == name } ?? (inherited ? base?.definition.findSingleMethod(name: name, inherited: true) : nil)
     }
 
     public func findField(name: String, inherited: Bool = false) -> Field? {
-        fields.first { $0.name == name } ?? (inherited ? unboundBase?.findField(name: name, inherited: true) : nil)
+        fields.first { $0.name == name } ?? (inherited ? base?.definition.findField(name: name, inherited: true) : nil)
     }
 
     public func findProperty(name: String, inherited: Bool = false) -> Property? {
-        properties.first { $0.name == name } ?? (inherited ? unboundBase?.findProperty(name: name, inherited: true) : nil)
+        properties.first { $0.name == name } ?? (inherited ? base?.definition.findProperty(name: name, inherited: true) : nil)
     }
 
     public func findEvent(name: String, inherited: Bool = false) -> Event? {
-        events.first { $0.name == name } ?? (inherited ? unboundBase?.findEvent(name: name, inherited: true) : nil)
+        events.first { $0.name == name } ?? (inherited ? base?.definition.findEvent(name: name, inherited: true) : nil)
     }
 }
 
 public final class ClassDefinition: TypeDefinition {
-    public var overridesFinalize: Bool { findSingleMethod(name: "Finalize") != nil }
+    public var finalizer: Method? { findSingleMethod(name: "Finalize") }
 }
 
 public final class InterfaceDefinition: TypeDefinition {
@@ -171,5 +166,5 @@ public final class StructDefinition: TypeDefinition {
 
 public final class EnumDefinition: TypeDefinition {
     public var backingField: Field { fields.single { $0.name == "value__" }! }
-    public var underlyingType: TypeDefinition { get throws { try backingField.type.asUnbound! } }
+    public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
 }

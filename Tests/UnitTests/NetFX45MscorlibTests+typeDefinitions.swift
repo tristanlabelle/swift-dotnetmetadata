@@ -34,7 +34,7 @@ extension NetFX45MscorlibTests {
 
     func testBaseType() throws {
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.ValueType")?.unboundBase?.fullName,
+            Self.assembly.findDefinedType(fullName: "System.ValueType")?.base?.definition.fullName,
             "System.Object")
     }
 
@@ -44,7 +44,7 @@ extension NetFX45MscorlibTests {
             return
         }
         XCTAssertEqual(
-            equalityComparer.baseInterfaces.map { $0.unboundInterface?.fullName ?? "" }.sorted(),
+            equalityComparer.baseInterfaces.map { $0.interface.definition.fullName }.sorted(),
             [ "System.Collections.Generic.IEqualityComparer`1", "System.Collections.IEqualityComparer" ])
     }
 

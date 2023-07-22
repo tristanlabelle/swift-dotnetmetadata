@@ -88,7 +88,7 @@ public class Method {
         }
     }
 
-    public var returnType: BoundType { get throws { try returnParam.type } }
+    public var returnType: TypeNode { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = {
         database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {

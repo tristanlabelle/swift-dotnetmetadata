@@ -33,6 +33,6 @@ extension NetFX45MscorlibTests {
 
         XCTAssertEqual(
             try console.findEvent(name: "CancelKeyPress")?.handlerType,
-            consoleCancelEventHandler.bindNonGeneric())
+            consoleCancelEventHandler.bind())
     }
 }

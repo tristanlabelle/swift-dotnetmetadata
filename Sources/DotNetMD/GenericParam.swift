@@ -24,7 +24,7 @@ public class GenericParam {
         }
     }
 
-    public var constraints: [BoundType] { get throws { try _constraints.get() } }
+    public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
     public private(set) lazy var attributes: [Attribute] = {
         assemblyImpl.getAttributes(owner: .genericParam(tableRowIndex))

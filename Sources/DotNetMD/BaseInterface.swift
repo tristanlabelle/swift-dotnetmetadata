@@ -13,10 +13,5 @@ public final class BaseInterface {
     internal var assemblyImpl: Assembly.MetadataImpl { inheritingTypeImpl.assemblyImpl }
     internal var database: Database { inheritingTypeImpl.database }
     private var tableRow: InterfaceImplTable.Row { database.tables.interfaceImpl[tableRowIndex] }
-    public var interface: BoundType { assemblyImpl.resolve(tableRow.interface, typeContext: inheritingType)! }
-
-    public var unboundInterface: TypeDefinition! {
-        guard case .definition(let interface) = interface else { fatalError() }
-        return interface.definition
-    }
+    public var interface: BoundType { assemblyImpl.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType)! }
 }

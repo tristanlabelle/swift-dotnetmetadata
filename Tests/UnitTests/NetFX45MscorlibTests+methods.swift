@@ -57,19 +57,19 @@ extension NetFX45MscorlibTests {
     func testMethodReturnType() throws {
         XCTAssertEqual(
             try Self.assembly.findDefinedType(fullName: "System.Object")?
-                .findSingleMethod(name: "ToString")?.returnType.asUnbound?.fullName,
+                .findSingleMethod(name: "ToString")?.returnType.asDefinition?.fullName,
             "System.String")
 
         XCTAssertEqual(
             try Self.assembly.findDefinedType(fullName: "System.IDisposable")?
-                .findSingleMethod(name: "Dispose")?.returnType.asUnbound?.fullName,
+                .findSingleMethod(name: "Dispose")?.returnType.asDefinition?.fullName,
             "System.Void")
     }
 
     func testMethodParamType() throws {
         XCTAssertEqual(
             try Self.assembly.findDefinedType(fullName: "System.String")?
-                .findSingleMethod(name: "IsNullOrEmpty")?.params[0].type.asUnbound?.fullName,
+                .findSingleMethod(name: "IsNullOrEmpty")?.params[0].type.asDefinition?.fullName,
             "System.String")
     }
 

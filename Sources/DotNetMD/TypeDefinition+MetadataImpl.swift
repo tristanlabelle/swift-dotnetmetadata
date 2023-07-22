@@ -52,7 +52,7 @@ extension TypeDefinition {
             }
         }()
 
-        public private(set) lazy var base: BoundType? = assemblyImpl.resolve(tableRow.extends)
+        public private(set) lazy var base: BoundType? = assemblyImpl.resolveOptionalBoundType(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = {
             database.tables.interfaceImpl.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {

@@ -8,7 +8,7 @@ extension Assembly {
         private var systemTypes: [TypeDefinition] = []
 
         func initialize(owner: Assembly) {
-            func makeClass(name: String, base: TypeDefinition?, abstract: Bool = false, sealed: Bool = false) -> TypeDefinition {
+            func makeClass(name: String, base: ClassDefinition?, abstract: Bool = false, sealed: Bool = false) -> ClassDefinition {
                 var metadataAttributes: TypeAttributes = [.public, .serializable]
                 if abstract { metadataAttributes.insert(.abstract) }
                 if sealed { metadataAttributes.insert(.sealed) }
@@ -18,7 +18,7 @@ extension Assembly {
                         kind: .class,
                         name: name,
                         base: base,
-                        metadataAttributes: metadataAttributes))
+                        metadataAttributes: metadataAttributes)) as! ClassDefinition
             }
 
             let object = makeClass(name: "Object", base: nil)

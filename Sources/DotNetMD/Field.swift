@@ -37,7 +37,7 @@ public final class Field {
     }
 
     private lazy var _type = Result { try assemblyImpl.resolve(signature.get().type, typeContext: definingType) }
-    public var type: BoundType { get throws { try _type.get() } }
+    public var type: TypeNode { get throws { try _type.get() } }
 
     private lazy var _literalValue = Result {
         guard tableRow.flags.contains(.literal) else { return nil as Constant? }

@@ -10,12 +10,16 @@ extension TypeDefinition {
         internal init(
             kind: TypeDefinitionKind,
             name: String,
-            base: TypeDefinition?,
+            base: ClassDefinition?,
             metadataAttributes: TypeAttributes) {
 
             self.kind = kind
             self.name = name
-            self.base = base?.bindNonGeneric()
+            if let base {
+                self.base = .init(base, genericArgs: [])
+            } else {
+                self.base = nil
+            }
             self.metadataAttributes = metadataAttributes
         }
 

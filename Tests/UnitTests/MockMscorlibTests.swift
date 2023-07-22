@@ -26,11 +26,11 @@ final class MockMscorlibTests: XCTestCase {
     func testBaseTypes() throws {
         let specialTypes = Self.mscorlib.specialTypes!
         XCTAssertNil(specialTypes.object.base)
-        XCTAssertEqual(specialTypes.string.base, specialTypes.object.bindNonGeneric())
-        XCTAssertEqual(specialTypes.type.base, specialTypes.object.bindNonGeneric())
-        XCTAssertEqual(specialTypes.valueType.base, specialTypes.object.bindNonGeneric())
-        XCTAssertEqual(specialTypes.enum.base, specialTypes.valueType.bindNonGeneric())
-        XCTAssertEqual(specialTypes.int32.base, specialTypes.valueType.bindNonGeneric())
-        XCTAssertEqual(specialTypes.boolean.base, specialTypes.valueType.bindNonGeneric())
+        XCTAssertEqual(specialTypes.string.base, specialTypes.object.bind())
+        XCTAssertEqual(specialTypes.type.base, specialTypes.object.bind())
+        XCTAssertEqual(specialTypes.valueType.base, specialTypes.object.bind())
+        XCTAssertEqual(specialTypes.enum.base, specialTypes.valueType.bind())
+        XCTAssertEqual(specialTypes.int32.base, specialTypes.valueType.bind())
+        XCTAssertEqual(specialTypes.boolean.base, specialTypes.valueType.bind())
     }
 }

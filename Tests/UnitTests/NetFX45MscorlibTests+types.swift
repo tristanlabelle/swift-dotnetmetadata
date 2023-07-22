@@ -11,7 +11,7 @@ extension NetFX45MscorlibTests {
 
         try XCTAssertEqual(
             arraySegment.findProperty(name: "Array")?.type,
-            BoundType.array(element: .genericArg(param: arraySegment.genericParams[0])))
+            TypeNode.array(element: .genericArg(param: arraySegment.genericParams[0])))
     }
 
     func testGenericArgType() throws {
@@ -22,7 +22,7 @@ extension NetFX45MscorlibTests {
 
         try XCTAssertEqual(
             nullable.findProperty(name: "Value")?.type,
-            BoundType.genericArg(param: nullable.genericParams[0]))
+            TypeNode.genericArg(param: nullable.genericParams[0]))
     }
 
     func testGenericInstType() throws {
@@ -38,6 +38,6 @@ extension NetFX45MscorlibTests {
 
         try XCTAssertEqual(
             ienumerable.findSingleMethod(name: "GetEnumerator")?.returnType,
-            ienumerator.bind(genericArgs: [ BoundType.genericArg(param: ienumerable.genericParams[0]) ]))
+            ienumerator.bindNode(genericArgs: [ TypeNode.genericArg(param: ienumerable.genericParams[0]) ]))
     }
 }

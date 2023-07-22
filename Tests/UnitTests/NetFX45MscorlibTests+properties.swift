@@ -12,7 +12,7 @@ extension NetFX45MscorlibTests {
     func testPropertyType() throws {
         XCTAssertEqual(
             try Self.assembly.findDefinedType(fullName: "System.String")?
-                .findProperty(name: "Length")?.type.asUnbound?.fullName,
+                .findProperty(name: "Length")?.type.asDefinition?.fullName,
             "System.Int32")
     }
 
