@@ -31,12 +31,13 @@ public final class Field {
         }
     }
 
-    private lazy var signature = Result {
+    private lazy var _signature = Result {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
         return try! FieldSig(blob: signatureBlob)
     }
+    public var signature: FieldSig { get throws { try _signature.get() } }
 
-    private lazy var _type = Result { try assemblyImpl.resolve(signature.get().type, typeContext: definingType) }
+    private lazy var _type = Result { try assemblyImpl.resolve(signature.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
 
     private lazy var _literalValue = Result {

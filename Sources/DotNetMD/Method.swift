@@ -46,7 +46,8 @@ public class Method {
         }
     }
 
-    private lazy var signature = Result { try MethodDefSig(blob: database.heaps.resolve(tableRow.signature)) }
+    private lazy var _signature = Result { try MethodDefSig(blob: database.heaps.resolve(tableRow.signature)) }
+    public var signature: MethodDefSig { get throws { try _signature.get() } }
 
     private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result {
         let paramRowIndices = getChildRowRange(
@@ -55,7 +56,7 @@ public class Method {
             childTable: database.tables.param,
             childSelector: { $0.paramList })
 
-        let signature = try self.signature.get()
+        let signature = try self.signature
 
         if paramRowIndices.isEmpty || database.tables.param[paramRowIndices.lowerBound].sequence > 0 {
             // No Param row for the return param
@@ -82,7 +83,7 @@ public class Method {
 
     public var hasReturnValue: Bool {
         get throws {
-            switch try signature.get().returnParam.type {
+            switch try signature.returnParam.type {
                 case .void: return false
                 default: return true
             }
