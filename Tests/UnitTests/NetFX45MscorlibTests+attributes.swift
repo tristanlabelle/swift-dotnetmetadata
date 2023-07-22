@@ -3,10 +3,12 @@ import XCTest
 @testable import DotNetMD
 
 extension NetFX45MscorlibTests {
-    func testTypeAttributes() throws {
-        XCTAssertEqual(
-            try Self.assembly.findDefinedType(fullName: "System.IDisposable")?.attributes
-                .contains { try $0.type.fullName == "System.Runtime.InteropServices.ComVisibleAttribute" },
-            true)
+    func testAttribute() throws {
+        guard let comVisibleAttribute = try Self.assembly.findDefinedType(fullName: "System.IDisposable")?.attributes
+            .first(where: { try $0.type.fullName == "System.Runtime.InteropServices.ComVisibleAttribute" })
+        else { return XCTFail("Missing attribute") }
+
+        XCTAssertEqual(try comVisibleAttribute.arguments, [ .constant(.boolean(true)) ])
+        XCTAssertEqual(try comVisibleAttribute.namedArguments, [])
     }
 }
