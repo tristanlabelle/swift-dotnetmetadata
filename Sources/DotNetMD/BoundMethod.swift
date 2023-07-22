@@ -1,5 +1,5 @@
 /// A method with all generic parameters bound to type arguments.
-public struct BoundMethod {
+public struct BoundMethod: Hashable {
     public let definition: Method
     public let genericArgs: [TypeNode]
 

@@ -62,3 +62,8 @@ public final class Event {
         assemblyImpl.getAttributes(owner: .event(tableRowIndex))
     }()
 }
+
+extension Event: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: Event, rhs: Event) -> Bool { lhs === rhs }
+}

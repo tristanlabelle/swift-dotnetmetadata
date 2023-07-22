@@ -106,3 +106,8 @@ public class Method {
 public final class Constructor: Method {
 
 }
+
+extension Method: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: Method, rhs: Method) -> Bool { lhs === rhs }
+}

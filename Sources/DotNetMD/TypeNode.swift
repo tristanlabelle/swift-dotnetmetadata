@@ -1,6 +1,6 @@
 /// A type as can describe a variable, parameter, or return type.
 /// Types are arranged as a tree and cannot reference unbound type definitions.
-public enum TypeNode {
+public enum TypeNode: Hashable {
     case bound(BoundType)
     indirect case array(element: TypeNode)
     case genericArg(param: GenericParam)
@@ -12,23 +12,6 @@ extension TypeNode {
         switch self {
             case .bound(let bound): return bound.definition
             default: return nil
-        }
-    }
-}
-
-extension TypeNode: Equatable {
-    public static func ==(lhs: TypeNode, rhs: TypeNode) -> Bool {
-        switch (lhs, rhs) {
-            case (.bound(let lhs), .bound(let rhs)):
-                return lhs == rhs
-            case (.array(let lhs), .array(let rhs)):
-                return lhs == rhs
-            case (.genericArg(let lhs), .genericArg(let rhs)):
-                return lhs === rhs
-            case (.pointer(let lhs), .pointer(let rhs)):
-                return lhs == rhs
-            default:
-                return false
         }
     }
 }

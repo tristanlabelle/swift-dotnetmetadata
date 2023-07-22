@@ -53,3 +53,8 @@ internal protocol AssemblyImpl {
     var culture: String { get }
     var definedTypes: [TypeDefinition] { get }
 }
+
+extension Assembly: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: Assembly, rhs: Assembly) -> Bool { lhs === rhs }
+}

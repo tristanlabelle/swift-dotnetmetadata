@@ -1,4 +1,4 @@
-public enum Visibility {
+public enum Visibility: Hashable {
     case compilerControlled
     case `private`
     case assembly // internal

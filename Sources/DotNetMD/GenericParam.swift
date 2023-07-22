@@ -55,3 +55,8 @@ public final class GenericMethodParam: GenericParam {
     internal override var assemblyImpl: Assembly.MetadataImpl { definingMethod.assemblyImpl }
     internal override var database: Database { definingMethod.database }
 }
+
+extension GenericParam: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: GenericParam, rhs: GenericParam) -> Bool { lhs === rhs }
+}

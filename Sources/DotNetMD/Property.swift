@@ -81,3 +81,8 @@ public final class Indexer: Property {
         super.init(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
     }
 }
+
+extension Property: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: Property, rhs: Property) -> Bool { lhs === rhs }
+}

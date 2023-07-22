@@ -168,3 +168,8 @@ public final class EnumDefinition: TypeDefinition {
     public var backingField: Field { fields.single { $0.name == "value__" }! }
     public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
 }
+
+extension TypeDefinition: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: TypeDefinition, rhs: TypeDefinition) -> Bool { lhs === rhs }
+}

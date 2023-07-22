@@ -50,3 +50,8 @@ public final class Field {
         assemblyImpl.getAttributes(owner: .field(tableRowIndex))
     }()
 }
+
+extension Field: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: Field, rhs: Field) -> Bool { lhs === rhs }
+}

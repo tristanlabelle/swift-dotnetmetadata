@@ -1,5 +1,5 @@
 /// A type definition with any and all generic arguments bound.
-public struct BoundType {
+public struct BoundType: Hashable {
     public let definition: TypeDefinition
     public let genericArgs: [TypeNode]
 
@@ -10,12 +10,6 @@ public struct BoundType {
     }
 
     public var asNode: TypeNode { .bound(self) }
-}
-
-extension BoundType: Equatable {
-    public static func ==(lhs: Self, rhs: Self) -> Bool {
-        return lhs.definition === rhs.definition && lhs.genericArgs == rhs.genericArgs
-    }
 }
 
 extension TypeDefinition {

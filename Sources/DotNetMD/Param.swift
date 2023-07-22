@@ -56,3 +56,8 @@ public final class ReturnParam: ParamBase {
         }
     }
 }
+
+extension ParamBase: Hashable {
+    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+    public static func == (lhs: ParamBase, rhs: ParamBase) -> Bool { lhs === rhs }
+}

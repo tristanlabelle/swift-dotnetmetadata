@@ -56,17 +56,17 @@ public final class Attribute {
         return NamedArgument(target: target, value: try resolve(namedArg.value))
     }
 
-    public struct NamedArgument {
+    public struct NamedArgument: Hashable {
         public var target: Target
         public var value: Value
 
-        public enum Target {
+        public enum Target: Hashable {
             case property(Property)
             case field(Field)
         }
     }
 
-    public enum Value {
+    public enum Value: Hashable {
         case constant(Constant)
         case type(definition: TypeDefinition)
         case array([Value])
