@@ -1,5 +1,6 @@
 import DotNetMDFormat
 
+/// An unbound method definition, which may have generic parameters.
 public class Method {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     internal let tableRowIndex: MethodDefTable.RowIndex
