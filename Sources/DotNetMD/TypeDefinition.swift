@@ -107,31 +107,12 @@ public class TypeDefinition: CustomDebugStringConvertible {
         return makeFullTypeName(namespace: namespace, name: name)
     }()
     
-    public var visibility: Visibility {
-        switch metadataAttributes.intersection(.visibilityMask) {
-            case .public, .nestedPublic: return .public
-            case .notPublic, .nestedAssembly: return .assembly
-            case .nestedFamily: return .family
-            case .nestedFamORAssem: return .familyOrAssembly
-            case .nestedFamANDAssem: return .familyAndAssembly
-            case .nestedPrivate: return .private
-            default: fatalError()
-        }
-    }
-
-    public var isNested: Bool {
-        switch metadataAttributes.intersection(.visibilityMask) {
-            case .public, .notPublic: return false
-            case .nestedPublic, .nestedFamily,
-                .nestedFamORAssem, .nestedFamANDAssem,
-                .nestedAssembly, .nestedPrivate: return true
-            default: fatalError()
-        }
-    }
-    
+    public var visibility: Visibility { metadataAttributes.visibility }
+    public var isNested: Bool { metadataAttributes.isNested }
     public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
     public var isGeneric: Bool { !genericParams.isEmpty }
+    public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
 
     public func findSingleMethod(name: String, inherited: Bool = false) -> Method? {
         methods.single { $0.name == name } ?? (inherited ? base?.definition.findSingleMethod(name: name, inherited: true) : nil)

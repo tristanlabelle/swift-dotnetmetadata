@@ -143,11 +143,11 @@ public struct MethodImplAttributes: OptionSet {
     public static let native = Self(rawValue: 0x1)
     public static let optil = Self(rawValue: 0x2)
     public static let runtime = Self(rawValue: 0x3)
-    
+
     public static let unmanagedMask = Self(rawValue: 0x4)
     public static let unmanaged = Self(rawValue: 0x4)
     public static let managed = Self([])
-    
+
     public static let forwardRef = Self(rawValue: 0x10)
     public static let preserveSig = Self(rawValue: 0x80)
     public static let internalCall = Self(rawValue: 0x1000)
@@ -236,31 +236,31 @@ public struct TypeAttributes: OptionSet {
     public static let nestedAssembly = Self(rawValue: 0x5)
     public static let nestedFamANDAssem = Self(rawValue: 0x6)
     public static let nestedFamORAssem = Self(rawValue: 0x7)
-    
+
     public static let layoutMask = Self(rawValue: 0x18)
     public static let autoLayout = Self([])
     public static let sequentialLayout = Self(rawValue: 0x8)
     public static let explicitLayout = Self(rawValue: 0x10)
-    
+
     public static let classSemanticsMask = Self(rawValue: 0x20)
     public static let `class` = Self([])
     public static let interface = Self(rawValue: 0x20)
-    
+
     public static let abstract = Self(rawValue: 0x80)
     public static let sealed = Self(rawValue: 0x100)
     public static let specialName = Self(rawValue: 0x400)
-    
+
     public static let `import` = Self(rawValue: 0x1000)
     public static let serializable = Self(rawValue: 0x2000)
-    
+
     public static let stringFormatMask = Self(rawValue: 0x30000)
     public static let ansiClass = Self([])
     public static let unicodeClass = Self(rawValue: 0x10000)
     public static let autoClass = Self(rawValue: 0x20000)
     public static let customFormatClass = Self(rawValue: 0x30000)
-    
+
     public static let customStringFormatMask = Self(rawValue: 0xC00000)
-    
+
     public static let beforeFieldInit = Self(rawValue: 0x100000)
     public static let rtSpecialName = Self(rawValue: 0x800)
     public static let hasSecurity = Self(rawValue: 0x40000)

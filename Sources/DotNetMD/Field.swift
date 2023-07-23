@@ -18,18 +18,7 @@ public final class Field {
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
 
-    public var visibility: Visibility {
-        switch tableRow.flags.intersection(.fieldAccessMask) {
-            case .compilerControlled: return .compilerControlled
-            case .private: return .private
-            case .assembly: return .assembly
-            case .famANDAssem: return .familyAndAssembly
-            case .famORAssem: return .familyOrAssembly
-            case .family: return .family
-            case .public: return .public
-            default: fatalError()
-        }
-    }
+    public var visibility: Visibility { tableRow.flags.visibility }
 
     private lazy var _signature = Result {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
