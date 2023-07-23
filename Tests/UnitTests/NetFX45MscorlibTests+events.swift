@@ -12,8 +12,7 @@ extension NetFX45MscorlibTests {
 
     func testEventAccessors() throws {
         guard let event = Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?.findEvent(name: "EventSourceCreated") else {
-            XCTFail("Could not find System.Diagnostics.Tracing.EventListener.EventSourceCreated")
-            return
+            return XCTFail("Could not find System.Diagnostics.Tracing.EventListener.EventSourceCreated")
         }
 
         XCTAssertEqual(try event.addAccessor?.name, "add_EventSourceCreated")
@@ -22,13 +21,11 @@ extension NetFX45MscorlibTests {
 
     func testEventType() throws {
         guard let console = Self.assembly.findDefinedType(fullName: "System.Console") else {
-            XCTFail("Could not find System.Console")
-            return
+            return XCTFail("Could not find System.Console")
         }
 
         guard let consoleCancelEventHandler = Self.assembly.findDefinedType(fullName: "System.ConsoleCancelEventHandler") else {
-            XCTFail("Could not find System.ConsoleCancelEventHandler")
-            return
+            return XCTFail("Could not find System.ConsoleCancelEventHandler")
         }
 
         XCTAssertEqual(

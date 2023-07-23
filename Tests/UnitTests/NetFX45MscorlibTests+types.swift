@@ -5,8 +5,7 @@ import XCTest
 extension NetFX45MscorlibTests {
     func testArrayType() throws {
         guard let arraySegment = Self.assembly.findDefinedType(fullName: "System.ArraySegment`1") else {
-            XCTFail("Couldn't find System.ArraySegment`1")
-            return
+            return XCTFail("Couldn't find System.ArraySegment`1")
         }
 
         try XCTAssertEqual(
@@ -16,8 +15,7 @@ extension NetFX45MscorlibTests {
 
     func testGenericArgType() throws {
         guard let nullable = Self.assembly.findDefinedType(fullName: "System.Nullable`1") else {
-            XCTFail("Couldn't find System.Nullable`1")
-            return
+            return XCTFail("Couldn't find System.Nullable`1")
         }
 
         try XCTAssertEqual(
@@ -27,13 +25,11 @@ extension NetFX45MscorlibTests {
 
     func testGenericInstType() throws {
         guard let ienumerable = Self.assembly.findDefinedType(fullName: "System.Collections.Generic.IEnumerable`1") else {
-            XCTFail("Couldn't find System.Collections.Generic.IEnumerable`1")
-            return
+            return XCTFail("Couldn't find System.Collections.Generic.IEnumerable`1")
         }
 
         guard let ienumerator = Self.assembly.findDefinedType(fullName: "System.Collections.Generic.IEnumerator`1") else {
-            XCTFail("Couldn't find AsyncOperationCompletedHandler`1")
-            return
+            return XCTFail("Couldn't find AsyncOperationCompletedHandler`1")
         }
 
         try XCTAssertEqual(

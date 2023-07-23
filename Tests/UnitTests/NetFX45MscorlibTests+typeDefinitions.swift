@@ -56,8 +56,7 @@ extension NetFX45MscorlibTests {
 
     func testBaseInterfaces() throws {
         guard let equalityComparer = Self.assembly.findDefinedType(fullName: "System.Collections.Generic.EqualityComparer`1") else {
-            XCTFail("IAsyncAction not found")
-            return
+            return XCTFail("IAsyncAction not found")
         }
         XCTAssertEqual(
             equalityComparer.baseInterfaces.map { $0.interface.definition.fullName }.sorted(),
@@ -101,8 +100,7 @@ extension NetFX45MscorlibTests {
 
     func testEnum() throws {
         guard let dayOfWeek = Self.assembly.findDefinedType(fullName: "System.DayOfWeek") as? EnumDefinition else {
-            XCTFail("System.DayOfWeek not found")
-            return
+            return XCTFail("System.DayOfWeek not found")
         }
 
         XCTAssertEqual(try dayOfWeek.underlyingType.fullName, "System.Int32")
