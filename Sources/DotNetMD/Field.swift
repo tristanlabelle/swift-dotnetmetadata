@@ -17,8 +17,15 @@ public final class Field {
     public var name: String { database.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
-
     public var visibility: Visibility { tableRow.flags.visibility }
+
+    public private(set) lazy var explicitOffset: Int? = { () -> Int? in
+        guard let fieldLayoutRowIndex = database.tables.fieldLayout.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
+        else { return nil }
+
+        let fieldLayoutRow = database.tables.fieldLayout[fieldLayoutRowIndex]
+        return Int(fieldLayoutRow.offset)
+    }()
 
     private lazy var _signature = Result {
         let signatureBlob = database.heaps.resolve(tableRow.signature)
