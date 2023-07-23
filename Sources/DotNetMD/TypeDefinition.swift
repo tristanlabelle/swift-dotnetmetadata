@@ -1,54 +1,5 @@
 import DotNetMDFormat
 
-internal enum TypeDefinitionKind {
-    case `class`
-    case interface
-    case delegate
-    case `struct`
-    case `enum`
-}
-
-internal protocol TypeDefinitionImpl {
-    func initialize(owner: TypeDefinition)
-
-    var name: String { get }
-    var namespace: String? { get }
-    var kind: TypeDefinitionKind { get }
-    var metadataAttributes: DotNetMDFormat.TypeAttributes { get }
-    var enclosingType: TypeDefinition? { get }
-    var genericParams: [GenericTypeParam] { get }
-    var base: BoundType? { get }
-    var baseInterfaces: [BaseInterface] { get }
-    var fields: [Field]  { get }
-    var methods: [Method] { get }
-    var properties: [Property] { get }
-    var events: [Event] { get }
-    var attributes: [Attribute] { get }
-}
-
-public func makeFullTypeName(namespace: String?, name: String) -> String {
-    if let namespace {
-        return "\(namespace).\(name)"
-    } else {
-        return name
-    }
-}
-
-public func makeFullTypeName(namespace: String?, enclosingName: String, nestedNames: [String]) -> String {
-    var result: String
-    if let namespace {
-        result = "\(namespace).\(enclosingName)"
-    }
-    else {
-        result = enclosingName
-    }
-    for nestedName in nestedNames {
-        result.append(TypeDefinition.nestedTypeSeparator)
-        result += nestedName
-    }
-    return result
-}
-
 /// An unbound type definition, which may have generic parameters.
 public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Kind = TypeDefinitionKind
@@ -106,12 +57,23 @@ public class TypeDefinition: CustomDebugStringConvertible {
         }
         return makeFullTypeName(namespace: namespace, name: name)
     }()
-    
+
     public var visibility: Visibility { metadataAttributes.visibility }
     public var isNested: Bool { metadataAttributes.isNested }
     public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
     public var isGeneric: Bool { !genericParams.isEmpty }
+
+    public var layout: TypeLayout {
+        switch metadataAttributes.layoutKind {
+            case .auto: return .auto
+            case .sequential:
+                let layout = impl.classLayout
+                return .sequential(pack: layout.pack == 0 ? nil : Int(layout.pack), minSize: Int(layout.size))
+            case .explicit:
+                return .explicit(minSize: Int(impl.classLayout.size))
+        }
+    }
     public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
 
     public func findSingleMethod(name: String, inherited: Bool = false) -> Method? {
@@ -153,4 +115,56 @@ public final class EnumDefinition: TypeDefinition {
 extension TypeDefinition: Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
     public static func == (lhs: TypeDefinition, rhs: TypeDefinition) -> Bool { lhs === rhs }
+}
+
+internal enum TypeDefinitionKind {
+    case `class`
+    case interface
+    case delegate
+    case `struct`
+    case `enum`
+}
+
+internal typealias ClassLayoutData = (pack: UInt16, size: UInt32)
+
+internal protocol TypeDefinitionImpl {
+    func initialize(owner: TypeDefinition)
+
+    var name: String { get }
+    var namespace: String? { get }
+    var kind: TypeDefinitionKind { get }
+    var metadataAttributes: DotNetMDFormat.TypeAttributes { get }
+    var classLayout: ClassLayoutData { get }
+    var enclosingType: TypeDefinition? { get }
+    var genericParams: [GenericTypeParam] { get }
+    var base: BoundType? { get }
+    var baseInterfaces: [BaseInterface] { get }
+    var fields: [Field]  { get }
+    var methods: [Method] { get }
+    var properties: [Property] { get }
+    var events: [Event] { get }
+    var attributes: [Attribute] { get }
+}
+
+public func makeFullTypeName(namespace: String?, name: String) -> String {
+    if let namespace {
+        return "\(namespace).\(name)"
+    } else {
+        return name
+    }
+}
+
+public func makeFullTypeName(namespace: String?, enclosingName: String, nestedNames: [String]) -> String {
+    var result: String
+    if let namespace {
+        result = "\(namespace).\(enclosingName)"
+    }
+    else {
+        result = enclosingName
+    }
+    for nestedName in nestedNames {
+        result.append(TypeDefinition.nestedTypeSeparator)
+        result += nestedName
+    }
+    return result
 }

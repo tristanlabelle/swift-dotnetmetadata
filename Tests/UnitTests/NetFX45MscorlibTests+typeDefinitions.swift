@@ -24,6 +24,22 @@ extension NetFX45MscorlibTests {
         XCTAssertEqual(environment_SpecialFolder?.fullName, "System.Environment/SpecialFolder")
     }
 
+    func testTypeLayout() throws {
+        XCTAssertEqual(
+            Self.assembly.findDefinedType(fullName: "System.Object")?.layout,
+            TypeLayout.auto)
+
+        // Rare public type with non-zero size
+        XCTAssertEqual(
+            Self.assembly.findDefinedType(fullName: "System.ValueTuple")?.layout,
+            TypeLayout.sequential(pack: nil, minSize: 1))
+
+        // Rare public type with explicit layout
+        XCTAssertEqual(
+            Self.assembly.findDefinedType(fullName: "System.Runtime.InteropServices.BINDPTR")?.layout,
+            TypeLayout.explicit(minSize: 0))
+    }
+
     func testEnclosingType() throws {
         XCTAssertIdentical(
             Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder")?.enclosingType,

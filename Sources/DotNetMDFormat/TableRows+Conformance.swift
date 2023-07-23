@@ -65,8 +65,10 @@ extension TableRows.AssemblyRef: TableRow {
     }
 }
 
-extension TableRows.ClassLayout: TableRow {
+extension TableRows.ClassLayout: KeyedTableRow {
     public static var tableID: TableID { .classLayout }
+    
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
@@ -87,9 +89,9 @@ extension TableRows.ClassLayout: TableRow {
 }
 
 extension TableRows.Constant: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
-
     public static var tableID: TableID { .constant }
+
+    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)

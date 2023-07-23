@@ -40,6 +40,14 @@ extension TypeDefinition {
 
         internal var metadataAttributes: DotNetMDFormat.TypeAttributes { tableRow.flags }
 
+        public private(set) lazy var classLayout: ClassLayoutData = {
+            guard let classLayoutRowIndex = database.tables.classLayout.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
+            else { return ClassLayoutData(0, 0) }
+
+            let classLayoutRow = database.tables.classLayout[classLayoutRowIndex]
+            return ClassLayoutData(pack: classLayoutRow.packingSize, size: classLayoutRow.classSize)
+        }()
+
         public private(set) lazy var enclosingType: TypeDefinition? = {
             guard let nestedClassRowIndex = database.tables.nestedClass.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
             guard let enclosingTypeDefRowIndex = database.tables.nestedClass[nestedClassRowIndex].enclosingClass else { return nil }

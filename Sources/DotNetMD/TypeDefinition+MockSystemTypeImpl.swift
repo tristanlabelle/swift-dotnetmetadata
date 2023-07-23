@@ -26,6 +26,7 @@ extension TypeDefinition {
         func initialize(owner: TypeDefinition) {}
 
         public var namespace: String? { "System" }
+        public var classLayout: ClassLayoutData { ClassLayoutData(0, 0) }
         public var enclosingType: TypeDefinition? { nil }
         public var baseInterfaces: [BaseInterface] { [] }
         public var genericParams: [GenericTypeParam] { [] }
