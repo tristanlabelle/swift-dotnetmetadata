@@ -93,8 +93,8 @@ public class Method {
     public var returnType: TypeNode { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = {
-        database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {
-            rowIndex, _ in GenericMethodParam(definingMethod: self, tableRowIndex: rowIndex)
+        database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+            GenericMethodParam(definingMethod: self, tableRowIndex: $0)
         }
     }()
 

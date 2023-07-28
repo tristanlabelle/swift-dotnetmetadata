@@ -144,6 +144,7 @@ internal protocol TypeDefinitionImpl {
     var properties: [Property] { get }
     var events: [Event] { get }
     var attributes: [Attribute] { get }
+    var nestedTypes: [TypeDefinition] { get }
 }
 
 public func makeFullTypeName(namespace: String?, name: String) -> String {

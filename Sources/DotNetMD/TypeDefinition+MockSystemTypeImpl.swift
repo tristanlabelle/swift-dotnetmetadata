@@ -35,5 +35,6 @@ extension TypeDefinition {
         public var properties: [Property] { [] }
         public var events: [Event] { [] }
         public var attributes: [Attribute] { [] }
+        public var nestedTypes: [TypeDefinition] { [] }
     }
 }

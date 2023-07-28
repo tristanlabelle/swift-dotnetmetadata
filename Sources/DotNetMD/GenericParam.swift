@@ -19,8 +19,8 @@ public class GenericParam {
     public var hasDefaultConstructor: Bool { tableRow.flags.contains(.defaultConstructorConstraint) }
 
     private lazy var _constraints = Result {
-        database.tables.genericParamConstraint.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey) {
-            _, row in assemblyImpl.resolve(row.constraint)!
+        database.tables.genericParamConstraint.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
+            assemblyImpl.resolve(database.tables.genericParamConstraint[$0].constraint)!
         }
     }
 

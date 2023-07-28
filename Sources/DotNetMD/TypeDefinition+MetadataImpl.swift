@@ -55,16 +55,16 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var genericParams: [GenericTypeParam] = {
-            database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {
-                rowIndex, _ in GenericTypeParam(definingTypeImpl: self, tableRowIndex: rowIndex)
+            database.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+                GenericTypeParam(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
 
         public private(set) lazy var base: BoundType? = assemblyImpl.resolveOptionalBoundType(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = {
-            database.tables.interfaceImpl.findAll(primaryKey: tableRowIndex.metadataToken.tableKey) {
-                rowIndex, _ in BaseInterface(inheritingTypeImpl: self, tableRowIndex: rowIndex)
+            database.tables.interfaceImpl.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+                BaseInterface(inheritingTypeImpl: self, tableRowIndex: $0)
             }
         }()
 
@@ -110,8 +110,13 @@ extension TypeDefinition {
             assemblyImpl.getAttributes(owner: .typeDef(tableRowIndex))
         }()
 
+        public private(set) lazy var nestedTypes: [TypeDefinition] = {
+            fatalError()
+        }()
+
         internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
-            database.tables.methodSemantics.findAll(primaryKey: owner.metadataToken.tableKey) { rowIndex, row in 
+            database.tables.methodSemantics.findAll(primaryKey: owner.metadataToken.tableKey).map {
+                let row = database.tables.methodSemantics[$0]
                 let method = methods.first { $0.tableRowIndex == row.method }!
                 return (method, row.semantics)
             }

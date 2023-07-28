@@ -75,8 +75,8 @@ extension Assembly {
         }()
 
         internal func getAttributes(owner: HasCustomAttribute) -> [Attribute] {
-            database.tables.customAttribute.findAll(primaryKey: owner.metadataToken.tableKey) {
-                rowIndex, _ in Attribute(tableRowIndex: rowIndex, assemblyImpl: self)
+            database.tables.customAttribute.findAll(primaryKey: owner.metadataToken.tableKey).map {
+                Attribute(tableRowIndex: $0, assemblyImpl: self)
             }
         }
 
