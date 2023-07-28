@@ -11,24 +11,24 @@ public final class Field {
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
-    internal var database: Database { definingTypeImpl.database }
-    private var tableRow: FieldTable.Row { database.tables.field[tableRowIndex] }
+    internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    private var tableRow: FieldTable.Row { moduleFile.tables.field[tableRowIndex] }
 
-    public var name: String { database.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
     public var visibility: Visibility { tableRow.flags.visibility }
 
     public private(set) lazy var explicitOffset: Int? = { () -> Int? in
-        guard let fieldLayoutRowIndex = database.tables.fieldLayout.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
+        guard let fieldLayoutRowIndex = moduleFile.tables.fieldLayout.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
         else { return nil }
 
-        let fieldLayoutRow = database.tables.fieldLayout[fieldLayoutRowIndex]
+        let fieldLayoutRow = moduleFile.tables.fieldLayout[fieldLayoutRowIndex]
         return Int(fieldLayoutRow.offset)
     }()
 
     private lazy var _signature = Result {
-        let signatureBlob = database.heaps.resolve(tableRow.signature)
+        let signatureBlob = moduleFile.heaps.resolve(tableRow.signature)
         return try! FieldSig(blob: signatureBlob)
     }
     public var signature: FieldSig { get throws { try _signature.get() } }
@@ -38,7 +38,7 @@ public final class Field {
 
     private lazy var _literalValue = Result {
         guard tableRow.flags.contains(.literal) else { return nil as Constant? }
-        return try Constant(database: database, owner: .field(tableRowIndex))
+        return try Constant(moduleFile: moduleFile, owner: .field(tableRowIndex))
     }
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
 

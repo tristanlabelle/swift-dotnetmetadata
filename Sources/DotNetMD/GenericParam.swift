@@ -8,10 +8,10 @@ public class GenericParam {
     }
 
     internal var assemblyImpl: Assembly.MetadataImpl { fatalError() }
-    internal var database: Database { fatalError() }
-    private var tableRow: GenericParamTable.Row { database.tables.genericParam[tableRowIndex] }
+    internal var moduleFile: ModuleFile { fatalError() }
+    private var tableRow: GenericParamTable.Row { moduleFile.tables.genericParam[tableRowIndex] }
 
-    public var name: String { database.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.number) }
 
     public var isReferenceType: Bool { tableRow.flags.contains(.referenceTypeConstraint) }
@@ -19,8 +19,8 @@ public class GenericParam {
     public var hasDefaultConstructor: Bool { tableRow.flags.contains(.defaultConstructorConstraint) }
 
     private lazy var _constraints = Result {
-        database.tables.genericParamConstraint.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
-            assemblyImpl.resolve(database.tables.genericParamConstraint[$0].constraint)!
+        moduleFile.tables.genericParamConstraint.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
+            assemblyImpl.resolve(moduleFile.tables.genericParamConstraint[$0].constraint)!
         }
     }
 
@@ -41,7 +41,7 @@ public final class GenericTypeParam: GenericParam {
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal override var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
-    internal override var database: Database { definingTypeImpl.database }
+    internal override var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
 }
 
 public final class GenericMethodParam: GenericParam {
@@ -53,7 +53,7 @@ public final class GenericMethodParam: GenericParam {
     }
 
     internal override var assemblyImpl: Assembly.MetadataImpl { definingMethod.assemblyImpl }
-    internal override var database: Database { definingMethod.database }
+    internal override var moduleFile: ModuleFile { definingMethod.moduleFile }
 }
 
 extension GenericParam: Hashable {

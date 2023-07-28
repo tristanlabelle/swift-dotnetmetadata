@@ -1,4 +1,4 @@
-extension Database {
+extension ModuleFile {
     public class Tables {
         // In TableID order
         public let module: ModuleTable

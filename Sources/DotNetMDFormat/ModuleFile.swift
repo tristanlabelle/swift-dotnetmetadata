@@ -2,7 +2,7 @@ import CInterop
 import Foundation
 
 /// A view of the CLI metadata embedded in a DotNetMDFormat file.
-public final class Database {
+public final class ModuleFile {
     private struct MetadataRoot {
         var majorVersion: UInt16, minorVersion: UInt16
         var versionString: String
@@ -10,14 +10,19 @@ public final class Database {
         var streamHeaders: [String: MetadataStreamHeader] = [:]
     }
 
-    private let file: Data?
+    private let data: Data
     public let heaps: Heaps
     public let tables: Tables
 
-    public init(file: Data) throws {
-        self.file = file
-        let data = file.withUnsafeBytes { $0 }
-        let peView = try PEView(file: data)
+    public init(data: Data) throws {
+        self.data = data
+        let buffer = data.withUnsafeBytes { $0 }
+        let buffer2 = data.withUnsafeBytes { $0 }
+        guard buffer2.baseAddress == buffer.baseAddress && buffer2.count == buffer.count else {
+            fatalError("ModuleFile data is not pinned")
+        }
+
+        let peView = try PEView(file: buffer)
 
         let cliHeader = peView.resolve(peView.dataDirectories[Int(CINTEROP_IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR)])
             .bindMemory(offset: 0, to: CINTEROP_IMAGE_COR20_HEADER.self)
@@ -47,7 +52,7 @@ public final class Database {
     }
 
     public convenience init(url: URL) throws {
-        try self.init(file: try Data(contentsOf: url, options: .mappedIfSafe))
+        try self.init(data: try Data(contentsOf: url, options: .mappedIfSafe))
     }
 
     private static func getStream(metadataSection: UnsafeRawBufferPointer, header: MetadataStreamHeader?) -> UnsafeRawBufferPointer {

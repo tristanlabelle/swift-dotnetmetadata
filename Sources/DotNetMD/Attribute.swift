@@ -9,8 +9,8 @@ public final class Attribute {
         self.assemblyImpl = assemblyImpl
     }
 
-    internal var database: Database { assemblyImpl.database }
-    private var tableRow: CustomAttributeTable.Row { database.tables.customAttribute[tableRowIndex] }
+    internal var moduleFile: ModuleFile { assemblyImpl.moduleFile }
+    private var tableRow: CustomAttributeTable.Row { moduleFile.tables.customAttribute[tableRowIndex] }
 
     private lazy var _constructor = Result {
         try assemblyImpl.resolve(tableRow.type) as! Constructor
@@ -19,7 +19,7 @@ public final class Attribute {
     public var type: TypeDefinition { get throws { try constructor.definingType } }
 
     private lazy var _signature = Result {
-        try CustomAttribSig(blob: database.heaps.resolve(tableRow.value), params: try _constructor.get().signature.params)
+        try CustomAttribSig(blob: moduleFile.heaps.resolve(tableRow.value), params: try _constructor.get().signature.params)
     }
     public var signature: CustomAttribSig { get throws { try _signature.get() } }
 

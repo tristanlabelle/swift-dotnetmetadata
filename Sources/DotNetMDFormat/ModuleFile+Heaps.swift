@@ -1,7 +1,7 @@
 import struct Foundation.UUID
 
-extension Database {
-    /// "namespace" for database.heaps.xxx syntax
+extension ModuleFile {
+    /// "namespace" for moduleFile.heaps.xxx syntax
     public struct Heaps {
         public let string: StringHeap
         public let guid: GuidHeap

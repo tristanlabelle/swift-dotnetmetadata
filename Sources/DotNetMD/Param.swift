@@ -10,7 +10,7 @@ public class ParamBase {
     }
 
     internal var assemblyImpl: Assembly.MetadataImpl { method.assemblyImpl }
-    internal var database: Database { method.database }
+    internal var moduleFile: ModuleFile { method.moduleFile }
 
     public var isByRef: Bool { signature.byRef }
 
@@ -25,9 +25,9 @@ public final class Param: ParamBase {
         super.init(method: method, signature: signature)
     }
 
-    private var tableRow: ParamTable.Row { database.tables.param[tableRowIndex] }
+    private var tableRow: ParamTable.Row { moduleFile.tables.param[tableRowIndex] }
 
-    public var name: String? { database.heaps.resolve(tableRow.name) }
+    public var name: String? { moduleFile.heaps.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.sequence) - 1 }
 
     public var isIn: Bool { tableRow.flags.contains(.in) }
@@ -36,7 +36,7 @@ public final class Param: ParamBase {
 
     private lazy var _defaultValue = Result {
         guard tableRow.flags.contains(.hasDefault) else { return nil as Constant? }
-        return try Constant(database: database, owner: .param(tableRowIndex))
+        return try Constant(moduleFile: moduleFile, owner: .param(tableRowIndex))
     }
     public var defaultValue : Constant? { get throws { try _defaultValue.get() } }
 }

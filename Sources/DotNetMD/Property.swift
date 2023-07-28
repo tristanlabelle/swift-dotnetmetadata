@@ -15,8 +15,8 @@ public class Property {
     }
 
     internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: PropertyTable.RowIndex) -> Property {
-        let row = definingTypeImpl.database.tables.property[tableRowIndex]
-        let propertySig = try! PropertySig(blob: definingTypeImpl.database.heaps.resolve(row.type))
+        let row = definingTypeImpl.moduleFile.tables.property[tableRowIndex]
+        let propertySig = try! PropertySig(blob: definingTypeImpl.moduleFile.heaps.resolve(row.type))
         if propertySig.params.count == 0 {
             return Property(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
         }
@@ -27,10 +27,10 @@ public class Property {
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
-    internal var database: Database { definingTypeImpl.database }
-    private var tableRow: PropertyTable.Row { database.tables.property[tableRowIndex] }
+    internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    private var tableRow: PropertyTable.Row { moduleFile.tables.property[tableRowIndex] }
 
-    public var name: String { database.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
 
     private lazy var _type = Result { assemblyImpl.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }

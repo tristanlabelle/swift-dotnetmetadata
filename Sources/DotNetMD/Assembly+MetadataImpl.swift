@@ -4,11 +4,11 @@ import DotNetMDFormat
 extension Assembly {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: Assembly!
-        internal let database: Database
+        internal let moduleFile: ModuleFile
         private let tableRow: AssemblyTable.Row
 
-        internal init(database: Database, tableRow: AssemblyTable.Row) {
-            self.database = database
+        internal init(moduleFile: ModuleFile, tableRow: AssemblyTable.Row) {
+            self.moduleFile = moduleFile
             self.tableRow = tableRow
         }
 
@@ -18,8 +18,8 @@ extension Assembly {
 
         private var context: MetadataContext { owner.context }
 
-        public var name: String { database.heaps.resolve(tableRow.name) }
-        public var culture: String { database.heaps.resolve(tableRow.culture) }
+        public var name: String { moduleFile.heaps.resolve(tableRow.name) }
+        public var culture: String { moduleFile.heaps.resolve(tableRow.culture) }
 
         public var version: AssemblyVersion {
             .init(
@@ -29,10 +29,10 @@ extension Assembly {
                 revisionNumber: tableRow.revisionNumber)
         }
 
-        public private(set) lazy var moduleName: String = database.heaps.resolve(database.tables.module[0].name)
+        public private(set) lazy var moduleName: String = moduleFile.heaps.resolve(moduleFile.tables.module[0].name)
 
         public private(set) lazy var definedTypes: [TypeDefinition] = {
-            database.tables.typeDef.indices.map { 
+            moduleFile.tables.typeDef.indices.map { 
                 TypeDefinition.create(
                     assembly: owner,
                     impl: TypeDefinition.MetadataImpl(assemblyImpl: self, tableRowIndex: $0))
@@ -40,8 +40,8 @@ extension Assembly {
         }()
 
         private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowIndex: PropertyMapTable.RowIndex] = {
-            .init(uniqueKeysWithValues: database.tables.propertyMap.indices.map {
-                (database.tables.propertyMap[$0].parent!, $0)
+            .init(uniqueKeysWithValues: moduleFile.tables.propertyMap.indices.map {
+                (moduleFile.tables.propertyMap[$0].parent!, $0)
             })
         }()
 
@@ -50,8 +50,8 @@ extension Assembly {
         }
 
         private lazy var eventMapByTypeDefRowIndex: [TypeDefTable.RowIndex: EventMapTable.RowIndex] = {
-            .init(uniqueKeysWithValues: database.tables.eventMap.indices.map {
-                (database.tables.eventMap[$0].parent!, $0)
+            .init(uniqueKeysWithValues: moduleFile.tables.eventMap.indices.map {
+                (moduleFile.tables.eventMap[$0].parent!, $0)
             })
         }()
 
@@ -64,8 +64,8 @@ extension Assembly {
                 return mscorlib
             }
 
-            for assemblyRef in database.tables.assemblyRef {
-                let identity = AssemblyIdentity(fromRow: assemblyRef, in: database)
+            for assemblyRef in moduleFile.tables.assemblyRef {
+                let identity = AssemblyIdentity(fromRow: assemblyRef, in: moduleFile)
                 if identity.name == Mscorlib.name {
                     return try! context.loadAssembly(identity: identity) as! Mscorlib
                 }
@@ -75,7 +75,7 @@ extension Assembly {
         }()
 
         internal func getAttributes(owner: HasCustomAttribute) -> [Attribute] {
-            database.tables.customAttribute.findAll(primaryKey: owner.metadataToken.tableKey).map {
+            moduleFile.tables.customAttribute.findAll(primaryKey: owner.metadataToken.tableKey).map {
                 Attribute(tableRowIndex: $0, assemblyImpl: self)
             }
         }
@@ -121,9 +121,9 @@ extension Assembly {
         }
 
         internal func resolve(_ index: TypeRefTable.RowIndex) -> TypeDefinition {
-            let row = database.tables.typeRef[index]
-            let name = database.heaps.resolve(row.typeName)
-            let namespace = database.heaps.resolve(row.typeNamespace)
+            let row = moduleFile.tables.typeRef[index]
+            let name = moduleFile.heaps.resolve(row.typeName)
+            let namespace = moduleFile.heaps.resolve(row.typeNamespace)
             switch row.resolutionScope {
                 case let .module(index):
                     // Assume single-module assembly
@@ -139,15 +139,15 @@ extension Assembly {
         }
 
         internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode {
-            let typeSpecRow = database.tables.typeSpec[index]
-            let signatureBlob = database.heaps.resolve(typeSpecRow.signature)
+            let typeSpecRow = moduleFile.tables.typeSpec[index]
+            let signatureBlob = moduleFile.heaps.resolve(typeSpecRow.signature)
             let typeSig = try! TypeSig(blob: signatureBlob)
             return resolve(typeSig, typeContext: typeContext, methodContext: methodContext)
         }
 
         internal func resolve(_ index: AssemblyRefTable.RowIndex) -> Assembly {
-            let row = database.tables.assemblyRef[index]
-            let identity = AssemblyIdentity(fromRow: row, in: database)
+            let row = moduleFile.tables.assemblyRef[index]
+            let identity = AssemblyIdentity(fromRow: row, in: moduleFile)
             return try! context.loadAssembly(identity: identity)
         }
 
@@ -210,17 +210,17 @@ extension Assembly {
         }
 
         internal func resolve(_ methodDefRowIndex: MethodDefTable.RowIndex) -> Method {
-            guard let typeDefRowIndex = database.tables.typeDef.findMethodOwner(methodDefRowIndex) else {
+            guard let typeDefRowIndex = moduleFile.tables.typeDef.findMethodOwner(methodDefRowIndex) else {
                 fatalError("No owner found for method \(methodDefRowIndex)")
             }
 
-            let methodIndex = methodDefRowIndex.zeroBased - database.tables.typeDef[typeDefRowIndex].methodList!.zeroBased
+            let methodIndex = methodDefRowIndex.zeroBased - moduleFile.tables.typeDef[typeDefRowIndex].methodList!.zeroBased
             return resolve(typeDefRowIndex).methods[Int(methodIndex)]
         }
 
         internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
-            let row = database.tables.memberRef[index]
-            let name = database.heaps.resolve(row.name)
+            let row = moduleFile.tables.memberRef[index]
+            let name = moduleFile.heaps.resolve(row.name)
             return try resolveMethod(row.class, name: name)
         }
 

@@ -1,7 +1,7 @@
 import struct Foundation.URL
 import DotNetMDFormat
 
-public typealias AssemblyResolver = (AssemblyIdentity) throws -> Database
+public typealias AssemblyResolver = (AssemblyIdentity) throws -> ModuleFile
 
 public class MetadataContext {
     private let assemblyResolver: AssemblyResolver
@@ -34,14 +34,14 @@ public class MetadataContext {
     }
 
     public func loadAssembly(url: URL) throws -> Assembly {
-        let database = try Database(url: url)
-        guard database.tables.assembly.count == 1 else {
+        let moduleFile = try ModuleFile(url: url)
+        guard moduleFile.tables.assembly.count == 1 else {
             throw DotNetMDFormat.InvalidFormatError.tableConstraint
         }
 
-        let assemblyRow = database.tables.assembly[0]
+        let assemblyRow = moduleFile.tables.assembly[0]
         // TODO: de-duplicate against loaded assemblies
-        let assemblyImpl = Assembly.MetadataImpl(database: database, tableRow: assemblyRow)
+        let assemblyImpl = Assembly.MetadataImpl(moduleFile: moduleFile, tableRow: assemblyRow)
         let assembly: Assembly
         if assemblyImpl.name == Mscorlib.name,
             let mscorlib = try? Mscorlib(context: self, impl: assemblyImpl) {

@@ -1,6 +1,6 @@
 import DotNetMDFormat
 
-extension Database {
+extension ModuleFile {
     func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row, isMscorlib: Bool) -> TypeDefinitionKind {
         if tableRow.flags.contains(.interface) {
             return .interface
