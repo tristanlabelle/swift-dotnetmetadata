@@ -1,7 +1,9 @@
 import CInterop
 import Foundation
 
-/// A view of the CLI metadata embedded in a DotNetMDFormat file.
+/// A view of the CLI metadata embedded in a module file (.dll, .exe or .winmd).
+/// Module files are commonly referred to as assemblies, but this is incorrect
+/// since an assembly is a higher-level construct which can consist of multiple module files.
 public final class ModuleFile {
     private struct MetadataRoot {
         var majorVersion: UInt16, minorVersion: UInt16
