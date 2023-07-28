@@ -111,7 +111,10 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var nestedTypes: [TypeDefinition] = {
-            fatalError()
+            database.tables.nestedClass.findAllNested(enclosing: tableRowIndex).map {
+                let nestedTypeRowIndex = database.tables.nestedClass[$0].nestedClass!
+                return assemblyImpl.resolve(nestedTypeRowIndex)
+            }
         }()
 
         internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {

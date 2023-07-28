@@ -107,4 +107,10 @@ extension NetFX45MscorlibTests {
         XCTAssertEqual(try dayOfWeek.findField(name: "Sunday")?.literalValue, Constant.int32(0))
         XCTAssertEqual(try dayOfWeek.findField(name: "Thursday")?.literalValue, Constant.int32(4))
     }
+
+    func testNestedType() throws {
+         XCTAssertEqual(
+            Self.assembly.findDefinedType(fullName: "System.Collections.Generic.List`1")?.nestedTypes.contains { $0.name == "Enumerator" },
+            true)
+    }
 }

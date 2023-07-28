@@ -28,3 +28,9 @@ extension Table where Row: DoublyKeyedTableRow {
             matchPreference: .first).asOptional
     }
 }
+
+extension NestedClassTable {
+    public func findAllNested(enclosing: TypeDefTable.RowIndex) -> Range<RowIndex> {
+        binarySearchRange(for: enclosing.metadataToken.tableKey, selector: { $0.enclosingClass!.metadataToken.tableKey })
+    }
+}

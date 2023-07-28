@@ -41,6 +41,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var properties: [Property] { impl.properties }
     public var events: [Event] { impl.events }
     public var attributes: [Attribute] { impl.attributes }
+    public var nestedTypes: [TypeDefinition] { impl.nestedTypes }
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 
