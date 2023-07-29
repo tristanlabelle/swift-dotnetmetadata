@@ -25,9 +25,9 @@ public final class Param: ParamBase {
         super.init(method: method, signature: signature)
     }
 
-    private var tableRow: ParamTable.Row { moduleFile.tables.param[tableRowIndex] }
+    private var tableRow: ParamTable.Row { moduleFile.paramTable[tableRowIndex] }
 
-    public var name: String? { moduleFile.heaps.resolve(tableRow.name) }
+    public var name: String? { moduleFile.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.sequence) - 1 }
 
     public var isIn: Bool { tableRow.flags.contains(.in) }

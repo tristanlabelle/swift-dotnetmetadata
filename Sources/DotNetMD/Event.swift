@@ -16,9 +16,9 @@ public final class Event {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
-    private var tableRow: EventTable.Row { moduleFile.tables.event[tableRowIndex] }
+    private var tableRow: EventTable.Row { moduleFile.eventTable[tableRowIndex] }
 
-    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.resolve(tableRow.name) }
 
     private lazy var _handlerType = Result { assemblyImpl.resolveOptionalBoundType(tableRow.eventType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }

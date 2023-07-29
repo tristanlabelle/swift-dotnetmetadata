@@ -11,7 +11,7 @@ public class Method {
     }
 
     internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: MethodDefTable.RowIndex) -> Method {
-        let name = definingTypeImpl.moduleFile.heaps.resolve(definingTypeImpl.moduleFile.tables.methodDef[tableRowIndex].name)
+        let name = definingTypeImpl.moduleFile.resolve(definingTypeImpl.moduleFile.methodDefTable[tableRowIndex].name)
         if name == ".ctor" {
             return Constructor(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
         }
@@ -23,9 +23,9 @@ public class Method {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
-    private var tableRow: MethodDefTable.Row { moduleFile.tables.methodDef[tableRowIndex] }
+    private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
 
-    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isVirtual: Bool { tableRow.flags.contains(.virtual) }
     public var isAbstract: Bool { tableRow.flags.contains(.abstract) }
@@ -46,19 +46,19 @@ public class Method {
         }
     }
 
-    private lazy var _signature = Result { try MethodDefSig(blob: moduleFile.heaps.resolve(tableRow.signature)) }
+    private lazy var _signature = Result { try MethodDefSig(blob: moduleFile.resolve(tableRow.signature)) }
     public var signature: MethodDefSig { get throws { try _signature.get() } }
 
     private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result {
         let paramRowIndices = getChildRowRange(
-            parent: moduleFile.tables.methodDef,
+            parent: moduleFile.methodDefTable,
             parentRowIndex: tableRowIndex,
-            childTable: moduleFile.tables.param,
+            childTable: moduleFile.paramTable,
             childSelector: { $0.paramList })
 
         let signature = try self.signature
 
-        if paramRowIndices.isEmpty || moduleFile.tables.param[paramRowIndices.lowerBound].sequence > 0 {
+        if paramRowIndices.isEmpty || moduleFile.paramTable[paramRowIndices.lowerBound].sequence > 0 {
             // No Param row for the return param
             guard paramRowIndices.count == signature.params.count else {
                 fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (no return param), \(signature.params.count) in signature")
@@ -93,7 +93,7 @@ public class Method {
     public var returnType: TypeNode { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = {
-        moduleFile.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+        moduleFile.genericParamTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
             GenericMethodParam(definingMethod: self, tableRowIndex: $0)
         }
     }()

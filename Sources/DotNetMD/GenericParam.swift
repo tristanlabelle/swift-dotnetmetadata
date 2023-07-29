@@ -9,9 +9,9 @@ public class GenericParam {
 
     internal var assemblyImpl: Assembly.MetadataImpl { fatalError() }
     internal var moduleFile: ModuleFile { fatalError() }
-    private var tableRow: GenericParamTable.Row { moduleFile.tables.genericParam[tableRowIndex] }
+    private var tableRow: GenericParamTable.Row { moduleFile.genericParamTable[tableRowIndex] }
 
-    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.resolve(tableRow.name) }
     public var index: Int { Int(tableRow.number) }
 
     public var isReferenceType: Bool { tableRow.flags.contains(.referenceTypeConstraint) }
@@ -19,8 +19,8 @@ public class GenericParam {
     public var hasDefaultConstructor: Bool { tableRow.flags.contains(.defaultConstructorConstraint) }
 
     private lazy var _constraints = Result {
-        moduleFile.tables.genericParamConstraint.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
-            assemblyImpl.resolve(moduleFile.tables.genericParamConstraint[$0].constraint)!
+        moduleFile.genericParamConstraintTable.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
+            assemblyImpl.resolve(moduleFile.genericParamConstraintTable[$0].constraint)!
         }
     }
 

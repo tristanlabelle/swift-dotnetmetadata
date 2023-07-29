@@ -42,17 +42,17 @@ extension Constant {
 
 extension Constant {
     public init?(moduleFile: ModuleFile, owner: HasConstant) throws {
-        guard let rowIndex = moduleFile.tables.constant.findAny(primaryKey: MetadataToken(owner).tableKey) else {
+        guard let rowIndex = moduleFile.constantTable.findAny(primaryKey: MetadataToken(owner).tableKey) else {
             return nil
         }
 
-        let constantRow = moduleFile.tables.constant[rowIndex]
+        let constantRow = moduleFile.constantTable[rowIndex]
         guard constantRow.type != .nullRef else {
             self = .null
             return
         }
 
-        let blob = moduleFile.heaps.resolve(constantRow.value)
+        let blob = moduleFile.resolve(constantRow.value)
         self = try Constant(buffer: blob, type: constantRow.type)
     }
 }

@@ -35,11 +35,11 @@ public class MetadataContext {
 
     public func loadAssembly(url: URL) throws -> Assembly {
         let moduleFile = try ModuleFile(url: url)
-        guard moduleFile.tables.assembly.count == 1 else {
+        guard moduleFile.assemblyTable.count == 1 else {
             throw DotNetMDFormat.InvalidFormatError.tableConstraint
         }
 
-        let assemblyRow = moduleFile.tables.assembly[0]
+        let assemblyRow = moduleFile.assemblyTable[0]
         // TODO: de-duplicate against loaded assemblies
         let assemblyImpl = Assembly.MetadataImpl(moduleFile: moduleFile, tableRow: assemblyRow)
         let assembly: Assembly

@@ -57,14 +57,14 @@ extension AssemblyIdentity: ExpressibleByStringLiteral {
 
 extension AssemblyIdentity {
     public init(fromRow row: TableRows.AssemblyRef, in moduleFile: ModuleFile) {
-        name = moduleFile.heaps.resolve(row.name)
+        name = moduleFile.resolve(row.name)
         version = row.version
-        culture = row.culture.value == 0 ? nil : moduleFile.heaps.resolve(row.culture)
+        culture = row.culture.value == 0 ? nil : moduleFile.resolve(row.culture)
         if row.publicKeyOrToken.value == 0 {
             publicKey = nil
         }
         else {
-            let publicKeyBytes = Array(moduleFile.heaps.resolve(row.publicKeyOrToken))
+            let publicKeyBytes = Array(moduleFile.resolve(row.publicKeyOrToken))
             publicKey = row.flags.contains(.publicKey) ? .full(publicKeyBytes) : .token(publicKeyBytes)
         }
     }

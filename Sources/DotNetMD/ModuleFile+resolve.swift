@@ -7,8 +7,8 @@ extension ModuleFile {
         }
 
         // We must check the base type, but before doing so exclude special cases
-        if isMscorlib && heaps.resolve(tableRow.typeNamespace) == "System" {
-            switch heaps.resolve(tableRow.typeName) {
+        if isMscorlib && resolve(tableRow.typeNamespace) == "System" {
+            switch resolve(tableRow.typeName) {
                 case "Object": return .class
                 case "Enum": return .class
                 case "MulticastDelegate": return .class
@@ -25,15 +25,15 @@ extension ModuleFile {
             case let .typeDef(index):
                 guard let index else { return .class }
                 guard isMscorlib else { return .class }
-                let typeDefRow = tables.typeDef[index]
-                guard heaps.resolve(typeDefRow.typeNamespace) == "System" else { return .class }
-                systemTypeName = heaps.resolve(typeDefRow.typeName)
+                let typeDefRow = typeDefTable[index]
+                guard resolve(typeDefRow.typeNamespace) == "System" else { return .class }
+                systemTypeName = resolve(typeDefRow.typeName)
             case let .typeRef(index):
                 guard let index else { return .class }
-                let typeRefRow = tables.typeRef[index]
-                guard heaps.resolve(typeRefRow.typeNamespace) == "System" else { return .class }
+                let typeRefRow = typeRefTable[index]
+                guard resolve(typeRefRow.typeNamespace) == "System" else { return .class }
                 guard getAssemblyName(resolutionScope: typeRefRow.resolutionScope) == Mscorlib.name else { return .class }
-                systemTypeName = heaps.resolve(typeRefRow.typeName)
+                systemTypeName = resolve(typeRefRow.typeName)
             case .typeSpec:
                 // Assume no special base type can be referred through a typeSpec
                 return .class
@@ -47,17 +47,16 @@ extension ModuleFile {
         }
     }
 
-    private func getAssemblyName(resolutionScope: ResolutionScope) -> String?
-    {
+    private func getAssemblyName(resolutionScope: ResolutionScope) -> String? {
         switch resolutionScope {
             case .module, .moduleRef: return nil
             case let .assemblyRef(index):
                 guard let index else { return nil }
-                let assemblyRefRow = tables.assemblyRef[index]
-                return heaps.resolve(assemblyRefRow.name)
+                let assemblyRefRow = assemblyRefTable[index]
+                return resolve(assemblyRefRow.name)
             case let .typeRef(index):
                 guard let index else { return nil }
-                let typeRefRow = tables.typeRef[index]
+                let typeRefRow = typeRefTable[index]
                 return getAssemblyName(resolutionScope: typeRefRow.resolutionScope)
         }
     }

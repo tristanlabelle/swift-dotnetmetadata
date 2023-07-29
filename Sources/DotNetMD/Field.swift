@@ -12,23 +12,23 @@ public final class Field {
     public var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
-    private var tableRow: FieldTable.Row { moduleFile.tables.field[tableRowIndex] }
+    private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
 
-    public var name: String { moduleFile.heaps.resolve(tableRow.name) }
+    public var name: String { moduleFile.resolve(tableRow.name) }
     public var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
     public var visibility: Visibility { tableRow.flags.visibility }
 
     public private(set) lazy var explicitOffset: Int? = { () -> Int? in
-        guard let fieldLayoutRowIndex = moduleFile.tables.fieldLayout.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
+        guard let fieldLayoutRowIndex = moduleFile.fieldLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
         else { return nil }
 
-        let fieldLayoutRow = moduleFile.tables.fieldLayout[fieldLayoutRowIndex]
+        let fieldLayoutRow = moduleFile.fieldLayoutTable[fieldLayoutRowIndex]
         return Int(fieldLayoutRow.offset)
     }()
 
     private lazy var _signature = Result {
-        let signatureBlob = moduleFile.heaps.resolve(tableRow.signature)
+        let signatureBlob = moduleFile.resolve(tableRow.signature)
         return try! FieldSig(blob: signatureBlob)
     }
     public var signature: FieldSig { get throws { try _signature.get() } }

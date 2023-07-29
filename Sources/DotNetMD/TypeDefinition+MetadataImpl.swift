@@ -18,7 +18,7 @@ extension TypeDefinition {
         internal var assembly: Assembly { assemblyImpl.owner }
         internal var moduleFile: ModuleFile { assemblyImpl.moduleFile }
 
-        private var tableRow: TypeDefTable.Row { moduleFile.tables.typeDef[tableRowIndex] }
+        private var tableRow: TypeDefTable.Row { moduleFile.typeDefTable[tableRowIndex] }
 
         internal var kind: TypeDefinitionKind {
             // Figuring out the kind requires checking the base type,
@@ -28,34 +28,34 @@ extension TypeDefinition {
             moduleFile.getTypeDefinitionKind(tableRow, isMscorlib: assembly.name == Mscorlib.name)
         }
 
-        public var name: String { moduleFile.heaps.resolve(tableRow.typeName) }
+        public var name: String { moduleFile.resolve(tableRow.typeName) }
 
         public var namespace: String? {
             let tableRow = tableRow
             // Normally, no namespace is represented by a zero string heap index
             guard tableRow.typeNamespace.value != 0 else { return nil }
-            let value = moduleFile.heaps.resolve(tableRow.typeNamespace)
+            let value = moduleFile.resolve(tableRow.typeNamespace)
             return value.isEmpty ? nil : value
         }
 
         internal var metadataAttributes: DotNetMDFormat.TypeAttributes { tableRow.flags }
 
         public private(set) lazy var classLayout: ClassLayoutData = {
-            guard let classLayoutRowIndex = moduleFile.tables.classLayout.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
+            guard let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
             else { return ClassLayoutData(0, 0) }
 
-            let classLayoutRow = moduleFile.tables.classLayout[classLayoutRowIndex]
+            let classLayoutRow = moduleFile.classLayoutTable[classLayoutRowIndex]
             return ClassLayoutData(pack: classLayoutRow.packingSize, size: classLayoutRow.classSize)
         }()
 
         public private(set) lazy var enclosingType: TypeDefinition? = {
-            guard let nestedClassRowIndex = moduleFile.tables.nestedClass.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
-            guard let enclosingTypeDefRowIndex = moduleFile.tables.nestedClass[nestedClassRowIndex].enclosingClass else { return nil }
+            guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
+            guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass else { return nil }
             return assemblyImpl.resolve(enclosingTypeDefRowIndex)
         }()
 
         public private(set) lazy var genericParams: [GenericTypeParam] = {
-            moduleFile.tables.genericParam.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+            moduleFile.genericParamTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
                 GenericTypeParam(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
@@ -63,24 +63,24 @@ extension TypeDefinition {
         public private(set) lazy var base: BoundType? = assemblyImpl.resolveOptionalBoundType(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = {
-            moduleFile.tables.interfaceImpl.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+            moduleFile.interfaceImplTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
                 BaseInterface(inheritingTypeImpl: self, tableRowIndex: $0)
             }
         }()
 
         public private(set) lazy var methods: [Method] = {
-            getChildRowRange(parent: moduleFile.tables.typeDef,
+            getChildRowRange(parent: moduleFile.typeDefTable,
                 parentRowIndex: tableRowIndex,
-                childTable: moduleFile.tables.methodDef,
+                childTable: moduleFile.methodDefTable,
                 childSelector: { $0.methodList }).map {
                 Method.create(definingTypeImpl: self, tableRowIndex: $0)
             }
         }()
 
         public private(set) lazy var fields: [Field] = {
-            getChildRowRange(parent: moduleFile.tables.typeDef,
+            getChildRowRange(parent: moduleFile.typeDefTable,
                 parentRowIndex: tableRowIndex,
-                childTable: moduleFile.tables.field,
+                childTable: moduleFile.fieldTable,
                 childSelector: { $0.fieldList }).map {
                 Field(definingTypeImpl: self, tableRowIndex: $0)
             }
@@ -88,9 +88,9 @@ extension TypeDefinition {
 
         public private(set) lazy var properties: [Property] = {
             guard let propertyMapRowIndex = assemblyImpl.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
-            return getChildRowRange(parent: moduleFile.tables.propertyMap,
+            return getChildRowRange(parent: moduleFile.propertyMapTable,
                 parentRowIndex: propertyMapRowIndex,
-                childTable: moduleFile.tables.property,
+                childTable: moduleFile.propertyTable,
                 childSelector: { $0.propertyList }).map {
                 Property.create(definingTypeImpl: self, tableRowIndex: $0)
             }
@@ -98,9 +98,9 @@ extension TypeDefinition {
 
         public private(set) lazy var events: [Event] = {
             guard let eventMapRowIndex: EventMapTable.RowIndex = assemblyImpl.findEventMap(forTypeDef: tableRowIndex) else { return [] }
-            return getChildRowRange(parent: moduleFile.tables.eventMap,
+            return getChildRowRange(parent: moduleFile.eventMapTable,
                 parentRowIndex: eventMapRowIndex,
-                childTable: moduleFile.tables.event,
+                childTable: moduleFile.eventTable,
                 childSelector: { $0.eventList }).map {
                 Event(definingTypeImpl: self, tableRowIndex: $0)
             }
@@ -111,15 +111,15 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var nestedTypes: [TypeDefinition] = {
-            moduleFile.tables.nestedClass.findAllNested(enclosing: tableRowIndex).map {
-                let nestedTypeRowIndex = moduleFile.tables.nestedClass[$0].nestedClass!
+            moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
+                let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass!
                 return assemblyImpl.resolve(nestedTypeRowIndex)
             }
         }()
 
         internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
-            moduleFile.tables.methodSemantics.findAll(primaryKey: owner.metadataToken.tableKey).map {
-                let row = moduleFile.tables.methodSemantics[$0]
+            moduleFile.methodSemanticsTable.findAll(primaryKey: owner.metadataToken.tableKey).map {
+                let row = moduleFile.methodSemanticsTable[$0]
                 let method = methods.first { $0.tableRowIndex == row.method }!
                 return (method, row.semantics)
             }

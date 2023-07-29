@@ -13,8 +13,46 @@ public final class ModuleFile {
     }
 
     private let data: Data
-    public let heaps: Heaps
-    public let tables: Tables
+
+    // Metadata heaps
+    public let stringHeap: StringHeap
+    public let guidHeap: GuidHeap
+    public let blobHeap: BlobHeap
+
+    // Metadata tables, in table ID order
+    public let moduleTable: ModuleTable
+    public let typeRefTable: TypeRefTable
+    public let typeDefTable: TypeDefTable
+    public let fieldTable: FieldTable
+    public let methodDefTable: MethodDefTable
+    public let paramTable: ParamTable
+    public let interfaceImplTable: InterfaceImplTable
+    public let memberRefTable: MemberRefTable
+    public let constantTable: ConstantTable
+    public let customAttributeTable: CustomAttributeTable
+    public let fieldMarshalTable: FieldMarshalTable
+    public let declSecurityTable: DeclSecurityTable
+    public let classLayoutTable: ClassLayoutTable
+    public let fieldLayoutTable: FieldLayoutTable
+    public let standAloneSigTable: StandAloneSigTable
+    public let eventMapTable: EventMapTable
+    public let eventTable: EventTable
+    public let propertyMapTable: PropertyMapTable
+    public let propertyTable: PropertyTable
+    public let methodSemanticsTable: MethodSemanticsTable
+    public let methodImplTable: MethodImplTable
+    public let moduleRefTable: ModuleRefTable
+    public let typeSpecTable: TypeSpecTable
+    public let implMapTable: ImplMapTable
+    public let fieldRvaTable: FieldRvaTable
+    public let assemblyTable: AssemblyTable
+    public let assemblyRefTable: AssemblyRefTable
+    public let fileTable: FileTable
+    public let manifestResourceTable: ManifestResourceTable
+    public let nestedClassTable: NestedClassTable
+    public let genericParamTable: GenericParamTable
+    public let methodSpecTable: MethodSpecTable
+    public let genericParamConstraintTable: GenericParamConstraintTable
 
     public init(data: Data) throws {
         self.data = data
@@ -33,11 +71,12 @@ public final class ModuleFile {
         let metadataSection = peView.resolve(virtualAddress: cliHeader.pointee.MetaData.VirtualAddress, size: cliHeader.pointee.MetaData.Size)
         let metadataRoot = try Self.readMetadataRoot(metadataSection: metadataSection)
 
-        heaps = Heaps(
-            string: StringHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Strings"])),
-            guid: GuidHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#GUID"])),
-            blob: BlobHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Blob"])))
+        // Read heap streams
+        stringHeap = StringHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Strings"]))
+        guidHeap = GuidHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#GUID"]))
+        blobHeap = BlobHeap(buffer: Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#Blob"]))
 
+        // Read tables stream
         var tablesStreamRemainder = Self.getStream(metadataSection: metadataSection, header: metadataRoot.streamHeaders["#~"])
         let tablesStreamHeader = tablesStreamRemainder.consume(type: MetadataTablesStreamHeader.self)
         guard tablesStreamHeader.pointee.MajorVersion == 2 && tablesStreamHeader.pointee.MinorVersion == 0 else {
@@ -50,7 +89,57 @@ public final class ModuleFile {
         }
 
         let tableSizes = TableSizes(heapSizingBits: tablesStreamHeader.pointee.HeapSizes, tableRowCounts: tableRowCounts)
-        tables = Tables(buffer: tablesStreamRemainder, sizes: tableSizes, sortedBits: tablesStreamHeader.pointee.Sorted)
+        var nextTableID = 0
+
+        // We must read all tables in order and without any gaps
+        func consumeTable<Row: TableRow>() -> Table<Row> {
+            // Make sure we're not skipping any tables with non-zero rows
+            while nextTableID < Row.tableID.rawValue {
+                guard tableSizes.getRowCount(nextTableID) == 0
+                else { fatalError("Not implemented: reading \(TableID(rawValue: UInt8(nextTableID))!) metadata table") }
+                nextTableID += 1
+            }
+
+            let rowCount = tableSizes.getRowCount(Row.tableID)
+            let size = Row.getSize(sizes: tableSizes) * rowCount
+            let sorted = ((tablesStreamHeader.pointee.Sorted >> Row.tableID.rawValue) & 1) == 1
+            nextTableID += 1
+            return Table(buffer: tablesStreamRemainder.consume(count: size), sizes: tableSizes, sorted: sorted)
+        } 
+
+        moduleTable = consumeTable()
+        typeRefTable = consumeTable()
+        typeDefTable = consumeTable()
+        fieldTable = consumeTable()
+        methodDefTable = consumeTable()
+        paramTable = consumeTable()
+        interfaceImplTable = consumeTable()
+        memberRefTable = consumeTable()
+        constantTable = consumeTable()
+        customAttributeTable = consumeTable()
+        fieldMarshalTable = consumeTable()
+        declSecurityTable = consumeTable()
+        classLayoutTable = consumeTable()
+        fieldLayoutTable = consumeTable()
+        standAloneSigTable = consumeTable()
+        eventMapTable = consumeTable()
+        eventTable = consumeTable()
+        propertyMapTable = consumeTable()
+        propertyTable = consumeTable()
+        methodSemanticsTable = consumeTable()
+        methodImplTable = consumeTable()
+        moduleRefTable = consumeTable()
+        typeSpecTable = consumeTable()
+        implMapTable = consumeTable()
+        fieldRvaTable = consumeTable()
+        assemblyTable = consumeTable()
+        assemblyRefTable = consumeTable()
+        fileTable = consumeTable()
+        manifestResourceTable = consumeTable()
+        nestedClassTable = consumeTable()
+        genericParamTable = consumeTable()
+        methodSpecTable = consumeTable()
+        genericParamConstraintTable = consumeTable()
     }
 
     public convenience init(url: URL) throws {
@@ -87,5 +176,17 @@ public final class ModuleFile {
             versionString: versionString,
             flags: afterVersion.pointee.Flags,
             streamHeaders: streamHeaders)
+    }
+
+    public func resolve(_ offset: StringHeap.Offset) -> String {
+        stringHeap.resolve(at: offset.value)
+    }
+
+    public func resolve(_ offset: GuidHeap.Offset) -> UUID {
+        guidHeap.resolve(at: offset.value)
+    }
+
+    public func resolve(_ offset: BlobHeap.Offset) -> UnsafeRawBufferPointer {
+        blobHeap.resolve(at: offset.value)
     }
 }

@@ -12,6 +12,6 @@ public final class BaseInterface {
     public var inheritingType: TypeDefinition { inheritingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { inheritingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { inheritingTypeImpl.moduleFile }
-    private var tableRow: InterfaceImplTable.Row { moduleFile.tables.interfaceImpl[tableRowIndex] }
+    private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
     public var interface: BoundType { assemblyImpl.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType)! }
 }
