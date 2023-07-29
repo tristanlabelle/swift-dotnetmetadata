@@ -36,7 +36,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: BoundType? { impl.base }
     public var baseInterfaces: [BaseInterface] { impl.baseInterfaces }
-    public var fields: [Field]  { impl.fields }
+    public var fields: [Field] { impl.fields }
     public var methods: [Method] { impl.methods }
     public var properties: [Property] { impl.properties }
     public var events: [Event] { impl.events }
@@ -140,7 +140,7 @@ internal protocol TypeDefinitionImpl {
     var genericParams: [GenericTypeParam] { get }
     var base: BoundType? { get }
     var baseInterfaces: [BaseInterface] { get }
-    var fields: [Field]  { get }
+    var fields: [Field] { get }
     var methods: [Method] { get }
     var properties: [Property] { get }
     var events: [Event] { get }

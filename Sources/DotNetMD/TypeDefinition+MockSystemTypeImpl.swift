@@ -30,7 +30,7 @@ extension TypeDefinition {
         public var enclosingType: TypeDefinition? { nil }
         public var baseInterfaces: [BaseInterface] { [] }
         public var genericParams: [GenericTypeParam] { [] }
-        public var fields: [Field]  { [] }
+        public var fields: [Field] { [] }
         public var methods: [Method] { [] }
         public var properties: [Property] { [] }
         public var events: [Event] { [] }
