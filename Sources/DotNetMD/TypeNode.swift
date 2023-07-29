@@ -14,6 +14,39 @@ extension TypeNode {
             default: return nil
         }
     }
+
+    public var isValueType: Bool? {
+        switch self {
+            case .bound(let bound): return bound.definition.isValueType
+            case .array: return false
+            case .genericArg(let param):
+                if param.isValueType { return true }
+                if param.isReferenceType { return false }
+                return nil
+            case .pointer: return true
+        }
+    }
+
+    public var isReferenceType: Bool? {
+        switch isValueType {
+            case .some(let isValueType): return !isValueType
+            case .none: return nil
+        }
+    }
+
+    /// Indicates whether this TypeNode always refers to the same type
+    /// due to containing no generic arguments.
+    public var isClosed: Bool {
+        switch self {
+            case .bound(let bound): return bound.genericArgs.allSatisfy { $0.isClosed }
+            case .array(let element): return element.isClosed
+            case .genericArg: return false
+            case .pointer(let element): return element.isClosed
+        }
+    }
+
+    /// Indicates whether this TypeNode contains generic arguments
+    public var isOpen: Bool { !isClosed }
 }
 
 extension TypeDefinition {

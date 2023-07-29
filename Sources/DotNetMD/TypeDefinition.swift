@@ -31,6 +31,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var name: String { impl.name }
     public var namespace: String? { impl.namespace }
+    public var kind: TypeDefinitionKind { impl.kind }
     internal var metadataAttributes: DotNetMDFormat.TypeAttributes { impl.metadataAttributes }
     public var enclosingType: TypeDefinition? { impl.enclosingType }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
@@ -64,6 +65,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
     public var isGeneric: Bool { !genericParams.isEmpty }
+    public var isValueType: Bool { kind.isValueType }
+    public var isReferenceType: Bool { kind.isReferenceType }
 
     public var layout: TypeLayout {
         switch metadataAttributes.layoutKind {
@@ -118,14 +121,6 @@ extension TypeDefinition: Hashable {
     public static func == (lhs: TypeDefinition, rhs: TypeDefinition) -> Bool { lhs === rhs }
 }
 
-internal enum TypeDefinitionKind {
-    case `class`
-    case interface
-    case delegate
-    case `struct`
-    case `enum`
-}
-
 internal typealias ClassLayoutData = (pack: UInt16, size: UInt32)
 
 internal protocol TypeDefinitionImpl {
@@ -149,24 +144,19 @@ internal protocol TypeDefinitionImpl {
 }
 
 public func makeFullTypeName(namespace: String?, name: String) -> String {
-    if let namespace {
-        return "\(namespace).\(name)"
-    } else {
-        return name
-    }
+    if let namespace { return "\(namespace).\(name)" }
+    else { return name }
 }
 
 public func makeFullTypeName(namespace: String?, enclosingName: String, nestedNames: [String]) -> String {
     var result: String
-    if let namespace {
-        result = "\(namespace).\(enclosingName)"
-    }
-    else {
-        result = enclosingName
-    }
+    if let namespace { result = "\(namespace).\(enclosingName)" }
+    else { result = enclosingName }
+
     for nestedName in nestedNames {
         result.append(TypeDefinition.nestedTypeSeparator)
         result += nestedName
     }
+
     return result
 }
