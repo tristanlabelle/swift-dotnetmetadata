@@ -67,6 +67,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isGeneric: Bool { !genericParams.isEmpty }
     public var isValueType: Bool { kind.isValueType }
     public var isReferenceType: Bool { kind.isReferenceType }
+    public var genericArity: Int { genericParams.count }
+    public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
 
     public var layout: TypeLayout {
         switch metadataAttributes.layoutKind {
@@ -78,10 +80,14 @@ public class TypeDefinition: CustomDebugStringConvertible {
                 return .explicit(minSize: Int(impl.classLayout.size))
         }
     }
-    public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
 
-    public func findSingleMethod(name: String, inherited: Bool = false) -> Method? {
-        methods.single { $0.name == name } ?? (inherited ? base?.definition.findSingleMethod(name: name, inherited: true) : nil)
+    public func findSingleMethod(name: String, arity: Int? = nil, inherited: Bool = false) -> Method? {
+        let method = methods.single {
+            guard $0.name == name else { return false }
+            if let arity { guard (try? $0.arity) == arity else { return false } }
+            return true
+        }
+        return method ?? (inherited ? base?.definition.findSingleMethod(name: name, arity: arity, inherited: true) : nil)
     }
 
     public func findField(name: String, inherited: Bool = false) -> Field? {
@@ -106,6 +112,7 @@ public final class InterfaceDefinition: TypeDefinition {
 
 public final class DelegateDefinition: TypeDefinition {
     public var invokeMethod: Method { findSingleMethod(name: "Invoke")! }
+    public var arity: Int { get throws { try invokeMethod.arity } }
 }
 
 public final class StructDefinition: TypeDefinition {

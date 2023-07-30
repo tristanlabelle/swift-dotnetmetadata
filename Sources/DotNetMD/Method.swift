@@ -80,6 +80,7 @@ public class Method {
 
     public var returnParam: ReturnParam { get throws { try returnAndParams.get().0 } }
     public var params: [Param] { get throws { try returnAndParams.get().1 } }
+    public var arity: Int { get throws { try signature.params.count } }
 
     public var hasReturnValue: Bool {
         get throws {
@@ -97,6 +98,8 @@ public class Method {
             GenericMethodParam(definingMethod: self, tableRowIndex: $0)
         }
     }()
+
+    public var genericArity: Int { genericParams.count }
 
     public private(set) lazy var attributes: [Attribute] = {
         assemblyImpl.getAttributes(owner: .methodDef(tableRowIndex))

@@ -8,6 +8,10 @@ public enum TypeNode: Hashable {
 }
 
 extension TypeNode {
+    public static func bound(_ definition: TypeDefinition, genericArgs: [TypeNode] = []) -> TypeNode {
+        .bound(BoundType(definition, genericArgs: genericArgs))
+    }
+
     public var asDefinition: TypeDefinition? {
         switch self {
             case .bound(let bound): return bound.definition
@@ -47,6 +51,19 @@ extension TypeNode {
 
     /// Indicates whether this TypeNode contains generic arguments
     public var isOpen: Bool { !isClosed }
+
+    public func resolveGenericParams(_ resolver: (GenericParam) throws -> TypeNode) rethrows -> TypeNode {
+        switch self {
+            case .bound(let bound):
+                return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.resolveGenericParams(resolver) })
+            case .array(let element):
+                return .array(element: try element.resolveGenericParams(resolver))
+            case .genericArg(let param):
+                return try resolver(param)
+            case .pointer(let element):
+                return .pointer(element: try element.resolveGenericParams(resolver))
+        }
+    }
 }
 
 extension TypeDefinition {
