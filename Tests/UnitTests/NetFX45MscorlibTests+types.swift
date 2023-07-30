@@ -34,6 +34,6 @@ extension NetFX45MscorlibTests {
 
         try XCTAssertEqual(
             ienumerable.findSingleMethod(name: "GetEnumerator")?.returnType,
-            ienumerator.bindNode(genericArgs: [ TypeNode.genericArg(param: ienumerable.genericParams[0]) ]))
+            ienumerator.bindNode(fullGenericArgs: [ TypeNode.genericArg(param: ienumerable.genericParams[0]) ]))
     }
 }

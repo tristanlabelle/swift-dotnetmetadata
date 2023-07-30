@@ -170,8 +170,8 @@ extension Assembly {
                     if genericArgs.count > 0 {
                         let genericArgs = genericArgs.map { resolve($0, typeContext: typeContext, methodContext: methodContext) }
                         switch index {
-                            case let .typeDef(index): return resolve(index!).bind(genericArgs: genericArgs).asNode
-                            case let .typeRef(index): return resolve(index!).bind(genericArgs: genericArgs).asNode
+                            case let .typeDef(index): return resolve(index!).bind(fullGenericArgs: genericArgs).asNode
+                            case let .typeRef(index): return resolve(index!).bind(fullGenericArgs: genericArgs).asNode
                             default: fatalError("Not implemented: unexpected generic type reference")
                         }
                     }

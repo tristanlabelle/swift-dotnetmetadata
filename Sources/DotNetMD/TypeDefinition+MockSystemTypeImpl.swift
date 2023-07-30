@@ -16,7 +16,7 @@ extension TypeDefinition {
             self.kind = kind
             self.name = name
             if let base {
-                self.base = .init(base, genericArgs: [])
+                self.base = base.bind()
             } else {
                 self.base = nil
             }

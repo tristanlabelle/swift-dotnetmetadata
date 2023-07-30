@@ -64,11 +64,21 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isNested: Bool { metadataAttributes.isNested }
     public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
-    public var isGeneric: Bool { !genericParams.isEmpty }
     public var isValueType: Bool { kind.isValueType }
     public var isReferenceType: Bool { kind.isReferenceType }
-    public var genericArity: Int { genericParams.count }
     public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
+
+    /// The list of all generic params defined either directly on this
+    /// type definition or on one of the enclosing type definitions.
+    public private(set) lazy var fullGenericParams: [GenericTypeParam] = {
+        var result = genericParams
+        var type = self
+        while let enclosingType = type.enclosingType {
+            result.insert(contentsOf: enclosingType.genericParams, at: 0)
+            type = enclosingType
+        }
+        return result
+    }()
 
     public var layout: TypeLayout {
         switch metadataAttributes.layoutKind {
