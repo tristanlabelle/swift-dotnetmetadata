@@ -20,7 +20,7 @@ public final class Event {
 
     public var name: String { moduleFile.resolve(tableRow.name) }
 
-    private lazy var _handlerType = Result { assemblyImpl.resolveOptionalBoundType(tableRow.eventType)! }
+    private lazy var _handlerType = Result { assemblyImpl.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }
 
     private struct Accessors {
