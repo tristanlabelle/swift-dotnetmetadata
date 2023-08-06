@@ -1,6 +1,6 @@
 import DotNetMDFormat
 
-public class Property {
+public class Property: Member {
     public static let getterPrefix = "get_"
     public static let setterPrefix = "set_"
 
@@ -25,12 +25,12 @@ public class Property {
         }
     }
 
-    public var definingType: TypeDefinition { definingTypeImpl.owner }
+    public override var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: PropertyTable.Row { moduleFile.propertyTable[tableRowIndex] }
 
-    public var name: String { moduleFile.resolve(tableRow.name) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
 
     private lazy var _type = Result { assemblyImpl.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
@@ -57,19 +57,17 @@ public class Property {
     public var otherAccessors: [Method] { get throws { try accessors.get().others } }
 
     private var anyAccessor: Method? {
-        get throws {
-            let accessors = try self.accessors.get()
-            return accessors.getter ?? accessors.setter ?? accessors.others.first
-        }
+        guard let accessors = try? self.accessors.get() else { return nil }
+        return accessors.getter ?? accessors.setter ?? accessors.others.first
     }
 
     // CLS adds some uniformity guarantees:
     // §II.22.28 "All methods for a given Property or Event shall have the same accessibility"
-    public var visibility: Visibility { get throws { try anyAccessor?.visibility ?? .public } }
-    public var isStatic: Bool { get throws { try anyAccessor?.isStatic ?? false } }
-    public var isVirtual: Bool { get throws { try anyAccessor?.isAbstract ?? false } }
-    public var isAbstract: Bool { get throws { try anyAccessor?.isVirtual ?? false } }
-    public var isFinal: Bool { get throws { try anyAccessor?.isFinal ?? false } }
+    public override var visibility: Visibility { anyAccessor?.visibility ?? .public }
+    public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
+    public var isVirtual: Bool { anyAccessor?.isAbstract ?? false }
+    public var isAbstract: Bool { anyAccessor?.isVirtual ?? false }
+    public var isFinal: Bool { anyAccessor?.isFinal ?? false }
 
     public private(set) lazy var attributes: [Attribute] = {
         assemblyImpl.getAttributes(owner: .property(tableRowIndex))

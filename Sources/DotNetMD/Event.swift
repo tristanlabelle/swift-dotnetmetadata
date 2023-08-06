@@ -1,6 +1,6 @@
 import DotNetMDFormat
 
-public final class Event {
+public final class Event: Member {
     public static let addAccessorPrefix = "add_"
     public static let removeAccessorPrefix = "remove_"
     public static let raiseAccessorPrefix = "raise_"
@@ -13,12 +13,12 @@ public final class Event {
         self.tableRowIndex = tableRowIndex
     }
 
-    public var definingType: TypeDefinition { definingTypeImpl.owner }
+    public override var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: EventTable.Row { moduleFile.eventTable[tableRowIndex] }
 
-    public var name: String { moduleFile.resolve(tableRow.name) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
 
     private lazy var _handlerType = Result { assemblyImpl.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }
@@ -48,15 +48,14 @@ public final class Event {
     public var otherAccessors: [Method] { get throws { try accessors.get().others } }
 
     private var anyAccessor: Method? {
-        get throws {
-            let accessors = try self.accessors.get()
-            return accessors.add ?? accessors.remove ?? accessors.fire ?? accessors.others.first
-        }
+        guard let accessors = try? self.accessors.get() else { return nil }
+        return accessors.add ?? accessors.remove ?? accessors.fire ?? accessors.others.first
     }
 
     // CLS adds some uniformity guarantees:
     // §II.22.28 "All methods for a given Property or Event shall have the same accessibility"
-    public var visibility: Visibility { get throws { try anyAccessor?.visibility ?? .public } }
+    public override var visibility: Visibility { anyAccessor?.visibility ?? .public }
+    public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
 
     public private(set) lazy var attributes: [Attribute] = {
         assemblyImpl.getAttributes(owner: .event(tableRowIndex))

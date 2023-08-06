@@ -1,7 +1,7 @@
 import DotNetMDFormat
 
 /// An unbound method definition, which may have generic parameters.
-public class Method {
+public class Method: Member {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     internal let tableRowIndex: MethodDefTable.RowIndex
 
@@ -20,20 +20,20 @@ public class Method {
         }
     }
 
-    public var definingType: TypeDefinition { definingTypeImpl.owner }
+    public override var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
 
-    public var name: String { moduleFile.resolve(tableRow.name) }
-    public var isStatic: Bool { tableRow.flags.contains(.`static`) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
+    public override var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isVirtual: Bool { tableRow.flags.contains(.virtual) }
     public var isAbstract: Bool { tableRow.flags.contains(.abstract) }
     public var isFinal: Bool { tableRow.flags.contains(.final) }
     public var isSpecialName: Bool { tableRow.flags.contains(.specialName) }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
-    public var visibility: Visibility {
+    public override var visibility: Visibility {
         switch tableRow.flags.intersection(.memberAccessMask) {
             case .compilerControlled: return .compilerControlled
             case .private: return .private

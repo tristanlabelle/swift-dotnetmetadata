@@ -1,6 +1,6 @@
 import DotNetMDFormat
 
-public final class Field {
+public final class Field: Member {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
     internal let tableRowIndex: FieldTable.RowIndex
 
@@ -9,15 +9,15 @@ public final class Field {
         self.tableRowIndex = tableRowIndex
     }
 
-    public var definingType: TypeDefinition { definingTypeImpl.owner }
+    public override var definingType: TypeDefinition { definingTypeImpl.owner }
     internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
 
-    public var name: String { moduleFile.resolve(tableRow.name) }
-    public var isStatic: Bool { tableRow.flags.contains(.`static`) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
+    public override var isStatic: Bool { tableRow.flags.contains(.`static`) }
     public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
-    public var visibility: Visibility { tableRow.flags.visibility }
+    public override var visibility: Visibility { tableRow.flags.visibility }
 
     public private(set) lazy var explicitOffset: Int? = { () -> Int? in
         guard let fieldLayoutRowIndex = moduleFile.fieldLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
