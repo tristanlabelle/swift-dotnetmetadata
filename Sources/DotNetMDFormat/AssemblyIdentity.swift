@@ -1,18 +1,13 @@
 // Identifies an assembly by its simple name, version, culture, and public key.
 // This corresponds to the System.Reflection.AssemblyName class in .NET.
 public struct AssemblyIdentity: Hashable, CustomStringConvertible {
-    public enum PublicKey: Hashable {
-        case full([UInt8]) // Full strong name key (.snk) file
-        case token([UInt8]) // Last 8 bytes of SHA-1 of full key
-    }
-
     public var name: String
     // Version should always be present in definitions, but is allowed to be null for references
     public var version: AssemblyVersion?
     public var culture: String?
-    public var publicKey: PublicKey?
+    public var publicKey: AssemblyPublicKey?
 
-    public init(name: String, version: AssemblyVersion? = nil, culture: String? = nil, publicKey: PublicKey? = nil) {
+    public init(name: String, version: AssemblyVersion? = nil, culture: String? = nil, publicKey: AssemblyPublicKey? = nil) {
         self.name = name
         self.version = version
         self.culture = culture

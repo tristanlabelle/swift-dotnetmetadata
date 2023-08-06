@@ -55,7 +55,9 @@ extension Assembly {
 
         public var name: String { "mscorlib" }
         public var version: AssemblyVersion { .all255 }
-        public var culture: String { "" }
+        public var culture: String? { nil }
+        public var publicKey: AssemblyPublicKey? { nil }
+        public var references: [AssemblyReference] { [] }
         public var definedTypes: [TypeDefinition] { systemTypes }
     }
 }

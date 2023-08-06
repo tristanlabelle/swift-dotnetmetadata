@@ -1,6 +1,7 @@
 import DotNetMDFormat
 
 public typealias AssemblyIdentity = DotNetMDFormat.AssemblyIdentity
+public typealias AssemblyPublicKey = DotNetMDFormat.AssemblyPublicKey
 public typealias AssemblyVersion = DotNetMDFormat.AssemblyVersion
 public typealias Constant = DotNetMDFormat.Constant
 public typealias IntegerSize = DotNetMDFormat.IntegerSize

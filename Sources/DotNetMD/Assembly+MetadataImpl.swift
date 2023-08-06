@@ -19,7 +19,11 @@ extension Assembly {
         private var context: MetadataContext { owner.context }
 
         public var name: String { moduleFile.resolve(tableRow.name) }
-        public var culture: String { moduleFile.resolve(tableRow.culture) }
+        
+        public var culture: String? {
+            let culture = moduleFile.resolve(tableRow.culture)
+            return culture.isEmpty ? nil : culture
+        }
 
         public var version: AssemblyVersion {
             .init(
@@ -29,7 +33,19 @@ extension Assembly {
                 revisionNumber: tableRow.revisionNumber)
         }
 
+        public var publicKey: AssemblyPublicKey? {
+            let tableRow = tableRow
+            let bytes = Array(moduleFile.resolve(tableRow.publicKey))
+            return bytes.isEmpty ? nil : .from(bytes: bytes, isToken: tableRow.flags.contains(.publicKey))
+        }
+
         public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable[0].name)
+
+        public private(set) lazy var references: [AssemblyReference] = {
+            moduleFile.assemblyRefTable.indices.map { 
+                AssemblyReference(assemblyImpl: self, tableRowIndex: $0)
+            }
+        }()
 
         public private(set) lazy var definedTypes: [TypeDefinition] = {
             moduleFile.typeDefTable.indices.map { 

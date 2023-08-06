@@ -14,12 +14,18 @@ public class Assembly: CustomDebugStringConvertible {
 
     public var name: String { impl.name }
     public var version: AssemblyVersion { impl.version }
-    public var culture: String { impl.culture }
+    public var culture: String? { impl.culture }
+    public var publicKey: AssemblyPublicKey? { impl.publicKey }
+    public var references: [AssemblyReference] { impl.references }
     public var definedTypes: [TypeDefinition] { impl.definedTypes }
+
+    public var identity: AssemblyIdentity {
+        AssemblyIdentity(name: name, version: version, culture: culture, publicKey: publicKey)
+    }
 
     public var debugDescription: String {
         var result = "\(name), Version=\(version)"
-        if !culture.isEmpty { result += ", Culture=\(culture)" }
+        if let culture { result += ", Culture=\(culture)" }
         return result
     }
 
@@ -50,7 +56,9 @@ internal protocol AssemblyImpl {
 
     var name: String { get }
     var version: AssemblyVersion { get }
-    var culture: String { get }
+    var culture: String? { get }
+    var publicKey: AssemblyPublicKey? { get }
+    var references: [AssemblyReference] { get }
     var definedTypes: [TypeDefinition] { get }
 }
 
