@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public final class BaseInterface {
     internal unowned let inheritingTypeImpl: TypeDefinition.MetadataImpl

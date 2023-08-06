@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 extension TypeDefinition {
     final class MetadataImpl: Impl {
@@ -38,7 +38,7 @@ extension TypeDefinition {
             return value.isEmpty ? nil : value
         }
 
-        internal var metadataAttributes: DotNetMDFormat.TypeAttributes { tableRow.flags }
+        internal var metadataAttributes: DotNetMetadataFormat.TypeAttributes { tableRow.flags }
 
         public private(set) lazy var classLayout: ClassLayoutData = {
             guard let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)

@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public final class AssemblyReference {
     internal unowned let assemblyImpl: Assembly.MetadataImpl

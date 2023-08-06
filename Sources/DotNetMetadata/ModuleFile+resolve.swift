@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 extension ModuleFile {
     func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row, isMscorlib: Bool) -> TypeDefinitionKind {

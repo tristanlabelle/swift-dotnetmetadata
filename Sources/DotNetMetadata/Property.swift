@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public class Property: Member {
     public static let getterPrefix = "get_"

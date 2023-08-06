@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 func getChildRowRange<Parent, Child>(
     parent: Table<Parent>,

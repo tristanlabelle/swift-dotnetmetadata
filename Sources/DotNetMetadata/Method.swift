@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 /// An unbound method definition, which may have generic parameters.
 public class Method: Member {

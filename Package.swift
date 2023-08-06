@@ -3,23 +3,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "DotNetMD",
+    name: "DotNetMetadata",
     products: [
         .library(
-            name: "DotNetMD",
-            targets: ["DotNetMDFormat", "DotNetMD"])
+            name: "DotNetMetadata",
+            targets: ["DotNetMetadataFormat", "DotNetMetadata"])
     ],
     targets: [
         .target(
             name: "CInterop"),
         .target(
-            name: "DotNetMDFormat",
+            name: "DotNetMetadataFormat",
             dependencies: [ "CInterop" ]),
         .target(
-            name: "DotNetMD",
-            dependencies: [ "DotNetMDFormat" ]),
+            name: "DotNetMetadata",
+            dependencies: [ "DotNetMetadataFormat" ]),
         .testTarget(
             name: "UnitTests",
-            dependencies: [ "DotNetMDFormat", "DotNetMD" ])
+            dependencies: [ "DotNetMetadataFormat", "DotNetMetadata" ])
     ]
 )

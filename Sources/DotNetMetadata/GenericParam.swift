@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public class GenericParam {
     internal let tableRowIndex: GenericParamTable.RowIndex

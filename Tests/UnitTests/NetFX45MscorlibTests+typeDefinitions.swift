@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import DotNetMD
+@testable import DotNetMetadata
 
 extension NetFX45MscorlibTests {
     func testTypeName_topLevelNamespace() throws {

@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public final class Attribute {
     internal let assemblyImpl: Assembly.MetadataImpl

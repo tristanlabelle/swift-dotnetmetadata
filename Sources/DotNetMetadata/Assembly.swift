@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public class Assembly: CustomDebugStringConvertible {
     typealias Impl = AssemblyImpl

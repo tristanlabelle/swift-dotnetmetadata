@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 extension TypeDefinition {
     final class MockSystemTypeImpl: Impl {

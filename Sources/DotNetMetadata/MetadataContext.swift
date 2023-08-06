@@ -1,5 +1,5 @@
 import struct Foundation.URL
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public typealias AssemblyResolver = (AssemblyIdentity) throws -> ModuleFile
 
@@ -36,7 +36,7 @@ public class MetadataContext {
     public func loadAssembly(url: URL) throws -> Assembly {
         let moduleFile = try ModuleFile(url: url)
         guard moduleFile.assemblyTable.count == 1 else {
-            throw DotNetMDFormat.InvalidFormatError.tableConstraint
+            throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
         }
 
         let assemblyRow = moduleFile.assemblyTable[0]

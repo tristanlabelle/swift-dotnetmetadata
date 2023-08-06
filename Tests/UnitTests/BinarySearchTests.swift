@@ -1,5 +1,5 @@
 import XCTest
-@testable import DotNetMDFormat
+@testable import DotNetMetadataFormat
 
 final class BinarySearchTests: XCTestCase {
     func testOddCount() {

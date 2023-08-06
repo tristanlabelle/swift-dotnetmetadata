@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 import WinSDK
-@testable import DotNetMD
+@testable import DotNetMetadata
 
 final class NetFX45MscorlibTests: XCTestCase {
     internal static var context: MetadataContext!

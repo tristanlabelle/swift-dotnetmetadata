@@ -1,10 +1,10 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public class ParamBase {
     public unowned let method: Method
-    fileprivate let signature: DotNetMDFormat.ParamSig
+    fileprivate let signature: DotNetMetadataFormat.ParamSig
 
-    fileprivate init(method: Method, signature: DotNetMDFormat.ParamSig) {
+    fileprivate init(method: Method, signature: DotNetMetadataFormat.ParamSig) {
         self.method = method
         self.signature = signature
     }
@@ -20,7 +20,7 @@ public class ParamBase {
 public final class Param: ParamBase {
     internal let tableRowIndex: ParamTable.RowIndex
 
-    init(method: Method, tableRowIndex: ParamTable.RowIndex, signature: DotNetMDFormat.ParamSig) {
+    init(method: Method, tableRowIndex: ParamTable.RowIndex, signature: DotNetMetadataFormat.ParamSig) {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }
@@ -44,7 +44,7 @@ public final class Param: ParamBase {
 public final class ReturnParam: ParamBase {
     internal let tableRowIndex: ParamTable.RowIndex?
 
-    init(method: Method, tableRowIndex: ParamTable.RowIndex?, signature: DotNetMDFormat.ParamSig) {
+    init(method: Method, tableRowIndex: ParamTable.RowIndex?, signature: DotNetMetadataFormat.ParamSig) {
         self.tableRowIndex = tableRowIndex
         super.init(method: method, signature: signature)
     }

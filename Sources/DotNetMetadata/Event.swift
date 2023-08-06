@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public final class Event: Member {
     public static let addAccessorPrefix = "add_"

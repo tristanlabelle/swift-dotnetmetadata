@@ -1,5 +1,5 @@
 import XCTest
-@testable import DotNetMDFormat
+@testable import DotNetMetadataFormat
 
 final class SignatureTests: XCTestCase {
     static func decodeCustomAttrib(_ bytes: [UInt8], paramTypes: [TypeSig]) throws -> CustomAttribSig {

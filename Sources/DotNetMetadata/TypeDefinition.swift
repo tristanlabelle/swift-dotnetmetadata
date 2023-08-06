@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 /// An unbound type definition, which may have generic parameters.
 public class TypeDefinition: CustomDebugStringConvertible {
@@ -32,7 +32,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var name: String { impl.name }
     public var namespace: String? { impl.namespace }
     public var kind: TypeDefinitionKind { impl.kind }
-    internal var metadataAttributes: DotNetMDFormat.TypeAttributes { impl.metadataAttributes }
+    internal var metadataAttributes: DotNetMetadataFormat.TypeAttributes { impl.metadataAttributes }
     public var enclosingType: TypeDefinition? { impl.enclosingType }
     public var genericParams: [GenericTypeParam] { impl.genericParams }
     public var base: BoundType? { impl.base }
@@ -146,7 +146,7 @@ internal protocol TypeDefinitionImpl {
     var name: String { get }
     var namespace: String? { get }
     var kind: TypeDefinitionKind { get }
-    var metadataAttributes: DotNetMDFormat.TypeAttributes { get }
+    var metadataAttributes: DotNetMetadataFormat.TypeAttributes { get }
     var classLayout: ClassLayoutData { get }
     var enclosingType: TypeDefinition? { get }
     var genericParams: [GenericTypeParam] { get }

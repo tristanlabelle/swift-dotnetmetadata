@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 /// Implementation for real assemblies based on loaded metadata from a PE file.
 extension Assembly {
@@ -19,7 +19,7 @@ extension Assembly {
         private var context: MetadataContext { owner.context }
 
         public var name: String { moduleFile.resolve(tableRow.name) }
-        
+
         public var culture: String? {
             let culture = moduleFile.resolve(tableRow.culture)
             return culture.isEmpty ? nil : culture

@@ -1,4 +1,4 @@
-import DotNetMDFormat
+import DotNetMetadataFormat
 
 public final class Field: Member {
     internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl

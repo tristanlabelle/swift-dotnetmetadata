@@ -1,4 +1,4 @@
-# DotNetMD
+# DotNetMetadata
 
 A Swift library for reading and inspecting .NET metadata, including WinMD files, following the [ECMA-335, Common Language Infrastructure (CLI)](https://www.ecma-international.org/publications-and-standards/standards/ecma-335/) standard. Parsing IL is currently out of scope, but not off the table in the future.
 
@@ -7,7 +7,7 @@ A Swift library for reading and inspecting .NET metadata, including WinMD files,
 ## Example
 
 ```swift
-import DotNetMD
+import DotNetMetadata
 
 let context = MetadataContext()
 let assembly = try context.loadAssembly(path: #"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll"#)
@@ -32,7 +32,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(name: "MyTarget", dependencies: [
-            .product(name: "DotNetMD", package: "swift-dotnetmd")
+            .product(name: "DotNetMetadata", package: "swift-dotnetmd")
         ])
     ]
 )
@@ -42,8 +42,8 @@ let package = Package(
 
 The library consists in two layered modules:
 
-- `DotNetMD` (logical layer): Provides an object model for .NET concepts of assemblies, types and members, including resolution of cross-assembly references, similar to the `System.Reflection` APIs.
-- `DotNetMDFormat` (physical layer): Implements low-level decoding of the .NET portable executable file format and provides a strongly-typed view of the metadata tables, heaps and signatures.
+- `DotNetMetadata` (logical layer): Provides an object model for .NET concepts of assemblies, types and members, including resolution of cross-assembly references, similar to the `System.Reflection` APIs.
+- `DotNetMetadataFormat` (physical layer): Implements low-level decoding of the .NET portable executable file format and provides a strongly-typed view of the metadata tables, heaps and signatures.
 
 The logical layer can represent a mock `mscorlib` assembly and its core types to support inspecting `.winmd` files, which reference an unresolvable `mscorlib, Version=255.255.255.255`.
 
