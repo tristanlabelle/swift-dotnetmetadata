@@ -9,6 +9,7 @@ public final class Attribute {
         self.assemblyImpl = assemblyImpl
     }
 
+    public var assembly: Assembly { assemblyImpl.owner }
     internal var moduleFile: ModuleFile { assemblyImpl.moduleFile }
     private var tableRow: CustomAttributeTable.Row { moduleFile.customAttributeTable[tableRowIndex] }
 

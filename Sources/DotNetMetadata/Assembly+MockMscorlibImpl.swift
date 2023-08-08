@@ -24,7 +24,6 @@ extension Assembly {
             let object = makeClass(name: "Object", base: nil)
             systemTypes.append(object)
             systemTypes.append(makeClass(name: "Array", base: object, abstract: true))
-            systemTypes.append(makeClass(name: "Attribute", base: object, abstract: true))
             systemTypes.append(makeClass(name: "Exception", base: object))
             systemTypes.append(makeClass(name: "Type", base: object, abstract: true))
             systemTypes.append(makeClass(name: "String", base: object, sealed: true))
@@ -32,6 +31,11 @@ extension Assembly {
             let delegate = makeClass(name: "Delegate", base: object, abstract: true)
             systemTypes.append(delegate)
             systemTypes.append(makeClass(name: "MulticastDelegate", base: delegate, abstract: true))
+
+            let attribute = makeClass(name: "Attribute", base: object, abstract: true)
+            systemTypes.append(attribute)
+            systemTypes.append(makeClass(name: "AttributeUsageAttribute", base: attribute))
+            systemTypes.append(makeClass(name: "FlagsAttribute", base: attribute))
 
             // System.ValueType and derived types
             let valueType = makeClass(name: "ValueType", base: object, abstract: true)

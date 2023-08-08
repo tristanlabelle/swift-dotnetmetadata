@@ -131,6 +131,9 @@ public final class StructDefinition: TypeDefinition {
 public final class EnumDefinition: TypeDefinition {
     public var backingField: Field { fields.single { $0.name == "value__" }! }
     public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
+    public var isFlags: Bool {
+        attributes.contains { $0.assembly is Mscorlib && (try? $0.type)?.fullName == "System.FlagsAttribute" }
+    }
 }
 
 extension TypeDefinition: Hashable {
