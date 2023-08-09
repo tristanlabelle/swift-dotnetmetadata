@@ -129,6 +129,7 @@ extension Assembly.MetadataImpl {
     internal func resolve(_ methodDefSig: MethodDefSig) throws -> MethodSignature {
         return MethodSignature(
             hasThis: methodDefSig.hasThis,
+            genericArity: methodDefSig.genericArity,
             params: try methodDefSig.params.map { try resolve($0) },
             returnParam: try resolve(methodDefSig.returnParam))
     }
@@ -155,10 +156,10 @@ extension Assembly.MetadataImpl {
         switch row.class {
             case let .typeDef(index):
                 guard let index = index else { return nil }
-                return try resolve(index).findSingleMethod(name: name, signature: signature)
+                return try resolve(index).findMethod(name: name, signature: signature)
             case let .typeRef(index):
                 guard let index = index else { return nil }
-                return try resolve(index).findSingleMethod(name: name, signature: signature)
+                return try resolve(index).findMethod(name: name, signature: signature)
             default:
                 fatalError("Not implemented: Resolving \(row.class)")
         }

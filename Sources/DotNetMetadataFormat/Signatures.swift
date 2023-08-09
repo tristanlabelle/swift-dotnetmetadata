@@ -34,7 +34,7 @@ public struct FieldSig {
 public struct MethodDefSig {
     public var hasThis: Bool
     public var explicitThis: TypeSig?
-    // default/vararg/generic
+    public var genericArity: Int // TODO: Support vararg
     public var returnParam: ParamSig
     public var params: [ParamSig]
 }

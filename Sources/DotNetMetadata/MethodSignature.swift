@@ -1,5 +1,6 @@
 public struct MethodSignature {
     public var hasThis: Bool
+    public var genericArity: Int
     public var params: [Param]
     public var returnParam: Param
 

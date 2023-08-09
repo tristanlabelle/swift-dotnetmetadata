@@ -91,41 +91,127 @@ public class TypeDefinition: CustomDebugStringConvertible {
         }
     }
 
-    public func findSingleMethod(name: String, arity: Int? = nil, inherited: Bool = false) -> Method? {
-        let method = methods.single {
-            guard $0.name == name else { return false }
-            if let arity { guard (try? $0.arity) == arity else { return false } }
-            return true
+    public func isMscorlib(namespace: String, name: String) -> Bool {
+        assembly is Mscorlib && self.namespace == namespace && self.name == name
+    }
+
+    public func isMscorlib(fullName: String) -> Bool {
+        assembly is Mscorlib && self.fullName == fullName
+    }
+
+    public func findMethod(
+        name: String,
+        public: Bool? = nil,
+        static: Bool? = nil,
+        genericArity: Int? = nil,
+        arity: Int? = nil,
+        paramTypes: [TypeNode]? = nil,
+        inherited: Bool = false) -> Method? {
+
+        findMember(
+            getter: { $0.methods },
+            name: name,
+            public: `public`,
+            static: `static`,
+            predicate: {
+                if let genericArity { guard $0.genericArity == genericArity else { return false } }
+                if let arity { guard (try? $0.arity) == arity else { return false } }
+                if let paramTypes {
+                    guard let params = try? $0.params,
+                        params.map(\.type) == paramTypes else { return false }
+                }
+                return true
+            },
+            inherited: inherited)
+    }
+
+    public func findMethod(name: String, signature: MethodSignature) throws -> Method? {
+        // TODO: Account for CustomMods
+        guard let method = findMethod(
+            name: name,
+            static: !signature.hasThis,
+            genericArity: signature.genericArity,
+            paramTypes: signature.params.map(\.type)) else { return nil }
+        guard (try? method.returnType) == signature.returnParam.type else { return nil }
+        return method
+    }
+
+    public func findField(
+        name: String, 
+        public: Bool? = nil,
+        static: Bool? = nil,
+        inherited: Bool = false) -> Field? {
+
+        findMember(
+            getter: { $0.fields },
+            name: name,
+            public: `public`,
+            static: `static`,
+            inherited: inherited)
+    }
+
+    public func findProperty(
+        name: String,
+        public: Bool? = nil,
+        static: Bool? = nil,
+        inherited: Bool = false) -> Property? {
+
+        findMember(
+            getter: { $0.properties },
+            name: name,
+            public: `public`,
+            static: `static`,
+            inherited: inherited)
+    }
+
+    public func findEvent(
+        name: String,
+        public: Bool? = nil,
+        static: Bool? = nil,
+        inherited: Bool = false) -> Event? {
+
+        findMember(
+            getter: { $0.events },
+            name: name,
+            public: `public`,
+            static: `static`,
+            inherited: inherited)
+    }
+
+    private func findMember<M: Member>(
+        getter: (TypeDefinition) -> [M],
+        name: String,
+        public: Bool? = nil,
+        static: Bool? = nil,
+        predicate: ((M) -> Bool)? = nil,
+        inherited: Bool = false) -> M? {
+
+        var typeDefinition = self
+        while true {
+            let member = getter(typeDefinition).single {
+                guard $0.name == name else { return false }
+                if let `public` { guard ($0.visibility == .public) == `public` else { return false } }
+                if let `static` { guard $0.isStatic == `static` else { return false } }
+                if let predicate { guard predicate($0) else { return false } }
+                return true
+            }
+
+            if let member { return member }
+            guard inherited, let base = typeDefinition.base else { return nil }
+            typeDefinition = base.definition
         }
-        return method ?? (inherited ? base?.definition.findSingleMethod(name: name, arity: arity, inherited: true) : nil)
-    }
-
-    public func findSingleMethod(name: String, signature: MethodSignature) throws -> Method? {
-        fatalError("Not implemented: TypeDefinition.findSingleMethod(name:signature:)")
-    }
-
-    public func findField(name: String, inherited: Bool = false) -> Field? {
-        fields.first { $0.name == name } ?? (inherited ? base?.definition.findField(name: name, inherited: true) : nil)
-    }
-
-    public func findProperty(name: String, inherited: Bool = false) -> Property? {
-        properties.first { $0.name == name } ?? (inherited ? base?.definition.findProperty(name: name, inherited: true) : nil)
-    }
-
-    public func findEvent(name: String, inherited: Bool = false) -> Event? {
-        events.first { $0.name == name } ?? (inherited ? base?.definition.findEvent(name: name, inherited: true) : nil)
     }
 }
 
 public final class ClassDefinition: TypeDefinition {
-    public var finalizer: Method? { findSingleMethod(name: "Finalize") }
+    public var finalizer: Method? { findMethod(name: "Finalize", static: false, arity: 0) }
 }
 
 public final class InterfaceDefinition: TypeDefinition {
 }
 
 public final class DelegateDefinition: TypeDefinition {
-    public var invokeMethod: Method { findSingleMethod(name: "Invoke")! }
+    public var invokeMethod: Method { findMethod(name: "Invoke", public: true, static: false)! }
     public var arity: Int { get throws { try invokeMethod.arity } }
 }
 
@@ -133,11 +219,16 @@ public final class StructDefinition: TypeDefinition {
 }
 
 public final class EnumDefinition: TypeDefinition {
-    public var backingField: Field { fields.single { $0.name == "value__" }! }
-    public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
-    public var isFlags: Bool {
-        attributes.contains { $0.assembly is Mscorlib && (try? $0.type)?.fullName == "System.FlagsAttribute" }
+    public var backingField: Field {
+        // The backing field is public but with specialName and rtSpecialName
+        findField(name: "value__", public: true, static: false)!
     }
+
+    public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
+
+    public private(set) lazy var isFlags: Bool = {
+        attributes.contains { (try? $0.type)?.isMscorlib(namespace: "System", name: "FlagsAttribute") == true }
+    }()
 }
 
 extension TypeDefinition: Hashable {

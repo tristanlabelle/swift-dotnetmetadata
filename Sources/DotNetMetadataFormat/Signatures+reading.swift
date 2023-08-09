@@ -100,7 +100,7 @@ extension MethodDefSig {
         let hasExplicitThis = hasThis && (callingConvention & SigToken.CallingConvention.explicitThis) != 0
 
         guard (callingConvention & SigToken.CallingConvention.mask) == SigToken.CallingConvention.default else {
-            fatalError("Not implemented")
+            fatalError("Not implemented: non-default calling convention")
         }
 
         var paramCount = try consumeSigUInt(buffer: &buffer)
@@ -122,6 +122,7 @@ extension MethodDefSig {
         self.init(
             hasThis: hasThis,
             explicitThis: explicitThis,
+            genericArity: 0, // TODO: Support generic method signatures
             returnParam: returnParam,
             params: params)
     }
