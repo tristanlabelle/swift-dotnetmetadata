@@ -125,17 +125,6 @@ public class TypeDefinition: CustomDebugStringConvertible {
             inherited: inherited)
     }
 
-    public func findMethod(name: String, signature: MethodSignature) throws -> Method? {
-        // TODO: Account for CustomMods
-        guard let method = findMethod(
-            name: name,
-            static: !signature.hasThis,
-            genericArity: signature.genericArity,
-            paramTypes: signature.params.map(\.type)) else { return nil }
-        guard (try? method.returnType) == signature.returnParam.type else { return nil }
-        return method
-    }
-
     public func findField(
         name: String, 
         public: Bool? = nil,

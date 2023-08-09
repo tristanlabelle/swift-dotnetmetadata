@@ -126,43 +126,40 @@ extension Assembly.MetadataImpl {
         return resolve(typeDefRowIndex).methods[Int(methodIndex)]
     }
 
-    internal func resolve(_ methodDefSig: MethodDefSig) throws -> MethodSignature {
-        return MethodSignature(
-            hasThis: methodDefSig.hasThis,
-            genericArity: methodDefSig.genericArity,
-            params: try methodDefSig.params.map { try resolve($0) },
-            returnParam: try resolve(methodDefSig.returnParam))
-    }
-
-    internal func resolve(_ paramSig: ParamSig) throws -> MethodSignature.Param {
-        return MethodSignature.Param(
-            customMods: try paramSig.customMods.map { try resolve($0) },
-            byRef: paramSig.byRef,
-            type: resolve(paramSig.type))
-    }
-
-    internal func resolve(_ customMod: CustomModSig) throws -> MethodSignature.CustomModifier {
-        return MethodSignature.CustomModifier(
-            isRequired: customMod.isRequired,
-            type: resolve(customMod.type)!)
-    }
-
     internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
         let row = moduleFile.memberRefTable[index]
-        let name = moduleFile.resolve(row.name)
-        let sig = try MethodDefSig(blob: moduleFile.resolve(row.signature))
-        let signature = try resolve(sig)
 
+        let typeDefinition: TypeDefinition
         switch row.class {
             case let .typeDef(index):
                 guard let index = index else { return nil }
-                return try resolve(index).findMethod(name: name, signature: signature)
+                typeDefinition = resolve(index)
             case let .typeRef(index):
                 guard let index = index else { return nil }
-                return try resolve(index).findMethod(name: name, signature: signature)
+                typeDefinition = resolve(index)
             default:
                 fatalError("Not implemented: Resolving \(row.class)")
         }
+
+        let name = moduleFile.resolve(row.name)
+        let sig = try MethodDefSig(blob: moduleFile.resolve(row.signature))
+
+        let method = typeDefinition.findMethod(
+            name: name,
+            static: !sig.hasThis,
+            genericArity: sig.genericArity,
+            paramTypes: sig.params.map { resolve($0.type) })
+        guard let method else { return nil }
+
+        func matches(_ param: ParamBase, _ paramSig: ParamSig) -> Bool {
+            // TODO: Compare CustomMods
+            param.isByRef == paramSig.byRef && param.type == resolve(paramSig.type)
+        }
+
+        guard (try? matches(method.returnParam, sig.returnParam)) == true else { return nil }
+
+        // TODO: Compare param byrefs and custom mods
+        return method
     }
 
     internal func resolve(_ codedIndex: CustomAttributeType) throws -> Method? {
