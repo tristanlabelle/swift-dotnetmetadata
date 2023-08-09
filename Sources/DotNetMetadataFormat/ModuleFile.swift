@@ -13,6 +13,7 @@ public final class ModuleFile {
     }
 
     private let data: Data
+    public let url: URL?
 
     // Metadata heaps
     public let stringHeap: StringHeap
@@ -54,8 +55,10 @@ public final class ModuleFile {
     public let methodSpecTable: MethodSpecTable
     public let genericParamConstraintTable: GenericParamConstraintTable
 
-    public init(data: Data) throws {
+    public init(data: Data, url: URL? = nil) throws {
         self.data = data
+        self.url = url
+
         let buffer = data.withUnsafeBytes { $0 }
         let buffer2 = data.withUnsafeBytes { $0 }
         guard buffer2.baseAddress == buffer.baseAddress && buffer2.count == buffer.count else {
@@ -142,8 +145,12 @@ public final class ModuleFile {
         genericParamConstraintTable = consumeTable()
     }
 
+    public convenience init(path: String) throws {
+        try self.init(url: URL(fileURLWithPath: path))
+    }
+
     public convenience init(url: URL) throws {
-        try self.init(data: try Data(contentsOf: url, options: .mappedIfSafe))
+        try self.init(data: try Data(contentsOf: url, options: .mappedIfSafe), url: url)
     }
 
     private static func getStream(metadataSection: UnsafeRawBufferPointer, header: MetadataStreamHeader?) -> UnsafeRawBufferPointer {
