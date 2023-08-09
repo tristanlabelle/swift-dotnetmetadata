@@ -3,10 +3,10 @@ import DotNetMetadataFormat
 extension TypeDefinition {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: TypeDefinition!
-        internal unowned let assemblyImpl: Assembly.MetadataImpl
+        internal unowned let assemblyImpl: MetadataAssemblyImpl
         internal let tableRowIndex: TypeDefTable.RowIndex
 
-        init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: TypeDefTable.RowIndex) {
+        init(assemblyImpl: MetadataAssemblyImpl, tableRowIndex: TypeDefTable.RowIndex) {
             self.assemblyImpl = assemblyImpl
             self.tableRowIndex = tableRowIndex
         }

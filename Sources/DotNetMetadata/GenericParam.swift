@@ -7,7 +7,7 @@ public class GenericParam {
         self.tableRowIndex = tableRowIndex
     }
 
-    internal var assemblyImpl: Assembly.MetadataImpl { fatalError() }
+    internal var assemblyImpl: MetadataAssemblyImpl { fatalError() }
     internal var moduleFile: ModuleFile { fatalError() }
     private var tableRow: GenericParamTable.Row { moduleFile.genericParamTable[tableRowIndex] }
 
@@ -40,7 +40,7 @@ public final class GenericTypeParam: GenericParam {
     }
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal override var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
+    internal override var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal override var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
 }
 
@@ -52,7 +52,7 @@ public final class GenericMethodParam: GenericParam {
         super.init(tableRowIndex: tableRowIndex)
     }
 
-    internal override var assemblyImpl: Assembly.MetadataImpl { definingMethod.assemblyImpl }
+    internal override var assemblyImpl: MetadataAssemblyImpl { definingMethod.assemblyImpl }
     internal override var moduleFile: ModuleFile { definingMethod.moduleFile }
 }
 

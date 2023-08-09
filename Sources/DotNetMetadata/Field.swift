@@ -10,7 +10,7 @@ public final class Field: Member {
     }
 
     public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
+    internal var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
 

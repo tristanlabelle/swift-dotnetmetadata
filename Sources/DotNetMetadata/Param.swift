@@ -9,7 +9,7 @@ public class ParamBase {
         self.signature = signature
     }
 
-    internal var assemblyImpl: Assembly.MetadataImpl { method.assemblyImpl }
+    internal var assemblyImpl: MetadataAssemblyImpl { method.assemblyImpl }
     internal var moduleFile: ModuleFile { method.moduleFile }
 
     public var isByRef: Bool { signature.byRef }

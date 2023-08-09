@@ -1,10 +1,10 @@
 import DotNetMetadataFormat
 
 public final class Attribute {
-    internal let assemblyImpl: Assembly.MetadataImpl
+    internal let assemblyImpl: MetadataAssemblyImpl
     internal let tableRowIndex: CustomAttributeTable.RowIndex
 
-    init(tableRowIndex: CustomAttributeTable.RowIndex, assemblyImpl: Assembly.MetadataImpl) {
+    init(tableRowIndex: CustomAttributeTable.RowIndex, assemblyImpl: MetadataAssemblyImpl) {
         self.tableRowIndex = tableRowIndex
         self.assemblyImpl = assemblyImpl
     }

@@ -23,7 +23,7 @@ public class MetadataContext {
                 return mscorlib
             }
             else {
-                let mscorlib = try Mscorlib(context: self, impl: Mscorlib.MockMscorlibImpl())
+                let mscorlib = try Mscorlib(context: self, impl: MockMscorlibAssemblyImpl())
                 self.mscorlib = mscorlib
                 return mscorlib
             }
@@ -41,7 +41,7 @@ public class MetadataContext {
 
         let assemblyRow = moduleFile.assemblyTable[0]
         // TODO: de-duplicate against loaded assemblies
-        let assemblyImpl = Assembly.MetadataImpl(moduleFile: moduleFile, tableRow: assemblyRow)
+        let assemblyImpl = MetadataAssemblyImpl(moduleFile: moduleFile, tableRow: assemblyRow)
         let assembly: Assembly
         if assemblyImpl.name == Mscorlib.name,
             let mscorlib = try? Mscorlib(context: self, impl: assemblyImpl) {

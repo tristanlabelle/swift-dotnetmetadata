@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-extension Assembly.MetadataImpl {
+extension MetadataAssemblyImpl {
     internal func resolveType(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode? {
         guard !metadataToken.isNull else { return nil }
         switch metadataToken.tableID {

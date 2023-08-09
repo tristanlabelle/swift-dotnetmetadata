@@ -1,11 +1,11 @@
 import DotNetMetadataFormat
 
 public final class AssemblyReference {
-    internal unowned let assemblyImpl: Assembly.MetadataImpl
+    internal unowned let assemblyImpl: MetadataAssemblyImpl
     internal let tableRowIndex: AssemblyRefTable.RowIndex
     private unowned var cachedTarget: Assembly? = nil
 
-    init(assemblyImpl: Assembly.MetadataImpl, tableRowIndex: AssemblyRefTable.RowIndex) {
+    init(assemblyImpl: MetadataAssemblyImpl, tableRowIndex: AssemblyRefTable.RowIndex) {
         self.assemblyImpl = assemblyImpl
         self.tableRowIndex = tableRowIndex
     }

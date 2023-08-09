@@ -26,7 +26,7 @@ public class Property: Member {
     }
 
     public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var assemblyImpl: Assembly.MetadataImpl { definingTypeImpl.assemblyImpl }
+    internal var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: PropertyTable.Row { moduleFile.propertyTable[tableRowIndex] }
 
