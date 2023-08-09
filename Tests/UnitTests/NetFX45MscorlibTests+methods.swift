@@ -12,7 +12,7 @@ extension NetFX45MscorlibTests {
     func testMethodClass() throws {
         let object = Self.assembly.findDefinedType(fullName: "System.Object")
         XCTAssertNil(object?.findMethod(name: "ToString") as? Constructor)
-        XCTAssertNotNil(object?.findMethod(name: ".ctor") as? Constructor)
+        XCTAssertNotNil(object?.findMethod(name: Constructor.name) as? Constructor)
     }
 
     func testMethodFlags() throws {

@@ -12,7 +12,7 @@ public class Method: Member {
 
     internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: MethodDefTable.RowIndex) -> Method {
         let name = definingTypeImpl.moduleFile.resolve(definingTypeImpl.moduleFile.methodDefTable[tableRowIndex].name)
-        if name == ".ctor" {
+        if name == Constructor.name {
             return Constructor(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
         }
         else {
@@ -107,7 +107,7 @@ public class Method: Member {
 }
 
 public final class Constructor: Method {
-
+    public static let name: String = ".ctor"
 }
 
 extension Method: Hashable {
