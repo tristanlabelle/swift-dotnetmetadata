@@ -100,6 +100,10 @@ public class TypeDefinition: CustomDebugStringConvertible {
         return method ?? (inherited ? base?.definition.findSingleMethod(name: name, arity: arity, inherited: true) : nil)
     }
 
+    public func findSingleMethod(name: String, signature: MethodSignature) throws -> Method? {
+        fatalError("Not implemented: TypeDefinition.findSingleMethod(name:signature:)")
+    }
+
     public func findField(name: String, inherited: Bool = false) -> Field? {
         fields.first { $0.name == name } ?? (inherited ? base?.definition.findField(name: name, inherited: true) : nil)
     }
