@@ -7,7 +7,7 @@ let package = Package(
     products: [
         .library(
             name: "DotNetMetadata",
-            targets: ["DotNetMetadataFormat", "DotNetMetadata"])
+            targets: ["DotNetMetadataFormat", "DotNetMetadata", "DotNetXMLDocs"])
     ],
     targets: [
         .target(
@@ -15,6 +15,8 @@ let package = Package(
         .target(
             name: "DotNetMetadataFormat",
             dependencies: [ "CInterop" ]),
+        .target(
+            name: "DotNetXMLDocs"),
         .target(
             name: "DotNetMetadata",
             dependencies: [ "DotNetMetadataFormat" ]),
