@@ -1,14 +1,14 @@
 
-public enum MemberKey {
+public enum MemberKey: Hashable {
     case namespace(name: String)
     case type(fullName: String)
     case field(typeFullName: String, name: String)
-    case method(typeFullName: String, name: String, params: [Param], conversionTarget: Param?)
-    case property(typeFullName: String, name: String, params: [Param])
+    case method(typeFullName: String, name: String, params: [Param] = [], conversionTarget: Param? = nil)
+    case property(typeFullName: String, name: String, params: [Param] = [])
     case event(typeFullName: String, name: String)
     case unresolved(String)
 
-    public struct Param {
+    public struct Param: Hashable {
         public var isByRef: Bool
         public var type: ParamType
         public var customModifiers: [ParamType]
@@ -20,7 +20,7 @@ public enum MemberKey {
         }
     }
 
-    public enum ParamType {
+    public enum ParamType: Hashable {
         case bound(fullName: String, genericArgs: [ParamType] = [])
         indirect case array(element: ParamType)
         indirect case pointer(element: ParamType)
@@ -28,7 +28,7 @@ public enum MemberKey {
         // case array(element: ParamType, shape: [(lowerBound: Int, size: Int)])
     }
 
-    public enum GenericArgKind {
+    public enum GenericArgKind: Hashable {
         case type
         case method
     }

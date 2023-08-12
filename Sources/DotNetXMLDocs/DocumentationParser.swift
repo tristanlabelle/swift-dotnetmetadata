@@ -15,7 +15,7 @@ enum DocumentationParser {
                         let memberKey = try? MemberKey(parsing: memberName) {
 
                         let entry = parseMemberEntry(member)
-                        sink.addMember(key: key, entry: entry)
+                        sink.addMember(key: memberKey, entry: entry)
                     }
                 }
             }
@@ -55,7 +55,7 @@ enum DocumentationParser {
 
     fileprivate static func parseTextNode(_ node: XMLNode) -> TextNode {
         if node.kind == .text {
-            return .string(node.stringValue ?? "")
+            return .plain(node.stringValue ?? "")
         }
         else {
             return .sequence(node.children?.map(parseTextNode) ?? [])

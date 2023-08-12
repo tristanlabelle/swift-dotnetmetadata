@@ -1,13 +1,14 @@
 extension MemberKey {
+    public struct InvalidFormatError: Error {}
+
     public init(parsing str: String) throws {
-        self = Self.parse(str)
+        var remainder = Substring(str)
+        self = try Self.consume(&remainder)
+        guard remainder.isEmpty else { throw InvalidFormatError() }
     }
 
-    struct InvalidFormatError: Error {}
-
-    fileprivate static func parse(str: String) throws -> MemberKey {
-        var remainder = Substring(str)
-        guard let kindChar = remainder.popFirst(), tryConsume(&remainder, ":") else {
+    fileprivate static func consume(_ remainder: inout Substring) throws -> Self {
+        guard let kindChar = remainder.popFirst(), remainder.tryConsume(":") else {
             throw InvalidFormatError()
         }
 
@@ -21,9 +22,14 @@ extension MemberKey {
             return .type(fullName: String(identifier))
         }
 
-        let memberDotIndex = identifier.lastIndex(of: ".")
-        let typeFullName = String(str[...(memberDotIndex ?? str.startIndex)])
-        let memberName = String(str[(memberDotIndex + 1 ?? str.startIndex)...])
+        // These should be a type name followed by a member name
+        guard let memberDotIndex = identifier.lastIndex(of: "."),
+            memberDotIndex != identifier.startIndex,
+            identifier.index(after: memberDotIndex) != identifier.endIndex
+            else { throw InvalidFormatError() }
+        let typeFullName = String(identifier[..<(memberDotIndex ?? identifier.startIndex)])
+        let memberName = String(identifier[identifier.index(after: memberDotIndex)...])
+
         if kindChar == "F" {
             guard remainder.isEmpty else { throw InvalidFormatError() }
             return .field(typeFullName: typeFullName, name: memberName)
@@ -35,9 +41,9 @@ extension MemberKey {
 
         var params: [Param] = []
         if remainder.tryConsume("(") {
-            while !tryConsume(&remainder, ")") {
-                if !params.isEmpty && !tryConsume(&remainder, ",") { throw InvalidFormatError() }
-                params.append(consumeParam(&remainder))
+            while !remainder.tryConsume(")") {
+                if !params.isEmpty && !remainder.tryConsume(",") { throw InvalidFormatError() }
+                params.append(try Param(consuming: &remainder))
             }
         }
 
@@ -49,7 +55,7 @@ extension MemberKey {
         // op_Implicit/op_Explicit
         let conversionTarget: Param?
         if remainder.tryConsume("~") {
-            conversionTarget = consumeParam(&remainder)
+            conversionTarget = try Param(consuming: &remainder)
         }
         else {
             conversionTarget = nil
@@ -57,25 +63,44 @@ extension MemberKey {
 
         if kindChar == "M" {
             guard remainder.isEmpty else { throw InvalidFormatError() }
-            return .method(typeFullName: typeFullName, name: memberName, params: params, conversionTarget: param)
+            return .method(typeFullName: typeFullName, name: memberName, params: params, conversionTarget: conversionTarget)
         }
 
         throw InvalidFormatError()
     }
+}
 
-    fileprivate static func consumeDottedIdentifier(_ str: inout Substring) throws -> Substring {
-        let identifier = remainder.drop(while: { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "`" || $0 == "." })
-        guard !identifier.isEmpty else { throw InvalidFormatError() }
-        return identifier
+fileprivate typealias InvalidFormatError = MemberKey.InvalidFormatError
+
+extension MemberKey.Param {
+    public init(parsing str: String) throws {
+        var remainder = Substring(str)
+        self = try Self(consuming: &remainder)
+        guard remainder.isEmpty else { throw InvalidFormatError() }
     }
 
-    fileprivate static func consumeParam(_ str: inout Substring) throws -> Param {
-        return Param(type: .bound(String(try consumeDottedIdentifier(&str))))
+    fileprivate init(consuming str: inout Substring) throws {
+        self = try Self.consume(&str)
     }
 
-    fileprivate static func tryConsume(_ str: inout Substring, _ prefix: Character) -> Bool {
-        guard str.first == prefix else { return false }
-        str.dropFirst()
+    fileprivate static func consume(_ remainder: inout Substring) throws -> Self {
+        // TODO: Support more complex type expressions
+        return Self(type: .bound(fullName: String(try consumeDottedIdentifier(&remainder))))
+    }
+}
+
+fileprivate func consumeDottedIdentifier(_ remainder: inout Substring) throws -> Substring {
+    let newRemainder = remainder.drop(while: { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "`" || $0 == "." })
+    let identifier = remainder[..<newRemainder.startIndex]
+    guard !identifier.isEmpty else { throw InvalidFormatError() }
+    remainder = newRemainder
+    return identifier
+}
+
+extension Substring {
+    fileprivate mutating func tryConsume(_ prefix: Character) -> Bool {
+        guard self.first == prefix else { return false }
+        self = self.dropFirst()
         return true
     }
 }
