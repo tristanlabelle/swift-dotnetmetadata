@@ -16,13 +16,10 @@ let package = Package(
             name: "DotNetMetadataFormat",
             dependencies: [ "CInterop" ]),
         .target(
-            name: "DotNetXMLDocs"),
-        .target(
             name: "DotNetMetadata",
             dependencies: [ "DotNetMetadataFormat" ]),
-        .executableTarget(
-            name: "LocalTesting",
-            dependencies: [ "DotNetMetadata", "DotNetMetadataFormat", "DotNetXMLDocs" ]),
+        .target(
+            name: "DotNetXMLDocs"),
         .testTarget(
             name: "UnitTests",
             dependencies: [ "DotNetMetadataFormat", "DotNetMetadata", "DotNetXMLDocs" ])
