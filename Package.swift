@@ -18,6 +18,9 @@ let package = Package(
         .target(
             name: "DotNetMetadata",
             dependencies: [ "DotNetMetadataFormat" ]),
+        .executableTarget(
+            name: "LocalTesting",
+            dependencies: [ "DotNetMetadata", "DotNetMetadataFormat" ]),
         .testTarget(
             name: "UnitTests",
             dependencies: [ "DotNetMetadataFormat", "DotNetMetadata" ])
