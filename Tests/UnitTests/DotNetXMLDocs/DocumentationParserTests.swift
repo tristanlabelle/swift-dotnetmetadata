@@ -24,17 +24,16 @@ final class DocumentationParserTests: XCTestCase {
             </doc>
             """#)
 
-        var assemblyDocumentation = AssemblyDocumentation()
-        DocumentationParser.feed(document: xmlDocument, sink: &assemblyDocumentation)
+        let documentationFile = try DocumentationFile(parsing: xmlDocument)
 
-        XCTAssertEqual(assemblyDocumentation.name, "AssemblyName")
-        XCTAssertEqual(assemblyDocumentation.members.count, 2)
+        XCTAssertEqual(documentationFile.assemblyName, "AssemblyName")
+        XCTAssertEqual(documentationFile.members.count, 2)
 
-        let typeEntry = try XCTUnwrap(assemblyDocumentation.members[MemberKey.type(fullName: "Namespace.TypeName`1")])
+        let typeEntry = try XCTUnwrap(documentationFile.members[MemberKey.type(fullName: "Namespace.TypeName`1")])
         XCTAssertEqual(typeEntry.summary, TextNode.plain("Summary"))
         XCTAssertEqual(typeEntry.typeParams, ["TypeParamName": TextNode.plain("TypeParamDesc")])
 
-        let methodEntry = try XCTUnwrap(assemblyDocumentation.members[
+        let methodEntry = try XCTUnwrap(documentationFile.members[
             MemberKey.method(typeFullName: "Namespace.TypeName", name: "Method",
                 params: [ .init(typeFullName: "Namespace2.TypeName2") ])])
         XCTAssertEqual(methodEntry.summary, TextNode.plain("Summary"))

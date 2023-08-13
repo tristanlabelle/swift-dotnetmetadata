@@ -1,6 +1,4 @@
 extension MemberKey {
-    public struct InvalidFormatError: Error {}
-
     public init(parsing str: String) throws {
         var remainder = Substring(str)
         self = try Self.consume(&remainder)
@@ -69,8 +67,6 @@ extension MemberKey {
         throw InvalidFormatError()
     }
 }
-
-fileprivate typealias InvalidFormatError = MemberKey.InvalidFormatError
 
 extension MemberKey.Param {
     public init(parsing str: String) throws {

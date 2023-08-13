@@ -1,3 +1,5 @@
+import struct Foundation.URL
+
 public enum TextNode: Hashable {
     case plain(String)
     case sequence([TextNode])
@@ -9,10 +11,8 @@ public enum TextNode: Hashable {
     indirect case example(TextNode) // <example></example>
 
     // Inline formatting
-    case codeSpan(name: String) // <c></c>
-
-    // References
+    case codeSpan(text: String) // <c></c>
     case paramReference(name: String) // <paramref name=""/>
     case typeParamReference(name: String) // <typeparamref name=""/>
-    case see(codeReference: MemberKey, url: String? = nil, also: Bool = false) // <see[also] cref="" url=""/>
+    case see(codeReference: MemberKey, url: URL? = nil, also: Bool = false) // <see[also] cref="" url=""/>
 }
