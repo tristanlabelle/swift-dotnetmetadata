@@ -1,5 +1,7 @@
 
 public enum MemberKey: Hashable {
+    public static let constructorName: String = "#ctor"
+
     case namespace(name: String)
     case type(fullName: String)
     case field(typeFullName: String, name: String)
@@ -17,6 +19,10 @@ public enum MemberKey: Hashable {
             self.type = type
             self.isByRef = isByRef
             self.customModifiers = customModifiers
+        }
+
+        public init(typeFullName: String, isByRef: Bool = false) {
+            self.init(type: .bound(fullName: typeFullName), isByRef: isByRef)
         }
     }
 
