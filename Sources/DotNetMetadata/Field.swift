@@ -10,7 +10,6 @@ public final class Field: Member {
     }
 
     public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
 
@@ -33,7 +32,7 @@ public final class Field: Member {
     }
     public var signature: FieldSig { get throws { try _signature.get() } }
 
-    private lazy var _type = Result { try assemblyImpl.resolve(signature.type, typeContext: definingType) }
+    private lazy var _type = Result { try assembly.resolve(signature.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
 
     private lazy var _literalValue = Result {
@@ -43,7 +42,7 @@ public final class Field: Member {
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
 
     public private(set) lazy var attributes: [Attribute] = {
-        assemblyImpl.getAttributes(owner: .field(tableRowIndex))
+        assembly.getAttributes(owner: .field(tableRowIndex))
     }()
 }
 

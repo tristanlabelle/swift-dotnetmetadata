@@ -1,20 +1,19 @@
 import DotNetMetadataFormat
 
 public final class Attribute {
-    internal let assemblyImpl: MetadataAssemblyImpl
+    public unowned let assembly: Assembly
     internal let tableRowIndex: CustomAttributeTable.RowIndex
 
-    init(tableRowIndex: CustomAttributeTable.RowIndex, assemblyImpl: MetadataAssemblyImpl) {
+    init(tableRowIndex: CustomAttributeTable.RowIndex, assembly: Assembly) {
         self.tableRowIndex = tableRowIndex
-        self.assemblyImpl = assemblyImpl
+        self.assembly = assembly
     }
 
-    public var assembly: Assembly { assemblyImpl.owner }
-    internal var moduleFile: ModuleFile { assemblyImpl.moduleFile }
+    internal var moduleFile: ModuleFile { assembly.moduleFile }
     private var tableRow: CustomAttributeTable.Row { moduleFile.customAttributeTable[tableRowIndex] }
 
     private lazy var _constructor = Result {
-        try assemblyImpl.resolve(tableRow.type) as! Constructor
+        try assembly.resolve(tableRow.type) as! Constructor
     }
     public var constructor: Constructor { get throws { try _constructor.get() } }
     public var type: TypeDefinition { get throws { try constructor.definingType } }
@@ -39,7 +38,7 @@ public final class Attribute {
             case .constant(let constant): return .constant(constant)
 
             case let .type(fullName, assemblyIdentity):
-                let assembly = try assemblyImpl.owner.context.loadAssembly(identity: assemblyIdentity)
+                let assembly = try assembly.context.loadAssembly(identity: assemblyIdentity)
                 return .type(definition: assembly.findDefinedType(fullName: fullName)!)
 
             case .array(let elems): return .array(try elems.map(resolve))

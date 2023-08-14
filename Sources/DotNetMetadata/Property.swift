@@ -26,13 +26,12 @@ public class Property: Member {
     }
 
     public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: PropertyTable.Row { moduleFile.propertyTable[tableRowIndex] }
 
     public override var name: String { moduleFile.resolve(tableRow.name) }
 
-    private lazy var _type = Result { assemblyImpl.resolve(propertySig.type, typeContext: definingType) }
+    private lazy var _type = Result { assembly.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
 
     private struct Accessors {
@@ -70,7 +69,7 @@ public class Property: Member {
     public var isFinal: Bool { anyAccessor?.isFinal ?? false }
 
     public private(set) lazy var attributes: [Attribute] = {
-        assemblyImpl.getAttributes(owner: .property(tableRowIndex))
+        assembly.getAttributes(owner: .property(tableRowIndex))
     }()
 }
 

@@ -18,42 +18,32 @@ public class MetadataContext {
     }
 
     public func loadAssembly(identity: AssemblyIdentity) throws -> Assembly {
-        if identity.name == Mscorlib.name && identity.version == AssemblyVersion.all255 {
-            if let mscorlib = self.mscorlib {
-                return mscorlib
-            }
-            else {
-                let mscorlib = try Mscorlib(context: self, impl: MockMscorlibAssemblyImpl())
-                self.mscorlib = mscorlib
-                return mscorlib
+        for assembly in loadedAssemblies {
+            if assembly.name == identity.name {
+                return assembly
             }
         }
-        else {
-            fatalError("Not implemented: assembly resolution")
-        }
+
+        return try loadAssembly(moduleFile: try assemblyResolver(identity))
     }
 
     public func loadAssembly(url: URL) throws -> Assembly {
-        let moduleFile = try ModuleFile(url: url)
+        return try loadAssembly(moduleFile: try ModuleFile(url: url))
+    }
+
+    private func loadAssembly(moduleFile: ModuleFile) throws -> Assembly {
         guard moduleFile.assemblyTable.count == 1 else {
             throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
         }
 
         let assemblyRow = moduleFile.assemblyTable[0]
-        // TODO: de-duplicate against loaded assemblies
-        let assemblyImpl = MetadataAssemblyImpl(moduleFile: moduleFile, tableRow: assemblyRow)
         let assembly: Assembly
-        if assemblyImpl.name == Mscorlib.name,
-            let mscorlib = try? Mscorlib(context: self, impl: assemblyImpl) {
-
-            if self.mscorlib == nil {
-                self.mscorlib = mscorlib
-            }
-
-            assembly = mscorlib
+        if mscorlib == nil, moduleFile.resolve(assemblyRow.name) == Mscorlib.name {
+            self.mscorlib = try? Mscorlib(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
+            assembly = try self.mscorlib ?? Assembly(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
         }
         else {
-            assembly = try Assembly(context: self, impl: assemblyImpl)
+            assembly = try Assembly(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
         }
 
         loadedAssemblies.append(assembly)

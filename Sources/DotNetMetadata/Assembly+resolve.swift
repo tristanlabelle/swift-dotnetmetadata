@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-extension MetadataAssemblyImpl {
+extension Assembly {
     internal func resolveType(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode? {
         guard !metadataToken.isNull else { return nil }
         switch metadataToken.tableID {
@@ -49,7 +49,7 @@ extension MetadataAssemblyImpl {
             case let .module(index):
                 // Assume single-module assembly
                 guard index?.zeroBased == 0 else { break }
-                return owner.findDefinedType(namespace: namespace, name: name)!
+                return findDefinedType(namespace: namespace, name: name)!
             case let .assemblyRef(index):
                 guard let index = index else { break }
                 return resolve(index).findDefinedType(namespace: namespace, name: name)!

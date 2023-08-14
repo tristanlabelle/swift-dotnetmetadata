@@ -1,17 +1,16 @@
 import DotNetMetadataFormat
 
 public final class AssemblyReference {
-    internal unowned let assemblyImpl: MetadataAssemblyImpl
+    public unowned let owner: Assembly
     internal let tableRowIndex: AssemblyRefTable.RowIndex
     private unowned var cachedTarget: Assembly? = nil
 
-    init(assemblyImpl: MetadataAssemblyImpl, tableRowIndex: AssemblyRefTable.RowIndex) {
-        self.assemblyImpl = assemblyImpl
+    init(owner: Assembly, tableRowIndex: AssemblyRefTable.RowIndex) {
+        self.owner = owner
         self.tableRowIndex = tableRowIndex
     }
 
-    public var source: Assembly { assemblyImpl.owner }
-    internal var moduleFile: ModuleFile { assemblyImpl.moduleFile }
+    internal var moduleFile: ModuleFile { owner.moduleFile }
     internal var tableRow: AssemblyRefTable.Row { moduleFile.assemblyRefTable[tableRowIndex] }
 
     public var name: String { moduleFile.resolve(tableRow.name) }
@@ -28,20 +27,20 @@ public final class AssemblyReference {
         return bytes.isEmpty ? nil : .from(bytes: bytes, isToken: tableRow.flags.contains(.publicKey))
     }
 
-    public var flags: AssemblyFlags { tableRow.flags }
-    public var hashValue: [UInt8] { Array(moduleFile.resolve(tableRow.hashValue)) }
-
     public var identity: AssemblyIdentity {
         AssemblyIdentity(name: name, version: version, culture: culture, publicKey: publicKey)
     }
 
+    public var flags: AssemblyFlags { tableRow.flags }
+    public var hashValue: [UInt8] { Array(moduleFile.resolve(tableRow.hashValue)) }
+
     public var attributes: [Attribute] {
-        assemblyImpl.getAttributes(owner: .assemblyRef(tableRowIndex))
+        owner.getAttributes(owner: .assemblyRef(tableRowIndex))
     }
 
     public func resolve() throws -> Assembly {
         if let cachedTarget { return cachedTarget }
-        let target = try source.context.loadAssembly(identity: identity)
+        let target = try owner.context.loadAssembly(identity: identity)
         self.cachedTarget = target
         return target
     }

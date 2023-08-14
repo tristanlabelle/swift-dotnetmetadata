@@ -14,13 +14,12 @@ public final class Event: Member {
     }
 
     public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: EventTable.Row { moduleFile.eventTable[tableRowIndex] }
 
     public override var name: String { moduleFile.resolve(tableRow.name) }
 
-    private lazy var _handlerType = Result { assemblyImpl.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
+    private lazy var _handlerType = Result { assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }
 
     private struct Accessors {
@@ -58,7 +57,7 @@ public final class Event: Member {
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
 
     public private(set) lazy var attributes: [Attribute] = {
-        assemblyImpl.getAttributes(owner: .event(tableRowIndex))
+        assembly.getAttributes(owner: .event(tableRowIndex))
     }()
 }
 

@@ -1,36 +1,81 @@
 import DotNetMetadataFormat
 
 public class Assembly: CustomDebugStringConvertible {
-    typealias Impl = AssemblyImpl
-
     public let context: MetadataContext
-    private let impl: any AssemblyImpl
+    public let moduleFile: ModuleFile
+    private let tableRow: AssemblyTable.Row
 
-    init(context: MetadataContext, impl: any AssemblyImpl) throws {
+    internal init(context: MetadataContext, moduleFile: ModuleFile, tableRow: AssemblyTable.Row) throws {
         self.context = context
-        self.impl = impl
-        impl.initialize(owner: self)
+        self.moduleFile = moduleFile
+        self.tableRow = tableRow
     }
 
-    public var name: String { impl.name }
-    public var version: AssemblyVersion { impl.version }
-    public var culture: String? { impl.culture }
-    public var publicKey: AssemblyPublicKey? { impl.publicKey }
-    public var references: [AssemblyReference] { impl.references }
-    public var definedTypes: [TypeDefinition] { impl.definedTypes }
+    public var name: String { moduleFile.resolve(tableRow.name) }
+
+    public var version: AssemblyVersion {
+        .init(
+            major: tableRow.majorVersion,
+            minor: tableRow.minorVersion,
+            buildNumber: tableRow.buildNumber,
+            revisionNumber: tableRow.revisionNumber)
+    }
+
+    public var culture: String? {
+        let culture = moduleFile.resolve(tableRow.culture)
+        return culture.isEmpty ? nil : culture
+    }
+
+    public var publicKey: AssemblyPublicKey? {
+        let tableRow = tableRow
+        let bytes = Array(moduleFile.resolve(tableRow.publicKey))
+        return bytes.isEmpty ? nil : .from(bytes: bytes, isToken: tableRow.flags.contains(.publicKey))
+    }
 
     public var identity: AssemblyIdentity {
         AssemblyIdentity(name: name, version: version, culture: culture, publicKey: publicKey)
     }
 
-    public var debugDescription: String {
-        var result = "\(name), Version=\(version)"
-        if let culture { result += ", Culture=\(culture)" }
-        return result
+    public var debugDescription: String { identity.description}
+
+    public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable[0].name)
+
+    public private(set) lazy var references: [AssemblyReference] = {
+        moduleFile.assemblyRefTable.indices.map { 
+            AssemblyReference(owner: self, tableRowIndex: $0)
+        }
+    }()
+
+    public private(set) lazy var definedTypes: [TypeDefinition] = {
+        moduleFile.typeDefTable.indices.map { 
+            TypeDefinition.create(
+                assembly: self,
+                impl: TypeDefinition.MetadataImpl(assembly: self, tableRowIndex: $0))
+        }
+    }()
+
+    private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowIndex: PropertyMapTable.RowIndex] = {
+        .init(uniqueKeysWithValues: moduleFile.propertyMapTable.indices.map {
+            (moduleFile.propertyMapTable[$0].parent!, $0)
+        })
+    }()
+
+    func findPropertyMap(forTypeDef typeDefRowIndex: TypeDefTable.RowIndex) -> PropertyMapTable.RowIndex? {
+        propertyMapByTypeDefRowIndex[typeDefRowIndex]
+    }
+
+    private lazy var eventMapByTypeDefRowIndex: [TypeDefTable.RowIndex: EventMapTable.RowIndex] = {
+        .init(uniqueKeysWithValues: moduleFile.eventMapTable.indices.map {
+            (moduleFile.eventMapTable[$0].parent!, $0)
+        })
+    }()
+
+    func findEventMap(forTypeDef typeDefRowIndex: TypeDefTable.RowIndex) -> EventMapTable.RowIndex? {
+        eventMapByTypeDefRowIndex[typeDefRowIndex]
     }
 
     public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
-        let definedTypes = impl.definedTypes
+        let definedTypes = definedTypes
         var dict = [String: TypeDefinition](minimumCapacity: definedTypes.count)
         for definedType in definedTypes {
             dict[definedType.fullName] = definedType
@@ -49,17 +94,27 @@ public class Assembly: CustomDebugStringConvertible {
     public func findDefinedType(namespace: String?, enclosingName: String, nestedNames: [String]) -> TypeDefinition? {
         findDefinedType(fullName: makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames))
     }
-}
+    
+    internal lazy var mscorlib: Mscorlib = {
+        if let mscorlib = self as? Mscorlib {
+            return mscorlib
+        }
 
-internal protocol AssemblyImpl {
-    func initialize(owner: Assembly)
+        for assemblyRef in moduleFile.assemblyRefTable {
+            let identity = AssemblyIdentity(fromRow: assemblyRef, in: moduleFile)
+            if identity.name == Mscorlib.name {
+                return try! context.loadAssembly(identity: identity) as! Mscorlib
+            }
+        }
 
-    var name: String { get }
-    var version: AssemblyVersion { get }
-    var culture: String? { get }
-    var publicKey: AssemblyPublicKey? { get }
-    var references: [AssemblyReference] { get }
-    var definedTypes: [TypeDefinition] { get }
+        fatalError("Can't load mscorlib")
+    }()
+
+    internal func getAttributes(owner: HasCustomAttribute) -> [Attribute] {
+        moduleFile.customAttributeTable.findAll(primaryKey: owner.metadataToken.tableKey).map {
+            Attribute(tableRowIndex: $0, assembly: self)
+        }
+    }
 }
 
 extension Assembly: Hashable {

@@ -3,11 +3,11 @@ import DotNetMetadataFormat
 extension TypeDefinition {
     final class MetadataImpl: Impl {
         internal private(set) unowned var owner: TypeDefinition!
-        internal unowned let assemblyImpl: MetadataAssemblyImpl
+        public unowned let assembly: Assembly
         internal let tableRowIndex: TypeDefTable.RowIndex
 
-        init(assemblyImpl: MetadataAssemblyImpl, tableRowIndex: TypeDefTable.RowIndex) {
-            self.assemblyImpl = assemblyImpl
+        init(assembly: Assembly, tableRowIndex: TypeDefTable.RowIndex) {
+            self.assembly = assembly
             self.tableRowIndex = tableRowIndex
         }
 
@@ -15,8 +15,7 @@ extension TypeDefinition {
             self.owner = owner
         }
 
-        internal var assembly: Assembly { assemblyImpl.owner }
-        internal var moduleFile: ModuleFile { assemblyImpl.moduleFile }
+        internal var moduleFile: ModuleFile { assembly.moduleFile }
 
         private var tableRow: TypeDefTable.Row { moduleFile.typeDefTable[tableRowIndex] }
 
@@ -51,7 +50,7 @@ extension TypeDefinition {
         public private(set) lazy var enclosingType: TypeDefinition? = {
             guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
             guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass else { return nil }
-            return assemblyImpl.resolve(enclosingTypeDefRowIndex)
+            return assembly.resolve(enclosingTypeDefRowIndex)
         }()
 
         public private(set) lazy var genericParams: [GenericTypeParam] = {
@@ -60,7 +59,7 @@ extension TypeDefinition {
             }
         }()
 
-        public private(set) lazy var base: BoundType? = assemblyImpl.resolveOptionalBoundType(tableRow.extends)
+        public private(set) lazy var base: BoundType? = assembly.resolveOptionalBoundType(tableRow.extends)
 
         public private(set) lazy var baseInterfaces: [BaseInterface] = {
             moduleFile.interfaceImplTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
@@ -87,7 +86,7 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var properties: [Property] = {
-            guard let propertyMapRowIndex = assemblyImpl.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
+            guard let propertyMapRowIndex = assembly.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
             return getChildRowRange(parent: moduleFile.propertyMapTable,
                 parentRowIndex: propertyMapRowIndex,
                 childTable: moduleFile.propertyTable,
@@ -97,7 +96,7 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var events: [Event] = {
-            guard let eventMapRowIndex: EventMapTable.RowIndex = assemblyImpl.findEventMap(forTypeDef: tableRowIndex) else { return [] }
+            guard let eventMapRowIndex: EventMapTable.RowIndex = assembly.findEventMap(forTypeDef: tableRowIndex) else { return [] }
             return getChildRowRange(parent: moduleFile.eventMapTable,
                 parentRowIndex: eventMapRowIndex,
                 childTable: moduleFile.eventTable,
@@ -107,13 +106,13 @@ extension TypeDefinition {
         }()
 
         public private(set) lazy var attributes: [Attribute] = {
-            assemblyImpl.getAttributes(owner: .typeDef(tableRowIndex))
+            assembly.getAttributes(owner: .typeDef(tableRowIndex))
         }()
 
         public private(set) lazy var nestedTypes: [TypeDefinition] = {
             moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
                 let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass!
-                return assemblyImpl.resolve(nestedTypeRowIndex)
+                return assembly.resolve(nestedTypeRowIndex)
             }
         }()
 

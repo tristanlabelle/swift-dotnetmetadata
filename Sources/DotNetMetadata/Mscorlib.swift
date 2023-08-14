@@ -1,11 +1,13 @@
+import DotNetMetadataFormat
+
 // The mscorlib assembly, exposing definitions for special types core to the CLI
 public final class Mscorlib: Assembly {
     public static let name: String = "mscorlib"
 
     struct MissingSpecialType: Error {}
 
-    override init(context: MetadataContext, impl: any AssemblyImpl) throws {
-        try super.init(context: context, impl: impl)
+    override init(context: MetadataContext, moduleFile: ModuleFile, tableRow: AssemblyTable.Row) throws {
+        try super.init(context: context, moduleFile: moduleFile, tableRow: tableRow)
         specialTypes = try SpecialTypes(assembly: self)
     }
 

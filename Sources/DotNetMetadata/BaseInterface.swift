@@ -10,12 +10,12 @@ public final class BaseInterface {
     }
 
     public var inheritingType: TypeDefinition { inheritingTypeImpl.owner }
-    internal var assemblyImpl: MetadataAssemblyImpl { inheritingTypeImpl.assemblyImpl }
+    internal var assembly: Assembly { inheritingTypeImpl.assembly }
     internal var moduleFile: ModuleFile { inheritingTypeImpl.moduleFile }
     private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
-    public var interface: BoundType { assemblyImpl.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType)! }
+    public var interface: BoundType { assembly.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType)! }
 
     public private(set) lazy var attributes: [Attribute] = {
-        assemblyImpl.getAttributes(owner: .interfaceImpl(tableRowIndex))
+        assembly.getAttributes(owner: .interfaceImpl(tableRowIndex))
     }()
 }

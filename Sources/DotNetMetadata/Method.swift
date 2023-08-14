@@ -21,7 +21,6 @@ public class Method: Member {
     }
 
     public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
     internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
     private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
 
@@ -102,7 +101,7 @@ public class Method: Member {
     public var genericArity: Int { genericParams.count }
 
     public private(set) lazy var attributes: [Attribute] = {
-        assemblyImpl.getAttributes(owner: .methodDef(tableRowIndex))
+        assembly.getAttributes(owner: .methodDef(tableRowIndex))
     }()
 }
 

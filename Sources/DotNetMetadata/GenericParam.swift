@@ -7,7 +7,7 @@ public class GenericParam {
         self.tableRowIndex = tableRowIndex
     }
 
-    internal var assemblyImpl: MetadataAssemblyImpl { fatalError() }
+    public var assembly: Assembly { fatalError() }
     internal var moduleFile: ModuleFile { fatalError() }
     private var tableRow: GenericParamTable.Row { moduleFile.genericParamTable[tableRowIndex] }
 
@@ -20,14 +20,14 @@ public class GenericParam {
 
     private lazy var _constraints = Result {
         moduleFile.genericParamConstraintTable.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
-            assemblyImpl.resolve(moduleFile.genericParamConstraintTable[$0].constraint)!
+            assembly.resolve(moduleFile.genericParamConstraintTable[$0].constraint)!
         }
     }
 
     public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
     public private(set) lazy var attributes: [Attribute] = {
-        assemblyImpl.getAttributes(owner: .genericParam(tableRowIndex))
+        assembly.getAttributes(owner: .genericParam(tableRowIndex))
     }()
 }
 
@@ -40,7 +40,7 @@ public final class GenericTypeParam: GenericParam {
     }
 
     public var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal override var assemblyImpl: MetadataAssemblyImpl { definingTypeImpl.assemblyImpl }
+    public override var assembly: Assembly { definingTypeImpl.assembly }
     internal override var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
 }
 
@@ -52,7 +52,7 @@ public final class GenericMethodParam: GenericParam {
         super.init(tableRowIndex: tableRowIndex)
     }
 
-    internal override var assemblyImpl: MetadataAssemblyImpl { definingMethod.assemblyImpl }
+    public override var assembly: Assembly { definingMethod.assembly }
     internal override var moduleFile: ModuleFile { definingMethod.moduleFile }
 }
 
