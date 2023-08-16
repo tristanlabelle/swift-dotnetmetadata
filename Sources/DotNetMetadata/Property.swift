@@ -4,29 +4,29 @@ public class Property: Member {
     public static let getterPrefix = "get_"
     public static let setterPrefix = "set_"
 
-    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
+    private unowned let _definingType: TypeDefinition
     internal let tableRowIndex: PropertyTable.RowIndex
     internal let propertySig: PropertySig
 
-    fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: PropertyTable.RowIndex, propertySig: PropertySig) {
-        self.definingTypeImpl = definingTypeImpl
+    fileprivate init(definingType: TypeDefinition, tableRowIndex: PropertyTable.RowIndex, propertySig: PropertySig) {
+        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
         self.propertySig = propertySig
     }
 
-    internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: PropertyTable.RowIndex) -> Property {
-        let row = definingTypeImpl.moduleFile.propertyTable[tableRowIndex]
-        let propertySig = try! PropertySig(blob: definingTypeImpl.moduleFile.resolve(row.type))
+    internal static func create(definingType: TypeDefinition, tableRowIndex: PropertyTable.RowIndex) -> Property {
+        let row = definingType.moduleFile.propertyTable[tableRowIndex]
+        let propertySig = try! PropertySig(blob: definingType.moduleFile.resolve(row.type))
         if propertySig.params.count == 0 {
-            return Property(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
+            return Property(definingType: definingType, tableRowIndex: tableRowIndex, propertySig: propertySig)
         }
         else {
-            return Indexer(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
+            return Indexer(definingType: definingType, tableRowIndex: tableRowIndex, propertySig: propertySig)
         }
     }
 
-    public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    public override var definingType: TypeDefinition { _definingType }
+    internal var moduleFile: ModuleFile { definingType.moduleFile }
     private var tableRow: PropertyTable.Row { moduleFile.propertyTable[tableRowIndex] }
 
     public override var name: String { moduleFile.resolve(tableRow.name) }
@@ -42,7 +42,7 @@ public class Property: Member {
 
     private lazy var accessors = Result { [self] in
         var accessors = Accessors()
-        for entry in definingTypeImpl.getAccessors(owner: .property(tableRowIndex)) {
+        for entry in definingType.getAccessors(owner: .property(tableRowIndex)) {
             if entry.attributes == .getter { accessors.getter = entry.method }
             else if entry.attributes == .setter { accessors.setter = entry.method }
             else if entry.attributes == .other { accessors.others.append(entry.method) }
@@ -74,8 +74,8 @@ public class Property: Member {
 }
 
 public final class Indexer: Property {
-    internal override init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: PropertyTable.RowIndex, propertySig: PropertySig) {
-        super.init(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex, propertySig: propertySig)
+    internal override init(definingType: TypeDefinition, tableRowIndex: PropertyTable.RowIndex, propertySig: PropertySig) {
+        super.init(definingType: definingType, tableRowIndex: tableRowIndex, propertySig: propertySig)
     }
 }
 

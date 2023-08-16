@@ -47,11 +47,7 @@ public class Assembly: CustomDebugStringConvertible {
     }()
 
     public private(set) lazy var definedTypes: [TypeDefinition] = {
-        moduleFile.typeDefTable.indices.map { 
-            TypeDefinition.create(
-                assembly: self,
-                impl: TypeDefinition.MetadataImpl(assembly: self, tableRowIndex: $0))
-        }
+        moduleFile.typeDefTable.indices.map { TypeDefinition.create(assembly: self, tableRowIndex: $0) }
     }()
 
     private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowIndex: PropertyMapTable.RowIndex] = {

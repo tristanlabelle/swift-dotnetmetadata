@@ -5,16 +5,16 @@ public final class Event: Member {
     public static let removeAccessorPrefix = "remove_"
     public static let raiseAccessorPrefix = "raise_"
 
-    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
+    private unowned let _definingType: TypeDefinition
     internal let tableRowIndex: EventTable.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: EventTable.RowIndex) {
-        self.definingTypeImpl = definingTypeImpl
+    init(definingType: TypeDefinition, tableRowIndex: EventTable.RowIndex) {
+        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
     }
 
-    public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    public override var definingType: TypeDefinition { _definingType }
+    internal var moduleFile: ModuleFile { definingType.moduleFile }
     private var tableRow: EventTable.Row { moduleFile.eventTable[tableRowIndex] }
 
     public override var name: String { moduleFile.resolve(tableRow.name) }
@@ -31,7 +31,7 @@ public final class Event: Member {
 
     private lazy var accessors = Result { [self] in
         var accessors = Accessors()
-        for entry in definingTypeImpl.getAccessors(owner: .event(tableRowIndex)) {
+        for entry in definingType.getAccessors(owner: .event(tableRowIndex)) {
             if entry.attributes == .addOn { accessors.add = entry.method }
             else if entry.attributes == .removeOn { accessors.remove = entry.method }
             else if entry.attributes == .fire { accessors.fire = entry.method }

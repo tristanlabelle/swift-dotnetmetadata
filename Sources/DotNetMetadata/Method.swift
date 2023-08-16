@@ -2,26 +2,26 @@ import DotNetMetadataFormat
 
 /// An unbound method definition, which may have generic parameters.
 public class Method: Member {
-    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
+    private let _definingType: TypeDefinition
     internal let tableRowIndex: MethodDefTable.RowIndex
 
-    fileprivate init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: MethodDefTable.RowIndex) {
-        self.definingTypeImpl = definingTypeImpl
+    fileprivate init(definingType: TypeDefinition, tableRowIndex: MethodDefTable.RowIndex) {
+        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
     }
 
-    internal static func create(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: MethodDefTable.RowIndex) -> Method {
-        let name = definingTypeImpl.moduleFile.resolve(definingTypeImpl.moduleFile.methodDefTable[tableRowIndex].name)
+    internal static func create(definingType: TypeDefinition, tableRowIndex: MethodDefTable.RowIndex) -> Method {
+        let name = definingType.moduleFile.resolve(definingType.moduleFile.methodDefTable[tableRowIndex].name)
         if name == Constructor.name {
-            return Constructor(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
+            return Constructor(definingType: definingType, tableRowIndex: tableRowIndex)
         }
         else {
-            return Method(definingTypeImpl: definingTypeImpl, tableRowIndex: tableRowIndex)
+            return Method(definingType: definingType, tableRowIndex: tableRowIndex)
         }
     }
 
-    public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    public override var definingType: TypeDefinition { _definingType }
+    internal var moduleFile: ModuleFile { definingType.moduleFile }
     private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
 
     public override var name: String { moduleFile.resolve(tableRow.name) }

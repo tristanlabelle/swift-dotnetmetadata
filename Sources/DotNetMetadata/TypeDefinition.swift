@@ -3,53 +3,57 @@ import DotNetMetadataFormat
 /// An unbound type definition, which may have generic parameters.
 public class TypeDefinition: CustomDebugStringConvertible {
     internal typealias Kind = TypeDefinitionKind
-    internal typealias Impl = TypeDefinitionImpl
 
     public static let nestedTypeSeparator: Character = "/"
     public static let genericParamCountSeparator: Character = "`"
 
     public let assembly: Assembly
-    private let impl: any TypeDefinitionImpl
+    public let tableRowIndex: TypeDefTable.RowIndex
 
-    fileprivate init(assembly: Assembly, impl: any TypeDefinitionImpl) {
+    fileprivate init(assembly: Assembly, tableRowIndex: TypeDefTable.RowIndex) {
         self.assembly = assembly
-        self.impl = impl
-        impl.initialize(owner: self)
+        self.tableRowIndex = tableRowIndex
     }
 
-    internal static func create(assembly: Assembly, impl: any TypeDefinitionImpl) -> TypeDefinition {
-        switch impl.kind {
-            case .class: return ClassDefinition(assembly: assembly, impl: impl)
-            case .interface: return InterfaceDefinition(assembly: assembly, impl: impl)
-            case .delegate: return DelegateDefinition(assembly: assembly, impl: impl)
-            case .struct: return StructDefinition(assembly: assembly, impl: impl)
-            case .enum: return EnumDefinition(assembly: assembly, impl: impl)
+    internal static func create(assembly: Assembly, tableRowIndex: TypeDefTable.RowIndex) -> TypeDefinition {
+        // Figuring out the kind requires checking the base type,
+        // but we must be careful to not look up any other `TypeDefinition`
+        // instances since they might not have been created yet.
+        // For safety, implement this at the physical layer.
+        let tableRow = assembly.moduleFile.typeDefTable[tableRowIndex]
+        let kind = assembly.moduleFile.getTypeDefinitionKind(tableRow, isMscorlib: assembly.name == Mscorlib.name)
+
+        switch kind {
+            case .class: return ClassDefinition(assembly: assembly, tableRowIndex: tableRowIndex)
+            case .interface: return InterfaceDefinition(assembly: assembly, tableRowIndex: tableRowIndex)
+            case .delegate: return DelegateDefinition(assembly: assembly, tableRowIndex: tableRowIndex)
+            case .struct: return StructDefinition(assembly: assembly, tableRowIndex: tableRowIndex)
+            case .enum: return EnumDefinition(assembly: assembly, tableRowIndex: tableRowIndex)
         }
     }
 
     public var context: MetadataContext { assembly.context }
+    internal var moduleFile: ModuleFile { assembly.moduleFile }
+    private var tableRow: TypeDefTable.Row { moduleFile.typeDefTable[tableRowIndex] }
 
-    public var name: String { impl.name }
-    public var namespace: String? { impl.namespace }
-    public var kind: TypeDefinitionKind { impl.kind }
-    internal var metadataAttributes: DotNetMetadataFormat.TypeAttributes { impl.metadataAttributes }
-    public var enclosingType: TypeDefinition? { impl.enclosingType }
-    public var genericParams: [GenericTypeParam] { impl.genericParams }
-    public var base: BoundType? { impl.base }
-    public var baseInterfaces: [BaseInterface] { impl.baseInterfaces }
-    public var fields: [Field] { impl.fields }
-    public var methods: [Method] { impl.methods }
-    public var properties: [Property] { impl.properties }
-    public var events: [Event] { impl.events }
-    public var attributes: [Attribute] { impl.attributes }
-    public var nestedTypes: [TypeDefinition] { impl.nestedTypes }
+    public var kind: TypeDefinitionKind { fatalError() }
+    public var isValueType: Bool { kind.isValueType }
+    public var isReferenceType: Bool { kind.isReferenceType }
 
-    public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
+    public var name: String { moduleFile.resolve(tableRow.typeName) }
 
     public var nameWithoutGenericSuffix: String {
         let name = name
         guard let index = name.firstIndex(of: Self.genericParamCountSeparator) else { return name }
         return String(name[..<index])
+    }
+
+    public var namespace: String? {
+        let tableRow = tableRow
+        // Normally, no namespace is represented by a zero string heap index
+        guard tableRow.typeNamespace.value != 0 else { return nil }
+        let value = moduleFile.resolve(tableRow.typeNamespace)
+        return value.isEmpty ? nil : value
     }
 
     public private(set) lazy var fullName: String = {
@@ -60,13 +64,46 @@ public class TypeDefinition: CustomDebugStringConvertible {
         return makeFullTypeName(namespace: namespace, name: name)
     }()
 
+    internal var metadataAttributes: DotNetMetadataFormat.TypeAttributes { tableRow.flags }
+
     public var visibility: Visibility { metadataAttributes.visibility }
     public var isNested: Bool { metadataAttributes.isNested }
     public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
-    public var isValueType: Bool { kind.isValueType }
-    public var isReferenceType: Bool { kind.isReferenceType }
     public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
+
+    public private(set) lazy var layout: TypeLayout = {
+        switch metadataAttributes.layoutKind {
+            case .auto: return .auto
+            case .sequential:
+                let layout = getClassLayout()
+                return .sequential(pack: layout.pack == 0 ? nil : Int(layout.pack), minSize: Int(layout.size))
+            case .explicit:
+                return .explicit(minSize: Int(getClassLayout().size))
+        }
+
+        func getClassLayout() -> (pack: UInt16, size: UInt32) {
+            if let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey) {
+                let classLayoutRow = moduleFile.classLayoutTable[classLayoutRowIndex]
+                return (pack: classLayoutRow.packingSize, size: classLayoutRow.classSize)
+            }
+            else {
+                return (pack: 0, size: 0)
+            }
+        }
+    }()
+
+    public private(set) lazy var enclosingType: TypeDefinition? = {
+        guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
+        guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass else { return nil }
+        return assembly.resolve(enclosingTypeDefRowIndex)
+    }()
+
+    public private(set) lazy var genericParams: [GenericTypeParam] = {
+        moduleFile.genericParamTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+            GenericTypeParam(definingType: self, tableRowIndex: $0)
+        }
+    }()
 
     /// The list of all generic params defined either directly on this
     /// type definition or on one of the enclosing type definitions.
@@ -80,16 +117,72 @@ public class TypeDefinition: CustomDebugStringConvertible {
         return result
     }()
 
-    public var layout: TypeLayout {
-        switch metadataAttributes.layoutKind {
-            case .auto: return .auto
-            case .sequential:
-                let layout = impl.classLayout
-                return .sequential(pack: layout.pack == 0 ? nil : Int(layout.pack), minSize: Int(layout.size))
-            case .explicit:
-                return .explicit(minSize: Int(impl.classLayout.size))
+    public private(set) lazy var base: BoundType? = assembly.resolveOptionalBoundType(tableRow.extends)
+
+    public private(set) lazy var baseInterfaces: [BaseInterface] = {
+        moduleFile.interfaceImplTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+            BaseInterface(inheritingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public private(set) lazy var methods: [Method] = {
+        getChildRowRange(parent: moduleFile.typeDefTable,
+            parentRowIndex: tableRowIndex,
+            childTable: moduleFile.methodDefTable,
+            childSelector: { $0.methodList }).map {
+            Method.create(definingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public private(set) lazy var fields: [Field] = {
+        getChildRowRange(parent: moduleFile.typeDefTable,
+            parentRowIndex: tableRowIndex,
+            childTable: moduleFile.fieldTable,
+            childSelector: { $0.fieldList }).map {
+            Field(definingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public private(set) lazy var properties: [Property] = {
+        guard let propertyMapRowIndex = assembly.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
+        return getChildRowRange(parent: moduleFile.propertyMapTable,
+            parentRowIndex: propertyMapRowIndex,
+            childTable: moduleFile.propertyTable,
+            childSelector: { $0.propertyList }).map {
+            Property.create(definingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public private(set) lazy var events: [Event] = {
+        guard let eventMapRowIndex: EventMapTable.RowIndex = assembly.findEventMap(forTypeDef: tableRowIndex) else { return [] }
+        return getChildRowRange(parent: moduleFile.eventMapTable,
+            parentRowIndex: eventMapRowIndex,
+            childTable: moduleFile.eventTable,
+            childSelector: { $0.eventList }).map {
+            Event(definingType: self, tableRowIndex: $0)
+        }
+    }()
+
+    public private(set) lazy var attributes: [Attribute] = {
+        assembly.getAttributes(owner: .typeDef(tableRowIndex))
+    }()
+
+    public private(set) lazy var nestedTypes: [TypeDefinition] = {
+        moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
+            let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass!
+            return assembly.resolve(nestedTypeRowIndex)
+        }
+    }()
+
+    internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
+        moduleFile.methodSemanticsTable.findAll(primaryKey: owner.metadataToken.tableKey).map {
+            let row = moduleFile.methodSemanticsTable[$0]
+            let method = methods.first { $0.tableRowIndex == row.method }!
+            return (method, row.semantics)
         }
     }
+
+    public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 
     public func isMscorlib(namespace: String, name: String) -> Bool {
         assembly is Mscorlib && self.namespace == namespace && self.name == name
@@ -193,21 +286,29 @@ public class TypeDefinition: CustomDebugStringConvertible {
 }
 
 public final class ClassDefinition: TypeDefinition {
+    public override var kind: TypeDefinitionKind { .class }
+
     public var finalizer: Method? { findMethod(name: "Finalize", static: false, arity: 0) }
 }
 
 public final class InterfaceDefinition: TypeDefinition {
+    public override var kind: TypeDefinitionKind { .interface }
 }
 
 public final class DelegateDefinition: TypeDefinition {
+    public override var kind: TypeDefinitionKind { .delegate }
+
     public var invokeMethod: Method { findMethod(name: "Invoke", public: true, static: false)! }
     public var arity: Int { get throws { try invokeMethod.arity } }
 }
 
 public final class StructDefinition: TypeDefinition {
+    public override var kind: TypeDefinitionKind { .struct }
 }
 
 public final class EnumDefinition: TypeDefinition {
+    public override var kind: TypeDefinitionKind { .enum }
+
     public var backingField: Field {
         // The backing field is public but with specialName and rtSpecialName
         findField(name: "value__", public: true, static: false)!
@@ -223,28 +324,6 @@ public final class EnumDefinition: TypeDefinition {
 extension TypeDefinition: Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
     public static func == (lhs: TypeDefinition, rhs: TypeDefinition) -> Bool { lhs === rhs }
-}
-
-internal typealias ClassLayoutData = (pack: UInt16, size: UInt32)
-
-internal protocol TypeDefinitionImpl {
-    func initialize(owner: TypeDefinition)
-
-    var name: String { get }
-    var namespace: String? { get }
-    var kind: TypeDefinitionKind { get }
-    var metadataAttributes: DotNetMetadataFormat.TypeAttributes { get }
-    var classLayout: ClassLayoutData { get }
-    var enclosingType: TypeDefinition? { get }
-    var genericParams: [GenericTypeParam] { get }
-    var base: BoundType? { get }
-    var baseInterfaces: [BaseInterface] { get }
-    var fields: [Field] { get }
-    var methods: [Method] { get }
-    var properties: [Property] { get }
-    var events: [Event] { get }
-    var attributes: [Attribute] { get }
-    var nestedTypes: [TypeDefinition] { get }
 }
 
 public func makeFullTypeName(namespace: String?, name: String) -> String {

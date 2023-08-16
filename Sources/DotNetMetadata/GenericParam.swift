@@ -32,16 +32,15 @@ public class GenericParam {
 }
 
 public final class GenericTypeParam: GenericParam {
-    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
+    public unowned let definingType: TypeDefinition
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: GenericParamTable.RowIndex) {
-        self.definingTypeImpl = definingTypeImpl
+    init(definingType: TypeDefinition, tableRowIndex: GenericParamTable.RowIndex) {
+        self.definingType = definingType
         super.init(tableRowIndex: tableRowIndex)
     }
 
-    public var definingType: TypeDefinition { definingTypeImpl.owner }
-    public override var assembly: Assembly { definingTypeImpl.assembly }
-    internal override var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    public override var assembly: Assembly { definingType.assembly }
+    internal override var moduleFile: ModuleFile { definingType.moduleFile }
 }
 
 public final class GenericMethodParam: GenericParam {

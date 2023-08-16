@@ -1,17 +1,16 @@
 import DotNetMetadataFormat
 
 public final class BaseInterface {
-    internal unowned let inheritingTypeImpl: TypeDefinition.MetadataImpl
+    public unowned let inheritingType: TypeDefinition
     internal let tableRowIndex: InterfaceImplTable.RowIndex
 
-    init(inheritingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: InterfaceImplTable.RowIndex) {
-        self.inheritingTypeImpl = inheritingTypeImpl
+    init(inheritingType: TypeDefinition, tableRowIndex: InterfaceImplTable.RowIndex) {
+        self.inheritingType = inheritingType
         self.tableRowIndex = tableRowIndex
     }
 
-    public var inheritingType: TypeDefinition { inheritingTypeImpl.owner }
-    internal var assembly: Assembly { inheritingTypeImpl.assembly }
-    internal var moduleFile: ModuleFile { inheritingTypeImpl.moduleFile }
+    internal var assembly: Assembly { inheritingType.assembly }
+    internal var moduleFile: ModuleFile { inheritingType.moduleFile }
     private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
     public var interface: BoundType { assembly.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType)! }
 

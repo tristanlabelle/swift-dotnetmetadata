@@ -1,16 +1,16 @@
 import DotNetMetadataFormat
 
 public final class Field: Member {
-    internal unowned let definingTypeImpl: TypeDefinition.MetadataImpl
+    private unowned let _definingType: TypeDefinition
     internal let tableRowIndex: FieldTable.RowIndex
 
-    init(definingTypeImpl: TypeDefinition.MetadataImpl, tableRowIndex: FieldTable.RowIndex) {
-        self.definingTypeImpl = definingTypeImpl
+    init(definingType: TypeDefinition, tableRowIndex: FieldTable.RowIndex) {
+        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
     }
 
-    public override var definingType: TypeDefinition { definingTypeImpl.owner }
-    internal var moduleFile: ModuleFile { definingTypeImpl.moduleFile }
+    public override var definingType: TypeDefinition { _definingType }
+    internal var moduleFile: ModuleFile { definingType.moduleFile }
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
 
     public override var name: String { moduleFile.resolve(tableRow.name) }
