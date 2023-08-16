@@ -1,4 +1,5 @@
 @testable import DotNetMetadata
+import DotNetMetadataFormat
 import XCTest
 
 final class WinMetadataTests: XCTestCase {
@@ -9,7 +10,13 @@ final class WinMetadataTests: XCTestCase {
         guard let winMetadataPath = SystemAssemblyPaths.winMetadata else { return }
         let url = URL(fileURLWithPath: "\(winMetadataPath)\\Windows.Foundation.winmd")
 
-        context = MetadataContext()
+        // Resolve the mscorlib dependency from the .NET Framework 4 machine installation
+        struct AssemblyLoadError: Error {}
+        context = MetadataContext(assemblyResolver: {
+            guard $0.name == "mscorlib", let fx4Path = SystemAssemblyPaths.framework4 else { throw AssemblyLoadError() }
+            return try ModuleFile(path: "\(fx4Path)\\mscorlib.dll")
+        })
+
         assembly = try? context.loadAssembly(url: url)
     }
 
