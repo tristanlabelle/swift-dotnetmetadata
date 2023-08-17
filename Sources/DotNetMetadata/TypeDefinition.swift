@@ -304,8 +304,8 @@ public final class EnumDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .enum }
 
     public var backingField: Field {
-        // The backing field is public but with specialName and rtSpecialName
-        findField(name: "value__", public: true, static: false)!
+        // The backing field may be public but will have specialName and rtSpecialName
+        findField(name: "value__", static: false)!
     }
 
     public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
