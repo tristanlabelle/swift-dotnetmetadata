@@ -14,21 +14,21 @@
 /// - GenericType<TypeNode>.NestedGenericType<>
 public struct BoundType: Hashable {
     public let definition: TypeDefinition
-    public let fullGenericArgs: [TypeNode]
+    public let genericArgs: [TypeNode]
 
-    public init(_ definition: TypeDefinition, fullGenericArgs: [TypeNode]) {
-        precondition(definition.fullGenericParams.count == fullGenericArgs.count)
+    public init(_ definition: TypeDefinition, genericArgs: [TypeNode]) {
+        precondition(definition.genericArity == genericArgs.count)
         self.definition = definition
-        self.fullGenericArgs = fullGenericArgs
+        self.genericArgs = genericArgs
     }
 
     public var asNode: TypeNode { .bound(self) }
-    public var isClosed: Bool { fullGenericArgs.allSatisfy { $0.isClosed } }
+    public var isClosed: Bool { genericArgs.allSatisfy { $0.isClosed } }
     public var isOpen: Bool { !isClosed }
 }
 
 extension TypeDefinition {
-    public func bind(fullGenericArgs: [TypeNode] = []) -> BoundType {
-        .init(self, fullGenericArgs: fullGenericArgs)
+    public func bind(genericArgs: [TypeNode] = []) -> BoundType {
+        .init(self, genericArgs: genericArgs)
     }
 }

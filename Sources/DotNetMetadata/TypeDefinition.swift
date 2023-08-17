@@ -72,6 +72,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
     public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
 
+    public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
+
     public private(set) lazy var layout: TypeLayout = {
         switch metadataAttributes.layoutKind {
             case .auto: return .auto
@@ -99,23 +101,17 @@ public class TypeDefinition: CustomDebugStringConvertible {
         return assembly.resolve(enclosingTypeDefRowIndex)
     }()
 
+    /// The list of generic parameters on this type definition.
+    /// By CLS rules, generic parameters on the enclosing type should be redeclared
+    /// in the nested type, i.e. given "Enclosing<T>.Nested<U>" in C#, the metadata
+    /// for "Nested" should have generic parameters T (redeclared) and U.
     public private(set) lazy var genericParams: [GenericTypeParam] = {
         moduleFile.genericParamTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
             GenericTypeParam(definingType: self, tableRowIndex: $0)
         }
     }()
 
-    /// The list of all generic params defined either directly on this
-    /// type definition or on one of the enclosing type definitions.
-    public private(set) lazy var fullGenericParams: [GenericTypeParam] = {
-        var result = genericParams
-        var type = self
-        while let enclosingType = type.enclosingType {
-            result.insert(contentsOf: enclosingType.genericParams, at: 0)
-            type = enclosingType
-        }
-        return result
-    }()
+    public var genericArity: Int { genericParams.count }
 
     public private(set) lazy var base: BoundType? = assembly.resolveOptionalBoundType(tableRow.extends)
 
@@ -181,8 +177,6 @@ public class TypeDefinition: CustomDebugStringConvertible {
             return (method, row.semantics)
         }
     }
-
-    public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 
     public func isMscorlib(namespace: String, name: String) -> Bool {
         assembly is Mscorlib && self.namespace == namespace && self.name == name
