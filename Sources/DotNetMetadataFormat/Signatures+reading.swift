@@ -87,42 +87,58 @@ extension FieldSig {
     }
 }
 
-extension MethodDefSig {
-    public init(blob: UnsafeRawBufferPointer) throws {
+extension MethodSig {
+    public init(blob: UnsafeRawBufferPointer, isRef: Bool) throws {
         var remainder = blob
-        try self.init(consuming: &remainder)
+        try self.init(consuming: &remainder, isRef: isRef)
         if remainder.count > 0 { throw InvalidFormatError.signatureBlob }
     }
 
-    init(consuming buffer: inout UnsafeRawBufferPointer) throws {
-        let callingConvention = SigToken.consume(buffer: &buffer)
-        let hasThis = (callingConvention & SigToken.CallingConvention.hasThis) != 0
-        let hasExplicitThis = hasThis && (callingConvention & SigToken.CallingConvention.explicitThis) != 0
+    init(consuming buffer: inout UnsafeRawBufferPointer, isRef: Bool) throws {
+        let firstByte = SigToken.consume(buffer: &buffer)
+        let hasThis = (firstByte & SigToken.CallingConvention.hasThis) != 0
+        let hasExplicitThis = hasThis && (firstByte & SigToken.CallingConvention.explicitThis) != 0
 
-        guard (callingConvention & SigToken.CallingConvention.mask) == SigToken.CallingConvention.default else {
-            fatalError("Not implemented: non-default calling convention")
-        }
+        var callingConv: CallingConv = try {
+            switch firstByte & SigToken.CallingConvention.mask {
+                case SigToken.CallingConvention.default:
+                    return .default(genericArity: 0)
+                case SigToken.CallingConvention.generic:
+                    let genericArity = try consumeSigUInt(buffer: &buffer)
+                    return .default(genericArity: genericArity)
+                case SigToken.CallingConvention.vararg:
+                    // extraCount to be overriden below
+                    return .vararg(extraCount: 0)
+                default:
+                    throw InvalidFormatError.signatureBlob
+            }
+        }()
 
         var paramCount = try consumeSigUInt(buffer: &buffer)
         let returnParam = try ParamSig(consuming: &buffer, return: true)
 
-        let explicitThis: TypeSig?
-        if hasExplicitThis {
-            assert(paramCount > 0)
-            explicitThis = try TypeSig(consuming: &buffer)
-            paramCount -= 1
-        } else {
-            explicitThis = nil
-        }
+        let thisParam: ThisParam = try {
+            if hasExplicitThis {
+                assert(paramCount > 0)
+                paramCount -= 1
+                return .explicit(try TypeSig(consuming: &buffer))
+            }
+            else if hasThis { return .implicit }
+            else { return .none }
+        }()
 
-        let params = try (0 ..< paramCount).map { _ in
-            try ParamSig(consuming: &buffer, return: false)
+        let params = try (0 ..< paramCount).map { index in
+            if case .vararg(0) = callingConv, isRef, SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.sentinel) {
+                // Remaining parameters are extra varargs parameters
+                callingConv = .vararg(extraCount: paramCount - index)
+            }
+
+            return try ParamSig(consuming: &buffer, return: false)
         }
 
         self.init(
-            hasThis: hasThis,
-            explicitThis: explicitThis,
-            genericArity: 0, // TODO: Support generic method signatures
+            thisParam: thisParam,
+            callingConv: callingConv,
             returnParam: returnParam,
             params: params)
     }

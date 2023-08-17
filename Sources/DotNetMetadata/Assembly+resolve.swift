@@ -129,25 +129,34 @@ extension Assembly {
     internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
         let row = moduleFile.memberRefTable[index]
 
-        let typeDefinition: TypeDefinition
-        switch row.class {
-            case let .typeDef(index):
-                guard let index = index else { return nil }
-                typeDefinition = resolve(index)
-            case let .typeRef(index):
-                guard let index = index else { return nil }
-                typeDefinition = resolve(index)
-            default:
-                fatalError("Not implemented: Resolving \(row.class)")
-        }
+        guard let typeDefinition: TypeDefinition = {
+            switch row.class {
+                case let .typeDef(index):
+                    guard let index = index else { return nil }
+                    return resolve(index)
+                case let .typeRef(index):
+                    guard let index = index else { return nil }
+                    return resolve(index)
+                default:
+                    fatalError("Not implemented: Resolving \(row.class)")
+            }
+        }() else { return nil }
 
         let name = moduleFile.resolve(row.name)
-        let sig = try MethodDefSig(blob: moduleFile.resolve(row.signature))
+        let sig = try MethodSig(blob: moduleFile.resolve(row.signature), isRef: true)
+
+        let genericArity: Int = {
+            switch sig.callingConv {
+                case let .default(genericArity): return Int(genericArity)
+                // TODO: Figure out how method resolution works with varargs
+                default: return 0
+            }
+        }()
 
         let method = typeDefinition.findMethod(
             name: name,
-            static: !sig.hasThis,
-            genericArity: sig.genericArity,
+            static: !sig.thisParam.isPresent,
+            genericArity: genericArity,
             paramTypes: sig.params.map { resolve($0.type) })
         guard let method else { return nil }
 

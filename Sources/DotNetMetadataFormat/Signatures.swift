@@ -31,12 +31,31 @@ public struct FieldSig {
     public var type: TypeSig
 }
 
-public struct MethodDefSig {
-    public var hasThis: Bool
-    public var explicitThis: TypeSig?
-    public var genericArity: Int // TODO: Support vararg
+public struct MethodSig {
+    public var thisParam: ThisParam
+    public var callingConv: CallingConv
     public var returnParam: ParamSig
     public var params: [ParamSig]
+
+    public enum ThisParam {
+        case none
+        case implicit
+        case explicit(TypeSig)
+    }
+
+    public enum CallingConv {
+        case `default`(genericArity: UInt32 = 0)
+        case vararg(extraCount: UInt32)
+    }
+}
+
+extension MethodSig.ThisParam {
+    public var isPresent: Bool {
+        switch self {
+            case .none: return false
+            default: return true
+        }
+    }
 }
 
 public struct ParamSig {

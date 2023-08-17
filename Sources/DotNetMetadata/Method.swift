@@ -31,8 +31,8 @@ public class Method: Member {
     public var isSpecialName: Bool { flags.contains(.specialName) }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
-    private lazy var _signature = Result { try MethodDefSig(blob: moduleFile.resolve(tableRow.signature)) }
-    public var signature: MethodDefSig { get throws { try _signature.get() } }
+    private lazy var _signature = Result { try MethodSig(blob: moduleFile.resolve(tableRow.signature), isRef: false) }
+    public var signature: MethodSig { get throws { try _signature.get() } }
 
     private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result {
         let paramRowIndices = getChildRowRange(
