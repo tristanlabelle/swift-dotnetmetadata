@@ -2,12 +2,13 @@ import DotNetMetadataFormat
 
 /// An unbound method definition, which may have generic parameters.
 public class Method: Member {
-    private let _definingType: TypeDefinition
     internal let tableRowIndex: MethodDefTable.RowIndex
+    private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
+    private var flags: MethodAttributes { tableRow.flags }
 
     fileprivate init(definingType: TypeDefinition, tableRowIndex: MethodDefTable.RowIndex) {
-        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
+        super.init(definingType: definingType)
     }
 
     internal static func create(definingType: TypeDefinition, tableRowIndex: MethodDefTable.RowIndex) -> Method {
@@ -20,30 +21,15 @@ public class Method: Member {
         }
     }
 
-    public override var definingType: TypeDefinition { _definingType }
-    internal var moduleFile: ModuleFile { definingType.moduleFile }
-    private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
-
-    public override var name: String { moduleFile.resolve(tableRow.name) }
-    public override var isStatic: Bool { tableRow.flags.contains(.`static`) }
-    public var isVirtual: Bool { tableRow.flags.contains(.virtual) }
-    public var isAbstract: Bool { tableRow.flags.contains(.abstract) }
-    public var isFinal: Bool { tableRow.flags.contains(.final) }
-    public var isSpecialName: Bool { tableRow.flags.contains(.specialName) }
+    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var nameKind: NameKind { flags.nameKind }
+    public override var visibility: Visibility { flags.visibility }
+    public override var isStatic: Bool { flags.contains(.`static`) }
+    public var isVirtual: Bool { flags.contains(.virtual) }
+    public var isAbstract: Bool { flags.contains(.abstract) }
+    public var isFinal: Bool { flags.contains(.final) }
+    public var isSpecialName: Bool { flags.contains(.specialName) }
     public var isGeneric: Bool { !genericParams.isEmpty }
-
-    public override var visibility: Visibility {
-        switch tableRow.flags.intersection(.memberAccessMask) {
-            case .compilerControlled: return .compilerControlled
-            case .private: return .private
-            case .assem: return .assembly
-            case .famANDAssem: return .familyAndAssembly
-            case .famORAssem: return .familyOrAssembly
-            case .family: return .family
-            case .public: return .public
-            default: fatalError()
-        }
-    }
 
     private lazy var _signature = Result { try MethodDefSig(blob: moduleFile.resolve(tableRow.signature)) }
     public var signature: MethodDefSig { get throws { try _signature.get() } }
@@ -107,9 +93,4 @@ public class Method: Member {
 
 public final class Constructor: Method {
     public static let name: String = ".ctor"
-}
-
-extension Method: Hashable {
-    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
-    public static func == (lhs: Method, rhs: Method) -> Bool { lhs === rhs }
 }

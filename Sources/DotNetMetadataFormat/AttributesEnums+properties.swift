@@ -1,5 +1,18 @@
+extension EventAttributes {
+    public var nameKind: NameKind {
+        if self.contains(.rtSpecialName) { return .runtime }
+        else if self.contains(.specialName) { return .special }
+        else { return .regular }
+    }
+}
 
 extension FieldAttributes {
+    public var nameKind: NameKind {
+        if self.contains(.rtSpecialName) { return .runtime }
+        else if self.contains(.specialName) { return .special }
+        else { return .regular }
+    }
+
     public var visibility: Visibility {
         switch self.intersection(.fieldAccessMask) {
             case .compilerControlled: return .compilerControlled
@@ -15,6 +28,12 @@ extension FieldAttributes {
 }
 
 extension MethodAttributes {
+    public var nameKind: NameKind {
+        if self.contains(.rtSpecialName) { return .runtime }
+        else if self.contains(.specialName) { return .special }
+        else { return .regular }
+    }
+
     public var visibility: Visibility {
         switch self.intersection(.memberAccessMask) {
             case .compilerControlled: return .compilerControlled
@@ -29,7 +48,21 @@ extension MethodAttributes {
     }
 }
 
+extension PropertyAttributes {
+    public var nameKind: NameKind {
+        if self.contains(.rtSpecialName) { return .runtime }
+        else if self.contains(.specialName) { return .special }
+        else { return .regular }
+    }
+}
+
 extension TypeAttributes {
+    public var nameKind: NameKind {
+        if self.contains(.rtSpecialName) { return .runtime }
+        else if self.contains(.specialName) { return .special }
+        else { return .regular }
+    }
+
     public var visibility: Visibility {
         switch self.intersection(.visibilityMask) {
             case .public, .nestedPublic: return .public

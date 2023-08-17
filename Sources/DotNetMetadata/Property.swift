@@ -4,14 +4,15 @@ public class Property: Member {
     public static let getterPrefix = "get_"
     public static let setterPrefix = "set_"
 
-    private unowned let _definingType: TypeDefinition
     internal let tableRowIndex: PropertyTable.RowIndex
+    private var tableRow: PropertyTable.Row { moduleFile.propertyTable[tableRowIndex] }
+    private var flags: PropertyAttributes { tableRow.flags }
     internal let propertySig: PropertySig
 
     fileprivate init(definingType: TypeDefinition, tableRowIndex: PropertyTable.RowIndex, propertySig: PropertySig) {
-        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
         self.propertySig = propertySig
+        super.init(definingType: definingType)
     }
 
     internal static func create(definingType: TypeDefinition, tableRowIndex: PropertyTable.RowIndex) -> Property {
@@ -25,11 +26,8 @@ public class Property: Member {
         }
     }
 
-    public override var definingType: TypeDefinition { _definingType }
-    internal var moduleFile: ModuleFile { definingType.moduleFile }
-    private var tableRow: PropertyTable.Row { moduleFile.propertyTable[tableRowIndex] }
-
-    public override var name: String { moduleFile.resolve(tableRow.name) }
+    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var nameKind: NameKind { flags.nameKind }
 
     private lazy var _type = Result { assembly.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
@@ -77,9 +75,4 @@ public final class Indexer: Property {
     internal override init(definingType: TypeDefinition, tableRowIndex: PropertyTable.RowIndex, propertySig: PropertySig) {
         super.init(definingType: definingType, tableRowIndex: tableRowIndex, propertySig: propertySig)
     }
-}
-
-extension Property: Hashable {
-    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
-    public static func == (lhs: Property, rhs: Property) -> Bool { lhs === rhs }
 }

@@ -1,22 +1,20 @@
 import DotNetMetadataFormat
 
 public final class Field: Member {
-    private unowned let _definingType: TypeDefinition
     internal let tableRowIndex: FieldTable.RowIndex
+    private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
+    private var flags: FieldAttributes { tableRow.flags }
 
     init(definingType: TypeDefinition, tableRowIndex: FieldTable.RowIndex) {
-        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
+        super.init(definingType: definingType)
     }
 
-    public override var definingType: TypeDefinition { _definingType }
-    internal var moduleFile: ModuleFile { definingType.moduleFile }
-    private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
-
-    public override var name: String { moduleFile.resolve(tableRow.name) }
-    public override var isStatic: Bool { tableRow.flags.contains(.`static`) }
-    public var isInitOnly: Bool { tableRow.flags.contains(.initOnly) }
-    public override var visibility: Visibility { tableRow.flags.visibility }
+    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var nameKind: NameKind { flags.nameKind }
+    public override var visibility: Visibility { flags.visibility }
+    public override var isStatic: Bool { flags.contains(.`static`) }
+    public var isInitOnly: Bool { flags.contains(.initOnly) }
 
     public private(set) lazy var explicitOffset: Int? = { () -> Int? in
         guard let fieldLayoutRowIndex = moduleFile.fieldLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
@@ -44,9 +42,4 @@ public final class Field: Member {
     public private(set) lazy var attributes: [Attribute] = {
         assembly.getAttributes(owner: .field(tableRowIndex))
     }()
-}
-
-extension Field: Hashable {
-    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
-    public static func == (lhs: Field, rhs: Field) -> Bool { lhs === rhs }
 }

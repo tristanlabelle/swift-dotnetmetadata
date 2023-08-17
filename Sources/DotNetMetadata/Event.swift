@@ -5,19 +5,17 @@ public final class Event: Member {
     public static let removeAccessorPrefix = "remove_"
     public static let raiseAccessorPrefix = "raise_"
 
-    private unowned let _definingType: TypeDefinition
     internal let tableRowIndex: EventTable.RowIndex
+    private var tableRow: EventTable.Row { moduleFile.eventTable[tableRowIndex] }
+    private var flags: EventAttributes { tableRow.eventFlags }
 
     init(definingType: TypeDefinition, tableRowIndex: EventTable.RowIndex) {
-        self._definingType = definingType
         self.tableRowIndex = tableRowIndex
+        super.init(definingType: definingType)
     }
 
-    public override var definingType: TypeDefinition { _definingType }
-    internal var moduleFile: ModuleFile { definingType.moduleFile }
-    private var tableRow: EventTable.Row { moduleFile.eventTable[tableRowIndex] }
-
-    public override var name: String { moduleFile.resolve(tableRow.name) }
+    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var nameKind: NameKind { flags.nameKind }
 
     private lazy var _handlerType = Result { assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }
@@ -59,9 +57,4 @@ public final class Event: Member {
     public private(set) lazy var attributes: [Attribute] = {
         assembly.getAttributes(owner: .event(tableRowIndex))
     }()
-}
-
-extension Event: Hashable {
-    public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
-    public static func == (lhs: Event, rhs: Event) -> Bool { lhs === rhs }
 }
