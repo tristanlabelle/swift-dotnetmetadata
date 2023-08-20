@@ -28,6 +28,9 @@ public class Method: Member {
     public var isVirtual: Bool { flags.contains(.virtual) }
     public var isAbstract: Bool { flags.contains(.abstract) }
     public var isFinal: Bool { flags.contains(.final) }
+    public var isHideBySig: Bool { flags.contains(.hideBySig) }
+    public var isNewSlot: Bool { flags.contains(.newSlot) }
+    public var isOverride: Bool { isVirtual && !isNewSlot }
     public var isSpecialName: Bool { flags.contains(.specialName) }
     public var isGeneric: Bool { !genericParams.isEmpty }
 

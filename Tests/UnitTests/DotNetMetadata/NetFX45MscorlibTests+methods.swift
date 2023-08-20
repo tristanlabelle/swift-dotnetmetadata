@@ -16,19 +16,32 @@ extension NetFX45MscorlibTests {
     }
 
     func testMethodFlags() throws {
-        let iasyncResult_get_IsCompleted = Self.assembly.findDefinedType(fullName: "System.IAsyncResult")?
-            .findMethod(name: "get_IsCompleted")
-        XCTAssertEqual(iasyncResult_get_IsCompleted?.isStatic, false)
-        XCTAssertEqual(iasyncResult_get_IsCompleted?.isVirtual, true)
-        XCTAssertEqual(iasyncResult_get_IsCompleted?.isAbstract, true)
-        XCTAssertEqual(iasyncResult_get_IsCompleted?.isSpecialName, true)
+        // Abstract interface method
+        let iasyncResult_get_IsCompleted = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.IAsyncResult")?
+            .findMethod(name: "get_IsCompleted"))
+        XCTAssertEqual(iasyncResult_get_IsCompleted.isStatic, false)
+        XCTAssertEqual(iasyncResult_get_IsCompleted.isInstance, true)
+        XCTAssertEqual(iasyncResult_get_IsCompleted.isVirtual, true)
+        XCTAssertEqual(iasyncResult_get_IsCompleted.isAbstract, true)
+        XCTAssertEqual(iasyncResult_get_IsCompleted.isSpecialName, true)
 
-        let gc_WaitForPendingFinalizers = Self.assembly.findDefinedType(fullName: "System.GC")?
-            .findMethod(name: "WaitForPendingFinalizers")
-        XCTAssertEqual(gc_WaitForPendingFinalizers?.isStatic, true)
-        XCTAssertEqual(gc_WaitForPendingFinalizers?.isVirtual, false)
-        XCTAssertEqual(gc_WaitForPendingFinalizers?.isAbstract, false)
-        XCTAssertEqual(gc_WaitForPendingFinalizers?.isSpecialName, false)
+        // Static method
+        let gc_WaitForPendingFinalizers = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.GC")?
+            .findMethod(name: "WaitForPendingFinalizers"))
+        XCTAssertEqual(gc_WaitForPendingFinalizers.isStatic, true)
+        XCTAssertEqual(gc_WaitForPendingFinalizers.isInstance, false)
+        XCTAssertEqual(gc_WaitForPendingFinalizers.isVirtual, false)
+        XCTAssertEqual(gc_WaitForPendingFinalizers.isAbstract, false)
+        XCTAssertEqual(gc_WaitForPendingFinalizers.isSpecialName, false)
+
+        // Overriden virtual method
+        let exception_ToString = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Exception")?
+            .findMethod(name: "ToString", public: true, arity: 0))
+        XCTAssertEqual(exception_ToString.isStatic, false)
+        XCTAssertEqual(exception_ToString.isInstance, true)
+        XCTAssertEqual(exception_ToString.isVirtual, true)
+        XCTAssertEqual(exception_ToString.isNewSlot, false)
+        XCTAssertEqual(exception_ToString.isOverride, true)
     }
 
     func testMethodParamEnumeration() throws {
