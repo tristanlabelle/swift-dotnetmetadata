@@ -52,16 +52,16 @@ extension TypeNode {
     /// Indicates whether this TypeNode contains generic arguments
     public var isOpen: Bool { !isClosed }
 
-    public func resolveGenericParams(_ resolver: (GenericParam) throws -> TypeNode) rethrows -> TypeNode {
+    public func resolveGenericArgs(_ resolver: (GenericParam) throws -> TypeNode) rethrows -> TypeNode {
         switch self {
             case .bound(let bound):
-                return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.resolveGenericParams(resolver) })
+                return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.resolveGenericArgs(resolver) })
             case .array(let element):
-                return .array(element: try element.resolveGenericParams(resolver))
+                return .array(element: try element.resolveGenericArgs(resolver))
             case .genericArg(let param):
                 return try resolver(param)
             case .pointer(let element):
-                return .pointer(element: try element.resolveGenericParams(resolver))
+                return .pointer(element: try element.resolveGenericArgs(resolver))
         }
     }
 }
