@@ -66,7 +66,9 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     internal var metadataAttributes: DotNetMetadataFormat.TypeAttributes { tableRow.flags }
 
+    public var nameKind: NameKind { metadataAttributes.nameKind }
     public var visibility: Visibility { metadataAttributes.visibility }
+    public var isPublic: Bool { visibility == .public }
     public var isNested: Bool { metadataAttributes.isNested }
     public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
     public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
@@ -212,6 +214,20 @@ public class TypeDefinition: CustomDebugStringConvertible {
             inherited: inherited)
     }
 
+    public func findConstructor(
+        public: Bool? = nil,
+        arity: Int? = nil,
+        paramTypes: [TypeNode]? = nil,
+        inherited: Bool = false) -> Constructor? {
+
+        findMethod(
+            name: Constructor.name,
+            public: `public`,
+            arity: arity,
+            paramTypes: paramTypes,
+            inherited: inherited) as? Constructor
+    }
+
     public func findField(
         name: String, 
         public: Bool? = nil,
@@ -262,18 +278,48 @@ public class TypeDefinition: CustomDebugStringConvertible {
         predicate: ((M) -> Bool)? = nil,
         inherited: Bool = false) -> M? {
 
-        var typeDefinition = self
-        while true {
-            let member = getter(typeDefinition).single {
-                guard $0.name == name else { return false }
-                if let `public` { guard ($0.visibility == .public) == `public` else { return false } }
-                if let `static` { guard $0.isStatic == `static` else { return false } }
-                if let predicate { guard predicate($0) else { return false } }
-                return true
+        var result: M? = nil
+        gatherMembers(
+            getter: getter,
+            name: name,
+            public: `public`,
+            static: `static`,
+            predicate: predicate,
+            inherited: inherited) {
+                if result == nil {
+                    result = $0
+                    return true
+                }
+                else {
+                    // Disallow multiple matches
+                    result = nil
+                    return false
+                }
             }
 
-            if let member { return member }
-            guard inherited, let base = typeDefinition.base else { return nil }
+        return result
+    }
+
+    private func gatherMembers<M: Member>(
+        getter: (TypeDefinition) -> [M],
+        name: String? = nil,
+        public: Bool? = nil,
+        static: Bool? = nil,
+        predicate: ((M) -> Bool)? = nil,
+        inherited: Bool = false,
+        action: (M) -> Bool) {
+
+        var typeDefinition = self
+        while true {
+            for member in getter(typeDefinition) {
+                if let name { guard member.name == name else { continue } }
+                if let `public` { guard (member.visibility == .public) == `public` else { continue } }
+                if let `static` { guard member.isStatic == `static` else { continue } }
+                if let predicate { guard predicate(member) else { continue } }
+                guard action(member) else { return }
+            }
+
+            guard inherited, let base = typeDefinition.base else { return }
             typeDefinition = base.definition
         }
     }
