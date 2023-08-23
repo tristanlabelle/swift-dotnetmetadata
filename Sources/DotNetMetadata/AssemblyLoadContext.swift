@@ -8,6 +8,9 @@ public enum AssemblyLoadError: Error {
 
 public typealias AssemblyResolver = (AssemblyIdentity) throws -> ModuleFile
 
+/// A context in which assemblies are loaded and their references can be resolved
+/// to allow building a .NET type graph spanning types from multiple assemblies.
+/// This is analoguous to the System.AppDomain class in the .NET Framework.
 public final class AssemblyLoadContext {
     private let resolver: AssemblyResolver
     public private(set) var loadedAssembliesByName: [String: Assembly] = [:]
@@ -26,7 +29,6 @@ public final class AssemblyLoadContext {
 
     public func load(identity: AssemblyIdentity) throws -> Assembly {
         if let assembly = loadedAssembliesByName[identity.name] {
-            // TODO: Check if identities match
             return assembly
         }
 

@@ -1,17 +1,6 @@
-/// A type definition with all generic parameters, whether direct or on enclosing types, bound.
-/// Valid:
-/// - NonGenericType
-/// - NonGenericType.NestedNonGenericType
-/// - NonGenericType.NestedGenericType<TypeNode>
-/// - GenericType<TypeNode>
-/// - GenericType<TypeNode>.NestedNonGenericType
-/// - GenericType<TypeNode>.NestedGenericType<TypeNode>
-/// Invalid:
-/// - NonGenericType.NestedGenericType<>
-/// - GenericType<>
-/// - GenericType<>.NestedNonGenericType
-/// - GenericType<>.NestedGenericType<TypeNode>
-/// - GenericType<TypeNode>.NestedGenericType<>
+/// A type definition with all generic parameters specified.
+/// Valid: NonGenericType, GenericType<ConcreteType>, GenericType<TypeParameter>
+/// Invalid: GenericType<>
 public struct BoundType: Hashable {
     public let definition: TypeDefinition
     public let genericArgs: [TypeNode]
