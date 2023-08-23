@@ -245,7 +245,7 @@ extension TypeSig {
 
             case SigToken.ElementType.var, SigToken.ElementType.mvar:
                 let index = try consumeSigUInt(buffer: &buffer)
-                self = .genericArg(index: index, method: token == SigToken.ElementType.mvar)
+                self = .genericParam(index: index, method: token == SigToken.ElementType.mvar)
 
             case let b:
                 print(b)

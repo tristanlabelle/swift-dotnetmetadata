@@ -69,7 +69,7 @@ extension Assembly {
     internal func resolve(_ index: AssemblyRefTable.RowIndex) -> Assembly {
         let row = moduleFile.assemblyRefTable[index]
         let identity = AssemblyIdentity(fromRow: row, in: moduleFile)
-        return try! context.loadAssembly(identity: identity)
+        return try! context.load(identity: identity)
     }
 
     internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode {
@@ -103,14 +103,14 @@ extension Assembly {
             case let .szarray(_, element):
                 return .array(element: resolve(element, typeContext: typeContext, methodContext: methodContext))
 
-            case let .genericArg(index, method):
+            case let .genericParam(index, method):
                 if method {
                     guard methodContext != nil else { fatalError("Missing a method context for resolving a generic parameter reference") }
                     fatalError("Not implemented: resolve generic method arg")
                 }
                 else {
                     guard let typeContext else { fatalError("Missing a type context for resolving a generic parameter reference") }
-                    return .genericArg(param: typeContext.genericParams[Int(index)])
+                    return .genericParam(typeContext.genericParams[Int(index)])
                 }
 
             default: fatalError("Not implemented: resolve \(typeSig)")

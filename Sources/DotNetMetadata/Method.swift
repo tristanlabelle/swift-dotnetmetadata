@@ -92,6 +92,24 @@ public class Method: Member {
     public private(set) lazy var attributes: [Attribute] = {
         assembly.getAttributes(owner: .methodDef(tableRowIndex))
     }()
+
+    public func signatureMatches(typeGenericArgs: [TypeNode]? = nil, paramTypes expectedParamTypes: [TypeNode]) -> Bool {
+        guard let params = try? params, params.count == expectedParamTypes.count else { return false }
+        for i in 0..<params.count {
+            let expectedParamType: TypeNode
+            if let typeGenericArgs {
+                assert(typeGenericArgs.count == definingType.genericArity)
+                expectedParamType = expectedParamTypes[i].bindGenericParams(typeArgs: typeGenericArgs, methodArgs: nil)
+            }
+            else {
+                expectedParamType = expectedParamTypes[i]
+            }
+
+            if params[i].type != expectedParamType { return false }
+        }
+
+        return true
+    }
 }
 
 public final class Constructor: Method {

@@ -23,8 +23,7 @@ public struct BoundType: Hashable {
     }
 
     public var asNode: TypeNode { .bound(self) }
-    public var isClosed: Bool { genericArgs.allSatisfy { $0.isClosed } }
-    public var isOpen: Bool { !isClosed }
+    public var isParameterized: Bool { !genericArgs.allSatisfy { !$0.isParameterized } }
 }
 
 extension TypeDefinition {

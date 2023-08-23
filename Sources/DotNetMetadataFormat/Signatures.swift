@@ -81,7 +81,7 @@ public enum TypeSig {
     case object
     indirect case ptr(target: TypeSig)
     indirect case defOrRef(index: TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
-    case genericArg(index: UInt32, method: Bool)
+    case genericParam(index: UInt32, method: Bool)
     indirect case szarray(customMods: [CustomModSig], element: TypeSig)
     case fnptr
 }

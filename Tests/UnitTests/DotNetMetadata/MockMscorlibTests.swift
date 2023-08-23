@@ -2,13 +2,13 @@ import XCTest
 @testable import DotNetMetadata
 
 final class MockMscorlibTests: XCTestCase {
-    private static var context: MetadataContext!
+    private static var context: AssemblyLoadContext!
     private static var mscorlib: Mscorlib!
 
     override class func setUp() {
-        context = MetadataContext()
+        context = AssemblyLoadContext()
         let identity = AssemblyIdentity(name: Mscorlib.name, version: AssemblyVersion.all255)
-        mscorlib = try? context.loadAssembly(identity: identity) as? Mscorlib
+        mscorlib = try? context.load(identity: identity) as? Mscorlib
     }
 
     override func setUpWithError() throws {

@@ -9,8 +9,8 @@ A Swift library for reading and inspecting .NET metadata, including WinMD files,
 ```swift
 import DotNetMetadata
 
-let context = MetadataContext()
-let assembly = try context.loadAssembly(path: #"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll"#)
+let context = AssemblyLoadContext()
+let assembly = try context.load(path: #"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll"#)
 let typeDefinition = assembly.findDefinedType(fullName: "System.IDisposable")!
 print("interface \(typeDefinition.name) {")
 for method in typeDefinition.methods {

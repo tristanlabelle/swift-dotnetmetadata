@@ -2,14 +2,14 @@
 import XCTest
 
 final class NetFX45MscorlibTests: XCTestCase {
-    internal static var context: MetadataContext!
+    internal static var context: AssemblyLoadContext!
     internal static var assembly: Assembly!
 
     override class func setUp() {
         guard let framework4Path = SystemAssemblyPaths.framework4 else { return }
 
-        context = MetadataContext()
-        assembly = try? context.loadAssembly(path: "\(framework4Path)\\mscorlib.dll")
+        context = AssemblyLoadContext()
+        assembly = try? context.load(path: "\(framework4Path)\\mscorlib.dll")
     }
 
     override func setUpWithError() throws {

@@ -38,7 +38,7 @@ public final class Attribute {
             case .constant(let constant): return .constant(constant)
 
             case let .type(fullName, assemblyIdentity):
-                let assembly = try assembly.context.loadAssembly(identity: assemblyIdentity)
+                let assembly = try assembly.context.load(identity: assemblyIdentity)
                 return .type(definition: assembly.findDefinedType(fullName: fullName)!)
 
             case .array(let elems): return .array(try elems.map(resolve))

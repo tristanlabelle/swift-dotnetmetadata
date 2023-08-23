@@ -3,7 +3,7 @@
 public enum TypeNode: Hashable {
     case bound(BoundType)
     indirect case array(element: TypeNode)
-    case genericArg(param: GenericParam)
+    case genericParam(GenericParam)
     indirect case pointer(element: TypeNode)
 }
 
@@ -23,7 +23,7 @@ extension TypeNode {
         switch self {
             case .bound(let bound): return bound.definition.isValueType
             case .array: return false
-            case .genericArg(let param):
+            case .genericParam(let param):
                 if param.isValueType { return true }
                 if param.isReferenceType { return false }
                 return nil
@@ -38,30 +38,53 @@ extension TypeNode {
         }
     }
 
-    /// Indicates whether this TypeNode always refers to the same type
-    /// due to containing no generic arguments.
-    public var isClosed: Bool {
+    public var isParameterized: Bool {
         switch self {
-            case .bound(let bound): return bound.isClosed
-            case .array(let element): return element.isClosed
-            case .genericArg: return false
-            case .pointer(let element): return element.isClosed
+            case .bound(let bound): return bound.isParameterized
+            case .array(let element): return element.isParameterized
+            case .genericParam: return true
+            case .pointer(let element): return element.isParameterized
         }
     }
 
-    /// Indicates whether this TypeNode contains generic arguments
-    public var isOpen: Bool { !isClosed }
-
-    public func resolveGenericArgs(_ resolver: (GenericParam) throws -> TypeNode) rethrows -> TypeNode {
+    public func bindGenericParams(_ binding: (GenericParam) throws -> TypeNode) rethrows -> TypeNode {
         switch self {
             case .bound(let bound):
-                return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.resolveGenericArgs(resolver) })
+                return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.bindGenericParams(binding) })
             case .array(let element):
-                return .array(element: try element.resolveGenericArgs(resolver))
-            case .genericArg(let param):
-                return try resolver(param)
+                return .array(element: try element.bindGenericParams(binding))
+            case .genericParam(let param):
+                return try binding(param)
             case .pointer(let element):
-                return .pointer(element: try element.resolveGenericArgs(resolver))
+                return .pointer(element: try element.bindGenericParams(binding))
+        }
+    }
+
+    public func bindGenericParams(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
+        bindGenericParams {
+            switch $0 {
+                case let typeParam as GenericTypeParam:
+                    guard let typeArgs else { return .genericParam($0) }
+                    guard typeParam.definingType.genericArity == typeArgs.count,
+                        typeParam.index < typeArgs.count else {
+                        assertionFailure("Generic bindings must match type generic arity")
+                        return .genericParam($0)
+                    }
+
+                    return typeArgs[typeParam.index]
+
+                case let methodParam as GenericMethodParam:
+                    guard let methodArgs else { return .genericParam($0) }
+                    guard methodParam.definingMethod.genericArity == methodArgs.count,
+                        methodParam.index < methodArgs.count else {
+                        assertionFailure("Generic bindings must match method generic arity")
+                        return .genericParam($0)
+                    }
+
+                    return methodArgs[methodParam.index]
+                
+                default: fatalError("Unexpected generic param type")
+            }
         }
     }
 }

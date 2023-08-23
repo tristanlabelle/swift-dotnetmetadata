@@ -40,7 +40,7 @@ public final class AssemblyReference {
 
     public func resolve() throws -> Assembly {
         if let cachedTarget { return cachedTarget }
-        let target = try owner.context.loadAssembly(identity: identity)
+        let target = try owner.context.load(identity: identity)
         self.cachedTarget = target
         return target
     }

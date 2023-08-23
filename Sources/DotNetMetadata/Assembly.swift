@@ -1,11 +1,11 @@
 import DotNetMetadataFormat
 
 public class Assembly: CustomDebugStringConvertible {
-    public let context: MetadataContext
+    public let context: AssemblyLoadContext
     public let moduleFile: ModuleFile
     private let tableRow: AssemblyTable.Row
 
-    internal init(context: MetadataContext, moduleFile: ModuleFile, tableRow: AssemblyTable.Row) throws {
+    internal init(context: AssemblyLoadContext, moduleFile: ModuleFile, tableRow: AssemblyTable.Row) throws {
         self.context = context
         self.moduleFile = moduleFile
         self.tableRow = tableRow
@@ -99,7 +99,7 @@ public class Assembly: CustomDebugStringConvertible {
         for assemblyRef in moduleFile.assemblyRefTable {
             let identity = AssemblyIdentity(fromRow: assemblyRef, in: moduleFile)
             if identity.name == Mscorlib.name {
-                return try! context.loadAssembly(identity: identity) as! Mscorlib
+                return try! context.load(identity: identity) as! Mscorlib
             }
         }
 

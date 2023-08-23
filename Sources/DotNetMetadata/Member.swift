@@ -9,7 +9,7 @@ public class Member {
 
     internal var assembly: Assembly { definingType.assembly }
     internal var moduleFile: ModuleFile { definingType.moduleFile }
-    internal var context: MetadataContext { assembly.context }
+    internal var context: AssemblyLoadContext { assembly.context }
 
     internal func resolveName() -> String { fatalError() }
     public private(set) lazy var name: String = resolveName()
