@@ -14,7 +14,10 @@ public class ParamBase {
 
     public var isByRef: Bool { signature.byRef }
 
-    public private(set) lazy var type: TypeNode = assembly.resolve(signature.type, typeContext: method.definingType, methodContext: method)
+    private lazy var _type = Result {
+        try assembly.resolve(signature.type, typeContext: method.definingType, methodContext: method)
+    }
+    public var type: TypeNode { get throws { try _type.get() } } 
 }
 
 public final class Param: ParamBase {

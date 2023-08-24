@@ -17,7 +17,7 @@ public final class Event: Member {
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
 
-    private lazy var _handlerType = Result { assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
+    private lazy var _handlerType = Result { try assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }
 
     private struct Accessors {

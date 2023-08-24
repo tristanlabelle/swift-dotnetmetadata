@@ -57,7 +57,7 @@ public class TypeDefinition: CustomDebugStringConvertible {
     }
 
     public private(set) lazy var fullName: String = {
-        if let enclosingType {
+        if let enclosingType = try? enclosingType {
             assert(namespace == nil)
             return "\(enclosingType.fullName)\(Self.nestedTypeSeparator)\(name)"
         }
@@ -97,11 +97,12 @@ public class TypeDefinition: CustomDebugStringConvertible {
         }
     }()
 
-    public private(set) lazy var enclosingType: TypeDefinition? = {
+    private lazy var _enclosingType = Result<TypeDefinition?, any Error> {
         guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
         guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass else { return nil }
-        return assembly.resolve(enclosingTypeDefRowIndex)
-    }()
+        return try assembly.resolve(enclosingTypeDefRowIndex)
+    }
+    public var enclosingType: TypeDefinition? { get throws { try _enclosingType.get() } }
 
     /// The list of generic parameters on this type definition.
     /// By CLS rules, generic parameters on the enclosing type should be redeclared
@@ -115,7 +116,8 @@ public class TypeDefinition: CustomDebugStringConvertible {
 
     public var genericArity: Int { genericParams.count }
 
-    public private(set) lazy var base: BoundType? = assembly.resolveOptionalBoundType(tableRow.extends)
+    private lazy var _base = Result { try assembly.resolveOptionalBoundType(tableRow.extends) }
+    public var base: BoundType? { get throws { try _base.get() } }
 
     public private(set) lazy var baseInterfaces: [BaseInterface] = {
         moduleFile.interfaceImplTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
@@ -165,12 +167,13 @@ public class TypeDefinition: CustomDebugStringConvertible {
         assembly.getAttributes(owner: .typeDef(tableRowIndex))
     }()
 
-    public private(set) lazy var nestedTypes: [TypeDefinition] = {
-        moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
+    private lazy var _nestedTypes = Result {
+        try moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
             let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass!
-            return assembly.resolve(nestedTypeRowIndex)
+            return try assembly.resolve(nestedTypeRowIndex)
         }
-    }()
+    }
+    public var nestedTypes: [TypeDefinition] { get throws { try _nestedTypes.get() } }
 
     internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
         moduleFile.methodSemanticsTable.findAll(primaryKey: owner.metadataToken.tableKey).map {

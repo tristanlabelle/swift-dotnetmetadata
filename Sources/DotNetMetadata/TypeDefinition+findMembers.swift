@@ -140,7 +140,7 @@ extension TypeDefinition {
                 guard action(member) else { return }
             }
 
-            guard inherited, let base = typeDefinition.base else { return }
+            guard inherited, let base = try? typeDefinition.base else { return }
 
             genericParamBindings = genericParamBindings == nil ? base.genericArgs : base.genericArgs.map {
                 $0.bindGenericParams(typeArgs: genericParamBindings, methodArgs: nil)

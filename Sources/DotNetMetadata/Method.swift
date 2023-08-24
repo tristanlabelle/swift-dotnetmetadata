@@ -105,7 +105,7 @@ public class Method: Member {
                 expectedParamType = expectedParamTypes[i]
             }
 
-            if params[i].type != expectedParamType { return false }
+            if (try? params[i].type) != expectedParamType { return false }
         }
 
         return true

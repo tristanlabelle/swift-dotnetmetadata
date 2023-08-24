@@ -4,24 +4,24 @@ import XCTest
 
 extension NetFX45MscorlibTests {
     func testTypeName_topLevelNamespace() throws {
-        let object = Self.assembly.findDefinedType(fullName: "System.Object")
-        XCTAssertEqual(object?.name, "Object")
-        XCTAssertEqual(object?.namespace, "System")
-        XCTAssertEqual(object?.fullName, "System.Object")
+        let object = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Object"))
+        XCTAssertEqual(object.name, "Object")
+        XCTAssertEqual(object.namespace, "System")
+        XCTAssertEqual(object.fullName, "System.Object")
     }
 
     func testTypeName_nestedNamespace() throws {
-        let bitArray = Self.assembly.findDefinedType(fullName: "System.Collections.BitArray")
-        XCTAssertEqual(bitArray?.name, "BitArray")
-        XCTAssertEqual(bitArray?.namespace, "System.Collections")
-        XCTAssertEqual(bitArray?.fullName, "System.Collections.BitArray")
+        let bitArray = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Collections.BitArray"))
+        XCTAssertEqual(bitArray.name, "BitArray")
+        XCTAssertEqual(bitArray.namespace, "System.Collections")
+        XCTAssertEqual(bitArray.fullName, "System.Collections.BitArray")
     }
 
     func testTypeName_nested() throws {
-        let environment_SpecialFolder = Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder")
-        XCTAssertEqual(environment_SpecialFolder?.name, "SpecialFolder")
-        XCTAssertEqual(environment_SpecialFolder?.namespace, nil)
-        XCTAssertEqual(environment_SpecialFolder?.fullName, "System.Environment/SpecialFolder")
+        let environment_SpecialFolder = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder"))
+        XCTAssertEqual(environment_SpecialFolder.name, "SpecialFolder")
+        XCTAssertEqual(environment_SpecialFolder.namespace, nil)
+        XCTAssertEqual(environment_SpecialFolder.fullName, "System.Environment/SpecialFolder")
     }
 
     func testTypeLayout() throws {
@@ -42,15 +42,15 @@ extension NetFX45MscorlibTests {
 
     func testEnclosingType() throws {
         XCTAssertIdentical(
-            Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder")?.enclosingType,
+            try Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder")?.enclosingType,
             Self.assembly.findDefinedType(fullName: "System.Environment"))
 
-        XCTAssertNil(Self.assembly.findDefinedType(fullName: "System.Environment")?.enclosingType)
+        XCTAssertNil(try Self.assembly.findDefinedType(fullName: "System.Environment")?.enclosingType)
     }
 
     func testBaseType() throws {
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.ValueType")?.base?.definition.fullName,
+            try Self.assembly.findDefinedType(fullName: "System.ValueType")?.base?.definition.fullName,
             "System.Object")
     }
 
@@ -59,7 +59,7 @@ extension NetFX45MscorlibTests {
             return XCTFail("IAsyncAction not found")
         }
         XCTAssertEqual(
-            equalityComparer.baseInterfaces.map { $0.interface.definition.fullName }.sorted(),
+            try equalityComparer.baseInterfaces.map { try $0.interface.definition.fullName }.sorted(),
             [ "System.Collections.Generic.IEqualityComparer`1", "System.Collections.IEqualityComparer" ])
     }
 
@@ -69,13 +69,13 @@ extension NetFX45MscorlibTests {
     }
 
     func testTypeFlags() throws {
-        let object = Self.assembly.findDefinedType(fullName: "System.Object")
-        XCTAssert(object?.isAbstract == false)
-        XCTAssert(object?.isSealed == false)
+        let object = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Object"))
+        XCTAssert(!object.isAbstract)
+        XCTAssert(!object.isSealed)
 
-        let gc = Self.assembly.findDefinedType(fullName: "System.GC")
-        XCTAssert(gc?.isAbstract == true)
-        XCTAssert(gc?.isSealed == true)
+        let gc = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.GC"))
+        XCTAssert(gc.isAbstract)
+        XCTAssert(gc.isSealed)
     }
 
     func testTypeDefinitionClass() throws {
@@ -110,7 +110,7 @@ extension NetFX45MscorlibTests {
 
     func testNestedType() throws {
          XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Collections.Generic.List`1")?.nestedTypes.contains { $0.name == "Enumerator" },
+            try Self.assembly.findDefinedType(fullName: "System.Collections.Generic.List`1")?.nestedTypes.contains { $0.name == "Enumerator" },
             true)
     }
 }

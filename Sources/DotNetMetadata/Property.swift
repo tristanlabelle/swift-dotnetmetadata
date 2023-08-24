@@ -29,7 +29,7 @@ public class Property: Member {
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
 
-    private lazy var _type = Result { assembly.resolve(propertySig.type, typeContext: definingType) }
+    private lazy var _type = Result { try assembly.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
 
     private struct Accessors {

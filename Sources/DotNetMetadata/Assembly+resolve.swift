@@ -1,47 +1,47 @@
 import DotNetMetadataFormat
 
 extension Assembly {
-    internal func resolveType(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode? {
+    internal func resolveType(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode? {
         guard !metadataToken.isNull else { return nil }
         switch metadataToken.tableID {
             case .typeDef:
-                return resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
+                return try resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
             case .typeRef:
-                return resolve(TypeRefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
+                return try resolve(TypeRefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
             case .typeSpec:
-                return resolve(TypeSpecTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1), typeContext: typeContext, methodContext: methodContext)
+                return try resolve(TypeSpecTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1), typeContext: typeContext, methodContext: methodContext)
             default:
                 fatalError("Not implemented: \(metadataToken)")
         }
     }
 
-    internal func resolve(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode? {
+    internal func resolve(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode? {
         switch codedIndex {
             case let .typeDef(index):
                 guard let index = index else { return nil }
-                return resolve(index).bindNode()
+                return try resolve(index).bindNode()
             case let .typeRef(index):
                 guard let index = index else { return nil }
-                return resolve(index).bindNode()
+                return try resolve(index).bindNode()
             case let .typeSpec(index):
                 guard let index = index else { return nil }
-                return resolve(index, typeContext: typeContext, methodContext: methodContext)
+                return try resolve(index, typeContext: typeContext, methodContext: methodContext)
         }
     }
 
-    internal func resolveOptionalBoundType(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> BoundType? {
-        guard let typeNode = resolve(codedIndex, typeContext: typeContext, methodContext: methodContext) else { return nil }
+    internal func resolveOptionalBoundType(_ codedIndex: TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> BoundType? {
+        guard let typeNode = try resolve(codedIndex, typeContext: typeContext, methodContext: methodContext) else { return nil }
         switch typeNode {
             case .bound(let bound): return bound
             default: fatalError("Expected a bound type definition")
         }
     }
 
-    internal func resolve(_ index: TypeDefTable.RowIndex) -> TypeDefinition {
+    internal func resolve(_ index: TypeDefTable.RowIndex) throws -> TypeDefinition {
         definedTypes[Int(index.zeroBased)]
     }
 
-    internal func resolve(_ index: TypeRefTable.RowIndex) -> TypeDefinition {
+    internal func resolve(_ index: TypeRefTable.RowIndex) throws -> TypeDefinition {
         let row = moduleFile.typeRefTable[index]
         let name = moduleFile.resolve(row.typeName)
         let namespace = moduleFile.resolve(row.typeNamespace)
@@ -52,27 +52,27 @@ extension Assembly {
                 return findDefinedType(namespace: namespace, name: name)!
             case let .assemblyRef(index):
                 guard let index = index else { break }
-                return resolve(index).findDefinedType(namespace: namespace, name: name)!
+                return try resolve(index).findDefinedType(namespace: namespace, name: name)!
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }
         fatalError("Not implemented: null resolution scope")
     }
 
-    internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode {
+    internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
         let typeSpecRow = moduleFile.typeSpecTable[index]
         let signatureBlob = moduleFile.resolve(typeSpecRow.signature)
-        let typeSig = try! TypeSig(blob: signatureBlob)
-        return resolve(typeSig, typeContext: typeContext, methodContext: methodContext)
+        let typeSig = try TypeSig(blob: signatureBlob)
+        return try resolve(typeSig, typeContext: typeContext, methodContext: methodContext)
     }
 
-    internal func resolve(_ index: AssemblyRefTable.RowIndex) -> Assembly {
+    internal func resolve(_ index: AssemblyRefTable.RowIndex) throws -> Assembly {
         let row = moduleFile.assemblyRefTable[index]
         let identity = AssemblyIdentity(fromRow: row, in: moduleFile)
-        return try! context.load(identity: identity)
+        return try context.load(identity: identity)
     }
 
-    internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) -> TypeNode {
+    internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
         switch typeSig {
             case .void: return mscorlib.specialTypes.void.bindNode()
             case .boolean: return mscorlib.specialTypes.boolean.bindNode()
@@ -89,19 +89,19 @@ extension Assembly {
 
             case let .defOrRef(index, _, genericArgs):
                 if genericArgs.count > 0 {
-                    let genericArgs = genericArgs.map { resolve($0, typeContext: typeContext, methodContext: methodContext) }
+                    let genericArgs = try genericArgs.map { try resolve($0, typeContext: typeContext, methodContext: methodContext) }
                     switch index {
-                        case let .typeDef(index): return resolve(index!).bind(genericArgs: genericArgs).asNode
-                        case let .typeRef(index): return resolve(index!).bind(genericArgs: genericArgs).asNode
+                        case let .typeDef(index): return try resolve(index!).bind(genericArgs: genericArgs).asNode
+                        case let .typeRef(index): return try resolve(index!).bind(genericArgs: genericArgs).asNode
                         default: fatalError("Not implemented: unexpected generic type reference")
                     }
                 }
                 else {
-                    return resolve(index)!
+                    return try resolve(index)!
                 }
 
             case let .szarray(_, element):
-                return .array(element: resolve(element, typeContext: typeContext, methodContext: methodContext))
+                return .array(element: try resolve(element, typeContext: typeContext, methodContext: methodContext))
 
             case let .genericParam(index, method):
                 if method {
@@ -117,26 +117,26 @@ extension Assembly {
         }
     }
 
-    internal func resolve(_ methodDefRowIndex: MethodDefTable.RowIndex) -> Method {
+    internal func resolve(_ methodDefRowIndex: MethodDefTable.RowIndex) throws -> Method {
         guard let typeDefRowIndex = moduleFile.typeDefTable.findMethodOwner(methodDefRowIndex) else {
             fatalError("No owner found for method \(methodDefRowIndex)")
         }
 
         let methodIndex = methodDefRowIndex.zeroBased - moduleFile.typeDefTable[typeDefRowIndex].methodList!.zeroBased
-        return resolve(typeDefRowIndex).methods[Int(methodIndex)]
+        return try resolve(typeDefRowIndex).methods[Int(methodIndex)]
     }
 
     internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
         let row = moduleFile.memberRefTable[index]
 
-        guard let typeDefinition: TypeDefinition = {
+        guard let typeDefinition: TypeDefinition = try {
             switch row.class {
                 case let .typeDef(index):
                     guard let index = index else { return nil }
-                    return resolve(index)
+                    return try resolve(index)
                 case let .typeRef(index):
                     guard let index = index else { return nil }
-                    return resolve(index)
+                    return try resolve(index)
                 default:
                     fatalError("Not implemented: Resolving \(row.class)")
             }
@@ -153,16 +153,16 @@ extension Assembly {
             }
         }()
 
-        let method = typeDefinition.findMethod(
+        let method = try typeDefinition.findMethod(
             name: name,
             static: !sig.thisParam.isPresent,
             genericArity: genericArity,
-            paramTypes: sig.params.map { resolve($0.type) })
+            paramTypes: sig.params.map { try resolve($0.type) })
         guard let method else { return nil }
 
-        func matches(_ param: ParamBase, _ paramSig: ParamSig) -> Bool {
+        func matches(_ param: ParamBase, _ paramSig: ParamSig) throws -> Bool {
             // TODO: Compare CustomMods
-            param.isByRef == paramSig.byRef && param.type == resolve(paramSig.type)
+            try param.isByRef == paramSig.byRef && param.type == resolve(paramSig.type)
         }
 
         guard (try? matches(method.returnParam, sig.returnParam)) == true else { return nil }
@@ -175,7 +175,7 @@ extension Assembly {
         switch codedIndex {
             case .methodDef(let index):
                 guard let index = index else { return nil }
-                return resolve(index)
+                return try resolve(index)
             case .memberRef(let index):
                 guard let index = index else { return nil }
                 return try resolveMethod(index)
