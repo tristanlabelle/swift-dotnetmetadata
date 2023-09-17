@@ -49,10 +49,11 @@ public final class Event: Member {
         return accessors.add ?? accessors.remove ?? accessors.fire ?? accessors.others.first
     }
 
-    // CLS adds some uniformity guarantees:
-    // §II.22.28 "All methods for a given Property or Event shall have the same accessibility"
-    public override var visibility: Visibility { anyAccessor?.visibility ?? .public }
+    // Assume all accessors are consistently static or instance
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
+    public var hasPublicAddRemoveAccessors: Bool {
+        (try? addAccessor)?.isPublic == true && (try? removeAccessor)?.isPublic != nil
+    }
 
     public private(set) lazy var attributes: [Attribute] = {
         assembly.getAttributes(owner: .event(tableRowIndex))

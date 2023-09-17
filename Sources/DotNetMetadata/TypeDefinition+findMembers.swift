@@ -12,10 +12,10 @@ extension TypeDefinition {
         findMember(
             getter: { $0.methods },
             name: name,
-            public: `public`,
             static: `static`,
             genericParamBindings: genericParamBindings,
             predicate: {
+                if let `public` { guard $0.isPublic == `public` else { return false } }
                 if let genericArity, $0.genericArity != genericArity { return false }
                 if let arity, (try? $0.arity) != arity { return false }
                 if let paramTypes, !$0.signatureMatches(typeGenericArgs: genericParamBindings, paramTypes: paramTypes) { return false }
@@ -49,43 +49,61 @@ extension TypeDefinition {
         findMember(
             getter: { $0.fields },
             name: name,
-            public: `public`,
             static: `static`,
+            predicate: {
+                if let `public` { guard $0.isPublic == `public` else { return false } }
+                return true
+            },
             inherited: inherited)
     }
 
     public func findProperty(
         name: String,
-        public: Bool? = nil,
+        publicGetter: Bool? = nil,
+        publicSetter: Bool? = nil,
         static: Bool? = nil,
         inherited: Bool = false) -> Property? {
 
         findMember(
             getter: { $0.properties },
             name: name,
-            public: `public`,
             static: `static`,
+            predicate: {
+                if let publicGetter {
+                    guard (try? $0.getter)?.isPublic == publicGetter else { return false }
+                }
+                if let publicSetter {
+                    guard (try? $0.setter)?.isPublic == publicSetter else { return false }
+                }
+                return true
+            },
             inherited: inherited)
     }
 
     public func findEvent(
         name: String,
-        public: Bool? = nil,
+        publicAddRemove: Bool? = nil,
         static: Bool? = nil,
         inherited: Bool = false) -> Event? {
 
         findMember(
             getter: { $0.events },
             name: name,
-            public: `public`,
             static: `static`,
+            predicate: {
+                if let publicAddRemove {
+                    guard (try? $0.addAccessor)?.isPublic == publicAddRemove,
+                        (try? $0.removeAccessor)?.isPublic == publicAddRemove
+                    else { return false }
+                }
+                return true
+            },
             inherited: inherited)
     }
 
     private func findMember<M: Member>(
         getter: (TypeDefinition) -> [M],
         name: String,
-        public: Bool? = nil,
         static: Bool? = nil,
         genericParamBindings: [TypeNode]? = nil,
         predicate: ((M) -> Bool)? = nil,
@@ -95,7 +113,6 @@ extension TypeDefinition {
         gatherMembers(
             getter: getter,
             name: name,
-            public: `public`,
             static: `static`,
             genericParamBindings: genericParamBindings,
             predicate: predicate,
@@ -117,7 +134,6 @@ extension TypeDefinition {
     private func gatherMembers<M: Member>(
         getter: (TypeDefinition) -> [M],
         name: String? = nil,
-        public: Bool? = nil,
         static: Bool? = nil,
         genericParamBindings: [TypeNode]? = nil,
         predicate: ((M) -> Bool)? = nil,
@@ -134,7 +150,6 @@ extension TypeDefinition {
         while true {
             for member in getter(typeDefinition) {
                 if let name, member.name != name { continue }
-                if let `public`, (member.visibility == .public) != `public` { continue }
                 if let `static`, member.isStatic != `static` { continue }
                 if let predicate, !predicate(member) { continue }
                 guard action(member) else { return }

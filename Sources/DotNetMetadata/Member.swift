@@ -14,8 +14,6 @@ public class Member {
     internal func resolveName() -> String { fatalError() }
     public private(set) lazy var name: String = resolveName()
     public var nameKind: NameKind { fatalError() }
-    public var visibility: Visibility { fatalError() }
-    public var isPublic: Bool { visibility == .public }
     public var isStatic: Bool { fatalError() }
     public var isInstance: Bool { !isStatic }
 }

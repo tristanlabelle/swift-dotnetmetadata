@@ -6,7 +6,7 @@ extension NetFX45MscorlibTests {
     func testTypeEventEnumeration() throws {
         XCTAssertEqual(
             Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?.events
-                .filter({ $0.visibility == .public }).map({ $0.name }).sorted(),
+                .filter({ $0.hasPublicAddRemoveAccessors }).map({ $0.name }).sorted(),
             [ "EventSourceCreated", "EventWritten" ])
     }
 

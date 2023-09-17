@@ -23,8 +23,9 @@ public class Method: Member {
 
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
-    public override var visibility: Visibility { flags.visibility }
     public override var isStatic: Bool { flags.contains(.`static`) }
+    public var visibility: Visibility { flags.visibility }
+    public var isPublic: Bool { visibility == .public }
     public var isVirtual: Bool { flags.contains(.virtual) }
     public var isAbstract: Bool { flags.contains(.abstract) }
     public var isFinal: Bool { flags.contains(.final) }
