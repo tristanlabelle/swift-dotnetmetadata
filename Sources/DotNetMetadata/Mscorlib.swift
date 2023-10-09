@@ -3,6 +3,7 @@ import DotNetMetadataFormat
 // The mscorlib assembly, exposing definitions for special types core to the CLI
 public final class Mscorlib: Assembly {
     public static let name: String = "mscorlib"
+    public static let filename: String = "mscorlib.dll"
 
     struct MissingSpecialType: Error {}
 

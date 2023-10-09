@@ -13,6 +13,11 @@ public enum SystemAssemblyPaths {
                 guard RegGetValueW(HKEY_LOCAL_MACHINE, lpSubKey, lpValue, UInt32(RRF_RT_REG_SZ), nil, &vData, &cbData) == ERROR_SUCCESS
                 else { return nil }
 
+                // https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-reggetvaluew
+                // > If the data has the REG_SZ, REG_MULTI_SZ or REG_EXPAND_SZ type,
+                // > this size includes any terminating null character or characters.
+                while vData.last == 0 || vData.last == "\\".utf16.first { vData.removeLast() }
+
                 return String(decoding: vData, as: Unicode.UTF16.self)
             }
         }
