@@ -105,8 +105,8 @@ extension Assembly {
 
             case let .genericParam(index, method):
                 if method {
-                    guard methodContext != nil else { fatalError("Missing a method context for resolving a generic parameter reference") }
-                    fatalError("Not implemented: resolve generic method arg")
+                    guard let methodContext else { fatalError("Missing a method context for resolving a generic parameter reference") }
+                    return .genericParam(methodContext.genericParams[Int(index)])
                 }
                 else {
                     guard let typeContext else { fatalError("Missing a type context for resolving a generic parameter reference") }

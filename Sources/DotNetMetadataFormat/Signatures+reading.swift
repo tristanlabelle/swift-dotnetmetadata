@@ -100,7 +100,8 @@ extension MethodSig {
         let hasExplicitThis = hasThis && (firstByte & SigToken.CallingConvention.explicitThis) != 0
 
         var callingConv: CallingConv = try {
-            switch firstByte & SigToken.CallingConvention.mask {
+            // Mask is a lie, it does not include generic, which may appear here
+            switch firstByte & (SigToken.CallingConvention.mask | SigToken.CallingConvention.generic) {
                 case SigToken.CallingConvention.default:
                     return .default(genericArity: 0)
                 case SigToken.CallingConvention.generic:
@@ -248,8 +249,7 @@ extension TypeSig {
                 self = .genericParam(index: index, method: token == SigToken.ElementType.mvar)
 
             case let b:
-                print(b)
-                fflush(stdout)
+                assertionFailure("Unknown type signature blob leading byte \(b)")
                 throw InvalidFormatError.signatureBlob
         }
     }
