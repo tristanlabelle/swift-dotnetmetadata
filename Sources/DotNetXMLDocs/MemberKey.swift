@@ -28,10 +28,10 @@ public enum MemberKey: Hashable {
 
     public enum ParamType: Hashable {
         case bound(fullName: String, genericArgs: [ParamType] = [])
-        indirect case array(element: ParamType)
-        indirect case pointer(pointee: ParamType)
+        indirect case array(of: ParamType)
+        indirect case pointer(to: ParamType)
         case genericArg(index: Int, kind: GenericArgKind)
-        // case array(element: ParamType, shape: [(lowerBound: Int, size: Int)])
+        // case array(of: ParamType, shape: [(lowerBound: Int, size: Int)])
     }
 
     public enum GenericArgKind: Hashable {

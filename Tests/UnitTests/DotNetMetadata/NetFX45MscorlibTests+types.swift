@@ -10,13 +10,13 @@ extension NetFX45MscorlibTests {
 
         try XCTAssertEqual(
             arraySegment.findProperty(name: "Array")?.type,
-            TypeNode.array(element: .genericParam(arraySegment.genericParams[0])))
+            TypeNode.array(of: .genericParam(arraySegment.genericParams[0])))
     }
 
     func testGenericMethodArgType() throws {
         // T[] System.Array.Empty<T>() -- not overloaded
         let arraySort = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Array")?.findMethod(name: "Empty"))
-        XCTAssertEqual(try arraySort.returnType, .array(element: .genericParam(arraySort.genericParams[0])))
+        XCTAssertEqual(try arraySort.returnType, .array(of: .genericParam(arraySort.genericParams[0])))
     }
 
     func testGenericTypeArgType() throws {
@@ -32,7 +32,7 @@ extension NetFX45MscorlibTests {
     func testPointerType() throws {
         // void* System.IntPtr.ToPointer()
         let intPtrToPointer = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.IntPtr")?.findMethod(name: "ToPointer"))
-        XCTAssertEqual(try intPtrToPointer.returnType, .pointer(pointee: nil))
+        XCTAssertEqual(try intPtrToPointer.returnType, .pointer(to: nil))
     }
 
     func testGenericInstType() throws {

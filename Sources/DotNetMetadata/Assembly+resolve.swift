@@ -100,14 +100,14 @@ extension Assembly {
                     return try resolve(index)!
                 }
 
-            case let .szarray(_, element):
-                return .array(element: try resolve(element, typeContext: typeContext, methodContext: methodContext))
+            case let .szarray(_, of: element):
+                return .array(of: try resolve(element, typeContext: typeContext, methodContext: methodContext))
 
-            case let .ptr(_, target):
-                let pointee: TypeNode?
-                if case .void = target { pointee = nil }
-                else { pointee = try resolve(target, typeContext: typeContext, methodContext: methodContext) }
-                return .pointer(pointee: pointee)
+            case let .ptr(_, to: pointeeSig):
+                let pointeeNode: TypeNode?
+                if case .void = pointeeSig { pointeeNode = nil }
+                else { pointeeNode = try resolve(pointeeSig, typeContext: typeContext, methodContext: methodContext) }
+                return .pointer(to: pointeeNode)
 
             case let .genericParam(index, method):
                 if method {

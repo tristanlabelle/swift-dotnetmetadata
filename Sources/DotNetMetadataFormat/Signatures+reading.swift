@@ -58,7 +58,7 @@ extension CustomAttribSig {
                 guard let str = try consumeSerString(buffer: &buffer) else { return .constant(.null) }
                 return .constant(.string(str))
 
-            case let .szarray(_, element):
+            case let .szarray(_, of: element):
                 let length = buffer.consume(type: UInt32.self).pointee
                 return try .array((0..<length).map { _ in
                     try consumeElem(buffer: &buffer, type: element)
@@ -242,7 +242,7 @@ extension TypeSig {
 
             case SigToken.ElementType.szarray:
                 let customMods = try consumeCustomMods(buffer: &buffer)
-                self = .szarray(customMods: customMods, element: try TypeSig(consuming: &buffer))
+                self = .szarray(customMods: customMods, of: try TypeSig(consuming: &buffer))
 
             case SigToken.ElementType.var, SigToken.ElementType.mvar:
                 let index = try consumeSigUInt(buffer: &buffer)
@@ -250,9 +250,9 @@ extension TypeSig {
 
             case SigToken.ElementType.ptr:
                 let customMods = try consumeCustomMods(buffer: &buffer)
-                let target = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.void)
+                let pointee = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.void)
                     ? TypeSig.void : try TypeSig(consuming: &buffer)
-                self = .ptr(customMods: customMods, target: target)
+                self = .ptr(customMods: customMods, to: pointee)
 
             case let b:
                 assertionFailure("Unknown type signature blob leading byte \(b)")

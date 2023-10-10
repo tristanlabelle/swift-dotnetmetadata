@@ -2,9 +2,9 @@
 /// Types are arranged as a tree and cannot reference unbound type definitions.
 public enum TypeNode: Hashable {
     case bound(BoundType)
-    indirect case array(element: TypeNode)
+    indirect case array(of: TypeNode)
     case genericParam(GenericParam)
-    indirect case pointer(pointee: TypeNode?) // nil for void*
+    indirect case pointer(to: TypeNode?) // nil for void*
 }
 
 extension TypeNode {
@@ -52,11 +52,11 @@ extension TypeNode {
             case .bound(let bound):
                 return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.bindGenericParams(binding) })
             case .array(let element):
-                return .array(element: try element.bindGenericParams(binding))
+                return .array(of: try element.bindGenericParams(binding))
             case .genericParam(let param):
                 return try binding(param)
             case .pointer(let pointee):
-                return .pointer(pointee: try pointee?.bindGenericParams(binding))
+                return .pointer(to: try pointee?.bindGenericParams(binding))
         }
     }
 

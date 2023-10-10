@@ -126,10 +126,10 @@ extension MemberKey.ParamType {
         while true {
             if remainder.tryConsume("[") {
                 guard remainder.tryConsume("]") else { throw InvalidFormatError() }
-                type = .array(element: type)
+                type = .array(of: type)
             }
             else if remainder.tryConsume("*") {
-                type = .pointer(pointee: type)
+                type = .pointer(to: type)
             }
             else {
                 break
