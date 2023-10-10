@@ -103,6 +103,12 @@ extension Assembly {
             case let .szarray(_, element):
                 return .array(element: try resolve(element, typeContext: typeContext, methodContext: methodContext))
 
+            case let .ptr(_, target):
+                let pointee: TypeNode?
+                if case .void = target { pointee = nil }
+                else { pointee = try resolve(target, typeContext: typeContext, methodContext: methodContext) }
+                return .pointer(pointee: pointee)
+
             case let .genericParam(index, method):
                 if method {
                     guard let methodContext else { fatalError("Missing a method context for resolving a generic parameter reference") }

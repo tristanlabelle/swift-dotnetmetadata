@@ -129,7 +129,7 @@ extension MemberKey.ParamType {
                 type = .array(element: type)
             }
             else if remainder.tryConsume("*") {
-                type = .pointer(element: type)
+                type = .pointer(pointee: type)
             }
             else {
                 break

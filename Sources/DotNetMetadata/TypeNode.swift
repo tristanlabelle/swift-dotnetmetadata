@@ -4,7 +4,7 @@ public enum TypeNode: Hashable {
     case bound(BoundType)
     indirect case array(element: TypeNode)
     case genericParam(GenericParam)
-    indirect case pointer(element: TypeNode)
+    indirect case pointer(pointee: TypeNode?) // nil for void*
 }
 
 extension TypeNode {
@@ -43,7 +43,7 @@ extension TypeNode {
             case .bound(let bound): return bound.isParameterized
             case .array(let element): return element.isParameterized
             case .genericParam: return true
-            case .pointer(let element): return element.isParameterized
+            case .pointer(let element): return element?.isParameterized ?? false
         }
     }
 
@@ -55,8 +55,8 @@ extension TypeNode {
                 return .array(element: try element.bindGenericParams(binding))
             case .genericParam(let param):
                 return try binding(param)
-            case .pointer(let element):
-                return .pointer(element: try element.bindGenericParams(binding))
+            case .pointer(let pointee):
+                return .pointer(pointee: try pointee?.bindGenericParams(binding))
         }
     }
 

@@ -13,7 +13,13 @@ extension NetFX45MscorlibTests {
             TypeNode.array(element: .genericParam(arraySegment.genericParams[0])))
     }
 
-    func testGenericArgType() throws {
+    func testGenericMethodArgType() throws {
+        // T[] System.Array.Empty<T>() -- not overloaded
+        let arraySort = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Array")?.findMethod(name: "Empty"))
+        XCTAssertEqual(try arraySort.returnType, .array(element: .genericParam(arraySort.genericParams[0])))
+    }
+
+    func testGenericTypeArgType() throws {
         guard let nullable = Self.assembly.findDefinedType(fullName: "System.Nullable`1") else {
             return XCTFail("Couldn't find System.Nullable`1")
         }
@@ -21,6 +27,12 @@ extension NetFX45MscorlibTests {
         try XCTAssertEqual(
             nullable.findProperty(name: "Value")?.type,
             TypeNode.genericParam(nullable.genericParams[0]))
+    }
+
+    func testPointerType() throws {
+        // void* System.IntPtr.ToPointer()
+        let intPtrToPointer = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.IntPtr")?.findMethod(name: "ToPointer"))
+        XCTAssertEqual(try intPtrToPointer.returnType, .pointer(pointee: nil))
     }
 
     func testGenericInstType() throws {

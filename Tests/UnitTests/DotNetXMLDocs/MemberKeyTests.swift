@@ -78,7 +78,7 @@ final class MemberKeyTests: XCTestCase {
             .array(element: .bound(fullName: "TypeName")))
         XCTAssertEqual(
             try MemberKey.ParamType(parsing: "TypeName*"),
-            .pointer(element: .bound(fullName: "TypeName")))
+            .pointer(pointee: .bound(fullName: "TypeName")))
         XCTAssertEqual(
             try MemberKey.ParamType(parsing: "`42"),
             .genericArg(index: 42, kind: .type))

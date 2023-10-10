@@ -93,12 +93,6 @@ extension NetFX45MscorlibTests {
             [ false, true ])
     }
 
-    func testGenericMethod() throws {
-        // T[] System.Array.Empty<T>() -- not overloaded
-        let arraySort = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Array")?.findMethod(name: "Empty"))
-        XCTAssertEqual(try arraySort.returnType, .array(element: .genericParam(arraySort.genericParams[0])))
-    }
-
     func testOverloadBinding() throws {
         guard let convert = Self.assembly.findDefinedType(fullName: "System.Convert") else {
             return XCTFail("Failed to find System.Convert")

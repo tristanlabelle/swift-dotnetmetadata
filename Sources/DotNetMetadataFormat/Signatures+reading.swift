@@ -248,6 +248,12 @@ extension TypeSig {
                 let index = try consumeSigUInt(buffer: &buffer)
                 self = .genericParam(index: index, method: token == SigToken.ElementType.mvar)
 
+            case SigToken.ElementType.ptr:
+                let customMods = try consumeCustomMods(buffer: &buffer)
+                let target = SigToken.tryConsume(buffer: &buffer, token: SigToken.ElementType.void)
+                    ? TypeSig.void : try TypeSig(consuming: &buffer)
+                self = .ptr(customMods: customMods, target: target)
+
             case let b:
                 assertionFailure("Unknown type signature blob leading byte \(b)")
                 throw InvalidFormatError.signatureBlob
