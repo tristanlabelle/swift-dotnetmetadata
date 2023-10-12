@@ -5,7 +5,8 @@ import WinSDK
 internal struct CSharpCompilerArgs {
     enum Target { case library }
 
-    public var noLogo: Bool = false
+    public var nologo: Bool = false
+    public var nostdlib: Bool?
     public var optimize: Bool?
     public var debug: Bool?
     public var target: Target = .library
@@ -16,7 +17,8 @@ internal struct CSharpCompilerArgs {
     public func buildCommandLineArgs() -> [String] {
         var args = [String]()
 
-        if noLogo { args.append("-nologo") }
+        if nologo { args.append("-nologo") }
+        if let nostdlib { args.append(nostdlib ? "-nostdlib+" : "-nostdlib-") }
         switch target {
             case .library: args.append("-target:library")
         }

@@ -16,6 +16,7 @@ public final class Field: Member {
     public var visibility: Visibility { flags.visibility }
     public var isPublic: Bool { visibility == .public }
     public var isInitOnly: Bool { flags.contains(.initOnly) }
+    public var isLiteral: Bool { flags.contains(.literal) }
 
     public private(set) lazy var explicitOffset: Int? = { () -> Int? in
         guard let fieldLayoutRowIndex = moduleFile.fieldLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)

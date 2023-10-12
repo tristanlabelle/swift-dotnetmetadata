@@ -20,13 +20,14 @@ final class CompiledAssemblyTests: XCTestCase {
         let assemblyFilePath = "\(tempPath)\\\(filenameWithoutExtension).dll"
         try code.write(toFile: codeFilePath, atomically: true, encoding: .utf8)
 
-        let sdk = try DotNetTool.listSDKs().last!
-        let runtime = try DotNetTool.listRuntimes().last { $0.name == "Microsoft.NETCore.App" }!
-        let result = try DotNetTool.runApp(
-            path: DotNetTool.getCscPath(sdkPath: sdk.path),
+        let sdk = try XCTUnwrap(DotNetTool.listSDKs().last)
+        let runtime = try XCTUnwrap(DotNetTool.listRuntimes().last { $0.name == "Microsoft.NETCore.App" })
+        let refsPath = runtime.refsPath
+        let result = try DotNetTool.exec(
+            path: sdk.cscPath,
             args: CSharpCompilerArgs(
-                noLogo: true, optimize: false, debug: false, target: .library,
-                references: [ "\(runtime.path)\\System.Private.CoreLib.dll" ],
+                nologo: true, nostdlib: true, optimize: false, debug: false, target: .library,
+                references: [ "\(refsPath)\\System.Runtime.dll" ],
                 output: assemblyFilePath, sources: [codeFilePath]).buildCommandLineArgs())
         guard result.exitCode == 0 else { fatalError() }
 
@@ -43,6 +44,7 @@ final class CompiledAssemblyTests: XCTestCase {
             public class Fields {
                 public int PublicInstance;
                 private static readonly int PrivateStaticInitOnly;
+                protected const int ProtectedLiteral = 42;
             }
             """)
 
@@ -50,18 +52,33 @@ final class CompiledAssemblyTests: XCTestCase {
 
         XCTAssertEqual(
             typeDefinition.fields.map { $0.name },
-            ["PublicInstance", "PrivateStaticInitOnly"])
+            ["PublicInstance", "PrivateStaticInitOnly", "ProtectedLiteral"])
 
         if let publicInstanceField = assertNotNil(typeDefinition.findField(name: "PublicInstance")) {
+            XCTAssertEqual(publicInstanceField.name, "PublicInstance")
             XCTAssertEqual(publicInstanceField.visibility, .public)
             XCTAssertEqual(publicInstanceField.isStatic, false)
             XCTAssertEqual(publicInstanceField.isInitOnly, false)
+            XCTAssertEqual(publicInstanceField.isLiteral, false)
+            XCTAssertEqual(try publicInstanceField.literalValue, nil)
         }
 
         if let privateStaticInitOnlyField = assertNotNil(typeDefinition.findField(name: "PrivateStaticInitOnly")) {
+            XCTAssertEqual(privateStaticInitOnlyField.name, "PrivateStaticInitOnly")
             XCTAssertEqual(privateStaticInitOnlyField.visibility, .private)
             XCTAssertEqual(privateStaticInitOnlyField.isStatic, true)
             XCTAssertEqual(privateStaticInitOnlyField.isInitOnly, true)
+            XCTAssertEqual(privateStaticInitOnlyField.isLiteral, false)
+            XCTAssertEqual(try privateStaticInitOnlyField.literalValue, nil)
+        }
+
+        if let protectedLiteralField = assertNotNil(typeDefinition.findField(name: "ProtectedLiteral")) {
+            XCTAssertEqual(protectedLiteralField.name, "ProtectedLiteral")
+            XCTAssertEqual(protectedLiteralField.visibility, .family)
+            XCTAssertEqual(protectedLiteralField.isStatic, true)
+            XCTAssertEqual(protectedLiteralField.isInitOnly, false)
+            XCTAssertEqual(protectedLiteralField.isLiteral, true)
+            XCTAssertEqual(try protectedLiteralField.literalValue, Constant.int32(42))
         }
     }
 }

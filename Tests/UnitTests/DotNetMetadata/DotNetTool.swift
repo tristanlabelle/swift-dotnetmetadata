@@ -10,20 +10,26 @@ enum DotNetTool {
     struct SDK {
         public var version: Version
         public var path: String
+
+        public var cscPath: String { "\(path)\\Roslyn\\bincore\\csc.dll" }
     }
 
     struct Runtime {
         public var name: String
         public var version: Version
         public var path: String
+
+        public var refsPath: String {
+            // The runtime has a path like dotnet\shared\Microsoft.NETCore.App\#.#.#
+            // Reference assemblies are under dotnet\packs\Microsoft.NETCore.App.Ref\#.#.#\ref\net7.0
+            var path = self.path.replacingOccurrences(of: "\\shared\\\(name)\\", with: "\\packs\\\(name).Ref\\")
+            path += "\\ref\\net\(version.major).\(version.minor)"
+            return path
+        }
     }
 
-    static func getCscPath(sdkPath: String) -> String {
-        "\(sdkPath)\\Roslyn\\bincore\\csc.dll"
-    }
-
-    static func runApp(path: String, args: [String]) throws -> Win32Process.Result {
-        return try Win32Process.run(application: "dotnet", args: [path] + args)
+    static func exec(path: String, args: [String]) throws -> Win32Process.Result {
+        return try Win32Process.run(application: "dotnet", args: ["exec", path] + args)
     }
 
     static func listSDKs() throws -> [SDK] {
