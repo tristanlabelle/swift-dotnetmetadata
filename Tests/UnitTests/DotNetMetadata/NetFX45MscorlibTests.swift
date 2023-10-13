@@ -6,10 +6,10 @@ final class NetFX45MscorlibTests: XCTestCase {
     internal static var assembly: Assembly!
 
     override class func setUp() {
-        guard let framework4Path = SystemAssemblyPaths.framework4 else { return }
+        guard let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath else { return }
 
         context = AssemblyLoadContext()
-        assembly = try? context.load(path: "\(framework4Path)\\\(Mscorlib.filename)")
+        assembly = try? context.load(path: mscorlibPath)
     }
 
     override func setUpWithError() throws {

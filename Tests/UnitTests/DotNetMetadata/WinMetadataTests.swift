@@ -7,13 +7,13 @@ final class WinMetadataTests: XCTestCase {
     internal static var assembly: Assembly!
 
     override class func setUp() {
-        guard let winMetadataPath = SystemAssemblyPaths.winMetadata else { return }
-        let url = URL(fileURLWithPath: "\(winMetadataPath)\\Windows.Foundation.winmd")
+        guard let windowsFoundationPath = SystemAssemblies.WinMetadata.windowsFoundationPath else { return }
+        let url = URL(fileURLWithPath: windowsFoundationPath)
 
         // Resolve the mscorlib dependency from the .NET Framework 4 machine installation
         context = AssemblyLoadContext(resolver: {
-            guard $0.name == Mscorlib.name, let fx4Path = SystemAssemblyPaths.framework4 else { throw AssemblyLoadError.notFound() }
-            return try ModuleFile(path: "\(fx4Path)\\mscorlib.dll")
+            guard $0.name == Mscorlib.name, let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath else { throw AssemblyLoadError.notFound() }
+            return try ModuleFile(path: mscorlibPath)
         })
 
         assembly = try? context.load(url: url)
