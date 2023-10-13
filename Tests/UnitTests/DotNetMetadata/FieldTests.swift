@@ -1,7 +1,5 @@
 @testable import DotNetMetadata
 import XCTest
-import Foundation
-import WinSDK
 
 internal final class FieldTests: CompiledAssemblyTestCase {
     internal override class var csharpCode: String {
