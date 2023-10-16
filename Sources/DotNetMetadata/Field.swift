@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public final class Field: Member {
+public final class Field: Member, AttributeTarget {
     internal let tableRowIndex: FieldTable.RowIndex
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
     private var flags: FieldAttributes { tableRow.flags }

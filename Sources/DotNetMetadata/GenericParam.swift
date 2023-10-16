@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public class GenericParam {
+public class GenericParam: AttributeTarget {
     internal let tableRowIndex: GenericParamTable.RowIndex
 
     init(tableRowIndex: GenericParamTable.RowIndex) {
