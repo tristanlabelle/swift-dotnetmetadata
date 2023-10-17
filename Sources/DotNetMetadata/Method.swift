@@ -33,7 +33,6 @@ public class Method: Member {
     public var isHideBySig: Bool { flags.contains(.hideBySig) }
     public var isNewSlot: Bool { flags.contains(.newSlot) }
     public var isOverride: Bool { isVirtual && !isNewSlot }
-    public var isSpecialName: Bool { flags.contains(.specialName) }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
     private lazy var _signature = Result { try MethodSig(blob: moduleFile.resolve(tableRow.signature), isRef: false) }

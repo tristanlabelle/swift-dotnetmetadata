@@ -23,7 +23,7 @@ extension NetFX45MscorlibTests {
         XCTAssertEqual(iasyncResult_get_IsCompleted.isInstance, true)
         XCTAssertEqual(iasyncResult_get_IsCompleted.isVirtual, true)
         XCTAssertEqual(iasyncResult_get_IsCompleted.isAbstract, true)
-        XCTAssertEqual(iasyncResult_get_IsCompleted.isSpecialName, true)
+        XCTAssertEqual(iasyncResult_get_IsCompleted.nameKind, NameKind.special)
 
         // Static method
         let gc_WaitForPendingFinalizers = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.GC")?
@@ -32,7 +32,7 @@ extension NetFX45MscorlibTests {
         XCTAssertEqual(gc_WaitForPendingFinalizers.isInstance, false)
         XCTAssertEqual(gc_WaitForPendingFinalizers.isVirtual, false)
         XCTAssertEqual(gc_WaitForPendingFinalizers.isAbstract, false)
-        XCTAssertEqual(gc_WaitForPendingFinalizers.isSpecialName, false)
+        XCTAssertEqual(gc_WaitForPendingFinalizers.nameKind, NameKind.regular)
 
         // Overriden virtual method
         let exception_ToString = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Exception")?
