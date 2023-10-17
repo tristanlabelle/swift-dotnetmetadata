@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public class Property: Member, AttributeTarget {
+public class Property: Member, Attributable {
     public static let getterPrefix = "get_"
     public static let setterPrefix = "set_"
 

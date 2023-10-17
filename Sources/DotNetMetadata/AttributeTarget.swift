@@ -1,8 +1,8 @@
-public protocol AttributeTarget {
+public protocol Attributable {
     var attributes: [Attribute] { get }
 }
 
-extension AttributeTarget {
+extension Attributable {
     public func firstAttribute(namespace: String, name: String) throws -> Attribute? {
         try attributes.first { try $0.type.namespace == namespace && $0.type.name == name }
     }

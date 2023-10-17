@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public final class BaseInterface: AttributeTarget {
+public final class BaseInterface: Attributable {
     public unowned let inheritingType: TypeDefinition
     internal let tableRowIndex: InterfaceImplTable.RowIndex
 

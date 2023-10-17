@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 /// An unbound method definition, which may have generic parameters.
-public class Method: Member, AttributeTarget {
+public class Method: Member, Attributable {
     internal let tableRowIndex: MethodDefTable.RowIndex
     private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
     private var flags: MethodAttributes { tableRow.flags }

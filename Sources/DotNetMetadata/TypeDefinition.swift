@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 /// An unbound type definition, which may have generic parameters.
-public class TypeDefinition: CustomDebugStringConvertible, AttributeTarget {
+public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     internal typealias Kind = TypeDefinitionKind
 
     public static let nestedTypeSeparator: Character = "/"

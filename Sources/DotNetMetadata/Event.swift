@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public final class Event: Member, AttributeTarget {
+public final class Event: Member, Attributable {
     public static let addAccessorPrefix = "add_"
     public static let removeAccessorPrefix = "remove_"
     public static let raiseAccessorPrefix = "raise_"
