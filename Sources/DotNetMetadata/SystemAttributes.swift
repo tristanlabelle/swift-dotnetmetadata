@@ -44,10 +44,20 @@ public enum SystemAttributes {
         let arguments = try attribute.arguments
         guard arguments.count == 1,
             case .constant(let constant) = arguments[0],
-            case .boolean(let value) = constant else {
-            throw InvalidMetadataError.attributeArguments
+            case .boolean(let value) = constant else { throw InvalidMetadataError.attributeArguments }
+
+        return value
+    }
+
+    public static func getGuid(_ type: TypeDefinition) throws -> String? {
+        guard let attribute = try type.firstAttribute(namespace: "System.Runtime.InteropServices", name: "GuidAttribute") else {
+            return nil
         }
 
+        let arguments = try attribute.arguments
+        guard arguments.count == 1,
+            case .constant(let constant) = arguments[0],
+            case .string(let value) = constant else { throw InvalidMetadataError.attributeArguments }
         return value
     }
 }
