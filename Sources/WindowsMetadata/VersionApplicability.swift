@@ -1,5 +1,5 @@
-public struct VersionApplicability {
-    public enum Context {
+public struct VersionApplicability: Hashable {
+    public enum Context: Hashable {
         case contract(name: String)
         case platform(Platform)
     }

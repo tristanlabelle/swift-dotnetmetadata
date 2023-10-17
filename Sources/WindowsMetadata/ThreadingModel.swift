@@ -1,4 +1,4 @@
-public enum ThreadingModel: Int {
+public enum ThreadingModel: Int32, Hashable {
 	/// Single-threaded apartment
 	case sta = 1
 	/// Multithreaded apartment
