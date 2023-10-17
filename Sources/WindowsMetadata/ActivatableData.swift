@@ -2,10 +2,10 @@ import DotNetMetadata
 
 public struct ActivatableData {
     public var type: InterfaceDefinition? = nil
-    public var startVersion: StartVersion
+    public var applicability: VersionApplicability
 
-    public init(type: InterfaceDefinition? = nil, startVersion: StartVersion) {
+    public init(type: InterfaceDefinition? = nil, applicability: VersionApplicability) {
         self.type = type
-        self.startVersion = startVersion
+        self.applicability = applicability
     }
 }

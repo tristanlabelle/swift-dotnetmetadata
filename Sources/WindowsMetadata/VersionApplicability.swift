@@ -1,4 +1,4 @@
-public struct StartVersion {
+public struct VersionApplicability {
     public enum Context {
         case contract(name: String)
         case platform(Platform)

@@ -42,10 +42,10 @@ public enum FoundationAttributes {
 
                 if case .type(let definition) = arguments[0] {
                     guard let type = definition as? InterfaceDefinition else { throw InvalidMetadataError.attributeArguments }
-                    return ActivatableData(type: type, startVersion: try toStartVersion(arguments[1...]))
+                    return ActivatableData(type: type, applicability: try toVersionApplicability(arguments[1...]))
                 }
                 else {
-                    return ActivatableData(startVersion: try toStartVersion(arguments[...]))
+                    return ActivatableData(applicability: try toVersionApplicability(arguments[...]))
                 }
             }
     }
@@ -57,14 +57,14 @@ public enum FoundationAttributes {
                 guard arguments.count >= 2 else { throw InvalidMetadataError.attributeArguments }
                 guard case .type(let definition) = arguments[0],
                     let type = definition as? InterfaceDefinition else { throw InvalidMetadataError.attributeArguments }
-                return StaticInterface(type: type, startVersion: try toStartVersion(arguments[1...]))
+                return StaticInterface(type: type, applicability: try toVersionApplicability(arguments[1...]))
             }
     }
 
-    private static func toStartVersion(_ arguments: ArraySlice<Attribute.Value>) throws -> StartVersion {
+    private static func toVersionApplicability(_ arguments: ArraySlice<Attribute.Value>) throws -> VersionApplicability {
         guard arguments.count >= 1 else { throw InvalidMetadataError.attributeArguments }
 
-        var context: StartVersion.Context?
+        var context: VersionApplicability.Context?
         if arguments.count == 2 {
             guard case .constant(let contextConstant) = arguments.last! else { throw InvalidMetadataError.attributeArguments }
             switch contextConstant {
@@ -80,7 +80,7 @@ public enum FoundationAttributes {
         guard case .constant(let versionConstant) = arguments.first!,
             case .uint32(let version) = versionConstant else { throw InvalidMetadataError.attributeArguments }
 
-        return StartVersion(version: .init(unpacking: version), context: context)
+        return VersionApplicability(version: .init(unpacking: version), context: context)
     }
 
     public static func isDefaultInterface(_ baseInterface: BaseInterface) throws -> Bool {
