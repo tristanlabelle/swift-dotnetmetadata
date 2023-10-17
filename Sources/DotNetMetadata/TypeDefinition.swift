@@ -163,9 +163,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         }
     }()
 
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .typeDef(tableRowIndex))
-    }()
+    public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
 
     private lazy var _nestedTypes = Result {
         try moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {

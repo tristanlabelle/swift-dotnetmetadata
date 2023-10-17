@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 /// An unbound method definition, which may have generic parameters.
-public class Method: Member, Attributable {
+public class Method: Member {
     internal let tableRowIndex: MethodDefTable.RowIndex
     private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
     private var flags: MethodAttributes { tableRow.flags }
@@ -21,6 +21,7 @@ public class Method: Member, Attributable {
         }
     }
 
+    public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
@@ -89,10 +90,6 @@ public class Method: Member, Attributable {
     }()
 
     public var genericArity: Int { genericParams.count }
-
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .methodDef(tableRowIndex))
-    }()
 
     public func signatureMatches(typeGenericArgs: [TypeNode]? = nil, paramTypes expectedParamTypes: [TypeNode]) -> Bool {
         guard let params = try? params, params.count == expectedParamTypes.count else { return false }

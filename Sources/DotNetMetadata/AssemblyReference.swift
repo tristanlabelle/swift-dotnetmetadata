@@ -33,10 +33,7 @@ public final class AssemblyReference {
 
     public var flags: AssemblyFlags { tableRow.flags }
     public var hashValue: [UInt8] { Array(moduleFile.resolve(tableRow.hashValue)) }
-
-    public var attributes: [Attribute] {
-        owner.getAttributes(owner: .assemblyRef(tableRowIndex))
-    }
+    public private(set) lazy var attributes: [Attribute] = { owner.getAttributes(owner: tableRowIndex.metadataToken) }()
 
     public func resolve() throws -> Assembly {
         if let cachedTarget { return cachedTarget }

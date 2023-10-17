@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public class Property: Member, Attributable {
+public class Property: Member {
     public static let getterPrefix = "get_"
     public static let setterPrefix = "set_"
 
@@ -26,6 +26,7 @@ public class Property: Member, Attributable {
         }
     }
 
+    public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
 
@@ -66,10 +67,6 @@ public class Property: Member, Attributable {
     public var isVirtual: Bool { anyAccessor?.isAbstract ?? false }
     public var isAbstract: Bool { anyAccessor?.isVirtual ?? false }
     public var isFinal: Bool { anyAccessor?.isFinal ?? false }
-
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .property(tableRowIndex))
-    }()
 }
 
 public final class Indexer: Property {

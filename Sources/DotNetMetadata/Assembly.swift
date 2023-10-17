@@ -40,6 +40,8 @@ public class Assembly: CustomDebugStringConvertible {
 
     public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable[0].name)
 
+    public private(set) lazy var attributes: [Attribute] = { getAttributes(owner: MetadataToken(tableID: .assembly, oneBasedRowIndex: 1)) }()
+
     public private(set) lazy var references: [AssemblyReference] = {
         moduleFile.assemblyRefTable.indices.map { 
             AssemblyReference(owner: self, tableRowIndex: $0)
@@ -106,8 +108,8 @@ public class Assembly: CustomDebugStringConvertible {
         fatalError("Can't load mscorlib")
     }()
 
-    internal func getAttributes(owner: HasCustomAttribute) -> [Attribute] {
-        moduleFile.customAttributeTable.findAll(primaryKey: owner.metadataToken.tableKey).map {
+    internal func getAttributes(owner: MetadataToken) -> [Attribute] {
+        moduleFile.customAttributeTable.findAll(primaryKey: owner.tableKey).map {
             Attribute(tableRowIndex: $0, assembly: self)
         }
     }

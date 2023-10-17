@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public final class Event: Member, Attributable {
+public final class Event: Member {
     public static let addAccessorPrefix = "add_"
     public static let removeAccessorPrefix = "remove_"
     public static let raiseAccessorPrefix = "raise_"
@@ -14,6 +14,7 @@ public final class Event: Member, Attributable {
         super.init(definingType: definingType)
     }
 
+    public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
 
@@ -54,8 +55,4 @@ public final class Event: Member, Attributable {
     public var hasPublicAddRemoveAccessors: Bool {
         (try? addAccessor)?.isPublic == true && (try? removeAccessor)?.isPublic != nil
     }
-
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .event(tableRowIndex))
-    }()
 }

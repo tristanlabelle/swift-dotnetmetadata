@@ -18,7 +18,5 @@ public final class BaseInterface: Attributable {
     }
     public var interface: BoundType { get throws { try _interface.get() } }
 
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .interfaceImpl(tableRowIndex))
-    }()
+    public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
 }

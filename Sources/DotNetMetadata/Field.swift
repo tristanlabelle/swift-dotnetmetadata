@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public final class Field: Member, Attributable {
+public final class Field: Member {
     internal let tableRowIndex: FieldTable.RowIndex
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
     private var flags: FieldAttributes { tableRow.flags }
@@ -10,6 +10,7 @@ public final class Field: Member, Attributable {
         super.init(definingType: definingType)
     }
 
+    public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
@@ -40,8 +41,4 @@ public final class Field: Member, Attributable {
         return try Constant(moduleFile: moduleFile, owner: .field(tableRowIndex))
     }
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
-
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .field(tableRowIndex))
-    }()
 }

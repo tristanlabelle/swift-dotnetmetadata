@@ -1,6 +1,6 @@
 import DotNetMetadataFormat
 
-public class Member {
+public class Member: Attributable {
     public unowned let definingType: TypeDefinition
 
     internal init(definingType: TypeDefinition) {
@@ -11,11 +11,13 @@ public class Member {
     internal var moduleFile: ModuleFile { definingType.moduleFile }
     internal var context: AssemblyLoadContext { assembly.context }
 
+    public var metadataToken: MetadataToken { fatalError() }
     internal func resolveName() -> String { fatalError() }
     public private(set) lazy var name: String = resolveName()
     public var nameKind: NameKind { fatalError() }
     public var isStatic: Bool { fatalError() }
     public var isInstance: Bool { !isStatic }
+    public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: metadataToken) }()
 }
 
 extension Member: Hashable {
