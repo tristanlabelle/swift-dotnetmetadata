@@ -27,6 +27,32 @@ public class GenericParam: Attributable {
     public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
     public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
+
+    public final func bind(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
+        switch self {
+            case let typeParam as GenericTypeParam:
+                guard let typeArgs else { return .genericParam(self) }
+                guard typeParam.definingType.genericArity == typeArgs.count,
+                    typeParam.index < typeArgs.count else {
+                    assertionFailure("Generic bindings must match type generic arity")
+                    return .genericParam(self)
+                }
+
+                return typeArgs[typeParam.index]
+
+            case let methodParam as GenericMethodParam:
+                guard let methodArgs else { return .genericParam(self) }
+                guard methodParam.definingMethod.genericArity == methodArgs.count,
+                    methodParam.index < methodArgs.count else {
+                    assertionFailure("Generic bindings must match method generic arity")
+                    return .genericParam(self)
+                }
+
+                return methodArgs[methodParam.index]
+            
+            default: fatalError("Unexpected generic param type")
+        }
+    }
 }
 
 public final class GenericTypeParam: GenericParam {

@@ -61,31 +61,7 @@ extension TypeNode {
     }
 
     public func bindGenericParams(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
-        bindGenericParams {
-            switch $0 {
-                case let typeParam as GenericTypeParam:
-                    guard let typeArgs else { return .genericParam($0) }
-                    guard typeParam.definingType.genericArity == typeArgs.count,
-                        typeParam.index < typeArgs.count else {
-                        assertionFailure("Generic bindings must match type generic arity")
-                        return .genericParam($0)
-                    }
-
-                    return typeArgs[typeParam.index]
-
-                case let methodParam as GenericMethodParam:
-                    guard let methodArgs else { return .genericParam($0) }
-                    guard methodParam.definingMethod.genericArity == methodArgs.count,
-                        methodParam.index < methodArgs.count else {
-                        assertionFailure("Generic bindings must match method generic arity")
-                        return .genericParam($0)
-                    }
-
-                    return methodArgs[methodParam.index]
-                
-                default: fatalError("Unexpected generic param type")
-            }
-        }
+        bindGenericParams { $0.bind(typeArgs: typeArgs, methodArgs: methodArgs) }
     }
 }
 
