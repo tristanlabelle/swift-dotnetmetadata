@@ -44,8 +44,8 @@ extension FoundationAttributes {
                 let arguments = try $0.arguments
                 guard arguments.count >= 2 else { throw InvalidMetadataError.attributeArguments }
                 guard case .type(let definition) = arguments[0],
-                    let type = definition as? InterfaceDefinition else { throw InvalidMetadataError.attributeArguments }
-                return StaticInterface(type: type, applicability: try toVersionApplicability(arguments[1...]))
+                    let interface = definition as? InterfaceDefinition else { throw InvalidMetadataError.attributeArguments }
+                return StaticInterface(interface: interface, applicability: try toVersionApplicability(arguments[1...]))
             }
     }
 

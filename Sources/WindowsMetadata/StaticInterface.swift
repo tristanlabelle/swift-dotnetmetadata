@@ -1,11 +1,11 @@
 import DotNetMetadata
 
 public struct StaticInterface {
-    public var type: TypeDefinition
+    public var interface: InterfaceDefinition
     public var applicability: VersionApplicability
 
-    public init(type: TypeDefinition, applicability: VersionApplicability) {
-        self.type = type
+    public init(interface: InterfaceDefinition, applicability: VersionApplicability) {
+        self.interface = interface
         self.applicability = applicability
     }
 }
