@@ -26,6 +26,7 @@ public class GenericParam: Attributable {
 
     public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
+    public var attributeTarget: AttributeTargets { .genericParam }
     public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
 
     public final func bind(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {

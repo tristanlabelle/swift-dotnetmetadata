@@ -1,31 +1,15 @@
 import DotNetMetadata
 import struct Foundation.UUID
 
-// Attributes applying to interfaces
-extension FoundationAttributes {
-    public static func getExclusiveTo(_ interface: InterfaceDefinition) throws -> ClassDefinition? {
-        guard let attribute = try interface.firstAttribute(namespace: namespace, name: "ExclusiveToAttribute") else { return nil }
-        let arguments = try attribute.arguments
-        guard arguments.count == 1,
-            case .type(let target) = arguments[0],
-            let targetClass = target as? ClassDefinition else { throw InvalidMetadataError.attributeArguments }
-        return targetClass
-    }
+public enum GuidAttribute: AttributeType {
+    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var name: String { "GuidAttribute" }
+    public static var validOn: AttributeTargets { .interface | .delegate }
+    public static var allowMultiple: Bool { false }
+    public static var inherited: Bool { true }
 
-    public static func getGuid(_ delegate: DelegateDefinition) throws -> UUID {
-        try getGuid(delegate as TypeDefinition)
-    }
-
-    public static func getGuid(_ interface: InterfaceDefinition) throws -> UUID {
-        try getGuid(interface as TypeDefinition)
-    }
-
-    private static func getGuid(_ type: TypeDefinition) throws -> UUID {
+    public static func decode(_ attribute: Attribute) throws -> UUID {
         // [Windows.Foundation.Metadata.Guid(1516535814u, 33850, 19881, 134, 91, 157, 38, 229, 223, 173, 123)]
-        guard let attribute = try type.firstAttribute(namespace: namespace, name: "GuidAttribute") else {
-            throw InvalidMetadataError.attributeArguments
-        }
-
         let arguments = try attribute.arguments
         guard arguments.count == 11 else { throw InvalidMetadataError.attributeArguments }
 

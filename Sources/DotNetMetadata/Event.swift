@@ -17,6 +17,9 @@ public final class Event: Member {
     public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
+    // Assume all accessors are consistently static or instance
+    public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
+    public override var attributeTarget: AttributeTargets { .event }
 
     private lazy var _handlerType = Result { try assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
     public var handlerType: BoundType { get throws { try _handlerType.get() } }
@@ -50,8 +53,6 @@ public final class Event: Member {
         return accessors.add ?? accessors.remove ?? accessors.fire ?? accessors.others.first
     }
 
-    // Assume all accessors are consistently static or instance
-    public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
     public var hasPublicAddRemoveAccessors: Bool {
         (try? addAccessor)?.isPublic == true && (try? removeAccessor)?.isPublic != nil
     }

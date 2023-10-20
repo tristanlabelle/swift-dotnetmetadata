@@ -1,15 +1,19 @@
-public struct AttributeUsage {
-    public var validOn: Attributables = .all
-    public var allowMultiple = false
-    public var inherited = true
-}
-
-public struct Attributables: Hashable, OptionSet {
+public struct AttributeTargets: Hashable, OptionSet {
     public var rawValue: Int32
 
     public init(rawValue: Int32) {
         self.rawValue = rawValue
     }
+
+    public static func | (left: Self, right: Self) -> Self {
+        Self(rawValue: left.rawValue | right.rawValue)
+    }
+
+    public static func & (left: Self, right: Self) -> Self {
+        Self(rawValue: left.rawValue & right.rawValue)
+    }
+
+    public static let none = Self(rawValue: 0)
 
     /// Attribute can be applied to an assembly.
     public static let assembly = Self(rawValue: 1)
@@ -34,13 +38,16 @@ public struct Attributables: Hashable, OptionSet {
     /// Attribute can be applied to an interface.
     public static let interface = Self(rawValue: 0x400)
     /// Attribute can be applied to a parameter.
-    public static let parameter = Self(rawValue: 0x800)
+    public static let param = Self(rawValue: 0x800)
     /// Attribute can be applied to a delegate.
     public static let delegate = Self(rawValue: 0x1000)
     /// Attribute can be applied to a return value.
     public static let returnValue = Self(rawValue: 0x2000)
     /// Attribute can be applied to a generic parameter.
-    public static let genericParameter = Self(rawValue: 0x4000)
+    public static let genericParam = Self(rawValue: 0x4000)
     /// Attribute can be applied to any application element.
     public static let all = Self(rawValue: 0x7FFF)
+
+    public static let allTypes: Self = .class | .struct | .interface | .enum | .delegate
+    public static let allMembers: Self = .field | .method | .property | .event | .constructor
 }

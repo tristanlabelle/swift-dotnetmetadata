@@ -163,6 +163,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         }
     }()
 
+    public var attributeTarget: AttributeTargets { fatalError() }
     public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
 
     private lazy var _nestedTypes = Result {
@@ -192,16 +193,19 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
 
 public final class ClassDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .class }
+    public override var attributeTarget: AttributeTargets { .class }
 
     public var finalizer: Method? { findMethod(name: "Finalize", static: false, arity: 0) }
 }
 
 public final class InterfaceDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .interface }
+    public override var attributeTarget: AttributeTargets { .interface }
 }
 
 public final class DelegateDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .delegate }
+    public override var attributeTarget: AttributeTargets { .delegate }
 
     public var invokeMethod: Method { findMethod(name: "Invoke", public: true, static: false)! }
     public var arity: Int { get throws { try invokeMethod.arity } }
@@ -209,10 +213,12 @@ public final class DelegateDefinition: TypeDefinition {
 
 public final class StructDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .struct }
+    public override var attributeTarget: AttributeTargets { .struct }
 }
 
 public final class EnumDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .enum }
+    public override var attributeTarget: AttributeTargets { .enum }
 
     public var backingField: Field {
         // The backing field may be public but will have specialName and rtSpecialName

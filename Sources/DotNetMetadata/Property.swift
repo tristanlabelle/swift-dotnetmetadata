@@ -29,6 +29,9 @@ public class Property: Member {
     public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
+    // Assume all accessors are consistently static or instance
+    public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
+    public override var attributeTarget: AttributeTargets { .event }
 
     private lazy var _type = Result { try assembly.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
@@ -59,8 +62,6 @@ public class Property: Member {
         return accessors.getter ?? accessors.setter ?? accessors.others.first
     }
 
-    // Assume all accessors are consistently static or instance
-    public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
     public var hasPublicGetter: Bool { (try? getter)?.isPublic == true }
     public var hasPublicSetter: Bool { (try? setter)?.isPublic == true }
     public var hasPublicGetterAndSetter: Bool { hasPublicGetter && hasPublicSetter }

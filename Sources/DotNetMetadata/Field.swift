@@ -14,6 +14,7 @@ public final class Field: Member {
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
+    public override var attributeTarget: AttributeTargets { .field }
     public var visibility: Visibility { flags.visibility }
     public var isPublic: Bool { visibility == .public }
     public var isInitOnly: Bool { flags.contains(.initOnly) }

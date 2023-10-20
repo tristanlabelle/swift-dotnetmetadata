@@ -17,6 +17,7 @@ public class Member: Attributable {
     public var nameKind: NameKind { fatalError() }
     public var isStatic: Bool { fatalError() }
     public var isInstance: Bool { !isStatic }
+    public var attributeTarget: AttributeTargets { fatalError() }
     public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: metadataToken) }()
 }
 

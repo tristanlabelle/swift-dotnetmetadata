@@ -20,6 +20,7 @@ public class ParamBase: Attributable {
     }
     public var type: TypeNode { get throws { try _type.get() } }
 
+    public var attributeTarget: AttributeTargets { fatalError() }
     public private(set) lazy var attributes: [Attribute] = {
         guard !metadataToken.isNull else { return [] }
         return assembly.getAttributes(owner: metadataToken)
@@ -50,6 +51,8 @@ public final class Param: ParamBase {
         return try Constant(moduleFile: moduleFile, owner: .param(tableRowIndex))
     }
     public var defaultValue : Constant? { get throws { try _defaultValue.get() } }
+
+    public override var attributeTarget: AttributeTargets { .param }
 }
 
 public final class ReturnParam: ParamBase {
@@ -68,6 +71,8 @@ public final class ReturnParam: ParamBase {
             default: return false
         }
     }
+
+    public override var attributeTarget: AttributeTargets { .returnValue }
 }
 
 extension ParamBase: Hashable {
