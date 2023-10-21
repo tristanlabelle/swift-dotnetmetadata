@@ -85,7 +85,7 @@ public final class Mscorlib: Assembly {
 
         public func getInteger(_ size: IntegerSize, signed: Bool) -> StructDefinition {
             switch size {
-                case .int8: return signed ? byte : sbyte
+                case .int8: return signed ? sbyte : byte
                 case .int16: return signed ? int16 : uint16
                 case .int32: return signed ? int32 : uint32
                 case .int64: return signed ? int64 : uint64
