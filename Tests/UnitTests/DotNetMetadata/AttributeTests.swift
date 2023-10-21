@@ -50,8 +50,6 @@ internal final class AttributeTests: CompiledAssemblyTestCase {
     }
 
     public func testTypeArgument() throws {
-        try XCTSkipIf(true, "Currently crashes")
-
         let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "TypeArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments

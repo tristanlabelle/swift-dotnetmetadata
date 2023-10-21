@@ -69,7 +69,17 @@ extension CustomAttribSig {
                 guard let canonicalName = try consumeSerString(buffer: &buffer) else {
                     throw InvalidFormatError.signatureBlob
                 }
-                fatalError()
+
+                // System.Tuple, System.Runtime, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f711d50a3a
+                if let match = canonicalName.firstMatch(of: try Regex(#"\s*,\s*"#)) {
+                    let fullTypeName = String(canonicalName[..<match.range.lowerBound])
+                    let assemblyIdentity = String(canonicalName[match.range.upperBound...])
+                    do { return .type(fullName: fullTypeName, assembly: try AssemblyIdentity.parse(assemblyIdentity)) }
+                    catch { throw InvalidFormatError.signatureBlob }
+                }
+                else {
+                    return .type(fullName: canonicalName, assembly: nil)
+                }
 
             default: throw InvalidFormatError.signatureBlob
         }

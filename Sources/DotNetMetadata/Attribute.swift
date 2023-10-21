@@ -38,7 +38,18 @@ public final class Attribute {
             case .constant(let constant): return .constant(constant)
 
             case let .type(fullName, assemblyIdentity):
-                let assembly = try assembly.context.load(identity: assemblyIdentity)
+                let assembly: Assembly
+                if let assemblyIdentity {
+                    assembly = try self.assembly.context.load(identity: assemblyIdentity)
+                }
+                else {
+                    // TODO: Fallback to mscorlib
+                    // §II.23.3: 
+                    // > If the assembly name is omitted, the CLI looks first in the current assembly,
+                    // > and then in the system library (mscorlib); in these two special cases,
+                    // > it is permitted to omit the assembly-name, version, culture and public-key-token.
+                    assembly = self.assembly
+                }
                 return .type(definition: assembly.findDefinedType(fullName: fullName)!)
 
             case .array(let elems): return .array(try elems.map(resolve))
