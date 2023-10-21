@@ -14,10 +14,16 @@ internal final class FieldTests: CompiledAssemblyTestCase {
     }
 
     private var typeDefinition: TypeDefinition!
+    private var publicInstanceField: Field!
+    private var privateStaticInitOnlyField: Field!
+    private var protectedLiteralField: Field!
 
     public override func setUpWithError() throws {
         try super.setUpWithError()
         typeDefinition = try XCTUnwrap(assembly.findDefinedType(fullName: "Fields"))
+        publicInstanceField = try XCTUnwrap(typeDefinition.findField(name: "PublicInstance"))
+        privateStaticInitOnlyField = try XCTUnwrap(typeDefinition.findField(name: "PrivateStaticInitOnly"))
+        protectedLiteralField = try XCTUnwrap(typeDefinition.findField(name: "ProtectedLiteral"))
     }
 
     public func testEnumeration() throws {
@@ -26,40 +32,38 @@ internal final class FieldTests: CompiledAssemblyTestCase {
             ["PublicInstance", "PrivateStaticInitOnly", "ProtectedLiteral"])
     }
 
+    public func testName() throws {
+        XCTAssertEqual(publicInstanceField.name, "PublicInstance")
+    }
+
     public func testType() throws {
-        let field = try XCTUnwrap(typeDefinition.findField(name: "PublicInstance"))
         try XCTAssertEqual(
-            XCTUnwrap(field.type.asDefinition),
+            XCTUnwrap(publicInstanceField.type.asDefinition),
             XCTUnwrap(assembly.findDefinedType(fullName: "FieldType")))
     }
 
-    public func testPublicInstanceFlags() throws {
-        let field = try XCTUnwrap(typeDefinition.findField(name: "PublicInstance"))
-        XCTAssertEqual(field.name, "PublicInstance")
-        XCTAssertEqual(field.visibility, .public)
-        XCTAssertEqual(field.isStatic, false)
-        XCTAssertEqual(field.isInitOnly, false)
-        XCTAssertEqual(field.isLiteral, false)
-        XCTAssertEqual(try field.literalValue, nil)
+    public func testVisibility() throws {
+        XCTAssertEqual(publicInstanceField.visibility, .public)
+        XCTAssertEqual(privateStaticInitOnlyField.visibility, .private)
+        XCTAssertEqual(protectedLiteralField.visibility, .family)
     }
 
-    public func testPrivateStaticInitOnlyFlags() throws {
-        let field = try XCTUnwrap(typeDefinition.findField(name: "PrivateStaticInitOnly"))
-        XCTAssertEqual(field.name, "PrivateStaticInitOnly")
-        XCTAssertEqual(field.visibility, .private)
-        XCTAssertEqual(field.isStatic, true)
-        XCTAssertEqual(field.isInitOnly, true)
-        XCTAssertEqual(field.isLiteral, false)
-        XCTAssertEqual(try field.literalValue, nil)
+    public func testStatic() throws {
+        XCTAssertEqual(publicInstanceField.isStatic, false)
+        XCTAssertEqual(privateStaticInitOnlyField.isStatic, true)
     }
 
-    public func testProtectedLiteralFlags() throws {
-        let field = try XCTUnwrap(typeDefinition.findField(name: "ProtectedLiteral"))
-        XCTAssertEqual(field.name, "ProtectedLiteral")
-        XCTAssertEqual(field.visibility, .family)
-        XCTAssertEqual(field.isStatic, true)
-        XCTAssertEqual(field.isInitOnly, false)
-        XCTAssertEqual(field.isLiteral, true)
-        XCTAssertEqual(try field.literalValue, Constant.int32(42))
+    public func testInitOnly() throws {
+        XCTAssertEqual(publicInstanceField.isInitOnly, false)
+        XCTAssertEqual(privateStaticInitOnlyField.isInitOnly, true)
+        XCTAssertEqual(protectedLiteralField.isInitOnly, false)
+    }
+
+    public func testLiteral() throws {
+        XCTAssertEqual(publicInstanceField.isLiteral, false)
+        XCTAssertEqual(try publicInstanceField.literalValue, nil)
+
+        XCTAssertEqual(protectedLiteralField.isLiteral, true)
+        XCTAssertEqual(try protectedLiteralField.literalValue, Constant.int32(42))
     }
 }
