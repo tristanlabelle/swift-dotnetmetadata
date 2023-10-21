@@ -1,5 +1,5 @@
 public enum ComImportAttribute: AttributeType {
-    public static var namespace: String { "System.Runtime.InteropServices" }
+    public static var namespace: String? { "System.Runtime.InteropServices" }
     public static var name: String { "ComImportAttribute" }
     public static var validOn: AttributeTargets { .class | .interface }
     public static var allowMultiple: Bool { false }

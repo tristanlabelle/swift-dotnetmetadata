@@ -20,7 +20,7 @@ public struct ComposableAttribute: AttributeType {
         self.applicability = applicability
     }
 
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "ComposableAttribute" }
     public static var validOn: AttributeTargets { .class }
     public static var allowMultiple: Bool { true }

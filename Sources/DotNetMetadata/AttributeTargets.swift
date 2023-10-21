@@ -13,7 +13,7 @@ public struct AttributeTargets: Hashable, OptionSet {
         Self(rawValue: left.rawValue & right.rawValue)
     }
 
-    public static let none = Self(rawValue: 0)
+    public static let none = Self([])
 
     /// Attribute can be applied to an assembly.
     public static let assembly = Self(rawValue: 1)

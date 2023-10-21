@@ -1,5 +1,5 @@
 public enum GuidAttribute: AttributeType {
-    public static var namespace: String { "System.Runtime.InteropServices" }
+    public static var namespace: String? { "System.Runtime.InteropServices" }
     public static var name: String { "GuidAttribute" }
     public static var validOn: AttributeTargets { .assembly | .allTypes }
     public static var allowMultiple: Bool { false }

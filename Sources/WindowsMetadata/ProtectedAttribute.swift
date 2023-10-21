@@ -2,7 +2,7 @@ import DotNetMetadata
 
 /// Indicates that the interface contains protected methods.
 public enum ProtectedAttribute: AttributeType {
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "ProtectedAttribute" }
     public static var validOn: AttributeTargets { .none } // No attribute target for interface implementations
     public static var allowMultiple: Bool { false }

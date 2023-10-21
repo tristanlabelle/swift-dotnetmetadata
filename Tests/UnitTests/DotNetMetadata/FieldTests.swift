@@ -4,8 +4,9 @@ import XCTest
 internal final class FieldTests: CompiledAssemblyTestCase {
     internal override class var csharpCode: String {
         """
+        struct FieldType {}
         class Fields {
-            public int PublicInstance;
+            public FieldType PublicInstance;
             private static readonly int PrivateStaticInitOnly;
             protected const int ProtectedLiteral = 42;
         }
@@ -23,6 +24,13 @@ internal final class FieldTests: CompiledAssemblyTestCase {
         XCTAssertEqual(
             typeDefinition.fields.map { $0.name },
             ["PublicInstance", "PrivateStaticInitOnly", "ProtectedLiteral"])
+    }
+
+    public func testType() throws {
+        let field = try XCTUnwrap(typeDefinition.findField(name: "PublicInstance"))
+        try XCTAssertEqual(
+            XCTUnwrap(field.type.asDefinition),
+            XCTUnwrap(assembly.findDefinedType(fullName: "FieldType")))
     }
 
     public func testPublicInstanceFlags() throws {

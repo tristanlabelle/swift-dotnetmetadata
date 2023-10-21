@@ -2,7 +2,7 @@ import DotNetMetadata
 
 /// Indicates that multiple instances of a custom attribute can be applied to a target.
 public enum AllowMultipleAttribute: AttributeType {
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "AllowMultipleAttribute" }
     public static var validOn: AttributeTargets { .class }
     public static var allowMultiple: Bool { false }

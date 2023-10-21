@@ -1,7 +1,7 @@
 public protocol AttributeType {
     associatedtype Value = Self
 
-    static var namespace: String { get }
+    static var namespace: String? { get }
     static var name: String { get }
     static var validOn: AttributeTargets { get }
     static var allowMultiple: Bool { get }

@@ -2,7 +2,7 @@ import DotNetMetadata
 
 /// Indicates the threading model of a Windows Runtime component.
 public enum ThreadingAttribute: AttributeType {
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "ThreadingAttribute" }
     public static var validOn: AttributeTargets { .class }
     public static var allowMultiple: Bool { false }

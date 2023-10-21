@@ -9,7 +9,7 @@ public struct AttributeUsageAttribute: AttributeType {
         self.inherited = inherited
     }
 
-    public static var namespace: String { "System" }
+    public static var namespace: String? { "System" }
     public static var name: String { "AttributeUsageAttribute" }
     public static var validOn: AttributeTargets { .class }
     public static var allowMultiple: Bool { false }

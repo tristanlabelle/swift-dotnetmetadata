@@ -19,7 +19,7 @@ public struct DeprecatedAttribute: AttributeType {
         self.applicability = applicability
     }
 
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "DeprecatedAttribute" }
     public static var validOn: AttributeTargets { .allTypes | .allMembers }
     public static var allowMultiple: Bool { true }

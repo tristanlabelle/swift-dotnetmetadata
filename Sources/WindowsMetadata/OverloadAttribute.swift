@@ -2,7 +2,7 @@ import DotNetMetadata
 
 /// Identifies the method as an overload in a language that supports overloading.
 public enum OverloadAttribute: AttributeType {
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "OverloadAttribute" }
     public static var validOn: AttributeTargets { .method }
     public static var allowMultiple: Bool { false }

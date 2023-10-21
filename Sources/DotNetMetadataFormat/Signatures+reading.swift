@@ -64,6 +64,13 @@ extension CustomAttribSig {
                     try consumeElem(buffer: &buffer, type: element)
                 })
 
+            case .defOrRef(index: _, class: true, genericArgs: _):
+                // Assume a System.Type
+                guard let canonicalName = try consumeSerString(buffer: &buffer) else {
+                    throw InvalidFormatError.signatureBlob
+                }
+                fatalError()
+
             default: throw InvalidFormatError.signatureBlob
         }
     }

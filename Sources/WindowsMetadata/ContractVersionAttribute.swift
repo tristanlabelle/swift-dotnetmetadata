@@ -22,7 +22,7 @@ public struct ContractVersionAttribute: AttributeType {
         self.init(contract: .type(contract), version: version)
     }
 
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "ContractVersionAttribute" }
     public static var validOn: AttributeTargets { .allTypes | .allMembers }
     public static var allowMultiple: Bool { true }

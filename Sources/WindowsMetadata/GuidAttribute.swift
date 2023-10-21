@@ -2,7 +2,7 @@ import DotNetMetadata
 import struct Foundation.UUID
 
 public enum GuidAttribute: AttributeType {
-    public static var namespace: String { "Windows.Foundation.Metadata" }
+    public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "GuidAttribute" }
     public static var validOn: AttributeTargets { .interface | .delegate }
     public static var allowMultiple: Bool { false }
