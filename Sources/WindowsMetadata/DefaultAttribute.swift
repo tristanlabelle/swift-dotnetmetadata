@@ -10,7 +10,7 @@ public enum DefaultAttribute: AttributeType {
 
     public static func decode(_ attribute: Attribute) throws -> Void {}
 
-    public static func getDefaultInterface(_ class: ClassDefinition) throws -> BoundType? {
+    public static func getDefaultInterface(_ class: ClassDefinition) throws -> BoundInterface? {
         try `class`.baseInterfaces.first { try $0.hasAttribute(DefaultAttribute.self) }?.interface
     }
 }

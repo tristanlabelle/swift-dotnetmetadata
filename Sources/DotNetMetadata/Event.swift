@@ -21,8 +21,12 @@ public final class Event: Member {
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
     public override var attributeTarget: AttributeTargets { .event }
 
-    private lazy var _handlerType = Result { try assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType)! }
-    public var handlerType: BoundType { get throws { try _handlerType.get() } }
+    private lazy var _handlerType = Result {
+        guard let boundType = try assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType),
+            let delegateDefinition = boundType.definition as? DelegateDefinition else { throw InvalidFormatError.tableConstraint }
+        return delegateDefinition.bind(genericArgs: boundType.genericArgs)
+    }
+    public var handlerType: BoundDelegate { get throws { try _handlerType.get() } }
 
     private struct Accessors {
         var add: Method?

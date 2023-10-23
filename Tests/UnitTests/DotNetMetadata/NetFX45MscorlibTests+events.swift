@@ -11,25 +11,21 @@ extension NetFX45MscorlibTests {
     }
 
     func testEventAccessors() throws {
-        guard let event = Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?.findEvent(name: "EventSourceCreated") else {
-            return XCTFail("Could not find System.Diagnostics.Tracing.EventListener.EventSourceCreated")
-        }
+        let event = try XCTUnwrap(
+            Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?
+                .findEvent(name: "EventSourceCreated"))
 
-        XCTAssertEqual(try event.addAccessor?.name, "add_EventSourceCreated")
-        XCTAssertEqual(try event.removeAccessor?.name, "remove_EventSourceCreated")
+        XCTAssertEqual(try XCTUnwrap(event.addAccessor).name, "add_EventSourceCreated")
+        XCTAssertEqual(try XCTUnwrap(event.removeAccessor).name, "remove_EventSourceCreated")
     }
 
     func testEventType() throws {
-        guard let console = Self.assembly.findDefinedType(fullName: "System.Console") else {
-            return XCTFail("Could not find System.Console")
-        }
-
-        guard let consoleCancelEventHandler = Self.assembly.findDefinedType(fullName: "System.ConsoleCancelEventHandler") else {
-            return XCTFail("Could not find System.ConsoleCancelEventHandler")
-        }
+        let console = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Console"))
+        let consoleCancelEventHandler = try XCTUnwrap(
+            Self.assembly.findDefinedType(fullName: "System.ConsoleCancelEventHandler") as? DelegateDefinition)
 
         XCTAssertEqual(
-            try console.findEvent(name: "CancelKeyPress")?.handlerType,
+            try XCTUnwrap(console.findEvent(name: "CancelKeyPress")).handlerType,
             consoleCancelEventHandler.bind())
     }
 }

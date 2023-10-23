@@ -14,9 +14,11 @@ public final class BaseInterface: Attributable {
     private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
 
     private lazy var _interface = Result {
-        try assembly.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType)!
+        guard let boundType = try assembly.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType),
+            let interfaceDefinition = boundType.definition as? InterfaceDefinition else { throw InvalidFormatError.tableConstraint }
+        return interfaceDefinition.bind(genericArgs: boundType.genericArgs)
     }
-    public var interface: BoundType { get throws { try _interface.get() } }
+    public var interface: BoundInterface { get throws { try _interface.get() } }
 
     public var attributeTarget: AttributeTargets { .none } // No AttributeTargets value for this
     public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()

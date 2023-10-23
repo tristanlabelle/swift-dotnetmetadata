@@ -67,6 +67,6 @@ extension TypeNode {
 
 extension TypeDefinition {
     public func bindNode(genericArgs: [TypeNode] = []) -> TypeNode {
-        .bound(bind(genericArgs: genericArgs))
+        .bound(bindType(genericArgs: genericArgs))
     }
 }
