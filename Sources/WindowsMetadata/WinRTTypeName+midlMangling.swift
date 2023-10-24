@@ -11,11 +11,14 @@ extension WinRTTypeName {
     }
 
     public func writeMidlMangling(to output: inout some TextOutputStream) {
-        writeMidlManglingInner(parameter: false, to: &output)
+        writeMidlMangling(parameter: false, to: &output)
     }
 
-    public func writeMidlManglingInner(parameter: Bool, to output: inout some TextOutputStream) {
-        // __FIMap_2_HSTRING___FIVectorView_1_Windows__CData__CText__CTextSegment
+    private func writeMidlMangling(parameter: Bool, to output: inout some TextOutputStream) {
+        // __x_ABI_CWindows_CFoundation_CUri
+        // __FIVector_1_Windows__CFoundation__CUri
+        // __FIMap_2_HSTRING_HSTRING
+        // __FIAsyncOperation_1___FIVectorView_1_HSTRING
         switch self {
             case let .primitive(primitiveType):
                 output.write(primitiveType.midlName)
@@ -25,10 +28,9 @@ extension WinRTTypeName {
                 output.write(type.nameWithoutAritySuffix)
                 output.write("_")
                 output.write(String(type.arity))
-                output.write("_")
-                for (index, genericArg) in args.enumerated() {
-                    if index > 0 { output.write("_") }
-                    genericArg.writeMidlManglingInner(parameter: true, to: &output)
+                for arg in args {
+                    output.write("_")
+                    arg.writeMidlMangling(parameter: true, to: &output)
                 }
 
             case let .declared(namespace, name):
