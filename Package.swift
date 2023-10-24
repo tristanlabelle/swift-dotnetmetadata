@@ -25,7 +25,7 @@ let package = Package(
             name: "DotNetXMLDocs"),
         .testTarget(
             name: "UnitTests",
-            dependencies: [ "DotNetMetadataFormat", "DotNetMetadata", "DotNetXMLDocs" ],
+            dependencies: [ "DotNetMetadataFormat", "DotNetMetadata", "DotNetXMLDocs", "WindowsMetadata" ],
             // Workaround for SPM library support limitations causing "LNK4217: locally defined symbol imported" spew
             linkerSettings: [ .unsafeFlags(["-Xlinker", "-ignore:4217"]) ])
     ]
