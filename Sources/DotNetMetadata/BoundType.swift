@@ -11,8 +11,8 @@ public struct BoundTypeOf<Definition: TypeDefinition>: Hashable {
         self.genericArgs = genericArgs
     }
 
-    public var typeErased: BoundType { .init(definition, genericArgs: []) }
-    public var asNode: TypeNode { .bound(typeErased) }
+    public var asType: BoundType { .init(definition, genericArgs: genericArgs) }
+    public var asNode: TypeNode { .bound(asType) }
     public var isParameterized: Bool { !genericArgs.allSatisfy { !$0.isParameterized } }
 
     public func bindGenericParams(_ binding: (GenericParam) throws -> TypeNode) rethrows -> Self {
