@@ -38,35 +38,35 @@ extension WinRTParameterizedType {
     public static func from(namespace: String, name: String) -> WinRTParameterizedType? {
         if namespace == "Windows.Foundation" {
             switch name {
-                case "IAsyncActionProgressHandler": return .asyncActionProgressHandler
-                case "IAsyncActionWithProgressCompletedHandler": return .asyncActionWithProgressCompletedHandler
-                case "IAsyncOperationCompletedHandler": return .asyncOperationCompletedHandler
-                case "IAsyncOperationProgressHandler": return .asyncOperationProgressHandler
-                case "IAsyncOperationWithProgressCompletedHandler": return .asyncOperationWithProgressCompletedHandler
-                case "EventHandler": return .eventHandler
-                case "IAsyncActionWithProgress": return .iasyncActionWithProgress
-                case "IAsyncOperation": return .iasyncOperation
-                case "IAsyncOperationWithProgress": return .iasyncOperationWithProgress
-                case "IReference": return .ireference
-                case "IReferenceArray": return .ireferenceArray
-                case "TypedEventHandler": return .typedEventHandler
+                case "IAsyncActionProgressHandler`1": return .asyncActionProgressHandler
+                case "IAsyncActionWithProgressCompletedHandler`1": return .asyncActionWithProgressCompletedHandler
+                case "IAsyncOperationCompletedHandler`1": return .asyncOperationCompletedHandler
+                case "IAsyncOperationProgressHandler`2": return .asyncOperationProgressHandler
+                case "IAsyncOperationWithProgressCompletedHandler`2": return .asyncOperationWithProgressCompletedHandler
+                case "EventHandler`1": return .eventHandler
+                case "IAsyncActionWithProgress`1": return .iasyncActionWithProgress
+                case "IAsyncOperation`1": return .iasyncOperation
+                case "IAsyncOperationWithProgress`2": return .iasyncOperationWithProgress
+                case "IReference`1": return .ireference
+                case "IReferenceArray`1": return .ireferenceArray
+                case "TypedEventHandler`2": return .typedEventHandler
                 default: return nil
             }
         }
         else if namespace == "Windows.Foundation.Collections" {
             switch name {
-                case "IIterable": return .collections_iiterable
-                case "IIterator": return .collections_iiterator
-                case "IKeyValuePair": return .collections_ikeyValuePair
-                case "IMap": return .collections_imap
-                case "IMapChangedEventArgs": return .collections_imapChangedEventArgs
-                case "IMapView": return .collections_imapView
-                case "IObservableMap": return .collections_iobservableMap
-                case "IObservableVector": return .collections_iobservableVector
-                case "IVector": return .collections_ivector
-                case "IVectorView": return .collections_ivectorView
-                case "MapChangedEventHandler": return .collections_mapChangedEventHandler
-                case "VectorChangedEventHandler": return .collections_vectorChangedEventHandler
+                case "IIterable`1": return .collections_iiterable
+                case "IIterator`1": return .collections_iiterator
+                case "IKeyValuePair`2": return .collections_ikeyValuePair
+                case "IMap`2": return .collections_imap
+                case "IMapChangedEventArgs`1": return .collections_imapChangedEventArgs
+                case "IMapView`2": return .collections_imapView
+                case "IObservableMap`2": return .collections_iobservableMap
+                case "IObservableVector`1": return .collections_iobservableVector
+                case "IVector`1": return .collections_ivector
+                case "IVectorView`1": return .collections_ivectorView
+                case "MapChangedEventHandler`2": return .collections_mapChangedEventHandler
+                case "VectorChangedEventHandler`1": return .collections_vectorChangedEventHandler
                 default: return nil
             }
         }
