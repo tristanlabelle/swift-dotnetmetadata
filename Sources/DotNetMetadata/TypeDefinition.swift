@@ -229,9 +229,8 @@ public final class EnumDefinition: TypeDefinition {
 
     public var underlyingType: TypeDefinition { get throws { try backingField.type.asDefinition! } }
 
-    public private(set) lazy var isFlags: Bool = {
-        attributes.contains { (try? $0.type)?.isMscorlib(namespace: "System", name: "FlagsAttribute") == true }
-    }()
+    private lazy var _isFlags = Result { try hasAttribute(FlagsAttribute.self) }
+    public var isFlags: Bool { get throws { try _isFlags.get() } }
 }
 
 extension TypeDefinition: Hashable {
