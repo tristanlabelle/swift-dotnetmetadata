@@ -60,7 +60,7 @@ extension TypeNode {
         }
     }
 
-    public func bindGenericParams(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
+    public func bindGenericParams(typeArgs: [TypeNode]?, methodArgs: [TypeNode]? = nil) -> TypeNode {
         bindGenericParams { $0.bind(typeArgs: typeArgs, methodArgs: methodArgs) }
     }
 }

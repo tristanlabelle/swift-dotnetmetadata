@@ -11,15 +11,14 @@ public struct BoundTypeOf<Definition: TypeDefinition>: Hashable {
         self.genericArgs = genericArgs
     }
 
-    public var asType: BoundType { .init(definition, genericArgs: genericArgs) }
-    public var asNode: TypeNode { .bound(asType) }
+    public var asNode: TypeNode { .bound(.init(definition, genericArgs: genericArgs)) }
     public var isParameterized: Bool { !genericArgs.allSatisfy { !$0.isParameterized } }
 
     public func bindGenericParams(_ binding: (GenericParam) throws -> TypeNode) rethrows -> Self {
         .init(definition, genericArgs: try genericArgs.map { try $0.bindGenericParams(binding) })
     }
 
-    public func bindGenericParams(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> Self {
+    public func bindGenericParams(typeArgs: [TypeNode]?, methodArgs: [TypeNode]? = nil) -> Self {
         bindGenericParams { $0.bind(typeArgs: typeArgs, methodArgs: methodArgs) }
     }
 }
@@ -32,6 +31,10 @@ extension TypeDefinition {
 }
 
 public typealias BoundStruct = BoundTypeOf<StructDefinition>
+extension BoundStruct {
+    public var asBoundType: BoundType { .init(definition, genericArgs: genericArgs) }
+}
+
 extension StructDefinition {
     public typealias Bound = BoundStruct
     public func bind(genericArgs: [TypeNode] = []) -> BoundStruct {
@@ -40,6 +43,10 @@ extension StructDefinition {
 }
 
 public typealias BoundClass = BoundTypeOf<ClassDefinition>
+extension BoundClass {
+    public var asBoundType: BoundType { .init(definition, genericArgs: genericArgs) }
+}
+
 extension ClassDefinition {
     public typealias Bound = BoundClass
     public func bind(genericArgs: [TypeNode] = []) -> BoundClass {
@@ -48,6 +55,10 @@ extension ClassDefinition {
 }
 
 public typealias BoundInterface = BoundTypeOf<InterfaceDefinition>
+extension BoundInterface {
+    public var asBoundType: BoundType { .init(definition, genericArgs: genericArgs) }
+}
+
 extension InterfaceDefinition {
     public typealias Bound = BoundInterface
     public func bind(genericArgs: [TypeNode] = []) -> BoundInterface {
@@ -56,6 +67,10 @@ extension InterfaceDefinition {
 }
 
 public typealias BoundDelegate = BoundTypeOf<DelegateDefinition>
+extension BoundDelegate {
+    public var asBoundType: BoundType { .init(definition, genericArgs: genericArgs) }
+}
+
 extension DelegateDefinition {
     public typealias Bound = BoundDelegate
     public func bind(genericArgs: [TypeNode] = []) -> BoundDelegate {
