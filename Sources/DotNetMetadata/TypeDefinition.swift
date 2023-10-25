@@ -64,20 +64,18 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         return makeFullTypeName(namespace: namespace, name: name)
     }()
 
-    internal var metadataAttributes: DotNetMetadataFormat.TypeAttributes { tableRow.flags }
+    internal var metadataFlags: DotNetMetadataFormat.TypeAttributes { tableRow.flags }
 
-    public var nameKind: NameKind { metadataAttributes.nameKind }
-    public var visibility: Visibility { metadataAttributes.visibility }
+    public var nameKind: NameKind { metadataFlags.nameKind }
+    public var visibility: Visibility { metadataFlags.visibility }
     public var isPublic: Bool { visibility == .public }
-    public var isNested: Bool { metadataAttributes.isNested }
-    public var isAbstract: Bool { metadataAttributes.contains(TypeAttributes.abstract) }
-    public var isSealed: Bool { metadataAttributes.contains(TypeAttributes.sealed) }
-    public var layoutKind: LayoutKind { metadataAttributes.layoutKind }
+    public var isNested: Bool { metadataFlags.isNested }
+    public var layoutKind: LayoutKind { metadataFlags.layoutKind }
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 
     public private(set) lazy var layout: TypeLayout = {
-        switch metadataAttributes.layoutKind {
+        switch metadataFlags.layoutKind {
             case .auto: return .auto
             case .sequential:
                 let layout = getClassLayout()
@@ -194,6 +192,10 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
 public final class ClassDefinition: TypeDefinition {
     public override var kind: TypeDefinitionKind { .class }
     public override var attributeTarget: AttributeTargets { .class }
+
+    public var isAbstract: Bool { metadataFlags.contains(TypeAttributes.abstract) }
+    public var isSealed: Bool { metadataFlags.contains(TypeAttributes.sealed) }
+    public var isStatic: Bool { isAbstract && isSealed }
 
     public var finalizer: Method? { findMethod(name: "Finalize", static: false, arity: 0) }
 }

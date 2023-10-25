@@ -69,11 +69,11 @@ extension NetFX45MscorlibTests {
     }
 
     func testTypeFlags() throws {
-        let object = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Object"))
+        let object = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Object") as? ClassDefinition)
         XCTAssert(!object.isAbstract)
         XCTAssert(!object.isSealed)
 
-        let gc = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.GC"))
+        let gc = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.GC") as? ClassDefinition)
         XCTAssert(gc.isAbstract)
         XCTAssert(gc.isSealed)
     }
