@@ -46,10 +46,8 @@ extension WinRTTypeName {
                     firstComponent = false
                 }
 
-                if let namespace = namespace {
-                    for namespaceComponent in namespace.split(separator: ".") {
-                        appendComponent(String(namespaceComponent))
-                    }
+                for namespaceComponent in namespace.split(separator: ".") {
+                    appendComponent(String(namespaceComponent))
                 }
 
                 appendComponent(name)

@@ -1,6 +1,7 @@
-// WinRT supports parameterization of interfaces and delegates.
-// However, in this release WinRT does not support definition of parameterized types by 3rd parties.
-// Only the parameterized types included in the system in the Windows.* namespace are supported.
+// https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system
+// > WinRT supports parameterization of interfaces and delegates.
+// > However, in this release WinRT does not support definition of parameterized types by 3rd parties.
+// > Only the parameterized types included in the system in the Windows.* namespace are supported.
 public enum WinRTParameterizedType: Hashable {
     case asyncActionProgressHandler
     case asyncActionWithProgressCompletedHandler
@@ -43,13 +44,13 @@ extension WinRTParameterizedType {
                 case "IAsyncOperationCompletedHandler`1": return .asyncOperationCompletedHandler
                 case "IAsyncOperationProgressHandler`2": return .asyncOperationProgressHandler
                 case "IAsyncOperationWithProgressCompletedHandler`2": return .asyncOperationWithProgressCompletedHandler
-                case "EventHandler`1": return .eventHandler
+                case "IEventHandler`1": return .eventHandler
                 case "IAsyncActionWithProgress`1": return .iasyncActionWithProgress
                 case "IAsyncOperation`1": return .iasyncOperation
                 case "IAsyncOperationWithProgress`2": return .iasyncOperationWithProgress
                 case "IReference`1": return .ireference
                 case "IReferenceArray`1": return .ireferenceArray
-                case "TypedEventHandler`2": return .typedEventHandler
+                case "ITypedEventHandler`2": return .typedEventHandler
                 default: return nil
             }
         }
@@ -65,8 +66,8 @@ extension WinRTParameterizedType {
                 case "IObservableVector`1": return .collections_iobservableVector
                 case "IVector`1": return .collections_ivector
                 case "IVectorView`1": return .collections_ivectorView
-                case "MapChangedEventHandler`2": return .collections_mapChangedEventHandler
-                case "VectorChangedEventHandler`1": return .collections_vectorChangedEventHandler
+                case "IMapChangedEventHandler`2": return .collections_mapChangedEventHandler
+                case "IVectorChangedEventHandler`1": return .collections_vectorChangedEventHandler
                 default: return nil
             }
         }
@@ -82,13 +83,13 @@ extension WinRTParameterizedType {
             case .asyncOperationCompletedHandler: return ("Windows.Foundation", "IAsyncOperationCompletedHandler", 1)
             case .asyncOperationProgressHandler: return ("Windows.Foundation", "IAsyncOperationProgressHandler", 2)
             case .asyncOperationWithProgressCompletedHandler: return ("Windows.Foundation", "IAsyncOperationWithProgressCompletedHandler", 2)
-            case .eventHandler: return ("Windows.Foundation", "EventHandler", 1)
+            case .eventHandler: return ("Windows.Foundation", "IEventHandler", 1)
             case .iasyncActionWithProgress: return ("Windows.Foundation", "IAsyncActionWithProgress", 1)
             case .iasyncOperation: return ("Windows.Foundation", "IAsyncOperation", 1)
             case .iasyncOperationWithProgress: return ("Windows.Foundation", "IAsyncOperationWithProgress", 2)
             case .ireference: return ("Windows.Foundation", "IReference", 1)
             case .ireferenceArray: return ("Windows.Foundation", "IReferenceArray", 1)
-            case .typedEventHandler: return ("Windows.Foundation", "TypedEventHandler", 2)
+            case .typedEventHandler: return ("Windows.Foundation", "ITypedEventHandler", 2)
 
             case .collections_iiterable: return ("Windows.Foundation.Collections", "IIterable", 1)
             case .collections_iiterator: return ("Windows.Foundation.Collections", "IIterator", 1)
@@ -100,8 +101,8 @@ extension WinRTParameterizedType {
             case .collections_iobservableVector: return ("Windows.Foundation.Collections", "IObservableVector", 1)
             case .collections_ivector: return ("Windows.Foundation.Collections", "IVector", 1)
             case .collections_ivectorView: return ("Windows.Foundation.Collections", "IVectorView", 1)
-            case .collections_mapChangedEventHandler: return ("Windows.Foundation.Collections", "MapChangedEventHandler", 2)
-            case .collections_vectorChangedEventHandler: return ("Windows.Foundation.Collections", "VectorChangedEventHandler", 1)
+            case .collections_mapChangedEventHandler: return ("Windows.Foundation.Collections", "IMapChangedEventHandler", 2)
+            case .collections_vectorChangedEventHandler: return ("Windows.Foundation.Collections", "IVectorChangedEventHandler", 1)
         }
     }
 }

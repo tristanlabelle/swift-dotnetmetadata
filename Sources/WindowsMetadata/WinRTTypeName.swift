@@ -1,7 +1,11 @@
 public enum WinRTTypeName: Hashable {
     case primitive(WinRTPrimitiveType)
     case parameterized(WinRTParameterizedType, args: [WinRTTypeName] = [])
-    case declared(namespace: String?, name: String)
+
+    // https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system
+    // > All types—except for the fundamental types—must be contained within a namespace.
+    // > It's not valid for a type to be in the global namespace.
+    case declared(namespace: String, name: String)
 }
 
 extension WinRTTypeName: CustomStringConvertible, TextOutputStreamable {
