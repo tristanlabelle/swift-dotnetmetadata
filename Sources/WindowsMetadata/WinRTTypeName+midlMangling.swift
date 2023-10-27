@@ -24,14 +24,7 @@ extension WinRTTypeName {
                 output.write(primitiveType.midlName)
 
             case let .parameterized(type, args):
-                output.write("__F")
-                output.write(type.nameWithoutAritySuffix)
-                output.write("_")
-                output.write(String(type.arity))
-                for arg in args {
-                    output.write("_")
-                    arg.writeMidlMangling(parameter: true, to: &output)
-                }
+                writeMidlMangling(type, args: args, to: &output)
 
             case let .declared(namespace, name):
                 if !parameter { output.write("__x_ABI_C") }
@@ -51,6 +44,25 @@ extension WinRTTypeName {
                 }
 
                 appendComponent(name)
+        }
+    }
+
+    private func writeMidlMangling(_ type: WinRTParameterizedType, args: [WinRTTypeName], to output: inout some TextOutputStream) {
+        output.write("__F")
+
+        // Mangled names for delegates have an I prefix, except for the two collections changed event handler exceptions.
+        if type.kind == .delegate,
+                type != .collections_vectorChangedEventHandler,
+                type != .collections_mapChangedEventHandler {
+            output.write("I")
+        }
+
+        output.write(type.nameWithoutAritySuffix)
+        output.write("_")
+        output.write(String(type.arity))
+        for arg in args {
+            output.write("_")
+            arg.writeMidlMangling(parameter: true, to: &output)
         }
     }
 }

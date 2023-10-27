@@ -24,7 +24,7 @@ final class WinRTTypeNameTests: XCTestCase {
             args: [ .primitive(.string), .primitive(.string) ])
         XCTAssertEqual(typeName.midlMangling, "__FIMap_2_HSTRING_HSTRING")
     }
-    
+
     func testMidlManglingOfNestedGenerics() throws {
         let typeName: WinRTTypeName = .parameterized(.iasyncOperation,
             args: [ .parameterized(.collections_ivectorView, args: [ .primitive(.string) ]) ])

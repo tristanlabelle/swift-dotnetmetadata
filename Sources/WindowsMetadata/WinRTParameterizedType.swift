@@ -1,3 +1,5 @@
+import DotNetMetadata
+
 // https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system
 // > WinRT supports parameterization of interfaces and delegates.
 // > However, in this release WinRT does not support definition of parameterized types by 3rd parties.
@@ -34,23 +36,24 @@ extension WinRTParameterizedType {
     public var namespace: String { data.namespace }
     public var nameWithoutAritySuffix: String { data.name }
     public var nameWithAritySuffix: String { "\(data.name)`\(data.arity)" }
+    public var kind: TypeDefinitionKind { nameWithoutAritySuffix.starts(with: "I") ? .interface : .delegate }
     public var arity: Int { data.arity }
 
     public static func from(namespace: String, name: String) -> WinRTParameterizedType? {
         if namespace == "Windows.Foundation" {
             switch name {
-                case "IAsyncActionProgressHandler`1": return .asyncActionProgressHandler
-                case "IAsyncActionWithProgressCompletedHandler`1": return .asyncActionWithProgressCompletedHandler
-                case "IAsyncOperationCompletedHandler`1": return .asyncOperationCompletedHandler
-                case "IAsyncOperationProgressHandler`2": return .asyncOperationProgressHandler
-                case "IAsyncOperationWithProgressCompletedHandler`2": return .asyncOperationWithProgressCompletedHandler
-                case "IEventHandler`1": return .eventHandler
+                case "AsyncActionProgressHandler`1": return .asyncActionProgressHandler
+                case "AsyncActionWithProgressCompletedHandler`1": return .asyncActionWithProgressCompletedHandler
+                case "AsyncOperationCompletedHandler`1": return .asyncOperationCompletedHandler
+                case "AsyncOperationProgressHandler`2": return .asyncOperationProgressHandler
+                case "AsyncOperationWithProgressCompletedHandler`2": return .asyncOperationWithProgressCompletedHandler
+                case "EventHandler`1": return .eventHandler
                 case "IAsyncActionWithProgress`1": return .iasyncActionWithProgress
                 case "IAsyncOperation`1": return .iasyncOperation
                 case "IAsyncOperationWithProgress`2": return .iasyncOperationWithProgress
                 case "IReference`1": return .ireference
                 case "IReferenceArray`1": return .ireferenceArray
-                case "ITypedEventHandler`2": return .typedEventHandler
+                case "TypedEventHandler`2": return .typedEventHandler
                 default: return nil
             }
         }
@@ -66,8 +69,8 @@ extension WinRTParameterizedType {
                 case "IObservableVector`1": return .collections_iobservableVector
                 case "IVector`1": return .collections_ivector
                 case "IVectorView`1": return .collections_ivectorView
-                case "IMapChangedEventHandler`2": return .collections_mapChangedEventHandler
-                case "IVectorChangedEventHandler`1": return .collections_vectorChangedEventHandler
+                case "MapChangedEventHandler`2": return .collections_mapChangedEventHandler
+                case "VectorChangedEventHandler`1": return .collections_vectorChangedEventHandler
                 default: return nil
             }
         }

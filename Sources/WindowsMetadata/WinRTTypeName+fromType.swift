@@ -13,14 +13,9 @@ extension WinRTTypeName {
         // > It's not valid for a type to be in the global namespace.
         guard let namespace = type.definition.namespace else { return nil }
 
-        // Delegates are not IInspectable, so they don't have to report a runtime class name,
-        // their only name is in the context of midl, which prepends an "I" prefix and treats them as interfaces.
-        let name = type.definition is DelegateDefinition
-            ? "I" + type.definition.name : type.definition.name
-
         if type.definition.genericArity > 0 {
             guard let parameterizedType = WinRTParameterizedType.from(
-                namespace: type.definition.namespace ?? "", name: name) else { return nil }
+                namespace: namespace, name: type.definition.name) else { return nil }
 
             var genericArgs = [WinRTTypeName]()
             for genericArg in type.genericArgs {
@@ -31,6 +26,8 @@ extension WinRTTypeName {
             return .parameterized(parameterizedType, args: genericArgs)
         }
 
-        return .declared(namespace: namespace, name: name)
+        return .declared(
+            namespace: namespace,
+            name: type.definition is DelegateDefinition ? "I" + type.definition.name : type.definition.name)
     }
 }
