@@ -30,4 +30,16 @@ final class WinRTTypeNameTests: XCTestCase {
             args: [ .parameterized(.collections_ivectorView, args: [ .primitive(.string) ]) ])
         XCTAssertEqual(typeName.midlMangling, "__FIAsyncOperation_1___FIVectorView_1_HSTRING")
     }
+
+    func testMidlManglingOfGenericDelegates() throws {
+        // Should add an I prefix
+        XCTAssertEqual(
+            WinRTTypeName.parameterized(.asyncOperationCompletedHandler, args: [ .primitive(.string) ]).midlMangling,
+            "__FIAsyncOperationCompletedHandler_1_HSTRING")
+
+        // Except for the collections changed event handlers
+        XCTAssertEqual(
+            WinRTTypeName.parameterized(.collections_vectorChangedEventHandler, args: [ .primitive(.string) ]).midlMangling,
+            "__FVectorChangedEventHandler_1_HSTRING")
+    }
 }

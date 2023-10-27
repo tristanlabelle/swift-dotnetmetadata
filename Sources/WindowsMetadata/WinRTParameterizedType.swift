@@ -81,18 +81,18 @@ extension WinRTParameterizedType {
 
     private var data: (namespace: String, name: String, arity: Int) {
         switch self {
-            case .asyncActionProgressHandler: return ("Windows.Foundation", "IAsyncActionProgressHandler", 1)
-            case .asyncActionWithProgressCompletedHandler: return ("Windows.Foundation", "IAsyncActionWithProgressCompletedHandler", 1)
-            case .asyncOperationCompletedHandler: return ("Windows.Foundation", "IAsyncOperationCompletedHandler", 1)
-            case .asyncOperationProgressHandler: return ("Windows.Foundation", "IAsyncOperationProgressHandler", 2)
-            case .asyncOperationWithProgressCompletedHandler: return ("Windows.Foundation", "IAsyncOperationWithProgressCompletedHandler", 2)
-            case .eventHandler: return ("Windows.Foundation", "IEventHandler", 1)
+            case .asyncActionProgressHandler: return ("Windows.Foundation", "AsyncActionProgressHandler", 1)
+            case .asyncActionWithProgressCompletedHandler: return ("Windows.Foundation", "AsyncActionWithProgressCompletedHandler", 1)
+            case .asyncOperationCompletedHandler: return ("Windows.Foundation", "AsyncOperationCompletedHandler", 1)
+            case .asyncOperationProgressHandler: return ("Windows.Foundation", "AsyncOperationProgressHandler", 2)
+            case .asyncOperationWithProgressCompletedHandler: return ("Windows.Foundation", "AsyncOperationWithProgressCompletedHandler", 2)
+            case .eventHandler: return ("Windows.Foundation", "EventHandler", 1)
             case .iasyncActionWithProgress: return ("Windows.Foundation", "IAsyncActionWithProgress", 1)
             case .iasyncOperation: return ("Windows.Foundation", "IAsyncOperation", 1)
             case .iasyncOperationWithProgress: return ("Windows.Foundation", "IAsyncOperationWithProgress", 2)
             case .ireference: return ("Windows.Foundation", "IReference", 1)
             case .ireferenceArray: return ("Windows.Foundation", "IReferenceArray", 1)
-            case .typedEventHandler: return ("Windows.Foundation", "ITypedEventHandler", 2)
+            case .typedEventHandler: return ("Windows.Foundation", "TypedEventHandler", 2)
 
             case .collections_iiterable: return ("Windows.Foundation.Collections", "IIterable", 1)
             case .collections_iiterator: return ("Windows.Foundation.Collections", "IIterator", 1)
@@ -104,8 +104,8 @@ extension WinRTParameterizedType {
             case .collections_iobservableVector: return ("Windows.Foundation.Collections", "IObservableVector", 1)
             case .collections_ivector: return ("Windows.Foundation.Collections", "IVector", 1)
             case .collections_ivectorView: return ("Windows.Foundation.Collections", "IVectorView", 1)
-            case .collections_mapChangedEventHandler: return ("Windows.Foundation.Collections", "IMapChangedEventHandler", 2)
-            case .collections_vectorChangedEventHandler: return ("Windows.Foundation.Collections", "IVectorChangedEventHandler", 1)
+            case .collections_mapChangedEventHandler: return ("Windows.Foundation.Collections", "MapChangedEventHandler", 2)
+            case .collections_vectorChangedEventHandler: return ("Windows.Foundation.Collections", "VectorChangedEventHandler", 1)
         }
     }
 }
