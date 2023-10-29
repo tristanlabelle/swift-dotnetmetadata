@@ -1,21 +1,23 @@
 @testable import DotNetMetadata
+import WindowsMetadata
 import DotNetMetadataFormat
+import struct Foundation.UUID
 import XCTest
 
 final class WinMetadataTests: XCTestCase {
     internal static var context: AssemblyLoadContext!
+    internal static var mscorlib: Mscorlib!
     internal static var assembly: Assembly!
 
     override class func setUp() {
         guard let windowsFoundationPath = SystemAssemblies.WinMetadata.windowsFoundationPath else { return }
         let url = URL(fileURLWithPath: windowsFoundationPath)
 
+        context = AssemblyLoadContext(resolver: { _ in throw AssemblyLoadError.notFound() })
         // Resolve the mscorlib dependency from the .NET Framework 4 machine installation
-        context = AssemblyLoadContext(resolver: {
-            guard $0.name == Mscorlib.name, let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath else { throw AssemblyLoadError.notFound() }
-            return try ModuleFile(path: mscorlibPath)
-        })
-
+        if let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath {
+            mscorlib = try? context.load(path: mscorlibPath) as? Mscorlib
+        }
         assembly = try? context.load(url: url)
     }
 
@@ -27,5 +29,12 @@ final class WinMetadataTests: XCTestCase {
         XCTAssertEqual(
             try Self.assembly.findDefinedType(fullName: "Windows.Foundation.Point")?.base?.definition.fullName,
             "System.ValueType")
+    }
+
+    func testParameterizedInterfaceID() throws {
+        let iasyncOperation = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "Windows.Foundation.IAsyncOperation`1") as? InterfaceDefinition)
+        XCTAssertEqual(
+            try WindowsMetadata.getInterfaceID(iasyncOperation, genericArgs: [Self.mscorlib.specialTypes.boolean.bindNode()]),
+            UUID(uuidString: "cdb5efb3-5788-509d-9be1-71ccb8a3362a"))
     }
 }
