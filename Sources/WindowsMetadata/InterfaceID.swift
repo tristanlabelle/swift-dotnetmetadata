@@ -1,24 +1,19 @@
 import DotNetMetadata
 import struct Foundation.UUID
 
-public func getInterfaceID(_ type: InterfaceDefinition, genericArgs: [TypeNode]? = nil) throws -> UUID {
+public func getInterfaceID(_ typeDefinition: TypeDefinition, genericArgs: [TypeNode]? = nil) throws -> UUID {
+    guard typeDefinition is InterfaceDefinition || typeDefinition is DelegateDefinition else { throw WinMDError.unexpectedType }
     if let genericArgs = genericArgs, genericArgs.count > 0 {
-        return try getParameterizedInterfaceID(type.bindType(genericArgs: genericArgs))
+        return try getParameterizedInterfaceID(typeDefinition.bindType(genericArgs: genericArgs))
     }
     else {
-        guard let guid = try type.findAttribute(GuidAttribute.self) else { throw WinMDError.missingAttribute }
+        guard let guid = try typeDefinition.findAttribute(GuidAttribute.self) else { throw WinMDError.missingAttribute }
         return guid
     }
 }
 
-public func getInterfaceID(_ type: DelegateDefinition, genericArgs: [TypeNode]? = nil) throws -> UUID {
-    if let genericArgs = genericArgs, genericArgs.count > 0 {
-        return try getParameterizedInterfaceID(type.bindType(genericArgs: genericArgs))
-    }
-    else {
-        guard let guid = try type.findAttribute(GuidAttribute.self) else { throw WinMDError.missingAttribute }
-        return guid
-    }
+public func getInterfaceID(_ type: BoundType) throws -> UUID {
+    try getInterfaceID(type.definition, genericArgs: type.genericArgs)
 }
 
 // https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system#guid-generation-for-parameterized-types
@@ -29,7 +24,7 @@ fileprivate let parameterizedInterfaceGuidBytes: [UInt8] = [
     0xab, 0xae, 0x87, 0x8b, 0x1e, 0x16, 0xad, 0xee
 ];
 
-private func getParameterizedInterfaceID(_ type: BoundType) throws -> UUID {
+public func getParameterizedInterfaceID(_ type: BoundType) throws -> UUID {
     var signature: String = ""
     try appendSignature(type, to: &signature)
 
