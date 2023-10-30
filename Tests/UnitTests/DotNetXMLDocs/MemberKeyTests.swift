@@ -17,16 +17,16 @@ final class MemberKeyTests: XCTestCase {
     func testParseParameterlessMember() throws {
         XCTAssertEqual(
             try MemberKey(parsing: "F:TypeName.Field"),
-            .field(typeFullName: "TypeName", name: "Field"))
+            .field(declaringType: "TypeName", name: "Field"))
         XCTAssertEqual(
             try MemberKey(parsing: "P:Namespace.TypeName.Property"),
-            .property(typeFullName: "Namespace.TypeName", name: "Property"))
+            .property(declaringType: "Namespace.TypeName", name: "Property"))
         XCTAssertEqual(
             try MemberKey(parsing: "E:TypeName`1.Event"),
-            .event(typeFullName: "TypeName`1", name: "Event"))
+            .event(declaringType: "TypeName`1", name: "Event"))
         XCTAssertEqual(
             try MemberKey(parsing: "M:TypeName.Method"),
-            .method(typeFullName: "TypeName", name: "Method"))
+            .method(declaringType: "TypeName", name: "Method"))
 
         // Should have a type name followed by a member name
         XCTAssertThrowsError(
@@ -36,7 +36,7 @@ final class MemberKeyTests: XCTestCase {
     func testParseMethod() throws {
         XCTAssertEqual(
             try MemberKey(parsing: "M:TypeName.Method(InParamType,OutParamType@)"),
-            .method(typeFullName: "TypeName", name: "Method", params: [
+            .method(declaringType: "TypeName", name: "Method", params: [
                 .init(typeFullName: "InParamType"),
                 .init(typeFullName: "OutParamType", isByRef: true)
             ]))
@@ -45,14 +45,14 @@ final class MemberKeyTests: XCTestCase {
     func testParseConstructor() throws {
         XCTAssertEqual(
             try MemberKey(parsing: "M:TypeName.#ctor"),
-            .method(typeFullName: "TypeName", name: MemberKey.constructorName))
+            .method(declaringType: "TypeName", name: MemberKey.constructorName))
     }
 
     func testParseConversionOperator() throws {
         XCTAssertEqual(
             try MemberKey(parsing: "M:TypeName.op_Implicit()~ReturnType"),
             .method(
-                typeFullName: "TypeName",
+                declaringType: "TypeName",
                 name: "op_Implicit",
                 params: [],
                 conversionTarget: .init(typeFullName: "ReturnType")))
@@ -61,7 +61,7 @@ final class MemberKeyTests: XCTestCase {
     func testParseIndexer() throws {
         XCTAssertEqual(
             try MemberKey(parsing: "M:TypeName.Property(System.Int32)"),
-            .method(typeFullName: "TypeName", name: "Property", params: [
+            .method(declaringType: "TypeName", name: "Property", params: [
                 .init(typeFullName: "System.Int32")
             ]))
     }

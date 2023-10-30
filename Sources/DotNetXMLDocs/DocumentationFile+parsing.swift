@@ -1,6 +1,13 @@
 import FoundationXML
+import struct Foundation.URL
 
 extension DocumentationFile {
+    public init(readingFileAtPath filePath: String) throws {
+        let url = URL(fileURLWithPath: filePath)
+        let document = try XMLDocument(contentsOf: url, options: [])
+        try self.init(parsing: document)
+    }
+
     public init(parsing document: XMLDocument) throws {
         var builder = Builder()
         parse(document: document, to: &builder)

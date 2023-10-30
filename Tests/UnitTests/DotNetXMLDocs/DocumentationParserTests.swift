@@ -34,7 +34,7 @@ final class DocumentationParserTests: XCTestCase {
         XCTAssertEqual(typeEntry.typeParams, ["TypeParamName": TextNode.plain("TypeParamDesc")])
 
         let methodEntry = try XCTUnwrap(documentationFile.members[
-            MemberKey.method(typeFullName: "Namespace.TypeName", name: "Method",
+            MemberKey.method(declaringType: "Namespace.TypeName", name: "Method",
                 params: [ .init(typeFullName: "Namespace2.TypeName2") ])])
         XCTAssertEqual(methodEntry.summary, TextNode.plain("Summary"))
         XCTAssertEqual(methodEntry.params, ["ParamName": TextNode.plain("ParamDesc")])

@@ -25,16 +25,16 @@ extension MemberKey {
             memberDotIndex != identifier.startIndex,
             identifier.index(after: memberDotIndex) != identifier.endIndex
             else { throw InvalidFormatError() }
-        let typeFullName = String(identifier[..<memberDotIndex])
+        let declaringType = String(identifier[..<memberDotIndex])
         let memberName = String(identifier[identifier.index(after: memberDotIndex)...])
 
         if kindChar == "F" {
             guard remainder.isEmpty else { throw InvalidFormatError() }
-            return .field(typeFullName: typeFullName, name: memberName)
+            return .field(declaringType: declaringType, name: memberName)
         }
         if kindChar == "E" {
             guard remainder.isEmpty else { throw InvalidFormatError() }
-            return .event(typeFullName: typeFullName, name: memberName)
+            return .event(declaringType: declaringType, name: memberName)
         }
 
         var params: [Param] = []
@@ -47,7 +47,7 @@ extension MemberKey {
 
         if kindChar == "P" {
             guard remainder.isEmpty else { throw InvalidFormatError() }
-            return .property(typeFullName: typeFullName, name: memberName, params: params)
+            return .property(declaringType: declaringType, name: memberName, params: params)
         }
 
         // op_Implicit/op_Explicit
@@ -61,7 +61,7 @@ extension MemberKey {
 
         if kindChar == "M" {
             guard remainder.isEmpty else { throw InvalidFormatError() }
-            return .method(typeFullName: typeFullName, name: memberName, params: params, conversionTarget: conversionTarget)
+            return .method(declaringType: declaringType, name: memberName, params: params, conversionTarget: conversionTarget)
         }
 
         throw InvalidFormatError()

@@ -4,10 +4,10 @@ public enum MemberKey: Hashable {
 
     case namespace(name: String)
     case type(fullName: String)
-    case field(typeFullName: String, name: String)
-    case method(typeFullName: String, name: String, params: [Param] = [], conversionTarget: Param? = nil)
-    case property(typeFullName: String, name: String, params: [Param] = [])
-    case event(typeFullName: String, name: String)
+    case field(declaringType: String, name: String)
+    case method(declaringType: String, name: String, params: [Param] = [], conversionTarget: Param? = nil)
+    case property(declaringType: String, name: String, params: [Param] = [])
+    case event(declaringType: String, name: String)
     case unresolved(String)
 
     public struct Param: Hashable {
