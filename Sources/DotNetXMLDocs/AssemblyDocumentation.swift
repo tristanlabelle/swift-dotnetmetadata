@@ -1,6 +1,6 @@
-public struct DocumentationFile {
+public struct AssemblyDocumentation {
     public var assemblyName: String
-    public var members: [MemberKey: MemberEntry] = [:]
+    public var members: [MemberDocumentationKey: MemberDocumentation] = [:]
 
     public init(assemblyName: String) {
         self.assemblyName = assemblyName

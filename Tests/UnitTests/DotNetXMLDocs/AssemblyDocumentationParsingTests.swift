@@ -2,7 +2,7 @@
 import XCTest
 import FoundationXML
 
-final class DocumentationParserTests: XCTestCase {
+final class AssemblyDocumentationParsingTests: XCTestCase {
     func testParseFullDocument() throws {
         let xmlDocument = try XMLDocument(xmlString: #"""
             <?xml version="1.0" encoding="utf-8"?>
@@ -24,20 +24,20 @@ final class DocumentationParserTests: XCTestCase {
             </doc>
             """#)
 
-        let documentationFile = try DocumentationFile(parsing: xmlDocument)
+        let assemblyDocumentation = try AssemblyDocumentation(parsing: xmlDocument)
 
-        XCTAssertEqual(documentationFile.assemblyName, "AssemblyName")
-        XCTAssertEqual(documentationFile.members.count, 2)
+        XCTAssertEqual(assemblyDocumentation.assemblyName, "AssemblyName")
+        XCTAssertEqual(assemblyDocumentation.members.count, 2)
 
-        let typeEntry = try XCTUnwrap(documentationFile.members[MemberKey.type(fullName: "Namespace.TypeName`1")])
-        XCTAssertEqual(typeEntry.summary, TextNode.plain("Summary"))
-        XCTAssertEqual(typeEntry.typeParams, ["TypeParamName": TextNode.plain("TypeParamDesc")])
+        let typeEntry = try XCTUnwrap(assemblyDocumentation.members[.type(fullName: "Namespace.TypeName`1")])
+        XCTAssertEqual(typeEntry.summary, .plain("Summary"))
+        XCTAssertEqual(typeEntry.typeParams, ["TypeParamName": .plain("TypeParamDesc")])
 
-        let methodEntry = try XCTUnwrap(documentationFile.members[
-            MemberKey.method(declaringType: "Namespace.TypeName", name: "Method",
+        let methodEntry = try XCTUnwrap(assemblyDocumentation.members[
+            .method(declaringType: "Namespace.TypeName", name: "Method",
                 params: [ .init(typeFullName: "Namespace2.TypeName2") ])])
-        XCTAssertEqual(methodEntry.summary, TextNode.plain("Summary"))
-        XCTAssertEqual(methodEntry.params, ["ParamName": TextNode.plain("ParamDesc")])
-        XCTAssertEqual(methodEntry.returns, TextNode.plain("Returns"))
+        XCTAssertEqual(methodEntry.summary, .plain("Summary"))
+        XCTAssertEqual(methodEntry.params, ["ParamName": .plain("ParamDesc")])
+        XCTAssertEqual(methodEntry.returns, .plain("Returns"))
     }
 }

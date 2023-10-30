@@ -1,5 +1,5 @@
 
-public enum MemberKey: Hashable {
+public enum MemberDocumentationKey: Hashable {
     public static let constructorName: String = "#ctor"
 
     case namespace(name: String)

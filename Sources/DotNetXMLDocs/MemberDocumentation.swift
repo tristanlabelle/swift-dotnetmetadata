@@ -1,22 +1,22 @@
-public struct MemberEntry {
+public struct MemberDocumentation {
     /// The <summary> tag should be used to describe a type or a type member.
-    public var summary: TextNode?
+    public var summary: DocumentationTextNode?
 
     /// The <remarks> tag is used to add information about a type or a type member,
     /// supplementing the information specified with <summary>.
-    public var remarks: TextNode?
+    public var remarks: DocumentationTextNode?
 
     /// The <value> tag lets you describe the value that a property represents.
-    public var value: TextNode?
+    public var value: DocumentationTextNode?
 
     /// The <typeparam> tag should be used in the comment for a generic type or method declaration to describe a type parameter.
-    public var typeParams: [String: TextNode] = [:]
+    public var typeParams: [String: DocumentationTextNode] = [:]
 
     /// The <param> tag should be used in the comment for a method declaration to describe one of the parameters for the method.
-    public var params: [String: TextNode] = [:]
+    public var params: [String: DocumentationTextNode] = [:]
 
     /// The <returns> tag should be used in the comment for a method declaration to describe the return value.
-    public var returns: TextNode?
+    public var returns: DocumentationTextNode?
 
     // <exception>
 }
