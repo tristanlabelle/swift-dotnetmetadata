@@ -1,4 +1,3 @@
-
 public enum MemberDocumentationKey: Hashable {
     public static let constructorName: String = "#ctor"
 

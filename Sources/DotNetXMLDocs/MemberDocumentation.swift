@@ -10,13 +10,34 @@ public struct MemberDocumentation {
     public var value: DocumentationTextNode?
 
     /// The <typeparam> tag should be used in the comment for a generic type or method declaration to describe a type parameter.
-    public var typeParams: [String: DocumentationTextNode] = [:]
+    public var typeParams: [Param] = []
 
     /// The <param> tag should be used in the comment for a method declaration to describe one of the parameters for the method.
-    public var params: [String: DocumentationTextNode] = [:]
+    public var params: [Param] = []
 
     /// The <returns> tag should be used in the comment for a method declaration to describe the return value.
     public var returns: DocumentationTextNode?
 
-    // <exception>
+    /// This tag provides a way to document the exceptions a method can throw.
+    public var exceptions: [Exception] = []
+
+    public struct Param: Equatable {
+        public var name: String
+        public var description: DocumentationTextNode
+
+        public init(name: String, description: DocumentationTextNode) {
+            self.name = name
+            self.description = description
+        }
+    }
+
+    public struct Exception: Equatable {
+        public var type: MemberDocumentationKey
+        public var description: DocumentationTextNode
+
+        public init(type: MemberDocumentationKey, description: DocumentationTextNode) {
+            self.type = type
+            self.description = description
+        }
+    }
 }

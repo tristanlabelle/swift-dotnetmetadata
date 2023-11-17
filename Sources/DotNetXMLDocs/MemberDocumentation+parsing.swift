@@ -12,13 +12,19 @@ extension MemberDocumentation {
                 case "returns": returns = try? DocumentationTextNode(parsing: element.children ?? [])
                 case "typeparam":
                     if let name = element.attribute(forName: "name")?.stringValue,
-                        let DocumentationTextNode = try? DocumentationTextNode(parsing: element.children ?? []) {
-                        typeParams[name] = DocumentationTextNode
+                            let content = try? DocumentationTextNode(parsing: element.children ?? []) {
+                        typeParams.append(.init(name: name, description: content))
                     }
                 case "param":
                     if let name = element.attribute(forName: "name")?.stringValue,
-                        let DocumentationTextNode = try? DocumentationTextNode(parsing: element.children ?? []) {
-                        params[name] = DocumentationTextNode
+                            let content = try? DocumentationTextNode(parsing: element.children ?? []) {
+                        params.append(.init(name: name, description: content))
+                    }
+                case "exception":
+                    if let crefString = element.attribute(forName: "cref")?.stringValue,
+                            let cref = try? MemberDocumentationKey(parsing: crefString),
+                            let content = try? DocumentationTextNode(parsing: element.children ?? []) {
+                        exceptions.append(.init(type: cref, description: content))
                     }
                 default: break
             }

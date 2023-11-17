@@ -1,6 +1,6 @@
 import struct Foundation.URL
 
-public enum DocumentationTextNode: Hashable {
+public enum DocumentationTextNode: Equatable {
     case plain(String)
     case sequence([DocumentationTextNode])
 

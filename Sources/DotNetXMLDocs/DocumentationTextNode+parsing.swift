@@ -14,8 +14,8 @@ extension DocumentationTextNode {
         if node.kind == .text {
             return .plain(node.stringValue ?? "")
         }
-        else if let element = node as? XMLElement, let elementName = element.name {
-            switch elementName {
+        else if let element = node as? XMLElement {
+            switch element.name! {
                 // Blocks
                 case "para": return .paragraph(try DocumentationTextNode(parsing: element.children ?? []))
                 case "code": return .codeBlock(element.xmlString) // TODO: Handle properly
@@ -28,11 +28,11 @@ extension DocumentationTextNode {
                 case "c": return .codeSpan(text: element.xmlString) // TODO: Handle properly
                 case "paramref", "typeparamref":
                     let name = element.attribute(forName: "name")?.stringValue ?? ""
-                    return elementName == "paramref" ? .paramReference(name: name) : .typeParamReference(name: name)
+                    return element.name == "paramref" ? .paramReference(name: name) : .typeParamReference(name: name)
                 case "see", "seealso":
                     let cref = element.attribute(forName: "cref")?.stringValue ?? ""
                     let url = element.attribute(forName: "url")?.stringValue.flatMap { URL(string: $0) }
-                    let also = elementName == "seealso"
+                    let also = element.name == "seealso"
                     return .see(codeReference: try MemberDocumentationKey(parsing: cref), url: url, also: also)
 
                 default: 

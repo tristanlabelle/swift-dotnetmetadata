@@ -31,13 +31,13 @@ final class AssemblyDocumentationParsingTests: XCTestCase {
 
         let typeEntry = try XCTUnwrap(assemblyDocumentation.members[.type(fullName: "Namespace.TypeName`1")])
         XCTAssertEqual(typeEntry.summary, .plain("Summary"))
-        XCTAssertEqual(typeEntry.typeParams, ["TypeParamName": .plain("TypeParamDesc")])
+        XCTAssertEqual(typeEntry.typeParams, [.init(name: "TypeParamName", description: .plain("TypeParamDesc"))])
 
         let methodEntry = try XCTUnwrap(assemblyDocumentation.members[
             .method(declaringType: "Namespace.TypeName", name: "Method",
                 params: [ .init(typeFullName: "Namespace2.TypeName2") ])])
         XCTAssertEqual(methodEntry.summary, .plain("Summary"))
-        XCTAssertEqual(methodEntry.params, ["ParamName": .plain("ParamDesc")])
+        XCTAssertEqual(methodEntry.params, [.init(name: "ParamName", description: .plain("ParamDesc"))])
         XCTAssertEqual(methodEntry.returns, .plain("Returns"))
     }
 }
