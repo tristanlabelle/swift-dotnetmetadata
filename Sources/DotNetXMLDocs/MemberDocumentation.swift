@@ -21,6 +21,8 @@ public struct MemberDocumentation {
     /// This tag provides a way to document the exceptions a method can throw.
     public var exceptions: [Exception] = []
 
+    public init() {}
+
     public struct Param: Equatable {
         public var name: String
         public var description: DocumentationTextNode
