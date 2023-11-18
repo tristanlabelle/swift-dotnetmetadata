@@ -23,8 +23,9 @@ extension MemberDocumentation {
                 case "exception":
                     if let crefString = element.attribute(forName: "cref")?.stringValue,
                             let cref = try? MemberDocumentationKey(parsing: crefString),
+                            case .type(let type) = cref,
                             let content = tryParseContentText(element) {
-                        exceptions.append(.init(type: cref, description: content))
+                        exceptions.append(.init(type: type, description: content))
                     }
                 default: break
             }

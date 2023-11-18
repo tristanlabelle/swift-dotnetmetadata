@@ -27,7 +27,9 @@ final class MemberDocumentationTests: XCTestCase {
         XCTAssertEqual(memberDocumentation.typeParams, [.init(name: "TypeParamName", description: .plain("TypeParamDesc"))])
         XCTAssertEqual(memberDocumentation.params, [.init(name: "ParamName", description: .plain("ParamDesc"))])
         XCTAssertEqual(memberDocumentation.returns, .plain("Returns"))
-        XCTAssertEqual(memberDocumentation.exceptions, [.init(type: .type(fullName: "MyException"), description: .plain("Exception"))])
+        XCTAssertEqual(memberDocumentation.exceptions, [
+            .init(type: .init(nameWithoutGenericSuffix: "MyException"), description: .plain("Exception"))
+        ])
     }
 
     func testParseIgnoresEmptyTags() throws {

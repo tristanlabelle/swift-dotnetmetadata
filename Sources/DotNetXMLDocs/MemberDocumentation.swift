@@ -34,10 +34,10 @@ public struct MemberDocumentation {
     }
 
     public struct Exception: Equatable {
-        public var type: MemberDocumentationKey
+        public var type: DocumentationTypeReference
         public var description: DocumentationTextNode
 
-        public init(type: MemberDocumentationKey, description: DocumentationTextNode) {
+        public init(type: DocumentationTypeReference, description: DocumentationTextNode) {
             self.type = type
             self.description = description
         }

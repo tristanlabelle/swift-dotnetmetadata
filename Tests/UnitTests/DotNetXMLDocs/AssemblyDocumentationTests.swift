@@ -26,7 +26,7 @@ final class AssemblyDocumentationTests: XCTestCase {
         XCTAssertEqual(assemblyDocumentation.assemblyName, "AssemblyName")
         XCTAssertEqual(assemblyDocumentation.members.count, 2)
 
-        XCTAssertNotNil(assemblyDocumentation.members[.type(fullName: "TypeA")])
-        XCTAssertNotNil(assemblyDocumentation.members[.type(fullName: "TypeB")])
+        XCTAssertNotNil(assemblyDocumentation.members[.type(nameWithoutGenericSuffix: "TypeA")])
+        XCTAssertNotNil(assemblyDocumentation.members[.type(nameWithoutGenericSuffix: "TypeB")])
     }
 }

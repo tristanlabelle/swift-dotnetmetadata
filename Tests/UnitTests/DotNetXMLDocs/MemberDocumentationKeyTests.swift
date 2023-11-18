@@ -9,24 +9,30 @@ final class MemberDocumentationKeyTests: XCTestCase {
     }
 
     func testParseType() throws {
-        XCTAssertEqual(try MemberDocumentationKey(parsing: "T:TypeName"), .type(fullName: "TypeName"))
-        XCTAssertEqual(try MemberDocumentationKey(parsing: "T:Namespace.TypeName"), .type(fullName: "Namespace.TypeName"))
-        XCTAssertEqual(try MemberDocumentationKey(parsing: "T:Namespace.GenericTypeName`1"), .type(fullName: "Namespace.GenericTypeName`1"))
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "T:Type"),
+            .type(nameWithoutGenericSuffix: "Type"))
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "T:Namespace.Type"),
+            .type(namespace: "Namespace", nameWithoutGenericSuffix: "Type"))
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "T:Namespace.GenericType`1"),
+            .type(namespace: "Namespace", nameWithoutGenericSuffix: "GenericType", genericity: .unbound(arity: 1)))
     }
 
     func testParseParameterlessMember() throws {
         XCTAssertEqual(
-            try MemberDocumentationKey(parsing: "F:TypeName.Field"),
-            .field(declaringType: "TypeName", name: "Field"))
+            try MemberDocumentationKey(parsing: "F:Type.Field"),
+            .field(declaringType: .init(nameWithoutGenericSuffix: "Type"), name: "Field"))
         XCTAssertEqual(
-            try MemberDocumentationKey(parsing: "P:Namespace.TypeName.Property"),
-            .property(declaringType: "Namespace.TypeName", name: "Property"))
+            try MemberDocumentationKey(parsing: "P:Type.Property"),
+            .property(declaringType: .init(nameWithoutGenericSuffix: "Type"), name: "Property"))
         XCTAssertEqual(
-            try MemberDocumentationKey(parsing: "E:TypeName`1.Event"),
-            .event(declaringType: "TypeName`1", name: "Event"))
+            try MemberDocumentationKey(parsing: "E:Type.Event"),
+            .event(declaringType: .init(nameWithoutGenericSuffix: "Type"), name: "Event"))
         XCTAssertEqual(
-            try MemberDocumentationKey(parsing: "M:TypeName.Method"),
-            .method(declaringType: "TypeName", name: "Method"))
+            try MemberDocumentationKey(parsing: "M:Type.Method"),
+            .method(declaringType: .init(nameWithoutGenericSuffix: "Type"), name: "Method"))
 
         // Should have a type name followed by a member name
         XCTAssertThrowsError(
@@ -36,54 +42,33 @@ final class MemberDocumentationKeyTests: XCTestCase {
     func testParseMethod() throws {
         XCTAssertEqual(
             try MemberDocumentationKey(parsing: "M:TypeName.Method(InParamType,OutParamType@)"),
-            .method(declaringType: "TypeName", name: "Method", params: [
-                .init(typeFullName: "InParamType"),
-                .init(typeFullName: "OutParamType", isByRef: true)
+            .method(declaringType: .init(nameWithoutGenericSuffix: "TypeName"), name: "Method", params: [
+                .init(type: .bound(nameWithoutGenericSuffix: "InParamType")),
+                .init(type: .bound(nameWithoutGenericSuffix: "OutParamType"), isByRef: true)
             ]))
     }
 
     func testParseConstructor() throws {
         XCTAssertEqual(
             try MemberDocumentationKey(parsing: "M:TypeName.#ctor"),
-            .method(declaringType: "TypeName", name: MemberDocumentationKey.constructorName))
+            .method(declaringType: .init(nameWithoutGenericSuffix: "TypeName"), name: MemberDocumentationKey.constructorName))
     }
 
     func testParseConversionOperator() throws {
         XCTAssertEqual(
             try MemberDocumentationKey(parsing: "M:TypeName.op_Implicit()~ReturnType"),
             .method(
-                declaringType: "TypeName",
+                declaringType: .init(nameWithoutGenericSuffix: "TypeName"),
                 name: "op_Implicit",
                 params: [],
-                conversionTarget: .init(typeFullName: "ReturnType")))
+                conversionTarget: .init(type: .bound(nameWithoutGenericSuffix: "ReturnType"))))
     }
 
     func testParseIndexer() throws {
         XCTAssertEqual(
             try MemberDocumentationKey(parsing: "M:TypeName.Property(System.Int32)"),
-            .method(declaringType: "TypeName", name: "Property", params: [
-                .init(typeFullName: "System.Int32")
+            .method(declaringType: .init(nameWithoutGenericSuffix: "TypeName"), name: "Property", params: [
+                .init(type: .bound(namespace: "System", nameWithoutGenericSuffix: "Int32"))
             ]))
-    }
-
-    func testParseParamTypes() throws {
-        XCTAssertEqual(
-            try MemberDocumentationKey.ParamType(parsing: "TypeName"),
-            .bound(fullName: "TypeName"))
-        XCTAssertEqual(
-            try MemberDocumentationKey.ParamType(parsing: "TypeName{TypeName2}"),
-            .bound(fullName: "TypeName", genericArgs: [ .bound(fullName: "TypeName2") ]))
-        XCTAssertEqual(
-            try MemberDocumentationKey.ParamType(parsing: "TypeName[]"),
-            .array(of: .bound(fullName: "TypeName")))
-        XCTAssertEqual(
-            try MemberDocumentationKey.ParamType(parsing: "TypeName*"),
-            .pointer(to: .bound(fullName: "TypeName")))
-        XCTAssertEqual(
-            try MemberDocumentationKey.ParamType(parsing: "`42"),
-            .genericArg(index: 42, kind: .type))
-        XCTAssertEqual(
-            try MemberDocumentationKey.ParamType(parsing: "``42"),
-            .genericArg(index: 42, kind: .method))
     }
 }

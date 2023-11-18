@@ -10,23 +10,24 @@ extension MemberDocumentationKey {
             throw DocumentationFormatError()
         }
 
-        let identifier = try consumeDottedIdentifier(&remainder)
         if kindChar == "N" {
-            guard remainder.isEmpty else { throw DocumentationFormatError() }
-            return .namespace(name: String(identifier))
+            let originalRemainder = remainder
+            while true {
+                _ = try consumeIdentifier(&remainder)
+                guard remainder.tryConsume(".") else { break }
+            }
+
+            return .namespace(name: String(originalRemainder[..<remainder.startIndex]))
         }
         if kindChar == "T" {
-            guard remainder.isEmpty else { throw DocumentationFormatError() }
-            return .type(fullName: String(identifier))
+            return .type(try DocumentationTypeReference(consuming: &remainder))
         }
 
+        let declaringType = try DocumentationTypeReference(consuming: &remainder, ignoreMemberSuffix: true)
+
         // These should be a type name followed by a member name
-        guard let memberDotIndex = identifier.lastIndex(of: "."),
-            memberDotIndex != identifier.startIndex,
-            identifier.index(after: memberDotIndex) != identifier.endIndex
-            else { throw DocumentationFormatError() }
-        let declaringType = String(identifier[..<memberDotIndex])
-        let memberName = String(identifier[identifier.index(after: memberDotIndex)...])
+        guard remainder.tryConsume(".") else { throw DocumentationFormatError() }
+        let memberName = String(try consumeIdentifier(&remainder, allowConstructor: kindChar == "M"))
 
         if kindChar == "F" {
             guard remainder.isEmpty else { throw DocumentationFormatError() }
@@ -80,7 +81,7 @@ extension MemberDocumentationKey.Param {
     }
 
     fileprivate static func consume(_ remainder: inout Substring) throws -> Self {
-        let type = try MemberDocumentationKey.ParamType(consuming: &remainder)
+        let type = try DocumentationTypeNode(consuming: &remainder)
         let isByRef = remainder.tryConsume("@")
         if remainder.tryConsume("!") {
             // TODO: CustomMod support
@@ -88,79 +89,5 @@ extension MemberDocumentationKey.Param {
         }
 
         return Self(type: type, isByRef: isByRef)
-    }
-}
-
-extension MemberDocumentationKey.ParamType {
-    public init(parsing str: String) throws {
-        var remainder = Substring(str)
-        self = try Self(consuming: &remainder)
-        guard remainder.isEmpty else { throw DocumentationFormatError() }
-    }
-
-    fileprivate init(consuming str: inout Substring) throws {
-        self = try Self.consume(&str)
-    }
-
-    fileprivate static func consume(_ remainder: inout Substring) throws -> Self {
-        var type: MemberDocumentationKey.ParamType
-        if remainder.tryConsume("`") {
-            let kind = remainder.tryConsume("`") ? MemberDocumentationKey.GenericArgKind.method : .type
-            let digits = remainder.consume(while: { $0.isNumber })
-            guard let index = Int(digits) else { throw DocumentationFormatError() }
-            type = .genericArg(index: index, kind: kind)
-        }
-        else {
-            let typeIdentifier = try consumeDottedIdentifier(&remainder)
-            var genericArgs: [MemberDocumentationKey.ParamType] = []
-            if remainder.tryConsume("{") {
-                while !remainder.tryConsume("}") {
-                    if !genericArgs.isEmpty && !remainder.tryConsume(",") { throw DocumentationFormatError() }
-                    genericArgs.append(try MemberDocumentationKey.ParamType(consuming: &remainder))
-                }
-            }
-
-            type = .bound(fullName: String(typeIdentifier), genericArgs: genericArgs)
-        }
-
-        while true {
-            if remainder.tryConsume("[") {
-                guard remainder.tryConsume("]") else { throw DocumentationFormatError() }
-                type = .array(of: type)
-            }
-            else if remainder.tryConsume("*") {
-                type = .pointer(to: type)
-            }
-            else {
-                break
-            }
-        }
-
-        return type
-    }
-}
-
-fileprivate func consumeDottedIdentifier(_ remainder: inout Substring) throws -> Substring {
-    let identifier = remainder.consume(while: { $0.isLetter || $0.isNumber || $0 == "_" || $0 == "`" || $0 == "." || $0 == "#" })
-    guard !identifier.isEmpty else { throw DocumentationFormatError() }
-    return identifier
-}
-
-extension Substring {
-    fileprivate mutating func consume(while predicate: (Character) -> Bool) -> Substring {
-        var index = startIndex
-        while index < endIndex && predicate(self[index]) {
-            index = self.index(after: index)
-        }
-
-        let result = self[..<index]
-        self = self[index...]
-        return result
-    }
-
-    fileprivate mutating func tryConsume(_ prefix: Character) -> Bool {
-        guard self.first == prefix else { return false }
-        self = self.dropFirst()
-        return true
     }
 }
