@@ -20,12 +20,12 @@ final class DocumentationTypeNodeTests: XCTestCase {
             .pointer(to: .bound(nameWithoutGenericSuffix: "Name")))
     }
 
-    func testParseGenericArg() throws {
+    func testParseGenericParam() throws {
         XCTAssertEqual(
-            try DocumentationTypeNode(parsing: "`42"),
-            .genericArg(index: 42, kind: .type))
+            try DocumentationTypeNode(parsing: "`0"),
+            .genericParam(index: 0, kind: .type))
         XCTAssertEqual(
             try DocumentationTypeNode(parsing: "``42"),
-            .genericArg(index: 42, kind: .method))
+            .genericParam(index: 42, kind: .method))
     }
 }

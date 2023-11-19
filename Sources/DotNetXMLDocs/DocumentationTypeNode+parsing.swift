@@ -13,10 +13,10 @@ extension DocumentationTypeNode {
     internal static func consume(_ remainder: inout Substring) throws -> Self {
         var typeNode: Self
         if remainder.tryConsume("`") {
-            let kind = remainder.tryConsume("`") ? GenericArgKind.method : .type
+            let kind = remainder.tryConsume("`") ? GenericParamKind.method : .type
             let digits = remainder.consume(while: { $0.isNumber })
-            guard let index = Int(digits), index > 0 else { throw DocumentationFormatError() }
-            typeNode = .genericArg(index: index, kind: kind)
+            guard let index = Int(digits) else { throw DocumentationFormatError() }
+            typeNode = .genericParam(index: index, kind: kind)
         }
         else {
             let typeReference = try DocumentationTypeReference(consuming: &remainder)

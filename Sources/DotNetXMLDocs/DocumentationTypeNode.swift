@@ -2,9 +2,9 @@ public enum DocumentationTypeNode: Hashable {
     case bound(DocumentationTypeReference)
     indirect case array(of: DocumentationTypeNode)
     indirect case pointer(to: DocumentationTypeNode)
-    case genericArg(index: Int, kind: GenericArgKind)
+    case genericParam(index: Int, kind: GenericParamKind)
 
-    public enum GenericArgKind: Hashable {
+    public enum GenericParamKind: Hashable {
         case type
         case method
     }

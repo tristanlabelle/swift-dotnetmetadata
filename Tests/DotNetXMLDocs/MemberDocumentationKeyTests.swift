@@ -45,12 +45,35 @@ final class MemberDocumentationKeyTests: XCTestCase {
             .method(declaringType: .init(namespace: "Namespace", nameWithoutGenericSuffix: "Type", genericity: .unbound(arity: 1)), name: "Method"))
     }
 
-    func testParseMethod() throws {
+    func testParseInParam() throws {
         XCTAssertEqual(
-            try MemberDocumentationKey(parsing: "M:TypeName.Method(InParamType,OutParamType@)"),
-            .method(declaringType: .init(nameWithoutGenericSuffix: "TypeName"), name: "Method", params: [
-                .init(type: .bound(nameWithoutGenericSuffix: "InParamType")),
-                .init(type: .bound(nameWithoutGenericSuffix: "OutParamType"), isByRef: true)
+            try MemberDocumentationKey(parsing: "M:DeclaringType.Method(ParamType)"),
+            .method(declaringType: .init(nameWithoutGenericSuffix: "DeclaringType"), name: "Method", params: [
+                .init(type: .bound(nameWithoutGenericSuffix: "ParamType"))
+            ]))
+    }
+
+    func testParseArrayParam() throws {
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "M:DeclaringType.Method(ParamType[])"),
+            .method(declaringType: .init(nameWithoutGenericSuffix: "DeclaringType"), name: "Method", params: [
+                .init(type: .array(of: .bound(nameWithoutGenericSuffix: "ParamType")))
+            ]))
+    }
+
+    func testParseOutParam() throws {
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "M:DeclaringType.Method(ParamType@)"),
+            .method(declaringType: .init(nameWithoutGenericSuffix: "DeclaringType"), name: "Method", params: [
+                .init(type: .bound(nameWithoutGenericSuffix: "ParamType"), isByRef: true)
+            ]))
+    }
+
+    func testParseGenericTypeParam() throws {
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "M:DeclaringType`1.Method(`0)"),
+            .method(declaringType: .init(nameWithoutGenericSuffix: "DeclaringType", genericity: .unbound(arity: 1)), name: "Method", params: [
+                .init(type: .genericParam(index: 0, kind: .type))
             ]))
     }
 
