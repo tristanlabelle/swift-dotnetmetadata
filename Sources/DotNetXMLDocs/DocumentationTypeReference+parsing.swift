@@ -31,7 +31,7 @@ extension DocumentationTypeReference {
             let newName: Substring
             if ignoreMemberSuffix {
                 if let possibleName = try? consumeIdentifier(&remainder),
-                    remainder.first == "." {
+                    remainder.first == "." || remainder.first == "`" || remainder.first == "{" {
                     newName = possibleName
                 }
                 else {

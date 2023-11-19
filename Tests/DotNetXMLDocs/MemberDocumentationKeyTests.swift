@@ -39,6 +39,12 @@ final class MemberDocumentationKeyTests: XCTestCase {
             try MemberDocumentationKey(parsing: "F:Identifier"))
     }
 
+    func testParseGenericTypeMember() throws {
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "M:Namespace.Type`1.Method"),
+            .method(declaringType: .init(namespace: "Namespace", nameWithoutGenericSuffix: "Type", genericity: .unbound(arity: 1)), name: "Method"))
+    }
+
     func testParseMethod() throws {
         XCTAssertEqual(
             try MemberDocumentationKey(parsing: "M:TypeName.Method(InParamType,OutParamType@)"),
