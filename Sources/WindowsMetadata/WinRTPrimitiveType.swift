@@ -4,6 +4,7 @@ public enum WinRTPrimitiveType: Hashable {
     case boolean
     case int(size: IntegerSize, signed: Bool)
     case float(double: Bool)
+    case char
     case guid
     case string
     case object
@@ -22,6 +23,7 @@ extension WinRTPrimitiveType: CustomStringConvertible {
                     case .intPtr: fatalError()
                 }
             case .float(let double): return double ? "Double" : "Single"
+            case .char: return "Char"
             case .guid: return "Guid"
             case .string: return "String"
             case .object: return "Object"
@@ -45,6 +47,7 @@ extension WinRTPrimitiveType {
             case "Int64": return .int(size: .int64, signed: true)
             case "Single": return .float(double: false)
             case "Double": return .float(double: true)
+            case "Char": return .char
             case "Guid": return .guid
             case "String": return .string
             case "Object": return .object
@@ -66,6 +69,7 @@ extension WinRTPrimitiveType {
                     case .intPtr: fatalError()
                 }
             case .float(let double): return double ? "double" : "float"
+            case .char: return "WCHAR"
             case .guid: return "GUID"
             case .string: return "HSTRING"
             case .object: return "IInspectable"
