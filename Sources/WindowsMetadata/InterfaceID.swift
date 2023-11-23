@@ -2,7 +2,9 @@ import DotNetMetadata
 import struct Foundation.UUID
 
 public func getInterfaceID(_ typeDefinition: TypeDefinition, genericArgs: [TypeNode]? = nil) throws -> UUID {
-    guard typeDefinition is InterfaceDefinition || typeDefinition is DelegateDefinition else { throw WinMDError.unexpectedType }
+    guard typeDefinition is InterfaceDefinition || typeDefinition is DelegateDefinition else {
+        throw UnexpectedTypeError(typeDefinition.fullName, context: #function, reason: "Only interfaces and delegates have interface IDs")
+    }
     if let genericArgs = genericArgs, genericArgs.count > 0 {
         return try getParameterizedInterfaceID(typeDefinition.bindType(genericArgs: genericArgs))
     }
@@ -53,7 +55,9 @@ fileprivate func appendSignature(_ type: BoundType, to signature: inout String) 
         signature.append(";")
         for (index, arg) in type.genericArgs.enumerated() {
             if index > 0 { signature.append(";") }
-            guard case .bound(let arg) = arg else { throw WinMDError.unexpectedType }
+            guard case .bound(let arg) = arg else {
+                throw UnexpectedTypeError(arg.description, context: "WinRT generic argument", reason: "Not a bound type")
+            }
             try appendSignature(arg, to: &signature)
         }
         signature.append(")")
@@ -78,7 +82,7 @@ fileprivate func appendSignature(_ type: BoundType, to signature: inout String) 
             case "String": signature.append("string")
             case "Guid": signature.append("g16")
             case "Object": signature.append("cinterface(IInspectable)")
-            default: throw WinMDError.unexpectedType
+            default: throw UnexpectedTypeError(typeDefinition.fullName, reason: "Not a well-known WinRT System type")
         }
 
         return
@@ -92,7 +96,10 @@ fileprivate func appendSignature(_ type: BoundType, to signature: inout String) 
             for (index, field) in structDefinition.fields.enumerated() {
                 guard field.isInstance else { continue }
                 if index > 0 { signature.append(";") }
-                guard case .bound(let fieldType) = try field.type else { throw WinMDError.unexpectedType }
+                let fieldType = try field.type
+                guard case .bound(let fieldType) = fieldType else {
+                    throw UnexpectedTypeError(fieldType.description, context: "WinRT struct field", reason: "Not a bound type")
+                }
                 try appendSignature(fieldType, to: &signature)
             }
             signature.append(")")

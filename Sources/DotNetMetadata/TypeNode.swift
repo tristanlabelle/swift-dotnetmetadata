@@ -65,6 +65,17 @@ extension TypeNode {
     }
 }
 
+extension TypeNode: CustomStringConvertible {
+    public var description: String {
+        switch self {
+            case .bound(let type): return type.description
+            case .array(of: let element): return element.description + "[]"
+            case .genericParam(let genericParam): return genericParam.name
+            case .pointer(to: let pointee): return (pointee?.description ?? "void") + "*"
+        }
+    }
+}
+
 extension TypeDefinition {
     public func bindNode(genericArgs: [TypeNode] = []) -> TypeNode {
         .bound(bindType(genericArgs: genericArgs))

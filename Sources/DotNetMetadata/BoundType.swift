@@ -23,6 +23,30 @@ public struct BoundTypeOf<Definition: TypeDefinition>: Hashable {
     }
 }
 
+extension BoundTypeOf: CustomStringConvertible {
+    public var description: String {
+        var result = ""
+
+        if let namespace = definition.namespace {
+            result += namespace
+            result += "."
+        }
+
+        result += definition.nameWithoutGenericSuffix
+
+        if genericArgs.count > 0 {
+            result += "<"
+            for (index, genericArg) in genericArgs.enumerated() {
+                if index > 0 { result += ", " }
+                result += genericArg.description
+            }
+            result += ">"
+        }
+
+        return result
+    }
+}
+
 public typealias BoundType = BoundTypeOf<TypeDefinition>
 extension TypeDefinition {
     public func bindType(genericArgs: [TypeNode] = []) -> BoundType {
