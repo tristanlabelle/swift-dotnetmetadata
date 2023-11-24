@@ -3,10 +3,10 @@ import DotNetMetadata
 extension WinRTTypeName {
     public static func from(type: BoundType) throws -> WinRTTypeName {
         if type.definition.namespace == "System" {
-            guard let primitiveType = WinRTPrimitiveType.fromSystemType(name: type.definition.name) else {
+            guard let systemType = WinRTSystemType(fromName: type.definition.name) else {
                 throw UnexpectedTypeError(type.description, reason: "Not a well-known WinRT System type")
             }
-            return .primitive(primitiveType)
+            return .system(systemType)
         }
 
         // https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system

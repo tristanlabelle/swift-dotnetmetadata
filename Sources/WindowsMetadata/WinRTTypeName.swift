@@ -1,5 +1,5 @@
 public enum WinRTTypeName: Hashable {
-    case primitive(WinRTPrimitiveType)
+    case system(WinRTSystemType)
     case parameterized(WinRTParameterizedType, args: [WinRTTypeName] = [])
 
     // https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system
@@ -10,7 +10,7 @@ public enum WinRTTypeName: Hashable {
 
 extension WinRTTypeName: CustomStringConvertible, TextOutputStreamable {
     public var description: String {
-        if case .primitive(let primitiveType) = self { return primitiveType.name }
+        if case .system(let systemType) = self { return systemType.name }
 
         var output = String()
         write(to: &output)
@@ -19,8 +19,8 @@ extension WinRTTypeName: CustomStringConvertible, TextOutputStreamable {
 
     public func write(to output: inout some TextOutputStream) {
         switch self {
-            case let .primitive(primitiveType):
-                output.write(primitiveType.name)
+            case let .system(systemType):
+                output.write(systemType.name)
             case let .parameterized(type, args: args):
                 write(namespace: type.namespace, name: type.nameWithAritySuffix, genericArgs: args, to: &output)
             case let .declared(namespace, name):
