@@ -81,6 +81,12 @@ extension CustomAttribSig {
                     return .type(fullName: canonicalName, assembly: nil)
                 }
 
+            case .defOrRef(index: _, class: false, genericArgs: _):
+                // Assume an Int32-backed enum.
+                // FIXME(#14): This is incorrect, we should be looking up the enum type from the index,
+                // but it could be from a different assembly, and we don't support that at this layer.
+                return .constant(.int32(buffer.consume(type: Int32.self).pointee))
+
             default: throw InvalidFormatError.signatureBlob
         }
     }

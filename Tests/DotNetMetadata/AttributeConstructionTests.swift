@@ -10,14 +10,18 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
             public MyAttributeAttribute(int i) {}
             public MyAttributeAttribute(string s) {}
             public MyAttributeAttribute(System.Type t) {}
+            public MyAttributeAttribute(MyEnum e) {}
             public int Field;
             public int Property { get; set; }
         }
+
+        enum MyEnum { A = 42 }
 
         // Test attribute arguments
         [MyAttribute(1)] struct IntArgument {}
         [MyAttribute("1")] struct StringArgument {}
         [MyAttribute(typeof(TypeArgument))] struct TypeArgument {}
+        [MyAttribute(MyEnum.A)] struct EnumArgument {}
         [MyAttribute(Field = 42)] struct NamedFieldArgument {}
         [MyAttribute(Property = 42)] struct NamedPropertyArgument {}
         """
@@ -60,6 +64,19 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
             return
         }
         XCTAssertIdentical(type, targetType)
+    }
+
+    public func testEnumArgument() throws {
+        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "EnumArgument"))
+        let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
+        let arguments = try attribute.arguments
+        XCTAssertEqual(arguments.count, 1)
+        XCTAssertEqual(try attribute.namedArguments.count, 0)
+        guard case .constant(.int32(let i)) = arguments.first else {
+            XCTFail("Expected int32")
+            return
+        }
+        XCTAssertEqual(i, 42)
     }
 
     public func testNamedFieldArgument() throws {
