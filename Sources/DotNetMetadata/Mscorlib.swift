@@ -17,7 +17,7 @@ public final class Mscorlib: Assembly {
     public final class SpecialTypes {
         init(assembly: Assembly) throws {
             func find<T: TypeDefinition>(_ name: String) throws -> T {
-                guard let typeDefinition = assembly.findTypeDefinition(fullName: "System." + name),
+                guard let typeDefinition = try assembly.resolveTypeDefinition(fullName: "System." + name),
                         let typeDefinition = typeDefinition as? T else {
                     throw MissingSpecialType()
                 }

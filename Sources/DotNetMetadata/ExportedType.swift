@@ -25,7 +25,7 @@ public final class ExportedType {
     }
 
     public private(set) lazy var fullName: String = {
-        // Assume that exported type cannot be nested types
+        // TODO: Support nested exported types
         makeFullTypeName(namespace: namespace, name: name)
     }()
 
@@ -36,7 +36,7 @@ public final class ExportedType {
                 let definitionAssembly = try self.assembly.resolve(index)
                 // TODO: Optimize using the typeDefId field
                 // TODO: Support recursive exported types
-                guard let typeDefinition = definitionAssembly.findTypeDefinition(namespace: namespace, name: name) else {
+                guard let typeDefinition = try definitionAssembly.resolveTypeDefinition(namespace: namespace, name: name) else {
                     throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
                 }
                 return typeDefinition

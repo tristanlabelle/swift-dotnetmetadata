@@ -64,7 +64,7 @@ public final class Attribute {
                     // > it is permitted to omit the assembly-name, version, culture and public-key-token.
                     assembly = self.assembly
                 }
-                return .type(definition: assembly.findTypeDefinition(fullName: fullName)!)
+                return .type(definition: try assembly.resolveTypeDefinition(fullName: fullName)!)
 
             case .array(let elems): return .array(try elems.map(resolve))
             case .boxed(_): fatalError("Not implemented: boxed custom attribute arguments")

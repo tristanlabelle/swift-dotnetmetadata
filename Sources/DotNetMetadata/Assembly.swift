@@ -85,18 +85,6 @@ public class Assembly: CustomDebugStringConvertible {
         return dict
     }()
 
-    public func findTypeDefinition(fullName: String) -> TypeDefinition? {
-        typeDefinitionsByFullName[fullName]
-    }
-
-    public func findTypeDefinition(namespace: String?, name: String) -> TypeDefinition? {
-        findTypeDefinition(fullName: makeFullTypeName(namespace: namespace, name: name))
-    }
-
-    public func findTypeDefinition(namespace: String?, enclosingName: String, nestedNames: [String]) -> TypeDefinition? {
-        findTypeDefinition(fullName: makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames))
-    }
-
     public private(set) lazy var exportedTypesByFullName: [String: ExportedType] = {
         let exportedTypes = exportedTypes
         var dict = [String: ExportedType](minimumCapacity: exportedTypes.count)
@@ -105,6 +93,22 @@ public class Assembly: CustomDebugStringConvertible {
         }
         return dict
     }()
+
+    public func resolveTypeDefinition(fullName: String, allowForwarding: Bool = true) throws -> TypeDefinition? {
+        if let typeDefinition = typeDefinitionsByFullName[fullName] { return typeDefinition }
+        if let exportedType = exportedTypesByFullName[fullName] { return try exportedType.definition }
+        return nil
+    }
+
+    public func resolveTypeDefinition(namespace: String?, name: String, allowForwarding: Bool = true) throws -> TypeDefinition? {
+        let fullName = makeFullTypeName(namespace: namespace, name: name)
+        return try resolveTypeDefinition(fullName: fullName, allowForwarding: allowForwarding)
+    }
+
+    public func resolveTypeDefinition(namespace: String?, enclosingName: String, nestedNames: [String], allowForwarding: Bool = true) throws -> TypeDefinition? {
+        let fullName = makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames)
+        return try resolveTypeDefinition(fullName: fullName, allowForwarding: allowForwarding)
+    }
 
     internal lazy var mscorlib: Mscorlib = {
         if let mscorlib = self as? Mscorlib {

@@ -20,7 +20,7 @@ internal final class FieldTests: CompiledAssemblyTestCase {
 
     public override func setUpWithError() throws {
         try super.setUpWithError()
-        typeDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "Fields"))
+        typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Fields"))
         publicInstanceField = try XCTUnwrap(typeDefinition.findField(name: "PublicInstance"))
         privateStaticInitOnlyField = try XCTUnwrap(typeDefinition.findField(name: "PrivateStaticInitOnly"))
         protectedLiteralField = try XCTUnwrap(typeDefinition.findField(name: "ProtectedLiteral"))
@@ -39,7 +39,7 @@ internal final class FieldTests: CompiledAssemblyTestCase {
     public func testType() throws {
         try XCTAssertEqual(
             XCTUnwrap(publicInstanceField.type.asDefinition),
-            XCTUnwrap(assembly.findTypeDefinition(fullName: "FieldType")))
+            XCTUnwrap(assembly.resolveTypeDefinition(fullName: "FieldType")))
     }
 
     public func testVisibility() throws {

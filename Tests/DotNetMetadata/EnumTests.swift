@@ -12,32 +12,32 @@ internal final class EnumTests: CompiledAssemblyTestCase {
 
 
     public func testEnumerantNames() throws {
-        let enumDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyEnum") as? EnumDefinition)
+        let enumDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyEnum") as? EnumDefinition)
         XCTAssertEqual(enumDefinition.fields.filter { $0.isStatic }.map { $0.name }.sorted(), ["A", "B"])
     }
 
     public func testUnderlyingType() throws {
         try XCTSkipIf(true, "Requires CoreLib support for .NET Core")
         XCTAssertEqual(
-            try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyEnum") as? EnumDefinition).underlyingType.fullName,
+            try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyEnum") as? EnumDefinition).underlyingType.fullName,
             "System.Int32")
         XCTAssertEqual(
-            try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyShortEnum") as? EnumDefinition).underlyingType.fullName,
+            try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyShortEnum") as? EnumDefinition).underlyingType.fullName,
             "System.Int16")
     }
 
     public func testEnumerantValues() throws {
-        let enumDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyEnum") as? EnumDefinition)
+        let enumDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyEnum") as? EnumDefinition)
         XCTAssertEqual(try XCTUnwrap(XCTUnwrap(enumDefinition.findField(name: "A")).literalValue), .int32(1))
         XCTAssertEqual(try XCTUnwrap(XCTUnwrap(enumDefinition.findField(name: "B")).literalValue), .int32(2))
 
-        let shortEnumDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyShortEnum") as? EnumDefinition)
+        let shortEnumDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyShortEnum") as? EnumDefinition)
         XCTAssertEqual(try XCTUnwrap(XCTUnwrap(shortEnumDefinition.findField(name: "A")).literalValue), .int16(42))
     }
 
     public func testIsFlags() throws {
         try XCTSkipIf(true, "Requires CoreLib support for .NET Core")
-        XCTAssertFalse(try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyEnum") as? EnumDefinition).isFlags)
-        XCTAssertTrue(try XCTUnwrap(assembly.findTypeDefinition(fullName: "MyFlagsEnum") as? EnumDefinition).isFlags)
+        XCTAssertFalse(try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyEnum") as? EnumDefinition).isFlags)
+        XCTAssertTrue(try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyFlagsEnum") as? EnumDefinition).isFlags)
     }
 }

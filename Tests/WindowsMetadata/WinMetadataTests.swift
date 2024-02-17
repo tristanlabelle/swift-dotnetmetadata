@@ -27,12 +27,12 @@ final class WinMetadataTests: XCTestCase {
 
     func testMscorlibTypeReference() throws {
         XCTAssertEqual(
-            try Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.Point")?.base?.definition.fullName,
+            try Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.Point")?.base?.definition.fullName,
             "System.ValueType")
     }
 
     func testParameterizedInterfaceID() throws {
-        let iasyncOperation = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "Windows.Foundation.IAsyncOperation`1") as? InterfaceDefinition)
+        let iasyncOperation = try XCTUnwrap(Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IAsyncOperation`1") as? InterfaceDefinition)
         XCTAssertEqual(
             try WindowsMetadata.getInterfaceID(iasyncOperation, genericArgs: [Self.mscorlib.specialTypes.boolean.bindNode()]),
             UUID(uuidString: "cdb5efb3-5788-509d-9be1-71ccb8a3362a"))

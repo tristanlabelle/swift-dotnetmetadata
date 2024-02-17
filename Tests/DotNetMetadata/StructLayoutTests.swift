@@ -23,22 +23,22 @@ internal final class StructLayoutTests: CompiledAssemblyTestCase {
     }
 
     public func testAuto() throws {
-        let typeDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "Auto"))
+        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Auto"))
         XCTAssertEqual(typeDefinition.layout, .auto)
     }
 
     public func testSequential() throws {
-        let typeDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "Sequential"))
+        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Sequential"))
         XCTAssertEqual(typeDefinition.layout, .sequential(pack: 2, minSize: 24))
     }
 
     public func testExplicit() throws {
-        let typeDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "Explicit"))
+        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Explicit"))
         XCTAssertEqual(typeDefinition.layout, .explicit(minSize: 24))
     }
 
     public func testFieldOffset() throws {
-        let typeDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "Explicit"))
+        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Explicit"))
         XCTAssertEqual(typeDefinition.findField(name: "A")?.explicitOffset, 16)
         XCTAssertEqual(typeDefinition.findField(name: "B")?.explicitOffset, 16)
     }

@@ -18,7 +18,7 @@ internal final class PropertyTests: CompiledAssemblyTestCase {
 
     public override func setUpWithError() throws {
         try super.setUpWithError()
-        typeDefinition = try XCTUnwrap(assembly.findTypeDefinition(fullName: "Properties"))
+        typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Properties"))
         publicAbstractInstanceGetSetProperty = try XCTUnwrap(typeDefinition.findProperty(name: "PublicAbstractInstanceGetSet"))
         privateStaticGetProperty = try XCTUnwrap(typeDefinition.findProperty(name: "PrivateStaticGet"))
     }
@@ -36,7 +36,7 @@ internal final class PropertyTests: CompiledAssemblyTestCase {
     public func testType() throws {
         try XCTAssertEqual(
             XCTUnwrap(publicAbstractInstanceGetSetProperty.type.asDefinition),
-            XCTUnwrap(assembly.findTypeDefinition(fullName: "PropertyType")))
+            XCTUnwrap(assembly.resolveTypeDefinition(fullName: "PropertyType")))
     }
 
     public func testAccessors() throws {

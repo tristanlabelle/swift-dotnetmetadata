@@ -49,10 +49,10 @@ extension Assembly {
             case let .module(index):
                 // Assume single-module assembly
                 guard index?.zeroBased == 0 else { break }
-                return findTypeDefinition(namespace: namespace, name: name)!
+                return try resolveTypeDefinition(namespace: namespace, name: name)!
             case let .assemblyRef(index):
                 guard let index = index else { break }
-                return try resolve(index).findTypeDefinition(namespace: namespace, name: name)!
+                return try resolve(index).resolveTypeDefinition(namespace: namespace, name: name)!
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }
