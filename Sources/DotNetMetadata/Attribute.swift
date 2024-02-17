@@ -28,10 +28,12 @@ public final class Attribute {
                 paramTypes: paramTypes,
                 memberTypeResolver: { kind, name, typeSig in
             if let elemType = try Self.toElemType(typeSig) { return elemType }
-            let typeNode = switch kind {
-                case .field: try self.type.findField(name: name)!.type
-                case .property: try self.type.findProperty(name: name)!.type
-            }
+            let typeNode: TypeNode = try {
+                switch kind {
+                    case .field: return try self.type.findField(name: name)!.type
+                    case .property: return try self.type.findProperty(name: name)!.type
+                }
+            }()
             return try Self.toElemType(typeNode)
         })
     }
