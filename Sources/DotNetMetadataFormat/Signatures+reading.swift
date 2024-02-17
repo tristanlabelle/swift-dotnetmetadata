@@ -1,21 +1,22 @@
 import Foundation
 
 extension CustomAttribSig {
-    public init(blob: UnsafeRawBufferPointer, params: [ParamSig]) throws {
+    public typealias MemberElemTypeResolver = (_ kind: MemberKind, _ name: String, _ typeSig: TypeSig) throws -> ElemType
+
+    public init(blob: UnsafeRawBufferPointer, paramTypes: [ElemType], memberTypeResolver: MemberElemTypeResolver) throws {
         var remainder = blob
-        try self.init(consuming: &remainder, params: params)
+        try self.init(consuming: &remainder, paramTypes: paramTypes, memberTypeResolver: memberTypeResolver)
         if remainder.count > 0 { throw InvalidFormatError.signatureBlob }
     }
 
-    init(consuming buffer: inout UnsafeRawBufferPointer, params: [ParamSig]) throws {
+    init(consuming buffer: inout UnsafeRawBufferPointer, paramTypes: [ElemType], memberTypeResolver: MemberElemTypeResolver) throws {
         guard SigToken.tryConsume(buffer: &buffer, token: SigToken.CustomAttrib.prolog_0),
             SigToken.tryConsume(buffer: &buffer, token: SigToken.CustomAttrib.prolog_1) else {
             throw InvalidFormatError.signatureBlob
         }
 
-        fixedArgs = try params.map {
-            guard !$0.byRef else { throw InvalidFormatError.signatureBlob }
-            return try Self.consumeElem(buffer: &buffer, type: $0.type)
+        fixedArgs = try paramTypes.map {
+            try Self.consumeElem(buffer: &buffer, type: $0)
         }
 
         let namedCount = buffer.consume(type: UInt16.self).pointee
@@ -33,14 +34,14 @@ extension CustomAttribSig {
                 throw InvalidFormatError.signatureBlob
             }
 
-            return NamedArg(
-                memberKind: kind,
-                name: name,
-                value: try Self.consumeElem(buffer: &buffer, type: type))
+            let elemType = try memberTypeResolver(kind, name, type)
+            let value = try Self.consumeElem(buffer: &buffer, type: elemType)
+
+            return NamedArg(memberKind: kind, name: name, value: value)
         }
     }
 
-    private static func consumeElem(buffer: inout UnsafeRawBufferPointer, type: TypeSig) throws -> Elem {
+    private static func consumeElem(buffer: inout UnsafeRawBufferPointer, type: ElemType) throws -> Elem {
         switch type {
             case .boolean: return .constant(.boolean(buffer.consume(type: UInt8.self).pointee != 0))
             case .char: return .constant(.char(buffer.consume(type: UTF16.CodeUnit.self).pointee))
@@ -54,18 +55,18 @@ extension CustomAttribSig {
             case .integer(size: .int64, signed: false): return .constant(.uint64(buffer.consume(type: UInt64.self).pointee))
             case .real(double: false): return .constant(.single(buffer.consume(type: Float.self).pointee))
             case .real(double: true): return .constant(.double(buffer.consume(type: Double.self).pointee))
+
             case .string:
                 guard let str = try consumeSerString(buffer: &buffer) else { return .constant(.null) }
                 return .constant(.string(str))
 
-            case let .szarray(_, of: element):
+            case let .array(of: element):
                 let length = buffer.consume(type: UInt32.self).pointee
                 return try .array((0..<length).map { _ in
                     try consumeElem(buffer: &buffer, type: element)
                 })
 
-            case .defOrRef(index: _, class: true, genericArgs: _):
-                // Assume a System.Type
+            case .type: // System.Type, encoded as a string
                 guard let canonicalName = try consumeSerString(buffer: &buffer) else {
                     throw InvalidFormatError.signatureBlob
                 }
@@ -80,12 +81,6 @@ extension CustomAttribSig {
                 else {
                     return .type(fullName: canonicalName, assembly: nil)
                 }
-
-            case .defOrRef(index: _, class: false, genericArgs: _):
-                // Assume an Int32-backed enum.
-                // FIXME(#14): This is incorrect, we should be looking up the enum type from the index,
-                // but it could be from a different assembly, and we don't support that at this layer.
-                return .constant(.int32(buffer.consume(type: Int32.self).pointee))
 
             default: throw InvalidFormatError.signatureBlob
         }

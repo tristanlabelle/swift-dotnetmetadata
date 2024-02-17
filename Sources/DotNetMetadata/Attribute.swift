@@ -19,7 +19,21 @@ public final class Attribute {
     public var type: TypeDefinition { get throws { try constructor.definingType } }
 
     private lazy var _signature = Result {
-        try CustomAttribSig(blob: moduleFile.resolve(tableRow.value), params: try _constructor.get().signature.params)
+        let constructor = try self.constructor
+        let paramTypes = try constructor.params.map {
+            try Self.toElemType($0.signature.type) ?? Self.toElemType($0.type)
+        }
+        return try CustomAttribSig(
+                blob: moduleFile.resolve(tableRow.value),
+                paramTypes: paramTypes,
+                memberTypeResolver: { kind, name, typeSig in
+            if let elemType = try Self.toElemType(typeSig) { return elemType }
+            let typeNode = switch kind {
+                case .field: try self.type.findField(name: name)!.type
+                case .property: try self.type.findProperty(name: name)!.type
+            }
+            return try Self.toElemType(typeNode)
+        })
     }
     public var signature: CustomAttribSig { get throws { try _signature.get() } }
 
@@ -50,7 +64,7 @@ public final class Attribute {
                     // > it is permitted to omit the assembly-name, version, culture and public-key-token.
                     assembly = self.assembly
                 }
-                return .type(definition: assembly.findDefinedType(fullName: fullName)!)
+                return .type(definition: assembly.findTypeDefinition(fullName: fullName)!)
 
             case .array(let elems): return .array(try elems.map(resolve))
             case .boxed(_): fatalError("Not implemented: boxed custom attribute arguments")
@@ -65,6 +79,40 @@ public final class Attribute {
         }
 
         return NamedArgument(target: target, value: try resolve(namedArg.value))
+    }
+
+    // Most CustomAttribSig.ElemType values can be directly inferred from the TypeSig.
+    private static func toElemType(_ typeSig: TypeSig) throws -> CustomAttribSig.ElemType? {
+        switch typeSig {
+            case .boolean: return .boolean
+            case .char: return .char
+            case .integer(let size, let signed): return .integer(size: size, signed: signed)
+            case .real(let double): return .real(double: double)
+            case .string: return .string
+            case .szarray(customMods: _, of: let elemType):
+                guard let elemType = try toElemType(elemType) else { return nil }
+                return .array(of: elemType)
+            default: return nil
+        }
+    }
+
+    private static func toElemType(_ type: TypeNode) throws -> CustomAttribSig.ElemType {
+        switch type {
+            case .bound(let type) where type.genericArgs.isEmpty:
+                return try toElemType(type.definition)
+            case .array(of: let elemType):
+                return .array(of: try toElemType(elemType))
+            default:
+                throw InvalidMetadataError.attributeArguments
+        }
+    }
+
+    private static func toElemType(_ typeDefinition: TypeDefinition) throws -> CustomAttribSig.ElemType {
+        if typeDefinition.fullName == "System.Type" { return .type }
+        if let enumDefinition = typeDefinition as? EnumDefinition {
+            return try toElemType(enumDefinition.backingField.signature.type)! // Should be a primitive type
+        }
+        throw InvalidMetadataError.attributeArguments
     }
 
     public struct NamedArgument: Hashable {

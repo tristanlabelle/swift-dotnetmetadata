@@ -25,6 +25,6 @@ final class NetFX45MscorlibTests: XCTestCase {
     }
 
     func testTypeLookup() throws {
-        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "System.Object"))
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "System.Object"))
     }
 }

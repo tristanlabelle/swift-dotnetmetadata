@@ -19,6 +19,16 @@ public struct CustomAttribSig {
         indirect case boxed(Elem)
         case array([Elem])
     }
+
+    public enum ElemType {
+        case boolean
+        case char
+        case integer(size: IntegerSize, signed: Bool)
+        case real(double: Bool)
+        case string
+        case type
+        indirect case array(of: ElemType)
+    }
 }
 
 public struct CustomModSig {

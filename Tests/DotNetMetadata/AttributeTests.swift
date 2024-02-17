@@ -1,7 +1,7 @@
 @testable import DotNetMetadata
 import XCTest
 
-internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
+internal final class AttributeTests: CompiledAssemblyTestCase {
     internal override class var csharpCode: String {
         """
         class MyAttributeAttribute: System.Attribute
@@ -10,25 +10,25 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
             public MyAttributeAttribute(int i) {}
             public MyAttributeAttribute(string s) {}
             public MyAttributeAttribute(System.Type t) {}
-            public MyAttributeAttribute(MyEnum e) {}
+            public MyAttributeAttribute(ShortEnum e) {}
             public int Field;
             public int Property { get; set; }
         }
 
-        enum MyEnum { A = 42 }
+        enum ShortEnum: short { A = 42 } // We should resolve the enum underlying type when decoding
 
         // Test attribute arguments
         [MyAttribute(1)] struct IntArgument {}
         [MyAttribute("1")] struct StringArgument {}
         [MyAttribute(typeof(TypeArgument))] struct TypeArgument {}
-        [MyAttribute(MyEnum.A)] struct EnumArgument {}
+        [MyAttribute(ShortEnum.A)] struct EnumArgument {}
         [MyAttribute(Field = 42)] struct NamedFieldArgument {}
         [MyAttribute(Property = 42)] struct NamedPropertyArgument {}
         """
     }
 
     public func testNumericArgument() throws {
-        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "IntArgument"))
+        let targetType = try XCTUnwrap(assembly.findTypeDefinition(fullName: "IntArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         XCTAssertEqual(arguments.count, 1)
@@ -41,7 +41,7 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
     }
 
     public func testStringArgument() throws {
-        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "StringArgument"))
+        let targetType = try XCTUnwrap(assembly.findTypeDefinition(fullName: "StringArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         XCTAssertEqual(arguments.count, 1)
@@ -54,7 +54,7 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
     }
 
     public func testTypeArgument() throws {
-        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "TypeArgument"))
+        let targetType = try XCTUnwrap(assembly.findTypeDefinition(fullName: "TypeArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         XCTAssertEqual(arguments.count, 1)
@@ -67,20 +67,21 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
     }
 
     public func testEnumArgument() throws {
-        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "EnumArgument"))
+        try XCTSkipIf(true, "Requires CoreLib support for .NET Core")
+        let targetType = try XCTUnwrap(assembly.findTypeDefinition(fullName: "EnumArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         XCTAssertEqual(arguments.count, 1)
         XCTAssertEqual(try attribute.namedArguments.count, 0)
-        guard case .constant(.int32(let i)) = arguments.first else {
-            XCTFail("Expected int32")
+        guard case .constant(.int16(let i)) = arguments.first else {
+            XCTFail("Expected int16")
             return
         }
         XCTAssertEqual(i, 42)
     }
 
     public func testNamedFieldArgument() throws {
-        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "NamedFieldArgument"))
+        let targetType = try XCTUnwrap(assembly.findTypeDefinition(fullName: "NamedFieldArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         XCTAssertEqual(try attribute.arguments.count, 0)
         let namedArguments = try attribute.namedArguments
@@ -101,7 +102,7 @@ internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
     }
 
     public func testNamedPropertyArgument() throws {
-        let targetType = try XCTUnwrap(assembly.findDefinedType(fullName: "NamedPropertyArgument"))
+        let targetType = try XCTUnwrap(assembly.findTypeDefinition(fullName: "NamedPropertyArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         XCTAssertEqual(try attribute.arguments.count, 0)
         let namedArguments = try attribute.namedArguments

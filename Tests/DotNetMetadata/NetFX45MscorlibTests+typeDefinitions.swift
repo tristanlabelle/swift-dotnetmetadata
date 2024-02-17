@@ -4,21 +4,21 @@ import XCTest
 
 extension NetFX45MscorlibTests {
     func testTypeName_topLevelNamespace() throws {
-        let object = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Object"))
+        let object = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "System.Object"))
         XCTAssertEqual(object.name, "Object")
         XCTAssertEqual(object.namespace, "System")
         XCTAssertEqual(object.fullName, "System.Object")
     }
 
     func testTypeName_nestedNamespace() throws {
-        let bitArray = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Collections.BitArray"))
+        let bitArray = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "System.Collections.BitArray"))
         XCTAssertEqual(bitArray.name, "BitArray")
         XCTAssertEqual(bitArray.namespace, "System.Collections")
         XCTAssertEqual(bitArray.fullName, "System.Collections.BitArray")
     }
 
     func testTypeName_nested() throws {
-        let environment_SpecialFolder = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder"))
+        let environment_SpecialFolder = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "System.Environment/SpecialFolder"))
         XCTAssertEqual(environment_SpecialFolder.name, "SpecialFolder")
         XCTAssertEqual(environment_SpecialFolder.namespace, nil)
         XCTAssertEqual(environment_SpecialFolder.fullName, "System.Environment/SpecialFolder")
@@ -26,36 +26,36 @@ extension NetFX45MscorlibTests {
 
     func testTypeLayout() throws {
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Object")?.layout,
+            Self.assembly.findTypeDefinition(fullName: "System.Object")?.layout,
             TypeLayout.auto)
 
         // Rare public type with non-zero size
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.ValueTuple")?.layout,
+            Self.assembly.findTypeDefinition(fullName: "System.ValueTuple")?.layout,
             TypeLayout.sequential(pack: nil, minSize: 1))
 
         // Rare public type with explicit layout
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Runtime.InteropServices.BINDPTR")?.layout,
+            Self.assembly.findTypeDefinition(fullName: "System.Runtime.InteropServices.BINDPTR")?.layout,
             TypeLayout.explicit(minSize: 0))
     }
 
     func testEnclosingType() throws {
         XCTAssertIdentical(
-            try Self.assembly.findDefinedType(fullName: "System.Environment/SpecialFolder")?.enclosingType,
-            Self.assembly.findDefinedType(fullName: "System.Environment"))
+            try Self.assembly.findTypeDefinition(fullName: "System.Environment/SpecialFolder")?.enclosingType,
+            Self.assembly.findTypeDefinition(fullName: "System.Environment"))
 
-        XCTAssertNil(try Self.assembly.findDefinedType(fullName: "System.Environment")?.enclosingType)
+        XCTAssertNil(try Self.assembly.findTypeDefinition(fullName: "System.Environment")?.enclosingType)
     }
 
     func testBaseType() throws {
         XCTAssertEqual(
-            try Self.assembly.findDefinedType(fullName: "System.ValueType")?.base?.definition.fullName,
+            try Self.assembly.findTypeDefinition(fullName: "System.ValueType")?.base?.definition.fullName,
             "System.Object")
     }
 
     func testBaseInterfaces() throws {
-        guard let equalityComparer = Self.assembly.findDefinedType(fullName: "System.Collections.Generic.EqualityComparer`1") else {
+        guard let equalityComparer = Self.assembly.findTypeDefinition(fullName: "System.Collections.Generic.EqualityComparer`1") else {
             return XCTFail("IAsyncAction not found")
         }
         XCTAssertEqual(
@@ -64,42 +64,42 @@ extension NetFX45MscorlibTests {
     }
 
     func testTypeVisibility() throws {
-        XCTAssertEqual(Self.assembly.findDefinedType(fullName: "System.Type")?.visibility, .public)
-        XCTAssertEqual(Self.assembly.findDefinedType(fullName: "System.RuntimeType")?.visibility, .assembly)
+        XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "System.Type")?.visibility, .public)
+        XCTAssertEqual(Self.assembly.findTypeDefinition(fullName: "System.RuntimeType")?.visibility, .assembly)
     }
 
     func testTypeFlags() throws {
-        let object = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Object") as? ClassDefinition)
+        let object = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "System.Object") as? ClassDefinition)
         XCTAssert(!object.isAbstract)
         XCTAssert(!object.isSealed)
 
-        let gc = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.GC") as? ClassDefinition)
+        let gc = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "System.GC") as? ClassDefinition)
         XCTAssert(gc.isAbstract)
         XCTAssert(gc.isSealed)
     }
 
     func testTypeDefinitionClass() throws {
-        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "System.Int32") as? StructDefinition)
-        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "System.IDisposable") as? InterfaceDefinition)
-        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "System.String") as? ClassDefinition)
-        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "System.StringComparison") as? EnumDefinition)
-        XCTAssertNotNil(Self.assembly.findDefinedType(fullName: "System.Action") as? DelegateDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "System.Int32") as? StructDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "System.IDisposable") as? InterfaceDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "System.String") as? ClassDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "System.StringComparison") as? EnumDefinition)
+        XCTAssertNotNil(Self.assembly.findTypeDefinition(fullName: "System.Action") as? DelegateDefinition)
     }
 
     func testTypeGenericParamEnumeration() throws {
         // Interface with 1 generic parameter
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Action`1")?.genericParams.map({ $0.name }),
+            Self.assembly.findTypeDefinition(fullName: "System.Action`1")?.genericParams.map({ $0.name }),
             [ "T" ])
 
         // Delegate with 2 generic parameters
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Action`2")?.genericParams.map({ $0.name }),
+            Self.assembly.findTypeDefinition(fullName: "System.Action`2")?.genericParams.map({ $0.name }),
             [ "T1", "T2" ])
     }
 
     func testEnum() throws {
-        guard let dayOfWeek = Self.assembly.findDefinedType(fullName: "System.DayOfWeek") as? EnumDefinition else {
+        guard let dayOfWeek = Self.assembly.findTypeDefinition(fullName: "System.DayOfWeek") as? EnumDefinition else {
             return XCTFail("System.DayOfWeek not found")
         }
 
@@ -110,7 +110,7 @@ extension NetFX45MscorlibTests {
 
     func testNestedType() throws {
          XCTAssertEqual(
-            try Self.assembly.findDefinedType(fullName: "System.Collections.Generic.List`1")?.nestedTypes.contains { $0.name == "Enumerator" },
+            try Self.assembly.findTypeDefinition(fullName: "System.Collections.Generic.List`1")?.nestedTypes.contains { $0.name == "Enumerator" },
             true)
     }
 }

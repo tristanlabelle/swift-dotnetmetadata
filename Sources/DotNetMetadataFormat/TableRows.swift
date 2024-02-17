@@ -68,6 +68,14 @@ public enum TableRows {
         public var eventList: EventTable.RowIndex?
     }
 
+    public struct ExportedType {
+        public var type: TypeAttributes
+        public var typeDefId: UInt32
+        public var typeName: StringHeap.Offset
+        public var typeNamespace: StringHeap.Offset
+        public var implementation: Implementation
+    }
+
     public struct Field {
         public var flags: FieldAttributes
         public var name: StringHeap.Offset

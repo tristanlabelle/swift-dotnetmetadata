@@ -21,7 +21,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         // instances since they might not have been created yet.
         // For safety, implement this at the physical layer.
         let tableRow = assembly.moduleFile.typeDefTable[tableRowIndex]
-        let kind = assembly.moduleFile.getTypeDefinitionKind(tableRow, isMscorlib: assembly.name == Mscorlib.name)
+        let kind = assembly.moduleFile.getTypeDefinitionKind(tableRow)
 
         switch kind {
             case .class: return ClassDefinition(assembly: assembly, tableRowIndex: tableRowIndex)

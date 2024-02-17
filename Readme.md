@@ -11,7 +11,7 @@ import DotNetMetadata
 
 let context = AssemblyLoadContext()
 let assembly = try context.load(path: #"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\mscorlib.dll"#)
-let typeDefinition = assembly.findDefinedType(fullName: "System.IDisposable")!
+let typeDefinition = assembly.findTypeDefinition(fullName: "System.IDisposable")!
 print("interface \(typeDefinition.name) {")
 for method in typeDefinition.methods {
     print("  void \(method.name)()")

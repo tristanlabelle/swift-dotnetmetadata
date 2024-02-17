@@ -48,8 +48,12 @@ public class Assembly: CustomDebugStringConvertible {
         }
     }()
 
-    public private(set) lazy var definedTypes: [TypeDefinition] = {
+    public private(set) lazy var typeDefinitions: [TypeDefinition] = {
         moduleFile.typeDefTable.indices.map { TypeDefinition.create(assembly: self, tableRowIndex: $0) }
+    }()
+
+    public private(set) lazy var exportedTypes: [ExportedType] = {
+        moduleFile.exportedTypeTable.indices.map { ExportedType(assembly: self, tableRowIndex: $0) }
     }()
 
     private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowIndex: PropertyMapTable.RowIndex] = {
@@ -72,27 +76,36 @@ public class Assembly: CustomDebugStringConvertible {
         eventMapByTypeDefRowIndex[typeDefRowIndex]
     }
 
-    public private(set) lazy var typesByFullName: [String: TypeDefinition] = {
-        let definedTypes = definedTypes
-        var dict = [String: TypeDefinition](minimumCapacity: definedTypes.count)
-        for definedType in definedTypes {
-            dict[definedType.fullName] = definedType
+    public private(set) lazy var typeDefinitionsByFullName: [String: TypeDefinition] = {
+        let typeDefinitions = typeDefinitions
+        var dict = [String: TypeDefinition](minimumCapacity: typeDefinitions.count)
+        for typeDefinition in typeDefinitions {
+            dict[typeDefinition.fullName] = typeDefinition
         }
         return dict
     }()
 
-    public func findDefinedType(fullName: String) -> TypeDefinition? {
-        typesByFullName[fullName]
+    public func findTypeDefinition(fullName: String) -> TypeDefinition? {
+        typeDefinitionsByFullName[fullName]
     }
 
-    public func findDefinedType(namespace: String?, name: String) -> TypeDefinition? {
-        findDefinedType(fullName: makeFullTypeName(namespace: namespace, name: name))
+    public func findTypeDefinition(namespace: String?, name: String) -> TypeDefinition? {
+        findTypeDefinition(fullName: makeFullTypeName(namespace: namespace, name: name))
     }
 
-    public func findDefinedType(namespace: String?, enclosingName: String, nestedNames: [String]) -> TypeDefinition? {
-        findDefinedType(fullName: makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames))
+    public func findTypeDefinition(namespace: String?, enclosingName: String, nestedNames: [String]) -> TypeDefinition? {
+        findTypeDefinition(fullName: makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames))
     }
-    
+
+    public private(set) lazy var exportedTypesByFullName: [String: ExportedType] = {
+        let exportedTypes = exportedTypes
+        var dict = [String: ExportedType](minimumCapacity: exportedTypes.count)
+        for exportedType in exportedTypes {
+            dict[exportedType.fullName] = exportedType
+        }
+        return dict
+    }()
+
     internal lazy var mscorlib: Mscorlib = {
         if let mscorlib = self as? Mscorlib {
             return mscorlib

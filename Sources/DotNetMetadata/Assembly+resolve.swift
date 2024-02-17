@@ -38,7 +38,7 @@ extension Assembly {
     }
 
     internal func resolve(_ index: TypeDefTable.RowIndex) throws -> TypeDefinition {
-        definedTypes[Int(index.zeroBased)]
+        typeDefinitions[Int(index.zeroBased)]
     }
 
     internal func resolve(_ index: TypeRefTable.RowIndex) throws -> TypeDefinition {
@@ -49,10 +49,10 @@ extension Assembly {
             case let .module(index):
                 // Assume single-module assembly
                 guard index?.zeroBased == 0 else { break }
-                return findDefinedType(namespace: namespace, name: name)!
+                return findTypeDefinition(namespace: namespace, name: name)!
             case let .assemblyRef(index):
                 guard let index = index else { break }
-                return try resolve(index).findDefinedType(namespace: namespace, name: name)!
+                return try resolve(index).findTypeDefinition(namespace: namespace, name: name)!
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }

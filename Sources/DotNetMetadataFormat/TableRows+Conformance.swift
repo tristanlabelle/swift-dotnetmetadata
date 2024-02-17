@@ -198,6 +198,31 @@ extension TableRows.EventMap: TableRow {
     }
 }
 
+extension TableRows.ExportedType: TableRow {
+    public static var tableID: TableID { .exportedType }
+
+    public static func getSize(sizes: TableSizes) -> Int {
+        TableRowSizeBuilder<Self>(sizes: sizes)
+            .addingConstant(\.type)
+            .addingConstant(\.typeDefId)
+            .addingHeapOffset(\.typeName)
+            .addingHeapOffset(\.typeNamespace)
+            .addingCodedIndex(\.implementation)
+            .size
+    }
+
+    public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
+        self = TableRowReader.read(buffer: buffer, sizes: sizes) {
+            Self(
+                type: $0.readConstant(),
+                typeDefId: $0.readConstant(),
+                typeName: $0.readHeapOffset(),
+                typeNamespace: $0.readHeapOffset(),
+                implementation: $0.readCodedIndex())
+        }
+    }
+}
+
 extension TableRows.Field: TableRow {
     public static var tableID: TableID { .field }
 

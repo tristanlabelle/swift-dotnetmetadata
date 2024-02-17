@@ -5,14 +5,14 @@ import XCTest
 extension NetFX45MscorlibTests {
     func testTypeEventEnumeration() throws {
         XCTAssertEqual(
-            Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?.events
+            Self.assembly.findTypeDefinition(fullName: "System.Diagnostics.Tracing.EventListener")?.events
                 .filter({ $0.hasPublicAddRemoveAccessors }).map({ $0.name }).sorted(),
             [ "EventSourceCreated", "EventWritten" ])
     }
 
     func testEventAccessors() throws {
         let event = try XCTUnwrap(
-            Self.assembly.findDefinedType(fullName: "System.Diagnostics.Tracing.EventListener")?
+            Self.assembly.findTypeDefinition(fullName: "System.Diagnostics.Tracing.EventListener")?
                 .findEvent(name: "EventSourceCreated"))
 
         XCTAssertEqual(try XCTUnwrap(event.addAccessor).name, "add_EventSourceCreated")
@@ -20,9 +20,9 @@ extension NetFX45MscorlibTests {
     }
 
     func testEventType() throws {
-        let console = try XCTUnwrap(Self.assembly.findDefinedType(fullName: "System.Console"))
+        let console = try XCTUnwrap(Self.assembly.findTypeDefinition(fullName: "System.Console"))
         let consoleCancelEventHandler = try XCTUnwrap(
-            Self.assembly.findDefinedType(fullName: "System.ConsoleCancelEventHandler") as? DelegateDefinition)
+            Self.assembly.findTypeDefinition(fullName: "System.ConsoleCancelEventHandler") as? DelegateDefinition)
 
         XCTAssertEqual(
             try XCTUnwrap(console.findEvent(name: "CancelKeyPress")).handlerType,

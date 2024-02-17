@@ -49,6 +49,7 @@ public final class ModuleFile {
     public let assemblyTable: AssemblyTable
     public let assemblyRefTable: AssemblyRefTable
     public let fileTable: FileTable
+    public let exportedTypeTable: ExportedTypeTable
     public let manifestResourceTable: ManifestResourceTable
     public let nestedClassTable: NestedClassTable
     public let genericParamTable: GenericParamTable
@@ -138,6 +139,7 @@ public final class ModuleFile {
         assemblyTable = consumeTable()
         assemblyRefTable = consumeTable()
         fileTable = consumeTable()
+        exportedTypeTable = consumeTable()
         manifestResourceTable = consumeTable()
         nestedClassTable = consumeTable()
         genericParamTable = consumeTable()

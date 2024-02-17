@@ -2,7 +2,7 @@ import DotNetMetadataFormat
 
 public class ParamBase: Attributable {
     public unowned let method: Method
-    fileprivate let signature: DotNetMetadataFormat.ParamSig
+    public let signature: DotNetMetadataFormat.ParamSig
 
     fileprivate init(method: Method, signature: DotNetMetadataFormat.ParamSig) {
         self.method = method

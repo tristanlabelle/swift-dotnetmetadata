@@ -1,4 +1,5 @@
 @testable import DotNetMetadata
+import DotNetMetadataFormat
 import XCTest
 import Foundation
 import WinSDK
@@ -26,12 +27,13 @@ internal class CompiledAssemblyTestCase: XCTestCase {
         data = Result {
             var tempPathChars = [UTF16.CodeUnit](repeating: 0, count: Int(MAX_PATH + 1))
             GetTempPathW(DWORD(tempPathChars.count), &tempPathChars);
-            let tempPath = String(decodingCString: tempPathChars, as: UTF16.self)
+            var tempPath = String(decodingCString: tempPathChars, as: UTF16.self)
+            if tempPath.hasSuffix("\\") { tempPath.removeLast() }
 
             let filenameWithoutExtension = UUID().uuidString
-            let codeFilePath = "\(tempPath)\\\(filenameWithoutExtension).cs"
+            let codeFilePath =  "\(tempPath)\\\(filenameWithoutExtension).cs"
             let assemblyFilePath = "\(tempPath)\\\(filenameWithoutExtension).dll"
-            try Self.csharpCode.write(toFile: codeFilePath, atomically: true, encoding: .utf8)
+            try Self.csharpCode.write(toFile: codeFilePath, atomically: false, encoding: .utf8)
 
             let sdk = try XCTUnwrap(DotNetTool.listSDKs().last)
             let runtime = try XCTUnwrap(DotNetTool.listRuntimes().last { $0.name == "Microsoft.NETCore.App" })
@@ -44,7 +46,14 @@ internal class CompiledAssemblyTestCase: XCTestCase {
                     output: assemblyFilePath, sources: [codeFilePath]).buildCommandLineArgs())
             guard result.exitCode == 0 else { throw CompilationFailedError(message: result.standardOutput) }
 
-            let assemblyLoadContext = AssemblyLoadContext()
+            // Resolve the core library if tests require it
+            let assemblyLoadContext = AssemblyLoadContext(resolver: {
+                // .NET Core references System.Runtime, but we can use .NET Framework's mscorlib
+                guard $0.name == "System.Runtime" else { throw AssemblyLoadError.notFound() }
+                guard let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath else { throw AssemblyLoadError.notFound() }
+                return try ModuleFile(path: mscorlibPath)
+            })
+
             return Data(
                 assemblyLoadContext: assemblyLoadContext,
                 assembly: try assemblyLoadContext.load(path: assemblyFilePath))

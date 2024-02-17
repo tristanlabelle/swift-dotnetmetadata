@@ -1,13 +1,13 @@
 import DotNetMetadataFormat
 
 extension ModuleFile {
-    func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row, isMscorlib: Bool) -> TypeDefinitionKind {
+    func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row) -> TypeDefinitionKind {
         if tableRow.flags.contains(.interface) {
             return .interface
         }
 
         // We must check the base type, but before doing so exclude special cases
-        if isMscorlib && resolve(tableRow.typeNamespace) == "System" {
+        if resolve(tableRow.typeNamespace) == "System" {
             switch resolve(tableRow.typeName) {
                 case "Object": return .class
                 case "Enum": return .class
@@ -16,15 +16,14 @@ extension ModuleFile {
             }
         }
 
-        return getTypeDefinitionFromBase(tableRow.extends, isMscorlib: isMscorlib)
+        return getTypeDefinitionFromBase(tableRow.extends)
     }
 
-    private func getTypeDefinitionFromBase(_ extends: TypeDefOrRef, isMscorlib: Bool) -> TypeDefinitionKind {
+    private func getTypeDefinitionFromBase(_ extends: TypeDefOrRef) -> TypeDefinitionKind {
         let systemTypeName: String
         switch extends {
             case let .typeDef(index):
                 guard let index else { return .class }
-                guard isMscorlib else { return .class }
                 let typeDefRow = typeDefTable[index]
                 guard resolve(typeDefRow.typeNamespace) == "System" else { return .class }
                 systemTypeName = resolve(typeDefRow.typeName)
@@ -32,7 +31,6 @@ extension ModuleFile {
                 guard let index else { return .class }
                 let typeRefRow = typeRefTable[index]
                 guard resolve(typeRefRow.typeNamespace) == "System" else { return .class }
-                guard getAssemblyName(resolutionScope: typeRefRow.resolutionScope) == Mscorlib.name else { return .class }
                 systemTypeName = resolve(typeRefRow.typeName)
             case .typeSpec:
                 // Assume no special base type can be referred through a typeSpec
