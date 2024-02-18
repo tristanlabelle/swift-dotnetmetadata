@@ -16,13 +16,7 @@ final class NetFX45MscorlibTests: XCTestCase {
         try XCTSkipIf(Self.assembly == nil)
     }
 
-    func testIsMscorlib() throws {
-        XCTAssertNotNil(Self.assembly as? Mscorlib)
-    }
-
-    internal var specialTypes: Mscorlib.SpecialTypes {
-        (Self.assembly as! Mscorlib).specialTypes
-    }
+    internal var coreLibrary: CoreLibrary { get throws { try Self.context.coreLibrary } }
 
     func testTypeLookup() throws {
         XCTAssertNotNil(try Self.assembly.resolveTypeDefinition(fullName: "System.Object"))

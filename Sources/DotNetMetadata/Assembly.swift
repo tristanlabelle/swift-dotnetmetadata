@@ -110,21 +110,6 @@ public class Assembly: CustomDebugStringConvertible {
         return try resolveTypeDefinition(fullName: fullName, allowForwarding: allowForwarding)
     }
 
-    internal lazy var mscorlib: Mscorlib = {
-        if let mscorlib = self as? Mscorlib {
-            return mscorlib
-        }
-
-        for assemblyRef in moduleFile.assemblyRefTable {
-            let identity = AssemblyIdentity(fromRow: assemblyRef, in: moduleFile)
-            if identity.name == Mscorlib.name {
-                return try! context.load(identity: identity) as! Mscorlib
-            }
-        }
-
-        fatalError("Can't load mscorlib")
-    }()
-
     internal func getAttributes(owner: MetadataToken) -> [Attribute] {
         moduleFile.customAttributeTable.findAll(primaryKey: owner.tableKey).map {
             Attribute(tableRowIndex: $0, assembly: self)

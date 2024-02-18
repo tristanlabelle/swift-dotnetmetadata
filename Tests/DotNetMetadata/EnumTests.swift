@@ -17,7 +17,6 @@ internal final class EnumTests: CompiledAssemblyTestCase {
     }
 
     public func testUnderlyingType() throws {
-        try XCTSkipIf(true, "Requires CoreLib support for .NET Core")
         XCTAssertEqual(
             try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyEnum") as? EnumDefinition).underlyingType.fullName,
             "System.Int32")
@@ -36,7 +35,6 @@ internal final class EnumTests: CompiledAssemblyTestCase {
     }
 
     public func testIsFlags() throws {
-        try XCTSkipIf(true, "Requires CoreLib support for .NET Core")
         XCTAssertFalse(try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyEnum") as? EnumDefinition).isFlags)
         XCTAssertTrue(try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "MyFlagsEnum") as? EnumDefinition).isFlags)
     }

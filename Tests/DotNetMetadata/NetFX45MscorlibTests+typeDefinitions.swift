@@ -98,16 +98,6 @@ extension NetFX45MscorlibTests {
             [ "T1", "T2" ])
     }
 
-    func testEnum() throws {
-        guard let dayOfWeek = try Self.assembly.resolveTypeDefinition(fullName: "System.DayOfWeek") as? EnumDefinition else {
-            return XCTFail("System.DayOfWeek not found")
-        }
-
-        XCTAssertEqual(try dayOfWeek.underlyingType.fullName, "System.Int32")
-        XCTAssertEqual(try dayOfWeek.findField(name: "Sunday")?.literalValue, Constant.int32(0))
-        XCTAssertEqual(try dayOfWeek.findField(name: "Thursday")?.literalValue, Constant.int32(4))
-    }
-
     func testNestedType() throws {
          XCTAssertEqual(
             try Self.assembly.resolveTypeDefinition(fullName: "System.Collections.Generic.List`1")?.nestedTypes.contains { $0.name == "Enumerator" },

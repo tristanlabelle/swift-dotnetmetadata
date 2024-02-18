@@ -24,7 +24,7 @@ public enum SystemAssemblies {
             }
         }()
 
-        public static var mscorlibPath: String? { directoryPath.flatMap { "\($0)\\\(Mscorlib.filename)" } }
+        public static var mscorlibPath: String? { directoryPath.flatMap { "\($0)\\mscorlib.dll" } }
     }
 
     public enum WinMetadata {

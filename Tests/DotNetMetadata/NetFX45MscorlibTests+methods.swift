@@ -98,8 +98,8 @@ extension NetFX45MscorlibTests {
             return XCTFail("Failed to find System.Convert")
         }
 
-        guard let toBooleanByte = convert.findMethod(name: "ToBoolean", paramTypes: [ specialTypes.byte.bindNode() ]),
-            let toBooleanString = convert.findMethod(name: "ToBoolean", paramTypes: [ specialTypes.string.bindNode() ]) else {
+        guard let toBooleanByte = convert.findMethod(name: "ToBoolean", paramTypes: [ try coreLibrary.systemByte.bindNode() ]),
+            let toBooleanString = convert.findMethod(name: "ToBoolean", paramTypes: [ try coreLibrary.systemString.bindNode() ]) else {
             return XCTFail("Failed to find System.Convert.ToBoolean overloads")
         }
 

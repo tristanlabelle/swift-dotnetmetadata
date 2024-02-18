@@ -67,7 +67,6 @@ internal final class AttributeTests: CompiledAssemblyTestCase {
     }
 
     public func testEnumArgument() throws {
-        try XCTSkipIf(true, "Requires CoreLib support for .NET Core")
         let targetType = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "EnumArgument"))
         let attribute = try XCTUnwrap(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments

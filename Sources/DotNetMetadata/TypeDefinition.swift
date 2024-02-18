@@ -179,14 +179,6 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
             return (method, row.semantics)
         }
     }
-
-    public func isMscorlib(namespace: String, name: String) -> Bool {
-        assembly is Mscorlib && self.namespace == namespace && self.name == name
-    }
-
-    public func isMscorlib(fullName: String) -> Bool {
-        assembly is Mscorlib && self.fullName == fullName
-    }
 }
 
 public final class ClassDefinition: TypeDefinition {

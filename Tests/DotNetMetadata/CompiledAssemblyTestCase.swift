@@ -48,10 +48,8 @@ internal class CompiledAssemblyTestCase: XCTestCase {
 
             // Resolve the core library if tests require it
             let assemblyLoadContext = AssemblyLoadContext(resolver: {
-                // .NET Core references System.Runtime, but we can use .NET Framework's mscorlib
-                guard $0.name == "System.Runtime" else { throw AssemblyLoadError.notFound() }
-                guard let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath else { throw AssemblyLoadError.notFound() }
-                return try ModuleFile(path: mscorlibPath)
+                guard $0.name.starts(with: "System.") else { throw AssemblyLoadError.notFound(message: "Unexpected assembly reference.") }
+                return try ModuleFile(path: "\(refsPath)\\\($0.name).dll")
             })
 
             return Data(

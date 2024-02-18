@@ -12,8 +12,14 @@ public typealias AssemblyResolver = (AssemblyIdentity) throws -> ModuleFile
 /// to allow building a .NET type graph spanning types from multiple assemblies.
 /// This is analoguous to the System.AppDomain class in the .NET Framework.
 public final class AssemblyLoadContext {
+    private enum CoreLibraryOrAssemblyReference {
+        case coreLibrary(CoreLibrary)
+        case assemblyReference(AssemblyReference)
+    }
+
     private let resolver: AssemblyResolver
     public private(set) var loadedAssembliesByName: [String: Assembly] = [:]
+    private var _coreLibraryOrAssemblyReference: CoreLibraryOrAssemblyReference? = nil
 
     public init(resolver: @escaping AssemblyResolver) {
         self.resolver = resolver
@@ -25,7 +31,24 @@ public final class AssemblyLoadContext {
         })
     }
 
-    public var mscorlib: Mscorlib? { loadedAssembliesByName[Mscorlib.name] as? Mscorlib }
+    public var coreLibrary: CoreLibrary {
+        get throws {
+            guard let coreLibraryOrAssemblyReference = _coreLibraryOrAssemblyReference else {
+                throw AssemblyLoadError.notFound(message: "No core library assembly loaded or referenced.")
+            }
+
+            switch coreLibraryOrAssemblyReference {
+                case .coreLibrary(let coreLibrary): return coreLibrary
+
+                // Lazy load and create the CoreLibrary instance
+                case .assemblyReference(let reference):
+                    let assembly = try load(identity: reference.identity)
+                    let coreLibrary = CoreLibrary(assembly: assembly)
+                    _coreLibraryOrAssemblyReference = .coreLibrary(coreLibrary)
+                    return coreLibrary
+            }
+        }
+    }
 
     public func load(identity: AssemblyIdentity) throws -> Assembly {
         if let assembly = loadedAssembliesByName[identity.name] {
@@ -54,9 +77,20 @@ public final class AssemblyLoadContext {
             throw AssemblyLoadError.invalid(message: "Assembly with name '\(assemblyName)' already loaded")
         }
 
-        let assembly: Assembly = assemblyName == Mscorlib.name
-            ? try Mscorlib(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
-            : try Assembly(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
+        let assembly: Assembly = try Assembly(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
+        if _coreLibraryOrAssemblyReference == nil {
+            if CoreLibrary.isKnownAssemblyName(assembly.name) {
+                _coreLibraryOrAssemblyReference = .coreLibrary(CoreLibrary(assembly: assembly))
+            }
+            else {
+                for reference in assembly.references {
+                    if CoreLibrary.isKnownAssemblyName(reference.name) {
+                        _coreLibraryOrAssemblyReference = .assemblyReference(reference)
+                        break
+                    }
+                }
+            }
+        }
 
         loadedAssembliesByName[assemblyName] = assembly
         return assembly

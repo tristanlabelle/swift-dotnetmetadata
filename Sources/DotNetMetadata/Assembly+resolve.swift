@@ -74,18 +74,18 @@ extension Assembly {
 
     internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
         switch typeSig {
-            case .void: return mscorlib.specialTypes.void.bindNode()
-            case .boolean: return mscorlib.specialTypes.boolean.bindNode()
-            case .char: return mscorlib.specialTypes.char.bindNode()
+            case .void: return try context.coreLibrary.systemVoid.bindNode()
+            case .boolean: return try context.coreLibrary.systemBoolean.bindNode()
+            case .char: return try context.coreLibrary.systemChar.bindNode()
 
             case let .integer(size, signed):
-                return mscorlib.specialTypes.getInteger(size, signed: signed).bindNode()
+                return try context.coreLibrary.getSystemInt(size, signed: signed).bindNode()
 
             case let .real(double):
-                return (double ? mscorlib.specialTypes.double : mscorlib.specialTypes.single).bindNode()
+                return try (double ? context.coreLibrary.systemDouble : context.coreLibrary.systemSingle).bindNode()
 
-            case .string: return mscorlib.specialTypes.string.bindNode()
-            case .object: return mscorlib.specialTypes.object.bindNode()
+            case .string: return try context.coreLibrary.systemString.bindNode()
+            case .object: return try context.coreLibrary.systemObject.bindNode()
 
             case let .defOrRef(index, _, genericArgs):
                 if genericArgs.count > 0 {
