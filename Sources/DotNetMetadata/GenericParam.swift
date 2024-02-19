@@ -8,6 +8,7 @@ public class GenericParam: Attributable {
     }
 
     public var assembly: Assembly { fatalError() }
+    public var context: AssemblyLoadContext { assembly.context }
     internal var moduleFile: ModuleFile { fatalError() }
     private var tableRow: GenericParamTable.Row { moduleFile.genericParamTable[tableRowIndex] }
 

@@ -9,7 +9,7 @@ public final class BaseInterface: Attributable {
         self.tableRowIndex = tableRowIndex
     }
 
-    internal var assembly: Assembly { inheritingType.assembly }
+    public var assembly: Assembly { inheritingType.assembly }
     internal var moduleFile: ModuleFile { inheritingType.moduleFile }
     private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
 

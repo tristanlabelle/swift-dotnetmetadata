@@ -7,9 +7,9 @@ public class Member: Attributable {
         self.definingType = definingType
     }
 
-    internal var assembly: Assembly { definingType.assembly }
+    public var assembly: Assembly { definingType.assembly }
     internal var moduleFile: ModuleFile { definingType.moduleFile }
-    internal var context: AssemblyLoadContext { assembly.context }
+    public var context: AssemblyLoadContext { assembly.context }
 
     public var metadataToken: MetadataToken { fatalError() }
     internal func resolveName() -> String { fatalError() }

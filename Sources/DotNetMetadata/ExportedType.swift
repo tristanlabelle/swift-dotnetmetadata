@@ -12,7 +12,7 @@ public final class ExportedType {
     }
 
     internal var moduleFile: ModuleFile { assembly.moduleFile }
-    internal var context: AssemblyLoadContext { assembly.context }
+    public var context: AssemblyLoadContext { assembly.context }
 
     public var name: String { moduleFile.resolve(tableRow.typeName) }
 

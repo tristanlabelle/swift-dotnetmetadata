@@ -8,6 +8,15 @@ public enum TypeNode: Hashable {
 }
 
 extension TypeNode {
+    public var context: AssemblyLoadContext? {
+        switch self {
+            case .bound(let bound): return bound.context
+            case .array(let element): return element.context
+            case .genericParam(let param): return param.context
+            case .pointer(let pointee): return pointee?.context
+        }
+    }
+
     public static func bound(_ definition: TypeDefinition, genericArgs: [TypeNode] = []) -> TypeNode {
         .bound(BoundType(definition, genericArgs: genericArgs))
     }

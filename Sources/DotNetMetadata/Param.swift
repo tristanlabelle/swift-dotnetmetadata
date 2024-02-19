@@ -9,7 +9,8 @@ public class ParamBase: Attributable {
         self.signature = signature
     }
 
-    internal var assembly: Assembly { method.assembly }
+    public var assembly: Assembly { method.assembly }
+    public var context: AssemblyLoadContext { assembly.context }
     internal var moduleFile: ModuleFile { method.moduleFile }
 
     public var metadataToken: MetadataToken { fatalError() }

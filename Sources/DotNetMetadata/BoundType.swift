@@ -9,7 +9,17 @@ public struct BoundTypeOf<Definition: TypeDefinition>: Hashable {
         precondition(definition.genericArity == genericArgs.count)
         self.definition = definition
         self.genericArgs = genericArgs
+
+        #if DEBUG
+        for genericArg in genericArgs {
+            if let genericArgContext = genericArg.context {
+                precondition(genericArgContext === definition.context)
+            }
+        }
+        #endif
     }
+
+    public var context: AssemblyLoadContext { definition.context }
 
     public var asNode: TypeNode { .bound(.init(definition, genericArgs: genericArgs)) }
     public var isParameterized: Bool { !genericArgs.allSatisfy { !$0.isParameterized } }
