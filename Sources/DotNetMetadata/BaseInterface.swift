@@ -20,6 +20,6 @@ public final class BaseInterface: Attributable {
     }
     public var interface: BoundInterface { get throws { try _interface.get() } }
 
-    public var attributeTarget: AttributeTargets { .none } // No AttributeTargets value for this
+    public var attributeTarget: AttributeTargets { .interfaceImpl }
     public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
 }

@@ -13,7 +13,7 @@ public struct AttributeTargets: Hashable, OptionSet {
         Self(rawValue: left.rawValue & right.rawValue)
     }
 
-    public static let none = Self([])
+    public static let none = Self()
 
     /// Attribute can be applied to an assembly.
     public static let assembly = Self(rawValue: 1)
@@ -47,6 +47,8 @@ public struct AttributeTargets: Hashable, OptionSet {
     public static let genericParam = Self(rawValue: 0x4000)
     /// Attribute can be applied to any application element.
     public static let all = Self(rawValue: 0x7FFF)
+
+    public static let interfaceImpl = Self() // Not defined in the base class library
 
     public static let allTypes: Self = .class | .struct | .interface | .enum | .delegate
     public static let allMembers: Self = .field | .method | .property | .event | .constructor

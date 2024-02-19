@@ -4,7 +4,7 @@ import DotNetMetadata
 public struct DefaultAttribute: AttributeType {
     public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "DefaultAttribute" }
-    public static var validOn: AttributeTargets { .none } // No attribute target for interface implementations
+    public static var validOn: AttributeTargets { .interfaceImpl }
     public static var allowMultiple: Bool { false }
     public static var inherited: Bool { true }
 
