@@ -1,14 +1,20 @@
 import DotNetMetadata
 import struct Foundation.UUID
 
-public enum GuidAttribute: AttributeType {
+public struct GuidAttribute: AttributeType {
+    public var value: UUID
+
+    public init(_ value: UUID) {
+        self.value = value
+    }
+
     public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "GuidAttribute" }
     public static var validOn: AttributeTargets { .interface | .delegate }
     public static var allowMultiple: Bool { false }
     public static var inherited: Bool { true }
 
-    public static func decode(_ attribute: Attribute) throws -> UUID {
+    public static func decode(_ attribute: Attribute) throws -> Self {
         // [Windows.Foundation.Metadata.Guid(1516535814u, 33850, 19881, 134, 91, 157, 38, 229, 223, 173, 123)]
         let arguments = try attribute.arguments
         guard arguments.count == 11 else { throw InvalidMetadataError.attributeArguments }
@@ -28,11 +34,11 @@ public enum GuidAttribute: AttributeType {
             return value
         }
 
-        return UUID(uuid: (
+        return .init(UUID(uuid: (
             UInt8((a >> 24) & 0xFF), UInt8((a >> 16) & 0xFF), UInt8((a >> 8) & 0xFF), UInt8((a >> 0) & 0xFF),
             UInt8((b >> 8) & 0xFF), UInt8((b >> 0) & 0xFF),
             UInt8((c >> 8) & 0xFF), UInt8((c >> 0) & 0xFF),
             rest[0], rest[1], rest[2], rest[3], rest[4], rest[5], rest[6], rest[7]
-        ))
+        )))
     }
 }

@@ -10,8 +10,8 @@ public func getInterfaceID(_ typeDefinition: TypeDefinition, genericArgs: [TypeN
         return signature.parameterizedID
     }
     else {
-        guard let guid = try typeDefinition.findAttribute(GuidAttribute.self) else { throw WinMDError.missingAttribute }
-        return guid
+        guard let attribute = try typeDefinition.findAttribute(GuidAttribute.self) else { throw WinMDError.missingAttribute }
+        return attribute.value
     }
 }
 

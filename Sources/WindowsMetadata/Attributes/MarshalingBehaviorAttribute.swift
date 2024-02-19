@@ -1,20 +1,26 @@
 import DotNetMetadata
 
 /// Indicates the threading model of a Windows Runtime component.
-public enum MarshalingBehaviorAttribute: AttributeType {
+public struct MarshalingBehaviorAttribute: AttributeType {
+    public var type: MarshalingType
+
+    public init(type: MarshalingType) {
+        self.type = type
+    }
+
     public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "MarshalingBehaviorAttribute" }
     public static var validOn: AttributeTargets { .class }
     public static var allowMultiple: Bool { false }
     public static var inherited: Bool { true }
 
-    public static func decode(_ attribute: Attribute) throws -> MarshalingType {
+    public static func decode(_ attribute: Attribute) throws -> Self {
         let arguments = try attribute.arguments
         guard arguments.count == 1,
             case .constant(let constant) = arguments[0],
             case .int32(let value) = constant,
             let marshalingType = MarshalingType(rawValue: value) else { throw InvalidMetadataError.attributeArguments }
-        return marshalingType
+        return .init(type: marshalingType)
     }
 }
 

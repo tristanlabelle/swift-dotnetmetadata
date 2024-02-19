@@ -7,7 +7,7 @@ extension WinRTTypeSignature {
 
     private static func fromBoundType(_ type: BoundType) throws -> WinRTTypeSignature {
         if type.genericArgs.count > 0 {
-            let id = try type.definition.findAttribute(GuidAttribute.self)!
+            let id = try type.definition.findAttribute(GuidAttribute.self)!.value
             let args = try type.genericArgs.map {
                 guard case .bound(let arg) = $0 else {
                     throw UnexpectedTypeError($0.description, context: "WinRT generic argument", reason: "Not a bound type")
@@ -54,11 +54,11 @@ extension WinRTTypeSignature {
                 return .enum(name: type.definition.fullName, flags: try type.definition.hasAttribute(FlagsAttribute.self))
 
             case is InterfaceDefinition:
-                let id = try type.definition.findAttribute(GuidAttribute.self)!
+                let id = try type.definition.findAttribute(GuidAttribute.self)!.value
                 return .interface(id: id)
 
             case is DelegateDefinition:
-                let id = try type.definition.findAttribute(GuidAttribute.self)!
+                let id = try type.definition.findAttribute(GuidAttribute.self)!.value
                 return .delegate(id: id)
 
             case let classDefinition as ClassDefinition:

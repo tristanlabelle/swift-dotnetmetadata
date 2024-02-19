@@ -1,13 +1,11 @@
 public protocol AttributeType {
-    associatedtype Value = Self
-
     static var namespace: String? { get }
     static var name: String { get }
     static var validOn: AttributeTargets { get }
     static var allowMultiple: Bool { get }
     static var inherited: Bool { get }
 
-    static func decode(_ attribute: Attribute) throws -> Value
+    static func decode(_ attribute: Attribute) throws -> Self
 }
 
 extension Attribute {
@@ -16,7 +14,7 @@ extension Attribute {
         return actualType.namespace == type.namespace && actualType.name == type.name
     }
 
-    public func decode<T: AttributeType>(as type: T.Type) throws -> T.Value {
+    public func decode<T: AttributeType>(as type: T.Type) throws -> T {
         try type.decode(self)
     }
 }

@@ -1,20 +1,26 @@
 import DotNetMetadata
 
 /// Indicates the threading model of a Windows Runtime component.
-public enum ThreadingAttribute: AttributeType {
+public struct ThreadingAttribute: AttributeType {
+    public var model: ThreadingModel
+
+    public init(_ model: ThreadingModel) {
+        self.model = model
+    }
+
     public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "ThreadingAttribute" }
     public static var validOn: AttributeTargets { .class }
     public static var allowMultiple: Bool { false }
     public static var inherited: Bool { true }
 
-    public static func decode(_ attribute: Attribute) throws -> ThreadingModel {
+    public static func decode(_ attribute: Attribute) throws -> Self {
         let arguments = try attribute.arguments
         guard arguments.count == 1,
             case .constant(let constant) = arguments[0],
             case .int32(let value) = constant,
             let threadingModel = ThreadingModel(rawValue: value) else { throw InvalidMetadataError.attributeArguments }
-        return threadingModel
+        return .init(threadingModel)
     }
 }
 
