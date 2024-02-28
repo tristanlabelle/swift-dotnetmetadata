@@ -40,7 +40,7 @@ public class Assembly: CustomDebugStringConvertible {
 
     public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable.first!.name)
 
-    public private(set) lazy var attributes: [Attribute] = { getAttributes(owner: .init(tag: .assembly, oneBasedRowIndex: 1)) }()
+    public private(set) lazy var attributes: [Attribute] = { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) }()
 
     public private(set) lazy var references: [AssemblyReference] = {
         moduleFile.assemblyRefTable.indices.map { 
@@ -56,24 +56,24 @@ public class Assembly: CustomDebugStringConvertible {
         moduleFile.exportedTypeTable.indices.map { ExportedType(assembly: self, tableRowIndex: $0) }
     }()
 
-    private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowIndex: PropertyMapTable.RowIndex] = {
+    private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowRef: TableRowIndex] = {
         .init(uniqueKeysWithValues: moduleFile.propertyMapTable.indices.map {
-            (moduleFile.propertyMapTable[$0].parent!, $0)
+            (moduleFile.propertyMapTable[$0].parent, $0)
         })
     }()
 
-    func findPropertyMap(forTypeDef typeDefRowIndex: TypeDefTable.RowIndex) -> PropertyMapTable.RowIndex? {
-        propertyMapByTypeDefRowIndex[typeDefRowIndex]
+    func findPropertyMapForTypeDef(rowIndex: TableRowIndex) -> PropertyMapTable.RowRef {
+        .init(index: propertyMapByTypeDefRowIndex[.init(index: rowIndex)])
     }
 
-    private lazy var eventMapByTypeDefRowIndex: [TypeDefTable.RowIndex: EventMapTable.RowIndex] = {
+    private lazy var eventMapByTypeDefRowIndex: [TypeDefTable.RowRef: TableRowIndex] = {
         .init(uniqueKeysWithValues: moduleFile.eventMapTable.indices.map {
-            (moduleFile.eventMapTable[$0].parent!, $0)
+            (moduleFile.eventMapTable[$0].parent, $0)
         })
     }()
 
-    func findEventMap(forTypeDef typeDefRowIndex: TypeDefTable.RowIndex) -> EventMapTable.RowIndex? {
-        eventMapByTypeDefRowIndex[typeDefRowIndex]
+    func findEventMapForTypeDef(rowIndex: TableRowIndex) -> EventMapTable.RowRef {
+        .init(index: eventMapByTypeDefRowIndex[.init(index: rowIndex)])
     }
 
     public private(set) lazy var typeDefinitionsByFullName: [String: TypeDefinition] = {

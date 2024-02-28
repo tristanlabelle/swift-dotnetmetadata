@@ -3,10 +3,10 @@ import DotNetMetadataFormat
 /// A type that is exported but whose definition is in another assembly.
 public final class ExportedType {
     public unowned let assembly: Assembly
-    internal let tableRowIndex: ExportedTypeTable.RowIndex
+    internal let tableRowIndex: TableRowIndex // In ExportedType table
     private var tableRow: ExportedTypeTable.Row { moduleFile.exportedTypeTable[tableRowIndex] }
 
-    internal init(assembly: Assembly, tableRowIndex: ExportedTypeTable.RowIndex) {
+    internal init(assembly: Assembly, tableRowIndex: TableRowIndex) {
         self.assembly = assembly
         self.tableRowIndex = tableRowIndex
     }
@@ -31,10 +31,12 @@ public final class ExportedType {
 
     private lazy var _definition = Result {
         let implementationCodedIndex = tableRow.implementation
-        guard let index = implementationCodedIndex.zeroBasedRowIndex else { throw DotNetMetadataFormat.InvalidFormatError.tableConstraint }
+        guard let implementationRowIndex = implementationCodedIndex.rowIndex else {
+            throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+        }
         switch try implementationCodedIndex.tag {
             case .assemblyRef:
-                let definitionAssembly = try self.assembly.resolve(AssemblyRefTable.RowIndex(zeroBased: index))
+                let definitionAssembly = try self.assembly.resolveAssemblyRef(rowIndex: implementationRowIndex)
                 // TODO: Optimize using the typeDefId field
                 // TODO: Support recursive exported types
                 guard let typeDefinition = try definitionAssembly.resolveTypeDefinition(namespace: namespace, name: name) else {

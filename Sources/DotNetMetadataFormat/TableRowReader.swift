@@ -26,9 +26,9 @@ struct TableRowReader {
                 : remainder.consume(type: UInt32.self).pointee)
     }
 
-    mutating func readTableRowIndex<T: TableRow>() -> TableRowIndex<T>? {
+    mutating func readTableRowRef<OtherRow: TableRow>() -> TableRowRef<OtherRow> {
         return .init(
-            oneBased: sizes.getTableRowIndexSize(T.self) == 2
+            oneBasedIndex: sizes.getTableRowIndexSize(OtherRow.self) == 2
                 ? UInt32(remainder.consume(type: UInt16.self).pointee)
                 : remainder.consume(type: UInt32.self).pointee)
     }

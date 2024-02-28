@@ -10,22 +10,23 @@ public struct MetadataToken: Hashable, Comparable {
         rawValue = (UInt32(tableID.rawValue) << 24) | oneBasedRowIndex
     }
 
+    public init(tableID: TableID, rowIndex: TableRowIndex?) {
+        self.init(tableID: tableID, oneBasedRowIndex: rowIndex?.oneBased ?? 0)
+    }
+
     public init(nullOf tableID: TableID) {
         rawValue = UInt32(tableID.rawValue) << 24
     }
 
-    public init<Row: TableRow>(_ rowIndex: TableRowIndex<Row>) {
-        self.init(tableID: Row.tableID, oneBasedRowIndex: rowIndex.oneBased)
-    }
-
-    public init<Row: TableRow>(_ rowIndex: TableRowIndex<Row>?) {
-        self.init(tableID: Row.tableID, oneBasedRowIndex: rowIndex?.oneBased ?? 0)
+    public init<Row: TableRow>(_ tableRowRef: TableRowRef<Row>) {
+        self.init(tableID: Row.tableID, rowIndex: tableRowRef.index)
     }
 
     // TODO: This is not necessarily a table index. Other tokens are possible: string = 0x70, name = 0x71, baseType = 0x72
     public var tableID: TableID { .init(rawValue: UInt8(rawValue >> 24))! }
     public var oneBasedRowIndex: UInt32 { rawValue & 0xFFFFFF }
-    public var isNull: Bool { oneBasedRowIndex == 0 }
+    public var rowIndex: TableRowIndex? { .init(oneBased: oneBasedRowIndex) }
+    public var isNull: Bool { rowIndex == nil }
 
     public static func < (lhs: MetadataToken, rhs: MetadataToken) -> Bool {
         lhs.rawValue < rhs.rawValue

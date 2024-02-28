@@ -8,14 +8,14 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     public static let genericParamCountSeparator: Character = "`"
 
     public let assembly: Assembly
-    public let tableRowIndex: TypeDefTable.RowIndex
+    public let tableRowIndex: TableRowIndex // In TypeDef table
 
-    fileprivate init(assembly: Assembly, tableRowIndex: TypeDefTable.RowIndex) {
+    fileprivate init(assembly: Assembly, tableRowIndex: TableRowIndex) {
         self.assembly = assembly
         self.tableRowIndex = tableRowIndex
     }
 
-    internal static func create(assembly: Assembly, tableRowIndex: TypeDefTable.RowIndex) -> TypeDefinition {
+    internal static func create(assembly: Assembly, tableRowIndex: TableRowIndex) -> TypeDefinition {
         // Figuring out the kind requires checking the base type,
         // but we must be careful to not look up any other `TypeDefinition`
         // instances since they might not have been created yet.
@@ -97,8 +97,8 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
 
     private lazy var _enclosingType = Result<TypeDefinition?, any Error> {
         guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: .init(index: tableRowIndex)) else { return nil }
-        guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass else { return nil }
-        return try assembly.resolve(enclosingTypeDefRowIndex)
+        guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass.index else { return nil }
+        return try assembly.resolveTypeDef(rowIndex: enclosingTypeDefRowIndex)
     }
     public var enclosingType: TypeDefinition? { get throws { try _enclosingType.get() } }
 
@@ -107,14 +107,14 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     /// in the nested type, i.e. given "Enclosing<T>.Nested<U>" in C#, the metadata
     /// for "Nested" should have generic parameters T (redeclared) and U.
     public private(set) lazy var genericParams: [GenericTypeParam] = {
-        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .typeDef, oneBasedRowIndex: tableRowIndex.oneBased)).map {
+        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .typeDef, rowIndex: tableRowIndex)).map {
             GenericTypeParam(definingType: self, tableRowIndex: $0)
         }
     }()
 
     public var genericArity: Int { genericParams.count }
 
-    private lazy var _base = Result { try assembly.resolveOptionalBoundType(tableRow.extends) }
+    private lazy var _base = Result { try assembly.resolveTypeDefOrRefToBoundType(tableRow.extends) }
     public var base: BoundType? { get throws { try _base.get() } }
 
     public private(set) lazy var baseInterfaces: [BaseInterface] = {
@@ -142,34 +142,30 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     }()
 
     public private(set) lazy var properties: [Property] = {
-        guard let propertyMapRowIndex = assembly.findPropertyMap(forTypeDef: tableRowIndex) else { return [] }
+        guard let propertyMapRowIndex = assembly.findPropertyMapForTypeDef(rowIndex: tableRowIndex).index else { return [] }
         return getChildRowRange(parent: moduleFile.propertyMapTable,
             parentRowIndex: propertyMapRowIndex,
             childTable: moduleFile.propertyTable,
-            childSelector: { $0.propertyList }).map {
-            Property.create(definingType: self, tableRowIndex: $0)
-        }
+            childSelector: { $0.propertyList }).map { Property.create(definingType: self, tableRowIndex: $0) }
     }()
 
     public private(set) lazy var events: [Event] = {
-        guard let eventMapRowIndex: EventMapTable.RowIndex = assembly.findEventMap(forTypeDef: tableRowIndex) else { return [] }
+        guard let eventMapRowIndex: TableRowIndex = assembly.findEventMapForTypeDef(rowIndex: tableRowIndex).index else { return [] }
         return getChildRowRange(parent: moduleFile.eventMapTable,
             parentRowIndex: eventMapRowIndex,
             childTable: moduleFile.eventTable,
-            childSelector: { $0.eventList }).map {
-            Event(definingType: self, tableRowIndex: $0)
-        }
+            childSelector: { $0.eventList }).map { Event(definingType: self, tableRowIndex: $0) }
     }()
 
     public var attributeTarget: AttributeTargets { fatalError() }
     public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: .typeDef, oneBasedRowIndex: tableRowIndex.oneBased))
+        assembly.getAttributes(owner: .init(tag: .typeDef, rowIndex: tableRowIndex))
     }()
 
     private lazy var _nestedTypes = Result {
-        try moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
-            let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass!
-            return try assembly.resolve(nestedTypeRowIndex)
+        try moduleFile.nestedClassTable.findAllNested(enclosing: .init(index: tableRowIndex)).map {
+            let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass.index!
+            return try assembly.resolveTypeDef(rowIndex: nestedTypeRowIndex)
         }
     }
     public var nestedTypes: [TypeDefinition] { get throws { try _nestedTypes.get() } }
@@ -177,7 +173,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     internal func getAccessors(owner: CodedIndices.HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
         moduleFile.methodSemanticsTable.findAll(primaryKey: owner).map {
             let row = moduleFile.methodSemanticsTable[$0]
-            let method = methods.first { $0.tableRowIndex == row.method }!
+            let method = methods.first { $0.tableRowIndex == row.method.index }!
             return (method, row.semantics)
         }
     }

@@ -1,9 +1,9 @@
 import DotNetMetadataFormat
 
 public class GenericParam: Attributable {
-    internal let tableRowIndex: GenericParamTable.RowIndex
+    internal let tableRowIndex: TableRowIndex // In GenericParam table
 
-    init(tableRowIndex: GenericParamTable.RowIndex) {
+    init(tableRowIndex: TableRowIndex) {
         self.tableRowIndex = tableRowIndex
     }
 
@@ -21,7 +21,7 @@ public class GenericParam: Attributable {
 
     private lazy var _constraints = Result {
         try moduleFile.genericParamConstraintTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
-            try assembly.resolve(moduleFile.genericParamConstraintTable[$0].constraint)!
+            try assembly.resolveTypeDefOrRef(moduleFile.genericParamConstraintTable[$0].constraint)!
         }
     }
 
@@ -29,7 +29,7 @@ public class GenericParam: Attributable {
 
     public var attributeTarget: AttributeTargets { .genericParam }
     public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: .genericParam, oneBasedRowIndex: tableRowIndex.oneBased))
+        assembly.getAttributes(owner: .init(tag: .genericParam, rowIndex: tableRowIndex))
     }()
 
     public final func bind(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
@@ -62,7 +62,7 @@ public class GenericParam: Attributable {
 public final class GenericTypeParam: GenericParam {
     public unowned let definingType: TypeDefinition
 
-    init(definingType: TypeDefinition, tableRowIndex: GenericParamTable.RowIndex) {
+    init(definingType: TypeDefinition, tableRowIndex: TableRowIndex) {
         self.definingType = definingType
         super.init(tableRowIndex: tableRowIndex)
     }
@@ -74,7 +74,7 @@ public final class GenericTypeParam: GenericParam {
 public final class GenericMethodParam: GenericParam {
     public let definingMethod: Method
 
-    init(definingMethod: Method, tableRowIndex: GenericParamTable.RowIndex) {
+    init(definingMethod: Method, tableRowIndex: TableRowIndex) {
         self.definingMethod = definingMethod
         super.init(tableRowIndex: tableRowIndex)
     }

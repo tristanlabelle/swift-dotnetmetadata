@@ -10,26 +10,14 @@ public struct CodedIndex<Tag: CodedIndexTag>: Hashable, Comparable {
         self.value = value
     }
 
-    public init(tag: Tag, oneBasedRowIndex: UInt32) {
-        self.init(value: (oneBasedRowIndex << Tag.bitCount) | UInt32(tag.rawValue))
+    public init(tag: Tag, rowIndex: TableRowIndex?) {
+        self.init(value: (rowIndex.oneBased << Tag.bitCount) | UInt32(tag.rawValue))
     }
 
-    public init(tag: Tag, zeroBasedRowIndex: UInt32) {
-        self.init(tag: tag, oneBasedRowIndex: zeroBasedRowIndex + 1)
-    }
+    public static func null(tag: Tag) -> CodedIndex { .init(tag: tag, rowIndex: nil) }
 
-    public var oneBasedRowIndex: UInt32 {
-        value >> Tag.bitCount
-    }
-
-    public var zeroBasedRowIndex: UInt32? {
-        switch oneBasedRowIndex {
-            case 0: return nil
-            case let i: return i - 1
-        }
-    }
-
-    public var isNull: Bool { oneBasedRowIndex == 0 }
+    public var rowIndex: TableRowIndex? { TableRowIndex(oneBased: value >> Tag.bitCount) }
+    public var isNull: Bool { rowIndex == nil }
 
     public var tag: Tag {
         get throws {
@@ -43,7 +31,7 @@ public struct CodedIndex<Tag: CodedIndexTag>: Hashable, Comparable {
             guard rawTag < Tag.tables.count, let tableID = Tag.tables[rawTag] else {
                 throw InvalidFormatError.tableConstraint
             }
-            return MetadataToken(tableID: tableID, oneBasedRowIndex: oneBasedRowIndex)
+            return MetadataToken(tableID: tableID, rowIndex: rowIndex)
         }
     }
 

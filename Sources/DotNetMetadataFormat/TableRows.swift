@@ -36,7 +36,7 @@ public enum TableRows {
     public struct ClassLayout {
         public var packingSize: UInt16
         public var classSize: UInt32
-        public var parent: TypeDefTable.RowIndex?
+        public var parent: TypeDefTable.RowRef
     }
 
     public struct Constant {
@@ -64,8 +64,8 @@ public enum TableRows {
     }
 
     public struct EventMap {
-        public var parent: TypeDefTable.RowIndex?
-        public var eventList: EventTable.RowIndex?
+        public var parent: TypeDefTable.RowRef
+        public var eventList: EventTable.RowRef
     }
 
     public struct ExportedType {
@@ -84,7 +84,7 @@ public enum TableRows {
 
     public struct FieldLayout {
         public var offset: UInt32
-        public var field: FieldTable.RowIndex?
+        public var field: FieldTable.RowRef
     }
 
     public struct FieldMarshal {
@@ -94,7 +94,7 @@ public enum TableRows {
 
     public struct FieldRva {
         public var rva: UInt32
-        public var field: FieldTable.RowIndex?
+        public var field: FieldTable.RowRef
     }
 
     public struct File {
@@ -111,7 +111,7 @@ public enum TableRows {
     }
 
     public struct GenericParamConstraint {
-        public var owner: GenericParamTable.RowIndex?
+        public var owner: GenericParamTable.RowRef
         public var constraint: CodedIndices.TypeDefOrRef
     }
 
@@ -119,11 +119,11 @@ public enum TableRows {
         public var mappingFlags: PInvokeAttributes
         public var memberForwarded: CodedIndices.MemberForwarded
         public var importName: StringHeap.Offset
-        public var importScope: ModuleRefTable.RowIndex?
+        public var importScope: ModuleRefTable.RowRef
     }
 
     public struct InterfaceImpl {
-        public var `class`: TypeDefTable.RowIndex?
+        public var `class`: TypeDefTable.RowRef
         public var interface: CodedIndices.TypeDefOrRef
     }
 
@@ -146,18 +146,18 @@ public enum TableRows {
         public var flags: MethodAttributes
         public var name: StringHeap.Offset
         public var signature: BlobHeap.Offset
-        public var paramList: ParamTable.RowIndex?
+        public var paramList: ParamTable.RowRef
     }
 
     public struct MethodImpl {
-        public var `class`: TypeDefTable.RowIndex?
+        public var `class`: TypeDefTable.RowRef
         public var methodBody: CodedIndices.MethodDefOrRef
         public var methodDeclaration: CodedIndices.MethodDefOrRef
     }
 
     public struct MethodSemantics {
         public var semantics: MethodSemanticsAttributes
-        public var method: MethodDefTable.RowIndex?
+        public var method: MethodDefTable.RowRef
         public var association: CodedIndices.HasSemantics
     }
 
@@ -179,8 +179,8 @@ public enum TableRows {
     }
 
     public struct NestedClass {
-        public var nestedClass: TypeDefTable.RowIndex?
-        public var enclosingClass: TypeDefTable.RowIndex?
+        public var nestedClass: TypeDefTable.RowRef
+        public var enclosingClass: TypeDefTable.RowRef
     }
 
     public struct Param {
@@ -196,8 +196,8 @@ public enum TableRows {
     }
 
     public struct PropertyMap {
-        public var parent: TypeDefTable.RowIndex?
-        public var propertyList: PropertyTable.RowIndex?
+        public var parent: TypeDefTable.RowRef
+        public var propertyList: PropertyTable.RowRef
     }
 
     public struct StandAloneSig {
@@ -209,8 +209,8 @@ public enum TableRows {
         public var typeName: StringHeap.Offset
         public var typeNamespace: StringHeap.Offset
         public var extends: CodedIndices.TypeDefOrRef
-        public var fieldList: FieldTable.RowIndex?
-        public var methodList: MethodDefTable.RowIndex?
+        public var fieldList: FieldTable.RowRef
+        public var methodList: MethodDefTable.RowRef
     }
 
     public struct TypeRef {

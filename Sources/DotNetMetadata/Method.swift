@@ -2,16 +2,16 @@ import DotNetMetadataFormat
 
 /// An unbound method definition, which may have generic parameters.
 public class Method: Member {
-    internal let tableRowIndex: MethodDefTable.RowIndex
+    internal let tableRowIndex: TableRowIndex // In MethodDef table
     private var tableRow: MethodDefTable.Row { moduleFile.methodDefTable[tableRowIndex] }
     private var flags: MethodAttributes { tableRow.flags }
 
-    fileprivate init(definingType: TypeDefinition, tableRowIndex: MethodDefTable.RowIndex) {
+    fileprivate init(definingType: TypeDefinition, tableRowIndex: TableRowIndex) {
         self.tableRowIndex = tableRowIndex
         super.init(definingType: definingType)
     }
 
-    internal static func create(definingType: TypeDefinition, tableRowIndex: MethodDefTable.RowIndex) -> Method {
+    internal static func create(definingType: TypeDefinition, tableRowIndex: TableRowIndex) -> Method {
         let name = definingType.moduleFile.resolve(definingType.moduleFile.methodDefTable[tableRowIndex].name)
         if name == Constructor.name {
             return Constructor(definingType: definingType, tableRowIndex: tableRowIndex)
@@ -21,7 +21,7 @@ public class Method: Member {
         }
     }
 
-    public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
+    public override var metadataToken: MetadataToken { .init(tableID: .methodDef, rowIndex: tableRowIndex) }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
@@ -85,7 +85,7 @@ public class Method: Member {
     public var returnType: TypeNode { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = {
-        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .methodDef, oneBasedRowIndex: tableRowIndex.oneBased)).map {
+        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .methodDef, rowIndex: tableRowIndex)).map {
             GenericMethodParam(definingMethod: self, tableRowIndex: $0)
         }
     }()

@@ -2,9 +2,9 @@ import DotNetMetadataFormat
 
 public final class Attribute {
     public unowned let assembly: Assembly
-    internal let tableRowIndex: CustomAttributeTable.RowIndex
+    internal let tableRowIndex: TableRowIndex // In CustomAttribute table
 
-    init(tableRowIndex: CustomAttributeTable.RowIndex, assembly: Assembly) {
+    init(tableRowIndex: TableRowIndex, assembly: Assembly) {
         self.tableRowIndex = tableRowIndex
         self.assembly = assembly
     }
@@ -13,7 +13,7 @@ public final class Attribute {
     private var tableRow: CustomAttributeTable.Row { moduleFile.customAttributeTable[tableRowIndex] }
 
     private lazy var _constructor = Result {
-        try assembly.resolve(tableRow.type) as! Constructor
+        try assembly.resolveCustomAttributeType(tableRow.type) as! Constructor
     }
     public var constructor: Constructor { get throws { try _constructor.get() } }
     public var type: TypeDefinition { get throws { try constructor.definingType } }

@@ -15,12 +15,8 @@ public final class Table<Row> where Row: TableRow {
     public var count: Int { sizes.getRowCount(Row.tableID) }
     public var rowSize: Int { buffer.count / count }
 
-    public subscript(zeroBasedIndex zeroBasedIndex: Int) -> Row {
-        let rowBuffer = buffer.sub(offset: zeroBasedIndex * rowSize, count: rowSize)
+    public subscript(_ index: TableRowIndex) -> Row {
+        let rowBuffer = buffer.sub(offset: Int(index.zeroBased) * rowSize, count: rowSize)
         return Row(reading: rowBuffer, sizes: sizes)
-    }
-
-    public subscript(zeroBasedIndex zeroBasedIndex: UInt32) -> Row {
-        self[zeroBasedIndex: Int(zeroBasedIndex)]
     }
 }

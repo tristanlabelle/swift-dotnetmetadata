@@ -1,16 +1,16 @@
 import DotNetMetadataFormat
 
 public final class Field: Member {
-    internal let tableRowIndex: FieldTable.RowIndex
+    internal let tableRowIndex: TableRowIndex // In Field table
     private var tableRow: FieldTable.Row { moduleFile.fieldTable[tableRowIndex] }
     private var flags: FieldAttributes { tableRow.flags }
 
-    init(definingType: TypeDefinition, tableRowIndex: FieldTable.RowIndex) {
+    init(definingType: TypeDefinition, tableRowIndex: TableRowIndex) {
         self.tableRowIndex = tableRowIndex
         super.init(definingType: definingType)
     }
 
-    public override var metadataToken: MetadataToken { tableRowIndex.metadataToken }
+    public override var metadataToken: MetadataToken { .init(tableID: .field, rowIndex: tableRowIndex) }
     internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
@@ -36,12 +36,12 @@ public final class Field: Member {
     }
     public var signature: FieldSig { get throws { try _signature.get() } }
 
-    private lazy var _type = Result { try assembly.resolve(signature.type, typeContext: definingType) }
+    private lazy var _type = Result { try assembly.resolveTypeSig(signature.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
 
     private lazy var _literalValue = Result {
         guard tableRow.flags.contains(.literal) else { return nil as Constant? }
-        return try Constant(moduleFile: moduleFile, owner: .init(tag: .field, oneBasedRowIndex: tableRowIndex.oneBased))
+        return try Constant(moduleFile: moduleFile, owner: .init(tag: .field, rowIndex: tableRowIndex))
     }
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
 }

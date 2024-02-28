@@ -5,7 +5,9 @@
 /// > that is, it behaves like a null reference.)
 /// To leverage the Swift type system better, we represent them as zero-based
 /// and use Optional<TableRowIndex> to represent nullability.
-public struct TableRowIndex<Row: TableRow>: Hashable, Comparable {
+public struct TableRowIndex: Hashable, Comparable {
+    public static var first: TableRowIndex { .init(zeroBased: 0) }
+
     // Imitate a UInt24 using 3 bytes since values never exceed 0xFF_FF_FF and so Optional<TableRowIndex> is 4 bytes.
     private let zeroBased_low16: UInt16
     private let zeroBased_high8: UInt8
@@ -24,9 +26,8 @@ public struct TableRowIndex<Row: TableRow>: Hashable, Comparable {
 
     public var zeroBased: UInt32 { (UInt32(zeroBased_high8) << 16) | UInt32(zeroBased_low16) }
     public var oneBased: UInt32 { zeroBased + 1 }
-    public var metadataToken: MetadataToken { .init(self) }
 
-    public static func < (lhs: TableRowIndex<Row>, rhs: TableRowIndex<Row>) -> Bool {
+    public static func < (lhs: TableRowIndex, rhs: TableRowIndex) -> Bool {
         return lhs.zeroBased < rhs.zeroBased
     }
 }
@@ -41,4 +42,8 @@ extension TableRowIndex: Strideable {
     public func advanced(by n: Stride) -> Self {
         .init(zeroBased: UInt32(Int(zeroBased) + n))
     }
+}
+
+extension Optional where Wrapped == TableRowIndex {
+    public var oneBased: UInt32 { self?.oneBased ?? 0 }
 }

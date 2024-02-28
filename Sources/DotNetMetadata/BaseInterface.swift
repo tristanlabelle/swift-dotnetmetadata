@@ -2,9 +2,9 @@ import DotNetMetadataFormat
 
 public final class BaseInterface: Attributable {
     public unowned let inheritingType: TypeDefinition
-    internal let tableRowIndex: InterfaceImplTable.RowIndex
+    internal let tableRowIndex: TableRowIndex // In InterfaceImpl table
 
-    init(inheritingType: TypeDefinition, tableRowIndex: InterfaceImplTable.RowIndex) {
+    init(inheritingType: TypeDefinition, tableRowIndex: TableRowIndex) {
         self.inheritingType = inheritingType
         self.tableRowIndex = tableRowIndex
     }
@@ -14,7 +14,7 @@ public final class BaseInterface: Attributable {
     private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
 
     private lazy var _interface = Result {
-        guard let boundType = try assembly.resolveOptionalBoundType(tableRow.interface, typeContext: inheritingType),
+        guard let boundType = try assembly.resolveTypeDefOrRefToBoundType(tableRow.interface, typeContext: inheritingType),
             let interfaceDefinition = boundType.definition as? InterfaceDefinition else { throw InvalidFormatError.tableConstraint }
         return interfaceDefinition.bind(genericArgs: boundType.genericArgs)
     }
@@ -22,6 +22,6 @@ public final class BaseInterface: Attributable {
 
     public var attributeTarget: AttributeTargets { .interfaceImpl }
     public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: .interfaceImpl, oneBasedRowIndex: tableRowIndex.oneBased))
+        assembly.getAttributes(owner: .init(tag: .interfaceImpl, rowIndex: tableRowIndex))
     }()
 }

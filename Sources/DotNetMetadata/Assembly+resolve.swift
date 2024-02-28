@@ -1,78 +1,79 @@
 import DotNetMetadataFormat
 
 extension Assembly {
-    internal func resolveType(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode? {
-        guard !metadataToken.isNull else { return nil }
+    internal func resolveTypeToken(_ metadataToken: MetadataToken, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode? {
+        guard let rowIndex = metadataToken.rowIndex else { return nil }
         switch metadataToken.tableID {
             case .typeDef:
-                return try resolve(TypeDefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
+                return try resolveTypeDef(rowIndex: rowIndex).bindNode()
             case .typeRef:
-                return try resolve(TypeRefTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1)).bindNode()
+                return try resolveTypeRef(rowIndex: rowIndex).bindNode()
             case .typeSpec:
-                return try resolve(TypeSpecTable.RowIndex(zeroBased: metadataToken.oneBasedRowIndex - 1), typeContext: typeContext, methodContext: methodContext)
+                return try resolveTypeSpec(rowIndex: rowIndex, typeContext: typeContext, methodContext: methodContext)
             default:
                 fatalError("Not implemented: \(metadataToken)")
         }
     }
 
-    internal func resolve(_ codedIndex: CodedIndices.TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode? {
-        guard let zeroBasedRowIndex = codedIndex.zeroBasedRowIndex else { return nil }
+    internal func resolveTypeDefOrRef(_ codedIndex: CodedIndices.TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode? {
+        guard let rowIndex = codedIndex.rowIndex else { return nil }
         switch try codedIndex.tag {
             case .typeDef:
-                return try resolve(TypeDefTable.RowIndex(zeroBased: zeroBasedRowIndex)).bindNode()
+                return try resolveTypeDef(rowIndex: rowIndex).bindNode()
             case .typeRef:
-                return try resolve(TypeRefTable.RowIndex(zeroBased: zeroBasedRowIndex)).bindNode()
+                return try resolveTypeRef(rowIndex: rowIndex).bindNode()
             case .typeSpec:
-                return try resolve(TypeSpecTable.RowIndex(zeroBased: zeroBasedRowIndex), typeContext: typeContext, methodContext: methodContext)
+                return try resolveTypeSpec(rowIndex: rowIndex, typeContext: typeContext, methodContext: methodContext)
         }
     }
 
-    internal func resolveOptionalBoundType(_ codedIndex: CodedIndices.TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> BoundType? {
-        guard let typeNode = try resolve(codedIndex, typeContext: typeContext, methodContext: methodContext) else { return nil }
+    internal func resolveTypeDefOrRefToBoundType(_ codedIndex: CodedIndices.TypeDefOrRef, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> BoundType? {
+        guard let typeNode = try resolveTypeDefOrRef(codedIndex, typeContext: typeContext, methodContext: methodContext) else { return nil }
         switch typeNode {
             case .bound(let bound): return bound
             default: fatalError("Expected a bound type definition")
         }
     }
 
-    internal func resolve(_ index: TypeDefTable.RowIndex) throws -> TypeDefinition {
-        typeDefinitions[Int(index.zeroBased)]
+    internal func resolveTypeDef(rowIndex: TableRowIndex) throws -> TypeDefinition {
+        typeDefinitions[Int(rowIndex.zeroBased)]
     }
 
-    internal func resolve(_ index: TypeRefTable.RowIndex) throws -> TypeDefinition {
-        let row = moduleFile.typeRefTable[index]
+    internal func resolveTypeRef(rowIndex: TableRowIndex) throws -> TypeDefinition {
+        let row = moduleFile.typeRefTable[rowIndex]
         let name = moduleFile.resolve(row.typeName)
         let namespace = moduleFile.resolve(row.typeNamespace)
-        guard let zeroBasedRowIndex = row.resolutionScope.zeroBasedRowIndex else {
+        guard let resolutionScopeRowIndex = row.resolutionScope.rowIndex else {
             fatalError("Not implemented: null resolution scope")
         }
 
         switch try row.resolutionScope.tag {
             case .module:
                 // Assume single-module assembly
+                assert(resolutionScopeRowIndex.zeroBased == 0)
                 return try resolveTypeDefinition(namespace: namespace, name: name)!
             case .assemblyRef:
-                return try resolve(AssemblyRefTable.RowIndex(zeroBased: zeroBasedRowIndex))
+                return try resolveAssemblyRef(rowIndex: resolutionScopeRowIndex)
                     .resolveTypeDefinition(namespace: namespace, name: name)!
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }
     }
 
-    internal func resolve(_ index: TypeSpecTable.RowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
-        let typeSpecRow = moduleFile.typeSpecTable[index]
+    internal func resolveTypeSpec(rowIndex: TableRowIndex, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
+        let typeSpecRow = moduleFile.typeSpecTable[rowIndex]
         let signatureBlob = moduleFile.resolve(typeSpecRow.signature)
         let typeSig = try TypeSig(blob: signatureBlob)
-        return try resolve(typeSig, typeContext: typeContext, methodContext: methodContext)
+        return try resolveTypeSig(typeSig, typeContext: typeContext, methodContext: methodContext)
     }
 
-    internal func resolve(_ index: AssemblyRefTable.RowIndex) throws -> Assembly {
-        let row = moduleFile.assemblyRefTable[index]
+    internal func resolveAssemblyRef(rowIndex: TableRowIndex) throws -> Assembly {
+        let row = moduleFile.assemblyRefTable[rowIndex]
         let identity = AssemblyIdentity(fromRow: row, in: moduleFile)
         return try context.load(identity: identity)
     }
 
-    internal func resolve(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
+    internal func resolveTypeSig(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
         switch typeSig {
             case .void: return try context.coreLibrary.systemVoid.bindNode()
             case .boolean: return try context.coreLibrary.systemBoolean.bindNode()
@@ -89,25 +90,27 @@ extension Assembly {
 
             case let .defOrRef(codedIndex, _, genericArgs):
                 if genericArgs.count > 0 {
-                    let genericArgs = try genericArgs.map { try resolve($0, typeContext: typeContext, methodContext: methodContext) }
-                    let zeroBasedRowIndex = codedIndex.zeroBasedRowIndex!
+                    let genericArgs = try genericArgs.map {
+                        try resolveTypeSig($0, typeContext: typeContext, methodContext: methodContext)
+                    }
+                    let rowIndex = codedIndex.rowIndex!
                     switch try codedIndex.tag {
-                        case .typeDef: return try resolve(TypeDefTable.RowIndex(zeroBased: zeroBasedRowIndex)).bindType(genericArgs: genericArgs).asNode
-                        case .typeRef: return try resolve(TypeRefTable.RowIndex(zeroBased: zeroBasedRowIndex)).bindType(genericArgs: genericArgs).asNode
+                        case .typeDef: return try resolveTypeDef(rowIndex: rowIndex).bindType(genericArgs: genericArgs).asNode
+                        case .typeRef: return try resolveTypeRef(rowIndex: rowIndex).bindType(genericArgs: genericArgs).asNode
                         default: fatalError("Not implemented: unexpected generic type reference")
                     }
                 }
                 else {
-                    return try resolve(codedIndex)!
+                    return try resolveTypeDefOrRef(codedIndex)!
                 }
 
             case let .szarray(_, of: element):
-                return .array(of: try resolve(element, typeContext: typeContext, methodContext: methodContext))
+                return .array(of: try resolveTypeSig(element, typeContext: typeContext, methodContext: methodContext))
 
             case let .ptr(_, to: pointeeSig):
                 let pointeeNode: TypeNode?
                 if case .void = pointeeSig { pointeeNode = nil }
-                else { pointeeNode = try resolve(pointeeSig, typeContext: typeContext, methodContext: methodContext) }
+                else { pointeeNode = try resolveTypeSig(pointeeSig, typeContext: typeContext, methodContext: methodContext) }
                 return .pointer(to: pointeeNode)
 
             case let .genericParam(index, method):
@@ -124,25 +127,26 @@ extension Assembly {
         }
     }
 
-    internal func resolve(_ methodDefRowIndex: MethodDefTable.RowIndex) throws -> Method {
-        guard let typeDefRowIndex = moduleFile.typeDefTable.findMethodOwner(methodDefRowIndex) else {
-            fatalError("No owner found for method \(methodDefRowIndex)")
+    internal func resolveMethodDef(rowIndex: TableRowIndex) throws -> Method {
+        guard let typeDefRowIndex = moduleFile.typeDefTable.findMethodDefOwner(rowIndex: rowIndex) else {
+            fatalError("No owner found for method \(rowIndex)")
         }
 
-        let methodIndex = methodDefRowIndex.zeroBased - moduleFile.typeDefTable[typeDefRowIndex].methodList!.zeroBased
-        return try resolve(typeDefRowIndex).methods[Int(methodIndex)]
+        let firstTypeDefMethodRowIndex = moduleFile.typeDefTable[typeDefRowIndex].methodList.index!
+        let methodIndex = rowIndex.zeroBased - firstTypeDefMethodRowIndex.zeroBased
+        return try resolveTypeDef(rowIndex: typeDefRowIndex).methods[Int(methodIndex)]
     }
 
-    internal func resolveMethod(_ index: MemberRefTable.RowIndex) throws -> Method? {
-        let row = moduleFile.memberRefTable[index]
+    internal func resolveMethodRef(rowIndex: TableRowIndex) throws -> Method? {
+        let row = moduleFile.memberRefTable[rowIndex]
 
         guard let typeDefinition: TypeDefinition = try {
-            guard let index = row.class.zeroBasedRowIndex else { return nil }
+            guard let classRowIndex = row.class.rowIndex else { return nil }
             switch try row.class.tag {
                 case .typeDef:
-                    return try resolve(TypeDefTable.RowIndex(zeroBased: index))
+                    return try resolveTypeDef(rowIndex: classRowIndex)
                 case .typeRef:
-                    return try resolve(TypeRefTable.RowIndex(zeroBased: index))
+                    return try resolveTypeRef(rowIndex: classRowIndex)
                 default:
                     fatalError("Not implemented: Resolving \(row.class)")
             }
@@ -163,12 +167,12 @@ extension Assembly {
             name: name,
             static: !sig.thisParam.isPresent,
             genericArity: genericArity,
-            paramTypes: sig.params.map { try resolve($0.type) })
+            paramTypes: sig.params.map { try resolveTypeSig($0.type) })
         guard let method else { return nil }
 
         func matches(_ param: ParamBase, _ paramSig: ParamSig) throws -> Bool {
             // TODO: Compare CustomMods
-            try param.isByRef == paramSig.byRef && param.type == resolve(paramSig.type)
+            try param.isByRef == paramSig.byRef && param.type == resolveTypeSig(paramSig.type)
         }
 
         guard (try? matches(method.returnParam, sig.returnParam)) == true else { return nil }
@@ -177,13 +181,13 @@ extension Assembly {
         return method
     }
 
-    internal func resolve(_ codedIndex: CodedIndices.CustomAttributeType) throws -> Method? {
-        guard let rowIndex = codedIndex.zeroBasedRowIndex else { return nil }
+    internal func resolveCustomAttributeType(_ codedIndex: CodedIndices.CustomAttributeType) throws -> Method? {
+        guard let rowIndex = codedIndex.rowIndex else { return nil }
         switch try codedIndex.tag {
             case .methodDef:
-                return try resolve(MethodDefTable.RowIndex(zeroBased: rowIndex))
+                return try resolveMethodDef(rowIndex: rowIndex)
             case .memberRef:
-                return try resolveMethod(MemberRefTable.RowIndex(zeroBased: rowIndex))
+                return try resolveMethodRef(rowIndex: rowIndex)
         }
     }
 }

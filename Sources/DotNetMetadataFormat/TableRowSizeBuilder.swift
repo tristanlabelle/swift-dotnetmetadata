@@ -20,8 +20,8 @@ internal struct TableRowSizeBuilder<Row> where Row: TableRow {
         adding(size: sizes.getHeapOffsetSize(T.self))
     }
 
-    public func addingTableRowIndex<T: TableRow>(_: KeyPath<Row, TableRowIndex<T>?>) -> Self {
-        adding(size: sizes.getTableRowIndexSize(T.tableID))
+    public func addingTableRowRef<OtherRow: TableRow>(_: KeyPath<Row, TableRowRef<OtherRow>>) -> Self {
+        adding(size: sizes.getTableRowIndexSize(OtherRow.tableID))
     }
 
     public func addingCodedIndex<Tag: CodedIndexTag>(_: KeyPath<Row, CodedIndex<Tag>>) -> Self {

@@ -21,14 +21,14 @@ extension ModuleFile {
 
     private func getTypeDefinitionFromBase(_ extends: CodedIndices.TypeDefOrRef) throws -> TypeDefinitionKind {
         let systemTypeName: String
-        guard let rowIndex = extends.zeroBasedRowIndex else { return .class }
+        guard let rowIndex = extends.rowIndex else { return .class }
         switch try extends.tag {
             case .typeDef:
-                let typeDefRow = typeDefTable[zeroBasedIndex: rowIndex]
+                let typeDefRow = typeDefTable[rowIndex]
                 guard resolve(typeDefRow.typeNamespace) == "System" else { return .class }
                 systemTypeName = resolve(typeDefRow.typeName)
             case .typeRef:
-                let typeRefRow = typeRefTable[zeroBasedIndex: rowIndex]
+                let typeRefRow = typeRefTable[rowIndex]
                 guard resolve(typeRefRow.typeNamespace) == "System" else { return .class }
                 systemTypeName = resolve(typeRefRow.typeName)
             case .typeSpec:

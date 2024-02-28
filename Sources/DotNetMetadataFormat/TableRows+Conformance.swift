@@ -66,7 +66,7 @@ extension TableRows.AssemblyRef: TableRow {
 }
 
 extension TableRows.ClassLayout: KeyedTableRow {
-    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: parent) }
+    public var primaryKey: TypeDefTable.RowRef { parent }
 
     public static var tableID: TableID { .classLayout }
 
@@ -74,7 +74,7 @@ extension TableRows.ClassLayout: KeyedTableRow {
         TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.packingSize)
             .addingConstant(\.classSize)
-            .addingTableRowIndex(\.parent)
+            .addingTableRowRef(\.parent)
             .size
     }
 
@@ -83,7 +83,7 @@ extension TableRows.ClassLayout: KeyedTableRow {
             Self(
                 packingSize: $0.readConstant(),
                 classSize: $0.readConstant(),
-                parent: $0.readTableRowIndex())
+                parent: $0.readTableRowRef())
         }
     }
 }
@@ -184,16 +184,16 @@ extension TableRows.EventMap: TableRow {
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
-            .addingTableRowIndex(\.parent)
-            .addingTableRowIndex(\.eventList)
+            .addingTableRowRef(\.parent)
+            .addingTableRowRef(\.eventList)
             .size
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
-                parent: $0.readTableRowIndex(),
-                eventList: $0.readTableRowIndex())
+                parent: $0.readTableRowRef(),
+                eventList: $0.readTableRowRef())
         }
     }
 }
@@ -245,14 +245,14 @@ extension TableRows.Field: TableRow {
 }
 
 extension TableRows.FieldLayout: KeyedTableRow {
-    public var primaryKey: FieldTable.RowIndex.SortingKey { .init(index: field) }
+    public var primaryKey: FieldTable.RowRef { field }
 
     public static var tableID: TableID { .fieldLayout }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.offset)
-            .addingTableRowIndex(\.field)
+            .addingTableRowRef(\.field)
             .size
     }
 
@@ -260,7 +260,7 @@ extension TableRows.FieldLayout: KeyedTableRow {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
                 offset: $0.readConstant(),
-                field: $0.readTableRowIndex())
+                field: $0.readTableRowRef())
         }
     }
 }
@@ -290,7 +290,7 @@ extension TableRows.FieldRva: TableRow {
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.rva)
-            .addingTableRowIndex(\.field)
+            .addingTableRowRef(\.field)
             .size
     }
 
@@ -298,7 +298,7 @@ extension TableRows.FieldRva: TableRow {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
                 rva: $0.readConstant(),
-                field: $0.readTableRowIndex())
+                field: $0.readTableRowRef())
         }
     }
 }
@@ -351,13 +351,13 @@ extension TableRows.GenericParam: DoublyKeyedTableRow {
 }
 
 extension TableRows.GenericParamConstraint: KeyedTableRow {
-    public var primaryKey: GenericParamTable.RowIndex.SortingKey { .init(index: owner) }
+    public var primaryKey: GenericParamTable.RowRef { owner }
 
     public static var tableID: TableID { .genericParamConstraint }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
-            .addingTableRowIndex(\.owner)
+            .addingTableRowRef(\.owner)
             .addingCodedIndex(\.constraint)
             .size
     }
@@ -365,7 +365,7 @@ extension TableRows.GenericParamConstraint: KeyedTableRow {
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
-                owner: $0.readTableRowIndex(),
+                owner: $0.readTableRowRef(),
                 constraint: $0.readCodedIndex())
         }
     }
@@ -379,7 +379,7 @@ extension TableRows.ImplMap: TableRow {
             .addingConstant(\.mappingFlags)
             .addingCodedIndex(\.memberForwarded)
             .addingHeapOffset(\.importName)
-            .addingTableRowIndex(\.importScope)
+            .addingTableRowRef(\.importScope)
             .size
     }
 
@@ -389,20 +389,20 @@ extension TableRows.ImplMap: TableRow {
                 mappingFlags: $0.readConstant(),
                 memberForwarded: $0.readCodedIndex(),
                 importName: $0.readHeapOffset(),
-                importScope: $0.readTableRowIndex())
+                importScope: $0.readTableRowRef())
         }
     }
 }
 
 extension TableRows.InterfaceImpl: DoublyKeyedTableRow {
-    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: `class`) }
+    public var primaryKey: TypeDefTable.RowRef { `class` }
     public var secondaryKey: CodedIndices.TypeDefOrRef { interface }
 
     public static var tableID: TableID { .interfaceImpl }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
-            .addingTableRowIndex(\.`class`)
+            .addingTableRowRef(\.`class`)
             .addingCodedIndex(\.interface)
             .size
     }
@@ -410,7 +410,7 @@ extension TableRows.InterfaceImpl: DoublyKeyedTableRow {
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
-                class: $0.readTableRowIndex(),
+                class: $0.readTableRowRef(),
                 interface: $0.readCodedIndex())
         }
     }
@@ -470,7 +470,7 @@ extension TableRows.MethodDef: TableRow {
             .addingConstant(\.flags)
             .addingHeapOffset(\.name)
             .addingHeapOffset(\.signature)
-            .addingTableRowIndex(\.paramList)
+            .addingTableRowRef(\.paramList)
             .size
     }
 
@@ -482,19 +482,19 @@ extension TableRows.MethodDef: TableRow {
                 flags: $0.readConstant(),
                 name: $0.readHeapOffset(),
                 signature: $0.readHeapOffset(),
-                paramList: $0.readTableRowIndex())
+                paramList: $0.readTableRowRef())
         }
     }
 }
 
 extension TableRows.MethodImpl: KeyedTableRow {
-    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: `class`) }
+    public var primaryKey: TypeDefTable.RowRef { `class` }
 
     public static var tableID: TableID { .methodImpl }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
-            .addingTableRowIndex(\.`class`)
+            .addingTableRowRef(\.`class`)
             .addingCodedIndex(\.methodBody)
             .addingCodedIndex(\.methodDeclaration)
             .size
@@ -503,7 +503,7 @@ extension TableRows.MethodImpl: KeyedTableRow {
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
-                class: $0.readTableRowIndex(),
+                class: $0.readTableRowRef(),
                 methodBody: $0.readCodedIndex(),
                 methodDeclaration: $0.readCodedIndex())
         }
@@ -518,7 +518,7 @@ extension TableRows.MethodSemantics: KeyedTableRow {
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
             .addingConstant(\.semantics)
-            .addingTableRowIndex(\.method)
+            .addingTableRowRef(\.method)
             .addingCodedIndex(\.association)
             .size
     }
@@ -527,7 +527,7 @@ extension TableRows.MethodSemantics: KeyedTableRow {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
                 semantics: $0.readConstant(),
-                method: $0.readTableRowIndex(),
+                method: $0.readTableRowRef(),
                 association: $0.readCodedIndex())
         }
     }
@@ -595,22 +595,22 @@ extension TableRows.ModuleRef: TableRow {
 }
 
 extension TableRows.NestedClass: KeyedTableRow {
-    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: nestedClass) }
+    public var primaryKey: TypeDefTable.RowRef { nestedClass }
 
     public static var tableID: TableID { .nestedClass }
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
-            .addingTableRowIndex(\.nestedClass)
-            .addingTableRowIndex(\.enclosingClass)
+            .addingTableRowRef(\.nestedClass)
+            .addingTableRowRef(\.enclosingClass)
             .size
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
-                nestedClass: $0.readTableRowIndex(),
-                enclosingClass: $0.readTableRowIndex())
+                nestedClass: $0.readTableRowRef(),
+                enclosingClass: $0.readTableRowRef())
         }
     }
 }
@@ -662,16 +662,16 @@ extension TableRows.PropertyMap: TableRow {
 
     public static func getSize(sizes: TableSizes) -> Int {
         TableRowSizeBuilder<Self>(sizes: sizes)
-            .addingTableRowIndex(\.parent)
-            .addingTableRowIndex(\.propertyList)
+            .addingTableRowRef(\.parent)
+            .addingTableRowRef(\.propertyList)
             .size
     }
 
     public init(reading buffer: UnsafeRawBufferPointer, sizes: TableSizes) {
         self = TableRowReader.read(buffer: buffer, sizes: sizes) {
             Self(
-                parent: $0.readTableRowIndex(),
-                propertyList: $0.readTableRowIndex())
+                parent: $0.readTableRowRef(),
+                propertyList: $0.readTableRowRef())
         }
     }
 }
@@ -702,8 +702,8 @@ extension TableRows.TypeDef: TableRow {
             .addingHeapOffset(\.typeName)
             .addingHeapOffset(\.typeNamespace)
             .addingCodedIndex(\.extends)
-            .addingTableRowIndex(\.fieldList)
-            .addingTableRowIndex(\.methodList)
+            .addingTableRowRef(\.fieldList)
+            .addingTableRowRef(\.methodList)
             .size
     }
 
@@ -714,8 +714,8 @@ extension TableRows.TypeDef: TableRow {
                 typeName: $0.readHeapOffset(),
                 typeNamespace: $0.readHeapOffset(),
                 extends: $0.readCodedIndex(),
-                fieldList: $0.readTableRowIndex(),
-                methodList: $0.readTableRowIndex())
+                fieldList: $0.readTableRowRef(),
+                methodList: $0.readTableRowRef())
         }
     }
 }
