@@ -15,13 +15,15 @@ public final class Field: Member {
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
     public override var attributeTarget: AttributeTargets { .field }
+    internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .field }
     public var visibility: Visibility { flags.visibility }
     public var isPublic: Bool { visibility == .public }
     public var isInitOnly: Bool { flags.contains(.initOnly) }
     public var isLiteral: Bool { flags.contains(.literal) }
 
     public private(set) lazy var explicitOffset: Int? = { () -> Int? in
-        guard let fieldLayoutRowIndex = moduleFile.fieldLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey)
+        guard let fieldLayoutRowIndex = moduleFile.fieldLayoutTable.findAny(
+            primaryKey: .init(index: tableRowIndex))
         else { return nil }
 
         let fieldLayoutRow = moduleFile.fieldLayoutTable[fieldLayoutRowIndex]
@@ -39,7 +41,7 @@ public final class Field: Member {
 
     private lazy var _literalValue = Result {
         guard tableRow.flags.contains(.literal) else { return nil as Constant? }
-        return try Constant(moduleFile: moduleFile, owner: .field(tableRowIndex))
+        return try Constant(moduleFile: moduleFile, owner: .init(tag: .field, oneBasedRowIndex: tableRowIndex.oneBased))
     }
     public var literalValue: Constant? { get throws { try _literalValue.get() } }
 }

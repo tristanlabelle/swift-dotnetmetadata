@@ -66,7 +66,7 @@ extension TableRows.AssemblyRef: TableRow {
 }
 
 extension TableRows.ClassLayout: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
+    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: parent) }
 
     public static var tableID: TableID { .classLayout }
 
@@ -89,7 +89,7 @@ extension TableRows.ClassLayout: KeyedTableRow {
 }
 
 extension TableRows.Constant: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
+    public var primaryKey: CodedIndices.HasConstant { parent }
 
     public static var tableID: TableID { .constant }
 
@@ -115,7 +115,7 @@ extension TableRows.Constant: KeyedTableRow {
 }
 
 extension TableRows.CustomAttribute: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(parent).tableKey }
+    public var primaryKey: CodedIndices.HasCustomAttribute { parent }
 
     public static var tableID: TableID { .customAttribute }
 
@@ -245,7 +245,7 @@ extension TableRows.Field: TableRow {
 }
 
 extension TableRows.FieldLayout: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(field).tableKey }
+    public var primaryKey: FieldTable.RowIndex.SortingKey { .init(index: field) }
 
     public static var tableID: TableID { .fieldLayout }
 
@@ -325,7 +325,7 @@ extension TableRows.File: TableRow {
 }
 
 extension TableRows.GenericParam: DoublyKeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(owner).tableKey }
+    public var primaryKey: CodedIndices.TypeOrMethodDef { owner }
     public var secondaryKey: UInt16 { number }
 
     public static var tableID: TableID { .genericParam }
@@ -351,7 +351,7 @@ extension TableRows.GenericParam: DoublyKeyedTableRow {
 }
 
 extension TableRows.GenericParamConstraint: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(owner).tableKey }
+    public var primaryKey: GenericParamTable.RowIndex.SortingKey { .init(index: owner) }
 
     public static var tableID: TableID { .genericParamConstraint }
 
@@ -395,8 +395,8 @@ extension TableRows.ImplMap: TableRow {
 }
 
 extension TableRows.InterfaceImpl: DoublyKeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(`class`).tableKey }
-    public var secondaryKey: MetadataToken.TableKey { MetadataToken(interface).tableKey }
+    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: `class`) }
+    public var secondaryKey: CodedIndices.TypeDefOrRef { interface }
 
     public static var tableID: TableID { .interfaceImpl }
 
@@ -488,7 +488,7 @@ extension TableRows.MethodDef: TableRow {
 }
 
 extension TableRows.MethodImpl: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(`class`).tableKey }
+    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: `class`) }
 
     public static var tableID: TableID { .methodImpl }
 
@@ -511,7 +511,7 @@ extension TableRows.MethodImpl: KeyedTableRow {
 }
 
 extension TableRows.MethodSemantics: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(association).tableKey }
+    public var primaryKey: CodedIndices.HasSemantics { association }
 
     public static var tableID: TableID { .methodSemantics }
 
@@ -595,7 +595,7 @@ extension TableRows.ModuleRef: TableRow {
 }
 
 extension TableRows.NestedClass: KeyedTableRow {
-    public var primaryKey: MetadataToken.TableKey { MetadataToken(nestedClass).tableKey }
+    public var primaryKey: TypeDefTable.RowIndex.SortingKey { .init(index: nestedClass) }
 
     public static var tableID: TableID { .nestedClass }
 

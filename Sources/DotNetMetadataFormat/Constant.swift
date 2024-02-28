@@ -41,8 +41,8 @@ extension Constant {
 }
 
 extension Constant {
-    public init?(moduleFile: ModuleFile, owner: HasConstant) throws {
-        guard let rowIndex = moduleFile.constantTable.findAny(primaryKey: MetadataToken(owner).tableKey) else {
+    public init?(moduleFile: ModuleFile, owner: CodedIndices.HasConstant) throws {
+        guard let rowIndex = moduleFile.constantTable.findAny(primaryKey: owner) else {
             return nil
         }
 

@@ -1,7 +1,4 @@
 public struct MetadataToken: Hashable, Comparable {
-    // When indexing into a table, the table index should be the least significant byte of the token.
-    public typealias TableKey = UInt32
-
     public var rawValue: UInt32
 
     public init(rawValue: UInt32) {
@@ -25,11 +22,6 @@ public struct MetadataToken: Hashable, Comparable {
         self.init(tableID: Row.tableID, oneBasedRowIndex: rowIndex?.oneBased ?? 0)
     }
 
-    public init<Index: CodedIndex>(_ codedIndex: Index) {
-        self = codedIndex.metadataToken
-    }
-
-    public var tableKey: TableKey { (rawValue >> 24) | (rawValue << 8) }
     // TODO: This is not necessarily a table index. Other tokens are possible: string = 0x70, name = 0x71, baseType = 0x72
     public var tableID: TableID { .init(rawValue: UInt8(rawValue >> 24))! }
     public var oneBasedRowIndex: UInt32 { rawValue & 0xFFFFFF }

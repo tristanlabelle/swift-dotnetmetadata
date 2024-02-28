@@ -30,10 +30,11 @@ public final class ExportedType {
     }()
 
     private lazy var _definition = Result {
-        switch tableRow.implementation {
-            case let .assemblyRef(index):
-                guard let index else { throw DotNetMetadataFormat.InvalidFormatError.tableConstraint }
-                let definitionAssembly = try self.assembly.resolve(index)
+        let implementationCodedIndex = tableRow.implementation
+        guard let index = implementationCodedIndex.zeroBasedRowIndex else { throw DotNetMetadataFormat.InvalidFormatError.tableConstraint }
+        switch try implementationCodedIndex.tag {
+            case .assemblyRef:
+                let definitionAssembly = try self.assembly.resolve(AssemblyRefTable.RowIndex(zeroBased: index))
                 // TODO: Optimize using the typeDefId field
                 // TODO: Support recursive exported types
                 guard let typeDefinition = try definitionAssembly.resolveTypeDefinition(namespace: namespace, name: name) else {

@@ -24,7 +24,7 @@ public class ParamBase: Attributable {
     public var attributeTarget: AttributeTargets { fatalError() }
     public private(set) lazy var attributes: [Attribute] = {
         guard !metadataToken.isNull else { return [] }
-        return assembly.getAttributes(owner: metadataToken)
+        return assembly.getAttributes(owner: .init(tag: .param, oneBasedRowIndex: metadataToken.oneBasedRowIndex))
     }()
 }
 
@@ -49,7 +49,7 @@ public final class Param: ParamBase {
 
     private lazy var _defaultValue = Result {
         guard tableRow.flags.contains(.hasDefault) else { return nil as Constant? }
-        return try Constant(moduleFile: moduleFile, owner: .param(tableRowIndex))
+        return try Constant(moduleFile: moduleFile, owner: .init(tag: .param, oneBasedRowIndex: tableRowIndex.oneBased))
     }
     public var defaultValue : Constant? { get throws { try _defaultValue.get() } }
 

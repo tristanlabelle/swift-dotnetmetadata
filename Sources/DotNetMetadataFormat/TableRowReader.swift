@@ -33,19 +33,9 @@ struct TableRowReader {
                 : remainder.consume(type: UInt32.self).pointee)
     }
 
-    mutating func readCodedIndex<Index: CodedIndex>() -> Index {
-        let codedValue: UInt32
-        if sizes.getCodedIndexSize(Index.self) == 2 {
-            codedValue = UInt32(remainder.consume(type: UInt16.self).pointee)
-        }
-        else {
-            codedValue = remainder.consume(type: UInt32.self).pointee
-        }
-
-        // §II.24.2.6: "The actual table is encoded into the low [N] bits of the number"
-        let tag = UInt8(codedValue & ((1 << Index.tagBitCount) - 1))
-        let index = codedValue >> Index.tagBitCount
-        let result = Index(tag: tag, oneBasedIndex: index)
-        return result
+    mutating func readCodedIndex<Tag: CodedIndexTag>() -> CodedIndex<Tag> {
+        CodedIndex<Tag>(value: sizes.getCodedIndexSize(Tag.self) == 2
+            ? UInt32(remainder.consume(type: UInt16.self).pointee)
+            : remainder.consume(type: UInt32.self).pointee)
     }
 }

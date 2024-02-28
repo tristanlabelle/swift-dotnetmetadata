@@ -2,30 +2,30 @@ import XCTest
 @testable import DotNetMetadataFormat
 
 final class TableColumnSizeTests: XCTestCase {
-    func testCodedIndexTagBitCount() throws {
-        enum TwoCaseCodedIndex: CodedIndex {
+    func testCodedIndexEnumTagBitCount() throws {
+        enum TwoCaseCodedIndexTag: UInt8, CodedIndexTag {
+            case case1, case2
             static let tables: [TableID?] = [ nil, nil ]
-            init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
-            var metadataToken: MetadataToken { fatalError() } 
+            init(value: UInt8) throws { fatalError() }
         }
 
-        XCTAssertEqual(TwoCaseCodedIndex.tagBitCount, 1)
+        XCTAssertEqual(TwoCaseCodedIndexTag.bitCount, 1)
 
-        enum ThreeCaseCodedIndex: CodedIndex {
+        enum ThreeCaseCodedIndexTag: UInt8, CodedIndexTag {
+            case case1, case2, case3
             static let tables: [TableID?] = [ nil, nil, nil ]
-            init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
-            var metadataToken: MetadataToken { fatalError() }
+            init(value: UInt8) throws { fatalError() }
         }
 
-        XCTAssertEqual(ThreeCaseCodedIndex.tagBitCount, 2)
+        XCTAssertEqual(ThreeCaseCodedIndexTag.bitCount, 2)
 
-        enum FourCaseCodedIndex: CodedIndex {
+        enum FourCaseCodedIndexTag: UInt8, CodedIndexTag {
+            case case1, case2, case3, case4
             static let tables: [TableID?] = [ nil, nil, nil, nil ]
-            init(tag: UInt8, oneBasedIndex: UInt32) { fatalError() }
-            var metadataToken: MetadataToken { fatalError() }
+            init(value: UInt8) throws { fatalError() }
         }
 
-        XCTAssertEqual(FourCaseCodedIndex.tagBitCount, 2)
+        XCTAssertEqual(FourCaseCodedIndexTag.bitCount, 2)
     }
 
     func testRowIndexSize() throws {

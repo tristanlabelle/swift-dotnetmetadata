@@ -7,13 +7,13 @@
 /// and use Optional<TableRowIndex> to represent nullability.
 public struct TableRowIndex<Row: TableRow>: Hashable, Comparable {
     // Imitate a UInt24 using 3 bytes since values never exceed 0xFF_FF_FF and so Optional<TableRowIndex> is 4 bytes.
-    private let low16: UInt16
-    private let high8: UInt8
+    private let zeroBased_low16: UInt16
+    private let zeroBased_high8: UInt8
 
     public init(zeroBased: UInt32) {
         precondition(zeroBased < 0xFF_FF_FF)
-        self.low16 = UInt16(zeroBased & 0xFF_FF)
-        self.high8 = UInt8((zeroBased >> 16) & 0xFF)
+        self.zeroBased_low16 = UInt16(zeroBased & 0xFF_FF)
+        self.zeroBased_high8 = UInt8((zeroBased >> 16) & 0xFF)
     }
 
     public init?(oneBased: UInt32) {
@@ -22,7 +22,7 @@ public struct TableRowIndex<Row: TableRow>: Hashable, Comparable {
         self.init(zeroBased: oneBased - 1)
     }
 
-    public var zeroBased: UInt32 { (UInt32(high8) << 16) | UInt32(low16) }
+    public var zeroBased: UInt32 { (UInt32(zeroBased_high8) << 16) | UInt32(zeroBased_low16) }
     public var oneBased: UInt32 { zeroBased + 1 }
     public var metadataToken: MetadataToken { .init(self) }
 

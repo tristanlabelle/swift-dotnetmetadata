@@ -37,4 +37,9 @@ final class WinMetadataTests: XCTestCase {
             try WindowsMetadata.getInterfaceID(iasyncOperation, genericArgs: [try Self.context.coreLibrary.systemBoolean.bindNode()]),
             UUID(uuidString: "cdb5efb3-5788-509d-9be1-71ccb8a3362a"))
     }
+
+    func testIwwGuid() throws {
+        let iww = try XCTUnwrap(Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IWwwFormUrlDecoderEntry") as? InterfaceDefinition)
+        let guid = try XCTUnwrap(iww.findAttribute(WindowsMetadata.GuidAttribute.self))
+    }
 }

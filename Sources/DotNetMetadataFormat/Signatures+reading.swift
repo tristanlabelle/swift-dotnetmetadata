@@ -290,21 +290,8 @@ fileprivate func consumeSigUInt(buffer: inout UnsafeRawBufferPointer) throws -> 
 }
 
 // §II.23.2.8
-fileprivate func consumeTypeDefOrRefEncoded(buffer: inout UnsafeRawBufferPointer, allowSpec: Bool) throws -> TypeDefOrRef {
-    let encoded = try consumeSigUInt(buffer: &buffer)
-    let tag = encoded & 0b11
-    let index = encoded >> 2
-
-    if tag == 0 {
-        return .typeDef(.init(oneBased: index))
-    }
-    else if tag == 1 {
-        return .typeRef(.init(oneBased: index))
-    } else if tag == 2 && allowSpec {
-        return .typeSpec(.init(oneBased: index))
-    }
-
-    throw InvalidFormatError.signatureBlob
+fileprivate func consumeTypeDefOrRefEncoded(buffer: inout UnsafeRawBufferPointer, allowSpec: Bool) throws -> CodedIndices.TypeDefOrRef {
+    CodedIndices.TypeDefOrRef(value: try consumeSigUInt(buffer: &buffer))
 }
 
 fileprivate func consumeCustomMods(buffer: inout UnsafeRawBufferPointer) throws -> [CustomModSig] {

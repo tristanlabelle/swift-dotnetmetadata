@@ -71,7 +71,7 @@ public final class AssemblyLoadContext {
             throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
         }
 
-        let assemblyRow = moduleFile.assemblyTable[0]
+        let assemblyRow = moduleFile.assemblyTable.first!
         let assemblyName = moduleFile.resolve(assemblyRow.name)
         if loadedAssembliesByName[assemblyName] != nil {
             throw AssemblyLoadError.invalid(message: "Assembly with name '\(assemblyName)' already loaded")

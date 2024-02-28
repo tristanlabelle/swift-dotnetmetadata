@@ -31,7 +31,8 @@ public class Property: Member {
     public override var nameKind: NameKind { flags.nameKind }
     // Assume all accessors are consistently static or instance
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
-    public override var attributeTarget: AttributeTargets { .event }
+    public override var attributeTarget: AttributeTargets { .property }
+    internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .property }
 
     private lazy var _type = Result { try assembly.resolve(propertySig.type, typeContext: definingType) }
     public var type: TypeNode { get throws { try _type.get() } }
@@ -44,7 +45,7 @@ public class Property: Member {
 
     private lazy var accessors = Result { [self] in
         var accessors = Accessors()
-        for entry in definingType.getAccessors(owner: .property(tableRowIndex)) {
+        for entry in definingType.getAccessors(owner: .init(tag: .property, oneBasedRowIndex: tableRowIndex.oneBased)) {
             if entry.attributes == .getter { accessors.getter = entry.method }
             else if entry.attributes == .setter { accessors.setter = entry.method }
             else if entry.attributes == .other { accessors.others.append(entry.method) }

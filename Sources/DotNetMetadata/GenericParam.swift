@@ -20,7 +20,7 @@ public class GenericParam: Attributable {
     public var hasDefaultConstructor: Bool { tableRow.flags.contains(.defaultConstructorConstraint) }
 
     private lazy var _constraints = Result {
-        try moduleFile.genericParamConstraintTable.findAll(primaryKey: MetadataToken(tableRowIndex).tableKey).map {
+        try moduleFile.genericParamConstraintTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
             try assembly.resolve(moduleFile.genericParamConstraintTable[$0].constraint)!
         }
     }
@@ -28,7 +28,9 @@ public class GenericParam: Attributable {
     public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
     public var attributeTarget: AttributeTargets { .genericParam }
-    public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
+    public private(set) lazy var attributes: [Attribute] = {
+        assembly.getAttributes(owner: .init(tag: .genericParam, oneBasedRowIndex: tableRowIndex.oneBased))
+    }()
 
     public final func bind(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
         switch self {

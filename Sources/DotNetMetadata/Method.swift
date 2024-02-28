@@ -26,6 +26,7 @@ public class Method: Member {
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
     public override var attributeTarget: AttributeTargets { .method }
+    internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .methodDef }
     public var visibility: Visibility { flags.visibility }
     public var isPublic: Bool { visibility == .public }
     public var isVirtual: Bool { flags.contains(.virtual) }
@@ -84,7 +85,7 @@ public class Method: Member {
     public var returnType: TypeNode { get throws { try returnParam.type } }
 
     public private(set) lazy var genericParams: [GenericMethodParam] = {
-        moduleFile.genericParamTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .methodDef, oneBasedRowIndex: tableRowIndex.oneBased)).map {
             GenericMethodParam(definingMethod: self, tableRowIndex: $0)
         }
     }()

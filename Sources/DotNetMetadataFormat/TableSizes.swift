@@ -45,15 +45,14 @@ public final class TableSizes {
         getTableRowIndexSize(Row.tableID)
     }
 
-    public func getCodedIndexSize<T>(_: T.Type) -> Int where T: CodedIndex {
+    public func getCodedIndexSize<Tag>(_: Tag.Type) -> Int where Tag: CodedIndexTag {
         // The most significant bits are reserved for the tag,
         // depending on how many different tables this can index into.
         // The rest of the bits are the row index.
         // The coded index is 32 bits iff at least one indexed table
         // has more rows than could be indexed using the row index bits
         // if the coded index was 16 bits.
-        let maxRowCount = T.tables.compactMap { $0 }.map { tableRowCounts[Int($0.rawValue)] }.max()!
-        let size = maxRowCount < (1 << (16 - T.tagBitCount)) ? 2 : 4
-        return size
+        let maxRowCount = Tag.tables.compactMap { $0 }.map { tableRowCounts[Int($0.rawValue)] }.max()!
+        return maxRowCount < (1 << (16 - Tag.bitCount)) ? 2 : 4
     }
 }

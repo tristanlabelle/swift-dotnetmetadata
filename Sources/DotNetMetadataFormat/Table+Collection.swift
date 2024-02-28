@@ -7,7 +7,7 @@ extension Table: RandomAccessCollection {
     public var endIndex: RowIndex { .init(zeroBased: UInt32(count)) }
 
     public subscript(_ index: RowIndex) -> Row {
-        self[Int(index.zeroBased)]
+        self[zeroBasedIndex: Int(index.zeroBased)]
     }
 
     public func index(after i: RowIndex) -> RowIndex {

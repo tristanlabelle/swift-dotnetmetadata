@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 extension ModuleFile {
-    func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row) -> TypeDefinitionKind {
+    func getTypeDefinitionKind(_ tableRow: TypeDefTable.Row) throws -> TypeDefinitionKind {
         if tableRow.flags.contains(.interface) {
             return .interface
         }
@@ -16,20 +16,19 @@ extension ModuleFile {
             }
         }
 
-        return getTypeDefinitionFromBase(tableRow.extends)
+        return try getTypeDefinitionFromBase(tableRow.extends)
     }
 
-    private func getTypeDefinitionFromBase(_ extends: TypeDefOrRef) -> TypeDefinitionKind {
+    private func getTypeDefinitionFromBase(_ extends: CodedIndices.TypeDefOrRef) throws -> TypeDefinitionKind {
         let systemTypeName: String
-        switch extends {
-            case let .typeDef(index):
-                guard let index else { return .class }
-                let typeDefRow = typeDefTable[index]
+        guard let rowIndex = extends.zeroBasedRowIndex else { return .class }
+        switch try extends.tag {
+            case .typeDef:
+                let typeDefRow = typeDefTable[zeroBasedIndex: rowIndex]
                 guard resolve(typeDefRow.typeNamespace) == "System" else { return .class }
                 systemTypeName = resolve(typeDefRow.typeName)
-            case let .typeRef(index):
-                guard let index else { return .class }
-                let typeRefRow = typeRefTable[index]
+            case .typeRef:
+                let typeRefRow = typeRefTable[zeroBasedIndex: rowIndex]
                 guard resolve(typeRefRow.typeNamespace) == "System" else { return .class }
                 systemTypeName = resolve(typeRefRow.typeName)
             case .typeSpec:
@@ -42,20 +41,6 @@ extension ModuleFile {
             case "Enum": return .enum
             case "Delegate", "MulticastDelegate": return .delegate
             default: return .class
-        }
-    }
-
-    private func getAssemblyName(resolutionScope: ResolutionScope) -> String? {
-        switch resolutionScope {
-            case .module, .moduleRef: return nil
-            case let .assemblyRef(index):
-                guard let index else { return nil }
-                let assemblyRefRow = assemblyRefTable[index]
-                return resolve(assemblyRefRow.name)
-            case let .typeRef(index):
-                guard let index else { return nil }
-                let typeRefRow = typeRefTable[index]
-                return getAssemblyName(resolutionScope: typeRefRow.resolutionScope)
         }
     }
 }

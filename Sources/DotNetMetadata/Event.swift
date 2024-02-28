@@ -20,6 +20,7 @@ public final class Event: Member {
     // Assume all accessors are consistently static or instance
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
     public override var attributeTarget: AttributeTargets { .event }
+    internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .event }
 
     private lazy var _handlerType = Result {
         guard let boundType = try assembly.resolveOptionalBoundType(tableRow.eventType, typeContext: definingType),
@@ -37,7 +38,7 @@ public final class Event: Member {
 
     private lazy var accessors = Result { [self] in
         var accessors = Accessors()
-        for entry in definingType.getAccessors(owner: .event(tableRowIndex)) {
+        for entry in definingType.getAccessors(owner: .init(tag: .event, oneBasedRowIndex: tableRowIndex.oneBased)) {
             if entry.attributes == .addOn { accessors.add = entry.method }
             else if entry.attributes == .removeOn { accessors.remove = entry.method }
             else if entry.attributes == .fire { accessors.fire = entry.method }

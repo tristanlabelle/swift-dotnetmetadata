@@ -1,387 +1,275 @@
-public protocol CodedIndex: Hashable {
-    static var tables: [TableID?] { get }
-    init(tag: UInt8, oneBasedIndex: UInt32)
-    var metadataToken: MetadataToken { get }
-}
+public enum CodedIndices {
+    public typealias CustomAttributeType = CodedIndex<Tags.CustomAttributeType>
+    public typealias HasConstant = CodedIndex<Tags.HasConstant>
+    public typealias HasDeclSecurity = CodedIndex<Tags.HasDeclSecurity>
+    public typealias HasFieldMarshal = CodedIndex<Tags.HasFieldMarshal>
+    public typealias HasSemantics = CodedIndex<Tags.HasSemantics>
+    public typealias HasCustomAttribute = CodedIndex<Tags.HasCustomAttribute>
+    public typealias Implementation = CodedIndex<Tags.Implementation>
+    public typealias MemberForwarded = CodedIndex<Tags.MemberForwarded>
+    public typealias MemberRefParent = CodedIndex<Tags.MemberRefParent>
+    public typealias MethodDefOrRef = CodedIndex<Tags.MethodDefOrRef>
+    public typealias ResolutionScope = CodedIndex<Tags.ResolutionScope>
+    public typealias TypeDefOrRef = CodedIndex<Tags.TypeDefOrRef>
+    public typealias TypeOrMethodDef = CodedIndex<Tags.TypeOrMethodDef>
 
-extension CodedIndex {
-    public static var tagBitCount: Int { Int.bitWidth - (tables.count - 1).leadingZeroBitCount }
-}
+    public enum Tags {
+        public enum CustomAttributeType: UInt8, CodedIndexTag {
+            case methodDef = 2
+            case memberRef = 3
 
-public enum CustomAttributeType: CodedIndex {
-    case methodDef(MethodDefTable.RowIndex?)
-    case memberRef(MemberRefTable.RowIndex?)
+            public init(value: UInt8) throws {
+                switch value {
+                    case 2: self = .methodDef
+                    case 3: self = .memberRef
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public static let tables: [TableID?] = [ nil, nil, .methodDef, .memberRef, nil ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 2: self = .methodDef(.init(oneBased: oneBasedIndex))
-            case 3: self = .memberRef(.init(oneBased: oneBasedIndex))
-            default: fatalError()
+            public static let tables: [TableID?] = [ nil, nil, .methodDef, .memberRef, nil ]
         }
-    }
 
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .methodDef(rowIndex): return .init(rowIndex)
-            case let .memberRef(rowIndex): return .init(rowIndex)
+        public enum HasConstant: UInt8, CodedIndexTag {
+            case field = 0
+            case param = 1
+            case property = 2
+
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .field
+                    case 1: self = .param
+                    case 2: self = .property
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
+
+            public static let tables: [TableID?] = [ .field, .param, .property ]
         }
-    }
-}
 
-public enum HasConstant: CodedIndex {
-    case field(FieldTable.RowIndex?)
-    case param(ParamTable.RowIndex?)
-    case property(PropertyTable.RowIndex?)
+        public enum HasDeclSecurity: UInt8, CodedIndexTag {
+            case typeDef = 0
+            case methodDef = 1
+            case assembly = 2
 
-    public static let tables: [TableID?] = [ .field, .param, .property ]
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .typeDef
+                    case 1: self = .methodDef
+                    case 2: self = .assembly
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .field(.init(oneBased: oneBasedIndex))
-            case 1: self = .param(.init(oneBased: oneBasedIndex))
-            case 2: self = .property(.init(oneBased: oneBasedIndex))
-            default: fatalError()
+            public static let tables: [TableID?] = [ .typeDef, .methodDef, .assembly ]
         }
-    }
 
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .field(rowIndex): return .init(rowIndex)
-            case let .param(rowIndex): return .init(rowIndex)
-            case let .property(rowIndex): return .init(rowIndex)
+        public enum HasFieldMarshal: UInt8, CodedIndexTag {
+            case field = 0
+            case param = 1
+
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .field
+                    case 1: self = .param
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
+
+            public static let tables: [TableID?] = [ .field, .param ]
         }
-    }
-}
 
-public enum HasDeclSecurity: CodedIndex {
-    case typeDef(TypeDefTable.RowIndex?)
-    case methodDef(MethodDefTable.RowIndex?)
-    case assembly(AssemblyTable.RowIndex?)
+        public enum HasSemantics: UInt8, CodedIndexTag {
+            case event = 0
+            case property = 1
 
-    public static let tables: [TableID?] = [ .typeDef, .methodDef, .assembly ]
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .event
+                    case 1: self = .property
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .typeDef(.init(oneBased: oneBasedIndex))
-            case 1: self = .methodDef(.init(oneBased: oneBasedIndex))
-            case 2: self = .assembly(.init(oneBased: oneBasedIndex))
-            default: fatalError()
+            public static let tables: [TableID?] = [ .event, .property ]
         }
-    }
 
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .typeDef(rowIndex): return .init(rowIndex)
-            case let .methodDef(rowIndex): return .init(rowIndex)
-            case let .assembly(rowIndex): return .init(rowIndex)
+        public enum HasCustomAttribute: UInt8, CodedIndexTag {
+            case methodDef = 0
+            case field = 1
+            case typeRef = 2
+            case typeDef = 3
+            case param = 4
+            case interfaceImpl = 5
+            case memberRef = 6
+            case module = 7
+            case declSecurity = 8
+            case property = 9
+            case event = 10
+            case standAloneSig = 11
+            case moduleRef = 12
+            case typeSpec = 13
+            case assembly = 14
+            case assemblyRef = 15
+            case file = 16
+            case exportedType = 17
+            case manifestResource = 18
+            case genericParam = 19
+            case genericParamConstraint = 20
+            case methodSpec = 21
+
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .methodDef
+                    case 1: self = .field
+                    case 2: self = .typeRef
+                    case 3: self = .typeDef
+                    case 4: self = .param
+                    case 5: self = .interfaceImpl
+                    case 6: self = .memberRef
+                    case 7: self = .module
+                    case 8: self = .declSecurity
+                    case 9: self = .property
+                    case 10: self = .event
+                    case 11: self = .standAloneSig
+                    case 12: self = .moduleRef
+                    case 13: self = .typeSpec
+                    case 14: self = .assembly
+                    case 15: self = .assemblyRef
+                    case 16: self = .file
+                    case 17: self = .exportedType
+                    case 18: self = .manifestResource
+                    case 19: self = .genericParam
+                    case 20: self = .genericParamConstraint
+                    case 21: self = .methodSpec
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
+
+            public static let tables: [TableID?] = [
+                .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
+                .memberRef, .module, .declSecurity, .property, .event, .standAloneSig,
+                .moduleRef, .typeSpec, .assembly, .assemblyRef, .file, .exportedType,
+                .manifestResource, .genericParam, .genericParamConstraint, .methodSpec
+            ]
         }
-    }
-}
 
-public enum HasFieldMarshal: CodedIndex {
-    case field(FieldTable.RowIndex?)
-    case param(ParamTable.RowIndex?)
+        public enum Implementation: UInt8, CodedIndexTag {
+            case file = 0
+            case assemblyRef = 1
+            case exportedType = 2
 
-    public static let tables: [TableID?] = [ .field, .param ]
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .file
+                    case 1: self = .assemblyRef
+                    case 2: self = .exportedType
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .field(.init(oneBased: oneBasedIndex))
-            case 1: self = .param(.init(oneBased: oneBasedIndex))
-            default: fatalError()
+            public static let tables: [TableID?] = [ .file, .assemblyRef, .exportedType ]
         }
-    }
 
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .field(rowIndex): return .init(rowIndex)
-            case let .param(rowIndex): return .init(rowIndex)
+        public enum MemberForwarded: UInt8, CodedIndexTag {
+            case field = 0
+            case methodDef = 1
+
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .field
+                    case 1: self = .methodDef
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
+
+            public static let tables: [TableID?] = [ .field, .methodDef ]
         }
-    }
-}
 
-public enum HasSemantics: CodedIndex {
-    case event(EventTable.RowIndex?)
-    case property(PropertyTable.RowIndex?)
+        public enum MemberRefParent: UInt8, CodedIndexTag {
+            case typeDef = 0
+            case typeRef = 1
+            case moduleRef = 2
+            case methodDef = 3
+            case typeSpec = 4
 
-    public static let tables: [TableID?] = [ .event, .property ]
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .typeDef
+                    case 1: self = .typeRef
+                    case 2: self = .moduleRef
+                    case 3: self = .methodDef
+                    case 4: self = .typeSpec
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .event(.init(oneBased: oneBasedIndex))
-            case 1: self = .property(.init(oneBased: oneBasedIndex))
-            default: fatalError()
+            public static let tables: [TableID?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
         }
-    }
 
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .event(rowIndex): return .init(rowIndex)
-            case let .property(rowIndex): return .init(rowIndex)
+        public enum MethodDefOrRef: UInt8, CodedIndexTag {
+            case methodDef = 0
+            case memberRef = 1
+
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .methodDef
+                    case 1: self = .memberRef
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
+
+            public static let tables: [TableID?] = [ .methodDef, .memberRef ]
         }
-    }
-}
 
-public enum HasCustomAttribute: CodedIndex {
-    case methodDef(MethodDefTable.RowIndex?)
-    case field(FieldTable.RowIndex?)
-    case typeRef(TypeRefTable.RowIndex?)
-    case typeDef(TypeDefTable.RowIndex?)
-    case param(ParamTable.RowIndex?)
-    case interfaceImpl(InterfaceImplTable.RowIndex?)
-    case memberRef(MemberRefTable.RowIndex?)
-    case module(ModuleTable.RowIndex?)
-    case declSecurity(DeclSecurityTable.RowIndex?)
-    case property(PropertyTable.RowIndex?)
-    case event(EventTable.RowIndex?)
-    case standAloneSig(StandAloneSigTable.RowIndex?)
-    case moduleRef(ModuleRefTable.RowIndex?)
-    case typeSpec(TypeSpecTable.RowIndex?)
-    case assembly(AssemblyTable.RowIndex?)
-    case assemblyRef(AssemblyRefTable.RowIndex?)
-    case file(FileTable.RowIndex?)
-    case exportedType(oneBasedIndex: UInt32)
-    case manifestResource(ManifestResourceTable.RowIndex?)
-    case genericParam(GenericParamTable.RowIndex?)
-    case genericParamConstraint(GenericParamConstraintTable.RowIndex?)
-    case methodSpec(MethodSpecTable.RowIndex?)
+        public enum ResolutionScope: UInt8, CodedIndexTag {
+            case module = 0
+            case moduleRef = 1
+            case assemblyRef = 2
+            case typeRef = 3
 
-    public static let tables: [TableID?] = [
-        .methodDef, .field, .typeRef, .typeDef, .param, .interfaceImpl,
-        .memberRef, .module, .declSecurity, .property, .event, .standAloneSig,
-        .moduleRef, .typeSpec, .assembly, .assemblyRef, .file, .exportedType,
-        .manifestResource, .genericParam, .genericParamConstraint, .methodSpec
-    ]
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .module
+                    case 1: self = .moduleRef
+                    case 2: self = .assemblyRef
+                    case 3: self = .typeRef
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .methodDef(.init(oneBased: oneBasedIndex))
-            case 1: self = .field(.init(oneBased: oneBasedIndex))
-            case 2: self = .typeRef(.init(oneBased: oneBasedIndex))
-            case 3: self = .typeDef(.init(oneBased: oneBasedIndex))
-            case 4: self = .param(.init(oneBased: oneBasedIndex))
-            case 5: self = .interfaceImpl(.init(oneBased: oneBasedIndex))
-            case 6: self = .memberRef(.init(oneBased: oneBasedIndex))
-            case 7: self = .module(.init(oneBased: oneBasedIndex))
-            case 8: self = .declSecurity(.init(oneBased: oneBasedIndex))
-            case 9: self = .property(.init(oneBased: oneBasedIndex))
-            case 10: self = .event(.init(oneBased: oneBasedIndex))
-            case 11: self = .standAloneSig(.init(oneBased: oneBasedIndex))
-            case 12: self = .moduleRef(.init(oneBased: oneBasedIndex))
-            case 13: self = .typeSpec(.init(oneBased: oneBasedIndex))
-            case 14: self = .assembly(.init(oneBased: oneBasedIndex))
-            case 15: self = .assemblyRef(.init(oneBased: oneBasedIndex))
-            case 16: self = .file(.init(oneBased: oneBasedIndex))
-            case 17: self = .exportedType(oneBasedIndex: oneBasedIndex)
-            case 18: self = .manifestResource(.init(oneBased: oneBasedIndex))
-            case 19: self = .genericParam(.init(oneBased: oneBasedIndex))
-            case 20: self = .genericParamConstraint(.init(oneBased: oneBasedIndex))
-            case 21: self = .methodSpec(.init(oneBased: oneBasedIndex))
-            default: fatalError()
+            public static let tables: [TableID?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
         }
-    }
 
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .methodDef(rowIndex): return .init(rowIndex)
-            case let .field(rowIndex): return .init(rowIndex)
-            case let .typeRef(rowIndex): return .init(rowIndex)
-            case let .typeDef(rowIndex): return .init(rowIndex)
-            case let .param(rowIndex): return .init(rowIndex)
-            case let .interfaceImpl(rowIndex): return .init(rowIndex)
-            case let .memberRef(rowIndex): return .init(rowIndex)
-            case let .module(rowIndex): return .init(rowIndex)
-            case let .declSecurity(rowIndex): return .init(rowIndex)
-            case let .property(rowIndex): return .init(rowIndex)
-            case let .event(rowIndex): return .init(rowIndex)
-            case let .standAloneSig(rowIndex): return .init(rowIndex)
-            case let .moduleRef(rowIndex): return .init(rowIndex)
-            case let .typeSpec(rowIndex): return .init(rowIndex)
-            case let .assembly(rowIndex): return .init(rowIndex)
-            case let .assemblyRef(rowIndex): return .init(rowIndex)
-            case let .file(rowIndex): return .init(rowIndex)
-            case let .exportedType(oneBasedRowIndex): return .init(tableID: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
-            case let .manifestResource(rowIndex): return .init(rowIndex)
-            case let .genericParam(rowIndex): return .init(rowIndex)
-            case let .genericParamConstraint(rowIndex): return .init(rowIndex)
-            case let .methodSpec(rowIndex): return .init(rowIndex)
+        public enum TypeDefOrRef: UInt8, CodedIndexTag {
+            case typeDef = 0
+            case typeRef = 1
+            case typeSpec = 2
+
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .typeDef
+                    case 1: self = .typeRef
+                    case 2: self = .typeSpec
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
+
+            public static let tables: [TableID?] = [ .typeDef, .typeRef, .typeSpec ]
         }
-    }
-}
 
-public enum Implementation: CodedIndex {
-    case file(FileTable.RowIndex?)
-    case assemblyRef(AssemblyRefTable.RowIndex?)
-    case exportedType(oneBasedIndex: UInt32)
+        public enum TypeOrMethodDef: UInt8, CodedIndexTag {
+            case typeDef = 0
+            case methodDef = 1
 
-    public static let tables: [TableID?] = [ .file, .assemblyRef, .exportedType ]
+            public init(value: UInt8) throws {
+                switch value {
+                    case 0: self = .typeDef
+                    case 1: self = .methodDef
+                    default: throw InvalidFormatError.tableConstraint
+                }
+            }
 
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .file(.init(oneBased: oneBasedIndex))
-            case 1: self = .assemblyRef(.init(oneBased: oneBasedIndex))
-            case 2: self = .exportedType(oneBasedIndex: oneBasedIndex)
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .file(rowIndex): return .init(rowIndex)
-            case let .assemblyRef(rowIndex): return .init(rowIndex)
-            case let .exportedType(oneBasedRowIndex): return .init(tableID: .exportedType, oneBasedRowIndex: oneBasedRowIndex)
-        }
-    }
-}
-
-public enum MemberForwarded: CodedIndex {
-    case field(FieldTable.RowIndex?)
-    case methodDef(MethodDefTable.RowIndex?)
-
-    public static let tables: [TableID?] = [ .field, .methodDef ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .field(.init(oneBased: oneBasedIndex))
-            case 1: self = .methodDef(.init(oneBased: oneBasedIndex))
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .field(rowIndex): return .init(rowIndex)
-            case let .methodDef(rowIndex): return .init(rowIndex)
-        }
-    }
-}
-
-public enum MemberRefParent: CodedIndex {
-    case typeDef(TypeDefTable.RowIndex?)
-    case typeRef(TypeRefTable.RowIndex?)
-    case moduleRef(ModuleRefTable.RowIndex?)
-    case methodDef(MethodDefTable.RowIndex?)
-    case typeSpec(TypeSpecTable.RowIndex?)
-
-    public static let tables: [TableID?] = [ .typeDef, .typeRef, .moduleRef, .methodDef, .typeSpec ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .typeDef(.init(oneBased: oneBasedIndex))
-            case 1: self = .typeRef(.init(oneBased: oneBasedIndex))
-            case 2: self = .moduleRef(.init(oneBased: oneBasedIndex))
-            case 3: self = .methodDef(.init(oneBased: oneBasedIndex))
-            case 4: self = .typeSpec(.init(oneBased: oneBasedIndex))
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .typeDef(rowIndex): return .init(rowIndex)
-            case let .typeRef(rowIndex): return .init(rowIndex)
-            case let .moduleRef(rowIndex): return .init(rowIndex)
-            case let .methodDef(rowIndex): return .init(rowIndex)
-            case let .typeSpec(rowIndex): return .init(rowIndex)
-        }
-    }
-}
-
-public enum MethodDefOrRef: CodedIndex {
-    case methodDef(MethodDefTable.RowIndex?)
-    case memberRef(MemberRefTable.RowIndex?)
-
-    public static let tables: [TableID?] = [ .methodDef, .memberRef ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .methodDef(.init(oneBased: oneBasedIndex))
-            case 1: self = .memberRef(.init(oneBased: oneBasedIndex))
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .methodDef(rowIndex): return .init(rowIndex)
-            case let .memberRef(rowIndex): return .init(rowIndex)
-        }
-    }
-}
-
-public enum ResolutionScope: CodedIndex {
-    case module(ModuleTable.RowIndex?)
-    case moduleRef(ModuleRefTable.RowIndex?)
-    case assemblyRef(AssemblyRefTable.RowIndex?)
-    case typeRef(TypeRefTable.RowIndex?)
-
-    public static let tables: [TableID?] = [ .module, .moduleRef, .assemblyRef, .typeRef ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .module(.init(oneBased: oneBasedIndex))
-            case 1: self = .moduleRef(.init(oneBased: oneBasedIndex))
-            case 2: self = .assemblyRef(.init(oneBased: oneBasedIndex))
-            case 3: self = .typeRef(.init(oneBased: oneBasedIndex))
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .module(rowIndex): return .init(rowIndex)
-            case let .moduleRef(rowIndex): return .init(rowIndex)
-            case let .assemblyRef(rowIndex): return .init(rowIndex)
-            case let .typeRef(rowIndex): return .init(rowIndex)
-        }
-    }
-}
-
-public enum TypeDefOrRef: CodedIndex {
-    case typeDef(TypeDefTable.RowIndex?)
-    case typeRef(TypeRefTable.RowIndex?)
-    case typeSpec(TypeSpecTable.RowIndex?)
-
-    public static let tables: [TableID?] = [ .typeDef, .typeRef, .typeSpec ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .typeDef(.init(oneBased: oneBasedIndex))
-            case 1: self = .typeRef(.init(oneBased: oneBasedIndex))
-            case 2: self = .typeSpec(.init(oneBased: oneBasedIndex))
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .typeDef(rowIndex): return .init(rowIndex)
-            case let .typeRef(rowIndex): return .init(rowIndex)
-            case let .typeSpec(rowIndex): return .init(rowIndex)
-        }
-    }
-}
-
-public enum TypeOrMethodDef: CodedIndex {
-    case typeDef(TypeDefTable.RowIndex?)
-    case methodDef(MethodDefTable.RowIndex?)
-
-    public static let tables: [TableID?] = [ .typeDef, .methodDef ]
-
-    public init(tag: UInt8, oneBasedIndex: UInt32) {
-        switch tag {
-            case 0: self = .typeDef(.init(oneBased: oneBasedIndex))
-            case 1: self = .methodDef(.init(oneBased: oneBasedIndex))
-            default: fatalError()
-        }
-    }
-
-    public var metadataToken: MetadataToken {
-        switch self {
-            case let .typeDef(rowIndex): return .init(rowIndex)
-            case let .methodDef(rowIndex): return .init(rowIndex)
+            public static let tables: [TableID?] = [ .typeDef, .methodDef ]
         }
     }
 }

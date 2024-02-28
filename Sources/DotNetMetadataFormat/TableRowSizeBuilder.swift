@@ -19,13 +19,13 @@ internal struct TableRowSizeBuilder<Row> where Row: TableRow {
     public func addingHeapOffset<T: Heap>(_: KeyPath<Row, HeapOffset<T>>) -> Self {
         adding(size: sizes.getHeapOffsetSize(T.self))
     }
-    
+
     public func addingTableRowIndex<T: TableRow>(_: KeyPath<Row, TableRowIndex<T>?>) -> Self {
         adding(size: sizes.getTableRowIndexSize(T.tableID))
     }
-    
-    public func addingCodedIndex<T: CodedIndex>(_: KeyPath<Row, T>) -> Self {
-        adding(size: sizes.getCodedIndexSize(T.self))
+
+    public func addingCodedIndex<Tag: CodedIndexTag>(_: KeyPath<Row, CodedIndex<Tag>>) -> Self {
+        adding(size: sizes.getCodedIndexSize(Tag.self))
     }
 
     public func addingPaddingByte() -> Self {

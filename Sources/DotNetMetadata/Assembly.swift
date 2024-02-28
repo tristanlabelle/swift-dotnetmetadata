@@ -38,9 +38,9 @@ public class Assembly: CustomDebugStringConvertible {
 
     public var debugDescription: String { identity.description}
 
-    public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable[0].name)
+    public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable.first!.name)
 
-    public private(set) lazy var attributes: [Attribute] = { getAttributes(owner: MetadataToken(tableID: .assembly, oneBasedRowIndex: 1)) }()
+    public private(set) lazy var attributes: [Attribute] = { getAttributes(owner: .init(tag: .assembly, oneBasedRowIndex: 1)) }()
 
     public private(set) lazy var references: [AssemblyReference] = {
         moduleFile.assemblyRefTable.indices.map { 
@@ -110,8 +110,8 @@ public class Assembly: CustomDebugStringConvertible {
         return try resolveTypeDefinition(fullName: fullName, allowForwarding: allowForwarding)
     }
 
-    internal func getAttributes(owner: MetadataToken) -> [Attribute] {
-        moduleFile.customAttributeTable.findAll(primaryKey: owner.tableKey).map {
+    internal func getAttributes(owner: CodedIndices.HasCustomAttribute) -> [Attribute] {
+        moduleFile.customAttributeTable.findAll(primaryKey: owner).map {
             Attribute(tableRowIndex: $0, assembly: self)
         }
     }

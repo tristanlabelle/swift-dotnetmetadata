@@ -33,7 +33,7 @@ public struct CustomAttribSig {
 
 public struct CustomModSig {
     public var isRequired: Bool
-    public var type: TypeDefOrRef
+    public var type: CodedIndices.TypeDefOrRef
 }
 
 public struct FieldSig {
@@ -90,7 +90,7 @@ public enum TypeSig {
     case string
     case object
     indirect case ptr(customMods: [CustomModSig], to: TypeSig) // Target may be .void
-    indirect case defOrRef(index: TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
+    indirect case defOrRef(index: CodedIndices.TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
     case genericParam(index: UInt32, method: Bool)
     indirect case szarray(customMods: [CustomModSig], of: TypeSig)
     case fnptr

@@ -21,7 +21,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         // instances since they might not have been created yet.
         // For safety, implement this at the physical layer.
         let tableRow = assembly.moduleFile.typeDefTable[tableRowIndex]
-        let kind = assembly.moduleFile.getTypeDefinitionKind(tableRow)
+        let kind = (try? assembly.moduleFile.getTypeDefinitionKind(tableRow)) ?? .class
 
         switch kind {
             case .class: return ClassDefinition(assembly: assembly, tableRowIndex: tableRowIndex)
@@ -85,7 +85,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         }
 
         func getClassLayout() -> (pack: UInt16, size: UInt32) {
-            if let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: tableRowIndex.metadataToken.tableKey) {
+            if let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: .init(index: tableRowIndex)) {
                 let classLayoutRow = moduleFile.classLayoutTable[classLayoutRowIndex]
                 return (pack: classLayoutRow.packingSize, size: classLayoutRow.classSize)
             }
@@ -96,7 +96,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     }()
 
     private lazy var _enclosingType = Result<TypeDefinition?, any Error> {
-        guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: MetadataToken(tableRowIndex).tableKey) else { return nil }
+        guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: .init(index: tableRowIndex)) else { return nil }
         guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass else { return nil }
         return try assembly.resolve(enclosingTypeDefRowIndex)
     }
@@ -107,7 +107,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     /// in the nested type, i.e. given "Enclosing<T>.Nested<U>" in C#, the metadata
     /// for "Nested" should have generic parameters T (redeclared) and U.
     public private(set) lazy var genericParams: [GenericTypeParam] = {
-        moduleFile.genericParamTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .typeDef, oneBasedRowIndex: tableRowIndex.oneBased)).map {
             GenericTypeParam(definingType: self, tableRowIndex: $0)
         }
     }()
@@ -118,7 +118,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     public var base: BoundType? { get throws { try _base.get() } }
 
     public private(set) lazy var baseInterfaces: [BaseInterface] = {
-        moduleFile.interfaceImplTable.findAll(primaryKey: tableRowIndex.metadataToken.tableKey).map {
+        moduleFile.interfaceImplTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
             BaseInterface(inheritingType: self, tableRowIndex: $0)
         }
     }()
@@ -162,7 +162,9 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     }()
 
     public var attributeTarget: AttributeTargets { fatalError() }
-    public private(set) lazy var attributes: [Attribute] = { assembly.getAttributes(owner: tableRowIndex.metadataToken) }()
+    public private(set) lazy var attributes: [Attribute] = {
+        assembly.getAttributes(owner: .init(tag: .typeDef, oneBasedRowIndex: tableRowIndex.oneBased))
+    }()
 
     private lazy var _nestedTypes = Result {
         try moduleFile.nestedClassTable.findAllNested(enclosing: tableRowIndex).map {
@@ -172,8 +174,8 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     }
     public var nestedTypes: [TypeDefinition] { get throws { try _nestedTypes.get() } }
 
-    internal func getAccessors(owner: HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
-        moduleFile.methodSemanticsTable.findAll(primaryKey: owner.metadataToken.tableKey).map {
+    internal func getAccessors(owner: CodedIndices.HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
+        moduleFile.methodSemanticsTable.findAll(primaryKey: owner).map {
             let row = moduleFile.methodSemanticsTable[$0]
             let method = methods.first { $0.tableRowIndex == row.method }!
             return (method, row.semantics)
