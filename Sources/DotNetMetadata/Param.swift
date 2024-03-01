@@ -53,7 +53,7 @@ public final class Param: ParamBase {
     }
     public var defaultValue : Constant? { get throws { try _defaultValue.get() } }
 
-    public override var attributeTarget: AttributeTargets { .param }
+    public override var attributeTarget: AttributeTargets { .parameter }
 }
 
 public final class ReturnParam: ParamBase {

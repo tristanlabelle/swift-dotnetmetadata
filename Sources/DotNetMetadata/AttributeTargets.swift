@@ -1,5 +1,5 @@
 public struct AttributeTargets: Hashable, OptionSet {
-    public var rawValue: Int32
+    public var rawValue: Int32 // Despite [Flags], the underlying type is Int32 in metadata
 
     public init(rawValue: Int32) {
         self.rawValue = rawValue
@@ -38,13 +38,13 @@ public struct AttributeTargets: Hashable, OptionSet {
     /// Attribute can be applied to an interface.
     public static let interface = Self(rawValue: 0x400)
     /// Attribute can be applied to a parameter.
-    public static let param = Self(rawValue: 0x800)
+    public static let parameter = Self(rawValue: 0x800)
     /// Attribute can be applied to a delegate.
     public static let delegate = Self(rawValue: 0x1000)
     /// Attribute can be applied to a return value.
     public static let returnValue = Self(rawValue: 0x2000)
     /// Attribute can be applied to a generic parameter.
-    public static let genericParam = Self(rawValue: 0x4000)
+    public static let genericParameter = Self(rawValue: 0x4000)
     /// Attribute can be applied to any application element.
     public static let all = Self(rawValue: 0x7FFF)
 

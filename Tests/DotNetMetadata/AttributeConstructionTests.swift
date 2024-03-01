@@ -1,7 +1,7 @@
 @testable import DotNetMetadata
 import XCTest
 
-internal final class AttributeTests: CompiledAssemblyTestCase {
+internal final class AttributeConstructionTests: CompiledAssemblyTestCase {
     internal override class var csharpCode: String {
         """
         class MyAttributeAttribute: System.Attribute

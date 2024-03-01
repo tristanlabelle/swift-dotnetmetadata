@@ -27,7 +27,7 @@ public class GenericParam: Attributable {
 
     public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
-    public var attributeTarget: AttributeTargets { .genericParam }
+    public var attributeTarget: AttributeTargets { .genericParameter }
     public private(set) lazy var attributes: [Attribute] = {
         assembly.getAttributes(owner: .init(tag: .genericParam, rowIndex: tableRowIndex))
     }()

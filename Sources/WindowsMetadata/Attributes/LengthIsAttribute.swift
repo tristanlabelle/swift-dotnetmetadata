@@ -10,7 +10,7 @@ public struct LengthIsAttribute: AttributeType {
 
     public static var namespace: String? { "Windows.Foundation.Metadata" }
     public static var name: String { "LengthIsAttribute" }
-    public static var validOn: AttributeTargets { .param }
+    public static var validOn: AttributeTargets { .parameter }
     public static var allowMultiple: Bool { false }
     public static var inherited: Bool { true }
 
