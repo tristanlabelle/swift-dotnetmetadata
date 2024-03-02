@@ -41,7 +41,7 @@ internal class CompiledAssemblyTestCase: XCTestCase {
             let result = try DotNetTool.exec(
                 path: sdk.cscPath,
                 args: CSharpCompilerArgs(
-                    nologo: true, nostdlib: true, optimize: false, debug: false, target: .library,
+                    nologo: true, nostdlib: true, optimize: false, debug: false, unsafe: true, target: .library,
                     references: [ "\(refsPath)\\System.Runtime.dll" ],
                     output: assemblyFilePath, sources: [codeFilePath]).buildCommandLineArgs())
             guard result.exitCode == 0 else { throw CompilationFailedError(message: result.standardOutput) }

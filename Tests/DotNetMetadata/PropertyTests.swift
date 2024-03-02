@@ -23,6 +23,13 @@ internal final class PropertyTests: CompiledAssemblyTestCase {
         privateStaticGetProperty = try XCTUnwrap(typeDefinition.findProperty(name: "PrivateStaticGet"))
     }
 
+    public override func tearDown() {
+        typeDefinition = nil
+        publicAbstractInstanceGetSetProperty = nil
+        privateStaticGetProperty = nil
+        super.tearDown()
+    }
+
     public func testEnumeration() throws {
         XCTAssertEqual(
             typeDefinition.properties.map { $0.name },
