@@ -37,8 +37,14 @@ public class Method: Member {
     public var isOverride: Bool { isVirtual && !isNewSlot }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
-    private lazy var _signature = Result { try MethodSig(blob: moduleFile.resolve(tableRow.signature), isRef: false) }
-    public var signature: MethodSig { get throws { try _signature.get() } }
+    private var _signature: MethodSig?
+    public var signature: MethodSig {
+        get throws {
+            try _signature.lazyInit {
+                try MethodSig(blob: moduleFile.resolve(tableRow.signature), isRef: false)
+            }
+        }
+    }
 
     private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result {
         let paramRowIndices = getChildRowRange(
@@ -84,11 +90,14 @@ public class Method: Member {
 
     public var returnType: TypeNode { get throws { try returnParam.type } }
 
-    public private(set) lazy var genericParams: [GenericMethodParam] = {
-        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .methodDef, rowIndex: tableRowIndex)).map {
-            GenericMethodParam(definingMethod: self, tableRowIndex: $0)
+    private var _genericParams: [GenericMethodParam]?
+    public var genericParams: [GenericMethodParam] {
+        _genericParams.lazyInit {
+            moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .methodDef, rowIndex: tableRowIndex)).map {
+                GenericMethodParam(definingMethod: self, tableRowIndex: $0)
+            }
         }
-    }()
+    }
 
     public var genericArity: Int { genericParams.count }
 

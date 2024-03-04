@@ -20,9 +20,13 @@ public class Member: Attributable {
 
     public var attributeTarget: AttributeTargets { fatalError() }
     internal var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { fatalError() }
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: attributesKeyTag, rowIndex: metadataToken.rowIndex))
-    }()
+
+    private var _attributes: [Attribute]?
+    public var attributes: [Attribute] {
+        _attributes.lazyInit {
+            assembly.getAttributes(owner: .init(tag: attributesKeyTag, rowIndex: metadataToken.rowIndex))
+        }
+    }
 }
 
 extension Member: Hashable {

@@ -38,23 +38,34 @@ public class Assembly: CustomDebugStringConvertible {
 
     public var debugDescription: String { identity.description}
 
-    public private(set) lazy var moduleName: String = moduleFile.resolve(moduleFile.moduleTable.first!.name)
+    private var _moduleName: String?
+    public var moduleName: String { _moduleName.lazyInit { moduleFile.resolve(moduleFile.moduleTable.first!.name) } }
 
-    public private(set) lazy var attributes: [Attribute] = { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) }()
+    private var _attributes: [Attribute]?
+    public var attributes: [Attribute] { _attributes.lazyInit { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) } }
 
-    public private(set) lazy var references: [AssemblyReference] = {
-        moduleFile.assemblyRefTable.indices.map { 
-            AssemblyReference(owner: self, tableRowIndex: $0)
+    private var _references: [AssemblyReference]?
+    public var references: [AssemblyReference] {
+        _references.lazyInit {
+            moduleFile.assemblyRefTable.indices.map { 
+                AssemblyReference(owner: self, tableRowIndex: $0)
+            }
         }
-    }()
+    }
 
-    public private(set) lazy var typeDefinitions: [TypeDefinition] = {
-        moduleFile.typeDefTable.indices.map { TypeDefinition.create(assembly: self, tableRowIndex: $0) }
-    }()
+    private var _typeDefinitions: [TypeDefinition]?
+    public var typeDefinitions: [TypeDefinition] {
+        _typeDefinitions.lazyInit {
+            moduleFile.typeDefTable.indices.map { TypeDefinition.create(assembly: self, tableRowIndex: $0) }
+        }
+    }
 
-    public private(set) lazy var exportedTypes: [ExportedType] = {
-        moduleFile.exportedTypeTable.indices.map { ExportedType(assembly: self, tableRowIndex: $0) }
-    }()
+    private var _exportedTypes: [ExportedType]?
+    public var exportedTypes: [ExportedType] {
+        _exportedTypes.lazyInit {
+            moduleFile.exportedTypeTable.indices.map { ExportedType(assembly: self, tableRowIndex: $0) }
+        }
+    }
 
     private lazy var propertyMapByTypeDefRowIndex: [TypeDefTable.RowRef: TableRowIndex] = {
         .init(uniqueKeysWithValues: moduleFile.propertyMapTable.indices.map {
@@ -76,23 +87,29 @@ public class Assembly: CustomDebugStringConvertible {
         .init(index: eventMapByTypeDefRowIndex[.init(index: rowIndex)])
     }
 
-    public private(set) lazy var typeDefinitionsByFullName: [String: TypeDefinition] = {
-        let typeDefinitions = typeDefinitions
-        var dict = [String: TypeDefinition](minimumCapacity: typeDefinitions.count)
-        for typeDefinition in typeDefinitions {
-            dict[typeDefinition.fullName] = typeDefinition
+    private var _typeDefinitionsByFullName: [String: TypeDefinition]?
+    public var typeDefinitionsByFullName: [String: TypeDefinition] {
+        _typeDefinitionsByFullName.lazyInit {
+            let typeDefinitions = typeDefinitions
+            var dict = [String: TypeDefinition](minimumCapacity: typeDefinitions.count)
+            for typeDefinition in typeDefinitions {
+                dict[typeDefinition.fullName] = typeDefinition
+            }
+            return dict
         }
-        return dict
-    }()
+    }
 
-    public private(set) lazy var exportedTypesByFullName: [String: ExportedType] = {
-        let exportedTypes = exportedTypes
-        var dict = [String: ExportedType](minimumCapacity: exportedTypes.count)
-        for exportedType in exportedTypes {
-            dict[exportedType.fullName] = exportedType
+    private var _exportedTypesByFullName: [String: ExportedType]?
+    public var exportedTypesByFullName: [String: ExportedType] {
+        _exportedTypesByFullName.lazyInit {
+            let exportedTypes = exportedTypes
+            var dict = [String: ExportedType](minimumCapacity: exportedTypes.count)
+            for exportedType in exportedTypes {
+                dict[exportedType.fullName] = exportedType
+            }
+            return dict
         }
-        return dict
-    }()
+    }
 
     public func resolveTypeDefinition(fullName: String, allowForwarding: Bool = true) throws -> TypeDefinition? {
         if let typeDefinition = typeDefinitionsByFullName[fullName] { return typeDefinition }

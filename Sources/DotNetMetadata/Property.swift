@@ -34,8 +34,12 @@ public class Property: Member {
     public override var attributeTarget: AttributeTargets { .property }
     internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .property }
 
-    private lazy var _type = Result { try assembly.resolveTypeSig(propertySig.type, typeContext: definingType) }
-    public var type: TypeNode { get throws { try _type.get() } }
+    private var _type: TypeNode?
+    public var type: TypeNode { get throws {
+        try _type.lazyInit {
+            try assembly.resolveTypeSig(propertySig.type, typeContext: definingType)
+        }
+    } }
 
     private struct Accessors {
         var getter: Method?
@@ -43,23 +47,26 @@ public class Property: Member {
         var others: [Method] = []
     }
 
-    private lazy var accessors = Result { [self] in
-        var accessors = Accessors()
-        for entry in definingType.getAccessors(owner: .init(tag: .property, rowIndex: tableRowIndex)) {
-            if entry.attributes == .getter { accessors.getter = entry.method }
-            else if entry.attributes == .setter { accessors.setter = entry.method }
-            else if entry.attributes == .other { accessors.others.append(entry.method) }
-            else { fatalError("Unexpected property accessor attributes value") }
+    private var _accessors: Accessors?
+    private var accessors: Accessors { get throws {
+        _accessors.lazyInit {
+            var accessors = Accessors()
+            for entry in definingType.getAccessors(owner: .init(tag: .property, rowIndex: tableRowIndex)) {
+                if entry.attributes == .getter { accessors.getter = entry.method }
+                else if entry.attributes == .setter { accessors.setter = entry.method }
+                else if entry.attributes == .other { accessors.others.append(entry.method) }
+                else { fatalError("Unexpected property accessor attributes value") }
+            }
+            return accessors
         }
-        return accessors
-    }
+    } }
 
-    public var getter: Method? { get throws { try accessors.get().getter } }
-    public var setter: Method? { get throws { try accessors.get().setter } }
-    public var otherAccessors: [Method] { get throws { try accessors.get().others } }
+    public var getter: Method? { get throws { try accessors.getter } }
+    public var setter: Method? { get throws { try accessors.setter } }
+    public var otherAccessors: [Method] { get throws { try accessors.others } }
 
     private var anyAccessor: Method? {
-        guard let accessors = try? self.accessors.get() else { return nil }
+        guard let accessors = try? self.accessors else { return nil }
         return accessors.getter ?? accessors.setter ?? accessors.others.first
     }
 

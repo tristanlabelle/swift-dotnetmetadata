@@ -30,14 +30,20 @@ public final class Field: Member {
         return Int(fieldLayoutRow.offset)
     }()
 
-    private lazy var _signature = Result {
-        let signatureBlob = moduleFile.resolve(tableRow.signature)
-        return try! FieldSig(blob: signatureBlob)
-    }
-    public var signature: FieldSig { get throws { try _signature.get() } }
+    private var _signature: FieldSig?
+    public var signature: FieldSig { get throws {
+        try _signature.lazyInit {
+            let signatureBlob = moduleFile.resolve(tableRow.signature)
+            return try FieldSig(blob: signatureBlob)
+        }
+    } }
 
-    private lazy var _type = Result { try assembly.resolveTypeSig(signature.type, typeContext: definingType) }
-    public var type: TypeNode { get throws { try _type.get() } }
+    private var _type: TypeNode?
+    public var type: TypeNode { get throws {
+        try _type.lazyInit {
+            try assembly.resolveTypeSig(signature.type, typeContext: definingType)
+        }
+    } }
 
     private lazy var _literalValue = Result {
         guard tableRow.flags.contains(.literal) else { return nil as Constant? }

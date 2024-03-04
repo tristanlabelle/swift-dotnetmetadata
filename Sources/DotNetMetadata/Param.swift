@@ -16,16 +16,21 @@ public class ParamBase: Attributable {
     public var metadataToken: MetadataToken { fatalError() }
     public var isByRef: Bool { signature.byRef }
 
-    private lazy var _type = Result {
-        try assembly.resolveTypeSig(signature.type, typeContext: method.definingType, methodContext: method)
-    }
-    public var type: TypeNode { get throws { try _type.get() } }
+    private var _type: TypeNode?
+    public var type: TypeNode { get throws {
+        try _type.lazyInit {
+            try assembly.resolveTypeSig(signature.type, typeContext: method.definingType, methodContext: method)
+        }
+    } }
 
     public var attributeTarget: AttributeTargets { fatalError() }
-    public private(set) lazy var attributes: [Attribute] = {
+    private var _attributes: [Attribute]?
+    public var attributes: [Attribute] {
         guard !metadataToken.isNull else { return [] }
-        return assembly.getAttributes(owner: .init(tag: .param, rowIndex: metadataToken.rowIndex))
-    }()
+        return _attributes.lazyInit {
+            assembly.getAttributes(owner: .init(tag: .param, rowIndex: metadataToken.rowIndex))
+        }
+    }
 }
 
 public final class Param: ParamBase {
