@@ -56,13 +56,16 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         return value.isEmpty ? nil : value
     }
 
-    public private(set) lazy var fullName: String = {
-        if let enclosingType = try? enclosingType {
-            assert(namespace == nil)
-            return "\(enclosingType.fullName)\(Self.nestedTypeSeparator)\(name)"
+    private var cachedFullName: String?
+    public var fullName: String { get {
+        cachedFullName.lazyInit {
+            if let enclosingType = try? enclosingType {
+                assert(namespace == nil)
+                return "\(enclosingType.fullName)\(Self.nestedTypeSeparator)\(name)"
+            }
+            return makeFullTypeName(namespace: namespace, name: name)
         }
-        return makeFullTypeName(namespace: namespace, name: name)
-    }()
+    } }
 
     internal var metadataFlags: DotNetMetadataFormat.TypeAttributes { tableRow.flags }
 
@@ -74,101 +77,136 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
 
     public var debugDescription: String { "\(fullName) (\(assembly.name) \(assembly.version))" }
 
-    public private(set) lazy var layout: TypeLayout = {
-        switch metadataFlags.layoutKind {
-            case .auto: return .auto
-            case .sequential:
-                let layout = getClassLayout()
-                return .sequential(pack: layout.pack == 0 ? nil : Int(layout.pack), minSize: Int(layout.size))
-            case .explicit:
-                return .explicit(minSize: Int(getClassLayout().size))
-        }
-
-        func getClassLayout() -> (pack: UInt16, size: UInt32) {
-            if let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: .init(index: tableRowIndex)) {
-                let classLayoutRow = moduleFile.classLayoutTable[classLayoutRowIndex]
-                return (pack: classLayoutRow.packingSize, size: classLayoutRow.classSize)
+    private var cachedLayout: TypeLayout?
+    public var layout: TypeLayout { get {
+        cachedLayout.lazyInit {
+            switch metadataFlags.layoutKind {
+                case .auto: return .auto
+                case .sequential:
+                    let layout = getClassLayout()
+                    return .sequential(pack: layout.pack == 0 ? nil : Int(layout.pack), minSize: Int(layout.size))
+                case .explicit:
+                    return .explicit(minSize: Int(getClassLayout().size))
             }
-            else {
-                return (pack: 0, size: 0)
+
+            func getClassLayout() -> (pack: UInt16, size: UInt32) {
+                if let classLayoutRowIndex = moduleFile.classLayoutTable.findAny(primaryKey: .init(index: tableRowIndex)) {
+                    let classLayoutRow = moduleFile.classLayoutTable[classLayoutRowIndex]
+                    return (pack: classLayoutRow.packingSize, size: classLayoutRow.classSize)
+                }
+                else {
+                    return (pack: 0, size: 0)
+                }
             }
         }
-    }()
+    } }
 
-    private lazy var _enclosingType = Result<TypeDefinition?, any Error> {
-        guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: .init(index: tableRowIndex)) else { return nil }
-        guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass.index else { return nil }
-        return try assembly.resolveTypeDef(rowIndex: enclosingTypeDefRowIndex)
-    }
-    public var enclosingType: TypeDefinition? { get throws { try _enclosingType.get() } }
+    private var cachedEnclosingType: TypeDefinition??
+    public var enclosingType: TypeDefinition? { get throws {
+        try cachedEnclosingType.lazyInit {
+            guard let nestedClassRowIndex = moduleFile.nestedClassTable.findAny(primaryKey: .init(index: tableRowIndex)) else { return nil }
+            guard let enclosingTypeDefRowIndex = moduleFile.nestedClassTable[nestedClassRowIndex].enclosingClass.index else { return nil }
+            return try assembly.resolveTypeDef(rowIndex: enclosingTypeDefRowIndex)
+        }
+    } }
 
     /// The list of generic parameters on this type definition.
     /// By CLS rules, generic parameters on the enclosing type should be redeclared
     /// in the nested type, i.e. given "Enclosing<T>.Nested<U>" in C#, the metadata
     /// for "Nested" should have generic parameters T (redeclared) and U.
-    public private(set) lazy var genericParams: [GenericTypeParam] = {
-        moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .typeDef, rowIndex: tableRowIndex)).map {
-            GenericTypeParam(definingType: self, tableRowIndex: $0)
+    private var cachedGenericParms: [GenericTypeParam]?
+    public var genericParams: [GenericTypeParam] {
+        get {
+            cachedGenericParms.lazyInit {
+                moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .typeDef, rowIndex: tableRowIndex)).map {
+                    GenericTypeParam(definingType: self, tableRowIndex: $0)
+                }
+            }
         }
-    }()
+    }
 
     public var genericArity: Int { genericParams.count }
 
-    private lazy var _base = Result { try assembly.resolveTypeDefOrRefToBoundType(tableRow.extends) }
-    public var base: BoundType? { get throws { try _base.get() } }
-
-    public private(set) lazy var baseInterfaces: [BaseInterface] = {
-        moduleFile.interfaceImplTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
-            BaseInterface(inheritingType: self, tableRowIndex: $0)
+    private var cachedBase: BoundType??
+    public var base: BoundType? { get throws {
+        try cachedBase.lazyInit {
+            try assembly.resolveTypeDefOrRefToBoundType(tableRow.extends)
         }
-    }()
+    } }
 
-    public private(set) lazy var methods: [Method] = {
-        getChildRowRange(parent: moduleFile.typeDefTable,
-            parentRowIndex: tableRowIndex,
-            childTable: moduleFile.methodDefTable,
-            childSelector: { $0.methodList }).map {
-            Method.create(definingType: self, tableRowIndex: $0)
-        }
-    }()
-
-    public private(set) lazy var fields: [Field] = {
-        getChildRowRange(parent: moduleFile.typeDefTable,
-            parentRowIndex: tableRowIndex,
-            childTable: moduleFile.fieldTable,
-            childSelector: { $0.fieldList }).map {
-            Field(definingType: self, tableRowIndex: $0)
-        }
-    }()
-
-    public private(set) lazy var properties: [Property] = {
-        guard let propertyMapRowIndex = assembly.findPropertyMapForTypeDef(rowIndex: tableRowIndex).index else { return [] }
-        return getChildRowRange(parent: moduleFile.propertyMapTable,
-            parentRowIndex: propertyMapRowIndex,
-            childTable: moduleFile.propertyTable,
-            childSelector: { $0.propertyList }).map { Property.create(definingType: self, tableRowIndex: $0) }
-    }()
-
-    public private(set) lazy var events: [Event] = {
-        guard let eventMapRowIndex: TableRowIndex = assembly.findEventMapForTypeDef(rowIndex: tableRowIndex).index else { return [] }
-        return getChildRowRange(parent: moduleFile.eventMapTable,
-            parentRowIndex: eventMapRowIndex,
-            childTable: moduleFile.eventTable,
-            childSelector: { $0.eventList }).map { Event(definingType: self, tableRowIndex: $0) }
-    }()
-
-    public var attributeTarget: AttributeTargets { fatalError() }
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: .typeDef, rowIndex: tableRowIndex))
-    }()
-
-    private lazy var _nestedTypes = Result {
-        try moduleFile.nestedClassTable.findAllNested(enclosing: .init(index: tableRowIndex)).map {
-            let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass.index!
-            return try assembly.resolveTypeDef(rowIndex: nestedTypeRowIndex)
+    private var cachedBaseInterfaces: [BaseInterface]?
+    public var baseInterfaces: [BaseInterface] {
+        cachedBaseInterfaces.lazyInit {
+            moduleFile.interfaceImplTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
+                BaseInterface(inheritingType: self, tableRowIndex: $0)
+            }
         }
     }
-    public var nestedTypes: [TypeDefinition] { get throws { try _nestedTypes.get() } }
+
+    private var cachedMethods: [Method]?
+    public var methods: [Method] {
+        cachedMethods.lazyInit {
+            getChildRowRange(parent: moduleFile.typeDefTable,
+                parentRowIndex: tableRowIndex,
+                childTable: moduleFile.methodDefTable,
+                childSelector: { $0.methodList }).map {
+                Method.create(definingType: self, tableRowIndex: $0)
+            }
+        }
+    }
+
+    private var cachedFields: [Field]?
+    public var fields: [Field] {
+        cachedFields.lazyInit {
+            getChildRowRange(parent: moduleFile.typeDefTable,
+                parentRowIndex: tableRowIndex,
+                childTable: moduleFile.fieldTable,
+                childSelector: { $0.fieldList }).map {
+                Field(definingType: self, tableRowIndex: $0)
+            }
+        }
+    }
+
+    private var cachedProperties: [Property]?
+    public var properties: [Property] {
+        cachedProperties.lazyInit {
+            guard let propertyMapRowIndex = assembly.findPropertyMapForTypeDef(rowIndex: tableRowIndex).index else { return [] }
+            return getChildRowRange(parent: moduleFile.propertyMapTable,
+                parentRowIndex: propertyMapRowIndex,
+                childTable: moduleFile.propertyTable,
+                childSelector: { $0.propertyList }).map { Property.create(definingType: self, tableRowIndex: $0) }
+        }
+    }
+
+    private var cachedEvents: [Event]?
+    public var events: [Event] {
+        cachedEvents.lazyInit {
+            guard let eventMapRowIndex: TableRowIndex = assembly.findEventMapForTypeDef(rowIndex: tableRowIndex).index else { return [] }
+            return getChildRowRange(parent: moduleFile.eventMapTable,
+                parentRowIndex: eventMapRowIndex,
+                childTable: moduleFile.eventTable,
+                childSelector: { $0.eventList }).map { Event(definingType: self, tableRowIndex: $0) }
+        }
+    }
+
+    public var attributeTarget: AttributeTargets { fatalError() }
+
+    private var cachedAttributes: [Attribute]?
+    public var attributes: [Attribute] {
+        cachedAttributes.lazyInit {
+            assembly.getAttributes(owner: .init(tag: .typeDef, rowIndex: tableRowIndex))
+        }
+    }
+
+    private var cachedNestedTypes: [TypeDefinition]?
+    public var nestedTypes: [TypeDefinition] { get throws {
+        try cachedNestedTypes.lazyInit {
+            try moduleFile.nestedClassTable.findAllNested(enclosing: .init(index: tableRowIndex)).map {
+                let nestedTypeRowIndex = moduleFile.nestedClassTable[$0].nestedClass.index!
+                return try assembly.resolveTypeDef(rowIndex: nestedTypeRowIndex)
+            }
+        }
+    } }
 
     internal func getAccessors(owner: CodedIndices.HasSemantics) -> [(method: Method, attributes: MethodSemanticsAttributes)] {
         moduleFile.methodSemanticsTable.findAll(primaryKey: owner).map {

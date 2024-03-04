@@ -24,10 +24,10 @@ public class ParamBase: Attributable {
     } }
 
     public var attributeTarget: AttributeTargets { fatalError() }
-    private var _attributes: [Attribute]?
+    private var cachedAttributes: [Attribute]?
     public var attributes: [Attribute] {
         guard !metadataToken.isNull else { return [] }
-        return _attributes.lazyInit {
+        return cachedAttributes.lazyInit {
             assembly.getAttributes(owner: .init(tag: .param, rowIndex: metadataToken.rowIndex))
         }
     }

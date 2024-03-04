@@ -30,17 +30,17 @@ public final class Field: Member {
         return Int(fieldLayoutRow.offset)
     }()
 
-    private var _signature: FieldSig?
+    private var cachedSignature: FieldSig?
     public var signature: FieldSig { get throws {
-        try _signature.lazyInit {
+        try cachedSignature.lazyInit {
             let signatureBlob = moduleFile.resolve(tableRow.signature)
             return try FieldSig(blob: signatureBlob)
         }
     } }
 
-    private var _type: TypeNode?
+    private var cachedType: TypeNode?
     public var type: TypeNode { get throws {
-        try _type.lazyInit {
+        try cachedType.lazyInit {
             try assembly.resolveTypeSig(signature.type, typeContext: definingType)
         }
     } }

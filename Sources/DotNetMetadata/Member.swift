@@ -21,9 +21,9 @@ public class Member: Attributable {
     public var attributeTarget: AttributeTargets { fatalError() }
     internal var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { fatalError() }
 
-    private var _attributes: [Attribute]?
+    private var cachedAttributes: [Attribute]?
     public var attributes: [Attribute] {
-        _attributes.lazyInit {
+        cachedAttributes.lazyInit {
             assembly.getAttributes(owner: .init(tag: attributesKeyTag, rowIndex: metadataToken.rowIndex))
         }
     }

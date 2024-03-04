@@ -38,31 +38,31 @@ public class Assembly: CustomDebugStringConvertible {
 
     public var debugDescription: String { identity.description}
 
-    private var _moduleName: String?
-    public var moduleName: String { _moduleName.lazyInit { moduleFile.resolve(moduleFile.moduleTable.first!.name) } }
+    private var cachedModuleName: String?
+    public var moduleName: String { cachedModuleName.lazyInit { moduleFile.resolve(moduleFile.moduleTable.first!.name) } }
 
-    private var _attributes: [Attribute]?
-    public var attributes: [Attribute] { _attributes.lazyInit { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) } }
+    private var cachedAttributes: [Attribute]?
+    public var attributes: [Attribute] { cachedAttributes.lazyInit { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) } }
 
-    private var _references: [AssemblyReference]?
+    private var cachedReferences: [AssemblyReference]?
     public var references: [AssemblyReference] {
-        _references.lazyInit {
+        cachedReferences.lazyInit {
             moduleFile.assemblyRefTable.indices.map { 
                 AssemblyReference(owner: self, tableRowIndex: $0)
             }
         }
     }
 
-    private var _typeDefinitions: [TypeDefinition]?
+    private var cachedTypeDefinitions: [TypeDefinition]?
     public var typeDefinitions: [TypeDefinition] {
-        _typeDefinitions.lazyInit {
+        cachedTypeDefinitions.lazyInit {
             moduleFile.typeDefTable.indices.map { TypeDefinition.create(assembly: self, tableRowIndex: $0) }
         }
     }
 
-    private var _exportedTypes: [ExportedType]?
+    private var cachedExportedTypes: [ExportedType]?
     public var exportedTypes: [ExportedType] {
-        _exportedTypes.lazyInit {
+        cachedExportedTypes.lazyInit {
             moduleFile.exportedTypeTable.indices.map { ExportedType(assembly: self, tableRowIndex: $0) }
         }
     }
@@ -87,9 +87,9 @@ public class Assembly: CustomDebugStringConvertible {
         .init(index: eventMapByTypeDefRowIndex[.init(index: rowIndex)])
     }
 
-    private var _typeDefinitionsByFullName: [String: TypeDefinition]?
+    private var cachedTypeDefinitionsByFullName: [String: TypeDefinition]?
     public var typeDefinitionsByFullName: [String: TypeDefinition] {
-        _typeDefinitionsByFullName.lazyInit {
+        cachedTypeDefinitionsByFullName.lazyInit {
             let typeDefinitions = typeDefinitions
             var dict = [String: TypeDefinition](minimumCapacity: typeDefinitions.count)
             for typeDefinition in typeDefinitions {
@@ -99,9 +99,9 @@ public class Assembly: CustomDebugStringConvertible {
         }
     }
 
-    private var _exportedTypesByFullName: [String: ExportedType]?
+    private var cachedExportedTypesByFullName: [String: ExportedType]?
     public var exportedTypesByFullName: [String: ExportedType] {
-        _exportedTypesByFullName.lazyInit {
+        cachedExportedTypesByFullName.lazyInit {
             let exportedTypes = exportedTypes
             var dict = [String: ExportedType](minimumCapacity: exportedTypes.count)
             for exportedType in exportedTypes {

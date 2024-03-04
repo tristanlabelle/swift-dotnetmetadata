@@ -37,10 +37,10 @@ public class Method: Member {
     public var isOverride: Bool { isVirtual && !isNewSlot }
     public var isGeneric: Bool { !genericParams.isEmpty }
 
-    private var _signature: MethodSig?
+    private var cachedSignature: MethodSig?
     public var signature: MethodSig {
         get throws {
-            try _signature.lazyInit {
+            try cachedSignature.lazyInit {
                 try MethodSig(blob: moduleFile.resolve(tableRow.signature), isRef: false)
             }
         }
@@ -90,9 +90,9 @@ public class Method: Member {
 
     public var returnType: TypeNode { get throws { try returnParam.type } }
 
-    private var _genericParams: [GenericMethodParam]?
+    private var cachedGenericParams: [GenericMethodParam]?
     public var genericParams: [GenericMethodParam] {
-        _genericParams.lazyInit {
+        cachedGenericParams.lazyInit {
             moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .methodDef, rowIndex: tableRowIndex)).map {
                 GenericMethodParam(definingMethod: self, tableRowIndex: $0)
             }

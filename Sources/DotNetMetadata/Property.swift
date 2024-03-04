@@ -34,9 +34,9 @@ public class Property: Member {
     public override var attributeTarget: AttributeTargets { .property }
     internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .property }
 
-    private var _type: TypeNode?
+    private var cachedType: TypeNode?
     public var type: TypeNode { get throws {
-        try _type.lazyInit {
+        try cachedType.lazyInit {
             try assembly.resolveTypeSig(propertySig.type, typeContext: definingType)
         }
     } }
@@ -47,9 +47,9 @@ public class Property: Member {
         var others: [Method] = []
     }
 
-    private var _accessors: Accessors?
+    private var cachedAccessors: Accessors?
     private var accessors: Accessors { get throws {
-        _accessors.lazyInit {
+        cachedAccessors.lazyInit {
             var accessors = Accessors()
             for entry in definingType.getAccessors(owner: .init(tag: .property, rowIndex: tableRowIndex)) {
                 if entry.attributes == .getter { accessors.getter = entry.method }

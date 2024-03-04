@@ -36,25 +36,28 @@ public final class Event: Member {
         var others: [Method] = []
     }
 
-    private lazy var accessors = Result { [self] in
-        var accessors = Accessors()
-        for entry in definingType.getAccessors(owner: .init(tag: .event, rowIndex: tableRowIndex)) {
-            if entry.attributes == .addOn { accessors.add = entry.method }
-            else if entry.attributes == .removeOn { accessors.remove = entry.method }
-            else if entry.attributes == .fire { accessors.fire = entry.method }
-            else if entry.attributes == .other { accessors.others.append(entry.method) }
-            else { fatalError("Unexpected event accessor attributes value") }
+    private var cachedAccessors: Accessors?
+    private var accessors: Accessors { get throws {
+        cachedAccessors.lazyInit {
+            var accessors = Accessors()
+            for entry in definingType.getAccessors(owner: .init(tag: .event, rowIndex: tableRowIndex)) {
+                if entry.attributes == .addOn { accessors.add = entry.method }
+                else if entry.attributes == .removeOn { accessors.remove = entry.method }
+                else if entry.attributes == .fire { accessors.fire = entry.method }
+                else if entry.attributes == .other { accessors.others.append(entry.method) }
+                else { fatalError("Unexpected event accessor attributes value") }
+            }
+            return accessors
         }
-        return accessors
-    }
+    } }
 
-    public var addAccessor: Method? { get throws { try accessors.get().add } }
-    public var removeAccessor: Method? { get throws { try accessors.get().remove } }
-    public var fireAccessor: Method? { get throws { try accessors.get().fire } }
-    public var otherAccessors: [Method] { get throws { try accessors.get().others } }
+    public var addAccessor: Method? { get throws { try accessors.add } }
+    public var removeAccessor: Method? { get throws { try accessors.remove } }
+    public var fireAccessor: Method? { get throws { try accessors.fire } }
+    public var otherAccessors: [Method] { get throws { try accessors.others } }
 
     private var anyAccessor: Method? {
-        guard let accessors = try? self.accessors.get() else { return nil }
+        guard let accessors = try? self.accessors else { return nil }
         return accessors.add ?? accessors.remove ?? accessors.fire ?? accessors.others.first
     }
 

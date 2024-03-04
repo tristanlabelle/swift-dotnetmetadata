@@ -26,8 +26,9 @@ final class WinMetadataTests: XCTestCase {
     }
 
     func testMscorlibTypeReference() throws {
+        let pointTypeDefinition = try XCTUnwrap(Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.Point"))
         XCTAssertEqual(
-            try Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.Point")?.base?.definition.fullName,
+            try XCTUnwrap(pointTypeDefinition.base).definition.fullName,
             "System.ValueType")
     }
 
