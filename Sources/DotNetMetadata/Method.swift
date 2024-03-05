@@ -46,37 +46,40 @@ public class Method: Member {
         }
     }
 
-    private lazy var returnAndParams: Result<(ReturnParam, [Param]), any Error> = Result {
-        let paramRowIndices = getChildRowRange(
-            parent: moduleFile.methodDefTable,
-            parentRowIndex: tableRowIndex,
-            childTable: moduleFile.paramTable,
-            childSelector: { $0.paramList })
+    public var cachedReturnAndParams: (ReturnParam, [Param])?
+    private var returnAndParams: (ReturnParam, [Param]) { get throws {
+        try cachedReturnAndParams.lazyInit {
+            let paramRowIndices = getChildRowRange(
+                parent: moduleFile.methodDefTable,
+                parentRowIndex: tableRowIndex,
+                childTable: moduleFile.paramTable,
+                childSelector: { $0.paramList })
 
-        let signature = try self.signature
+            let signature = try self.signature
 
-        if paramRowIndices.isEmpty || moduleFile.paramTable[paramRowIndices.lowerBound].sequence > 0 {
-            // No Param row for the return param
-            guard paramRowIndices.count == signature.params.count else {
-                fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (no return param), \(signature.params.count) in signature")
+            if paramRowIndices.isEmpty || moduleFile.paramTable[paramRowIndices.lowerBound].sequence > 0 {
+                // No Param row for the return param
+                guard paramRowIndices.count == signature.params.count else {
+                    fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (no return param), \(signature.params.count) in signature")
+                }
+                return (
+                    ReturnParam(method: self, tableRowIndex: nil, signature: signature.returnParam),
+                    zip(paramRowIndices, signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
             }
-            return (
-                ReturnParam(method: self, tableRowIndex: nil, signature: signature.returnParam),
-                zip(paramRowIndices, signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
-        }
-        else {
-            // First Param row is the return param
-            guard paramRowIndices.count == signature.params.count + 1 else {
-                fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (includes return param), \(signature.params.count) in signature")
+            else {
+                // First Param row is the return param
+                guard paramRowIndices.count == signature.params.count + 1 else {
+                    fatalError("Mismatch in number of parameters: \(paramRowIndices.count) in Param table (includes return param), \(signature.params.count) in signature")
+                }
+                return (
+                    ReturnParam(method: self, tableRowIndex: paramRowIndices.lowerBound, signature: signature.returnParam),
+                    zip(paramRowIndices.dropFirst(), signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
             }
-            return (
-                ReturnParam(method: self, tableRowIndex: paramRowIndices.lowerBound, signature: signature.returnParam),
-                zip(paramRowIndices.dropFirst(), signature.params).map { Param(method: self, tableRowIndex: $0, signature: $1) })
         }
-    }
+    } }
 
-    public var returnParam: ReturnParam { get throws { try returnAndParams.get().0 } }
-    public var params: [Param] { get throws { try returnAndParams.get().1 } }
+    public var returnParam: ReturnParam { get throws { try returnAndParams.0 } }
+    public var params: [Param] { get throws { try returnAndParams.1 } }
     public var arity: Int { get throws { try signature.params.count } }
 
     public var hasReturnValue: Bool {

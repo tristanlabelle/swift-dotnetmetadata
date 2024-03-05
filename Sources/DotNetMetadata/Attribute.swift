@@ -12,42 +12,50 @@ public final class Attribute {
     internal var moduleFile: ModuleFile { assembly.moduleFile }
     private var tableRow: CustomAttributeTable.Row { moduleFile.customAttributeTable[tableRowIndex] }
 
-    private lazy var _constructor = Result {
-        try assembly.resolveCustomAttributeType(tableRow.type) as! Constructor
-    }
-    public var constructor: Constructor { get throws { try _constructor.get() } }
+    private var cachedConstructor: Constructor?
+    public var constructor: Constructor { get throws {
+        try cachedConstructor.lazyInit {
+            try assembly.resolveCustomAttributeType(tableRow.type) as! Constructor
+        }
+    } }
     public var type: TypeDefinition { get throws { try constructor.definingType } }
 
-    private lazy var _signature = Result {
-        let constructor = try self.constructor
-        let paramTypes = try constructor.params.map {
-            try Self.toElemType($0.signature.type) ?? Self.toElemType($0.type)
+    private var cachedSignature: CustomAttribSig?
+    public var signature: CustomAttribSig { get throws {
+        try cachedSignature.lazyInit {
+            let constructor = try self.constructor
+            let paramTypes = try constructor.params.map {
+                try Self.toElemType($0.signature.type) ?? Self.toElemType($0.type)
+            }
+            return try CustomAttribSig(
+                    blob: moduleFile.resolve(tableRow.value),
+                    paramTypes: paramTypes,
+                    memberTypeResolver: { kind, name, typeSig in
+                if let elemType = try Self.toElemType(typeSig) { return elemType }
+                let typeNode: TypeNode = try {
+                    switch kind {
+                        case .field: return try self.type.findField(name: name)!.type
+                        case .property: return try self.type.findProperty(name: name)!.type
+                    }
+                }()
+                return try Self.toElemType(typeNode)
+            })
         }
-        return try CustomAttribSig(
-                blob: moduleFile.resolve(tableRow.value),
-                paramTypes: paramTypes,
-                memberTypeResolver: { kind, name, typeSig in
-            if let elemType = try Self.toElemType(typeSig) { return elemType }
-            let typeNode: TypeNode = try {
-                switch kind {
-                    case .field: return try self.type.findField(name: name)!.type
-                    case .property: return try self.type.findProperty(name: name)!.type
-                }
-            }()
-            return try Self.toElemType(typeNode)
-        })
-    }
-    public var signature: CustomAttribSig { get throws { try _signature.get() } }
+    } }
 
-    private lazy var _arguments = Result {
-        try signature.fixedArgs.map { try resolve($0) }
-    }
-    public var arguments: [Value] { get throws { try _arguments.get() } }
+    private var cachedArguments: [Value]?
+    public var arguments: [Value] { get throws {
+        try cachedArguments.lazyInit { 
+            try signature.fixedArgs.map { try resolve($0) }
+        }
+    } }
 
-    private lazy var _namedArguments = Result {
-        try signature.namedArgs.map { try resolve($0) }
-    }
-    public var namedArguments: [NamedArgument] { get throws { try _namedArguments.get() } }
+    private var cachedNamedArguments: [NamedArgument]?
+    public var namedArguments: [NamedArgument] { get throws {
+        try cachedNamedArguments.lazyInit {
+            try signature.namedArgs.map { try resolve($0) }
+        }
+    } }
 
     private func resolve(_ elem: CustomAttribSig.Elem) throws -> Value {
         switch elem {

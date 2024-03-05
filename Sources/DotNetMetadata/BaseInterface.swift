@@ -13,15 +13,20 @@ public final class BaseInterface: Attributable {
     internal var moduleFile: ModuleFile { inheritingType.moduleFile }
     private var tableRow: InterfaceImplTable.Row { moduleFile.interfaceImplTable[tableRowIndex] }
 
-    private lazy var _interface = Result {
-        guard let boundType = try assembly.resolveTypeDefOrRefToBoundType(tableRow.interface, typeContext: inheritingType),
-            let interfaceDefinition = boundType.definition as? InterfaceDefinition else { throw InvalidFormatError.tableConstraint }
-        return interfaceDefinition.bind(genericArgs: boundType.genericArgs)
-    }
-    public var interface: BoundInterface { get throws { try _interface.get() } }
+    private var cachedInterface: BoundInterface?
+    public var interface: BoundInterface { get throws {
+        try cachedInterface.lazyInit {
+            guard let boundType = try assembly.resolveTypeDefOrRefToBoundType(tableRow.interface, typeContext: inheritingType),
+                let interfaceDefinition = boundType.definition as? InterfaceDefinition else { throw InvalidFormatError.tableConstraint }
+            return interfaceDefinition.bind(genericArgs: boundType.genericArgs)
+        }
+    } }
 
     public var attributeTarget: AttributeTargets { .interfaceImpl }
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: .interfaceImpl, rowIndex: tableRowIndex))
-    }()
+    private var cachedAttributes: [Attribute]?
+    public var attributes: [Attribute] {
+        cachedAttributes.lazyInit {
+            assembly.getAttributes(owner: .init(tag: .interfaceImpl, rowIndex: tableRowIndex))
+        }
+    }
 }

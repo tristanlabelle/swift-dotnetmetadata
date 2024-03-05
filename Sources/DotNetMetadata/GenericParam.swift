@@ -28,9 +28,12 @@ public class GenericParam: Attributable {
     public var constraints: [TypeNode] { get throws { try _constraints.get() } }
 
     public var attributeTarget: AttributeTargets { .genericParameter }
-    public private(set) lazy var attributes: [Attribute] = {
-        assembly.getAttributes(owner: .init(tag: .genericParam, rowIndex: tableRowIndex))
-    }()
+    private var cachedAttributes: [Attribute]?
+    public var attributes: [Attribute] {
+        cachedAttributes.lazyInit {
+            assembly.getAttributes(owner: .init(tag: .genericParam, rowIndex: tableRowIndex))
+        }
+    }
 
     public final func bind(typeArgs: [TypeNode]?, methodArgs: [TypeNode]?) -> TypeNode {
         switch self {

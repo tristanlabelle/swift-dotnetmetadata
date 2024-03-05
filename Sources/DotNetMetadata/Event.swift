@@ -22,12 +22,14 @@ public final class Event: Member {
     public override var attributeTarget: AttributeTargets { .event }
     internal override var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { .event }
 
-    private lazy var _handlerType = Result {
-        guard let boundType = try assembly.resolveTypeDefOrRefToBoundType(tableRow.eventType, typeContext: definingType),
-            let delegateDefinition = boundType.definition as? DelegateDefinition else { throw InvalidFormatError.tableConstraint }
-        return delegateDefinition.bind(genericArgs: boundType.genericArgs)
-    }
-    public var handlerType: BoundDelegate { get throws { try _handlerType.get() } }
+    private var cachedHandlerType: BoundDelegate?
+    public var handlerType: BoundDelegate { get throws {
+        try cachedHandlerType.lazyInit {
+            guard let boundType = try assembly.resolveTypeDefOrRefToBoundType(tableRow.eventType, typeContext: definingType),
+                let delegateDefinition = boundType.definition as? DelegateDefinition else { throw InvalidFormatError.tableConstraint }
+            return delegateDefinition.bind(genericArgs: boundType.genericArgs)
+        }
+    } }
 
     private struct Accessors {
         var add: Method?
