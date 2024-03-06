@@ -79,7 +79,6 @@ internal final class TypeTests: CompiledAssemblyTestCase {
     }
 
     public func testMethodGenericParams() throws {
-
         let genericMethod = try XCTUnwrap(membersTypeDefinition.findMethod(name: "ReturnMethodGenericParam"))
         try XCTAssertEqual(genericMethod.returnType, .genericParam(genericMethod.genericParams[0]))
     }
