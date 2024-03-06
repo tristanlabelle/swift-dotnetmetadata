@@ -103,4 +103,38 @@ internal final class TypeDefinitionTests: XCTestCase {
         try assertTypeModifiers("Abstract", abstract: true)
         try assertTypeModifiers("Static", abstract: true, sealed: true, static: true)
     }
+
+    public func testStructLayout() throws {
+        let compilation = try CSharpCompilation(code:
+        """
+        using System.Runtime.InteropServices;
+
+        [StructLayout(LayoutKind.Auto)]
+        struct Auto {}
+
+        [StructLayout(LayoutKind.Sequential, Pack = 2, Size = 24)]
+        struct Sequential {}
+
+        [StructLayout(LayoutKind.Explicit, Size = 24)]
+        struct Explicit
+        {
+            [FieldOffset(16)]
+            int A;
+            [FieldOffset(16)]
+            float B;
+        }
+        """)
+
+        let assembly = compilation.assembly
+        let auto = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Auto"))
+        XCTAssertEqual(auto.layout, .auto)
+
+        let sequential = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Sequential"))
+        XCTAssertEqual(sequential.layout, .sequential(pack: 2, minSize: 24))
+
+        let explicit = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Explicit"))
+        XCTAssertEqual(explicit.layout, .explicit(minSize: 24))
+        XCTAssertEqual(explicit.findField(name: "A")?.explicitOffset, 16)
+        XCTAssertEqual(explicit.findField(name: "B")?.explicitOffset, 16)
+    }
 }

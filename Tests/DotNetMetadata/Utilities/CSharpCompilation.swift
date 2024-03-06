@@ -1,11 +1,15 @@
 import DotNetMetadata
 import DotNetMetadataFormat
 import Foundation
-import XCTest
 import WinSDK
 
 /// A class that compiles C# code and loads the resulting assembly.
 class CSharpCompilation {
+    enum ToolNotFoundError: Error {
+        case dotNetSDK
+        case dotNetRuntime
+    }
+
     struct CompilerError: Error, CustomStringConvertible {
         public var message: String
 
@@ -27,8 +31,10 @@ class CSharpCompilation {
         try code.write(toFile: codeFilePath, atomically: false, encoding: .utf8)
         defer { try? FileManager.default.removeItem(atPath: codeFilePath) }
 
-        let sdk = try XCTUnwrap(DotNetTool.listSDKs().last)
-        let runtime = try XCTUnwrap(DotNetTool.listRuntimes().last { $0.name == "Microsoft.NETCore.App" })
+        guard let sdk = try DotNetTool.listSDKs().last else { throw ToolNotFoundError.dotNetSDK }
+        guard let runtime = try DotNetTool.listRuntimes().last(where: { $0.name == "Microsoft.NETCore.App" }) else {
+            throw ToolNotFoundError.dotNetRuntime
+        }
         let refsPath = runtime.refsPath
         let result = try DotNetTool.exec(
             path: sdk.cscPath,

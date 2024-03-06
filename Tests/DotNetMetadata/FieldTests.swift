@@ -1,17 +1,30 @@
 @testable import DotNetMetadata
 import XCTest
 
-internal final class FieldTests: CompiledAssemblyTestCase {
-    internal override class var csharpCode: String {
+internal final class FieldTests: XCTestCase {
+    public func testEnumerationAndName() throws {
+        let compilation = try CSharpCompilation(code:
         """
-        class Enumeration
+        class Type
         {
             bool A;
             bool B;
             bool C;
         }
+        """)
 
-        class Modifiers
+        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
+        XCTAssertEqual(typeDefinition.fields.map { $0.name }, ["A", "B", "C"])
+    }
+
+    public func testType() throws {
+        // See TypeTests
+    }
+
+    public func testModifiers() throws {
+        let compilation = try CSharpCompilation(code:
+        """
+        class Type
         {
             bool Instance;
             readonly bool InitOnly;
@@ -19,48 +32,9 @@ internal final class FieldTests: CompiledAssemblyTestCase {
             static readonly bool StaticInitOnly;
             const bool Literal = false;
         }
+        """)
 
-        class LiteralValues
-        {
-            const bool Bool = true;
-            const int Int = 42;
-            const float Float = 42;
-            const string String = "Hello, World!";
-            const object Null = null;
-        }
-
-        class Visibility
-        {
-            private bool Private;
-            protected bool Protected;
-            internal bool Internal;
-            private protected bool PrivateProtected;
-            protected internal bool ProtectedInternal;
-            public bool Public;
-        }
-        """
-    }
-
-    public func testEnumeration() throws {
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Enumeration"))
-        XCTAssertEqual(typeDefinition.fields.map { $0.name }, ["A", "B", "C"])
-    }
-
-    public func testName() throws {
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Enumeration"))
-        let field = try XCTUnwrap(typeDefinition.findField(name: "A"))
-        XCTAssertEqual(field.name, "A")
-    }
-
-    public func testType() throws {
-        // Additional tests in TypeTests
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Enumeration"))
-        let field = try XCTUnwrap(typeDefinition.findField(name: "A"))
-        try XCTAssertEqual(field.type, assembly.context.coreLibrary.systemBoolean.bindNode())
-    }
-
-    public func testModifiers() throws {
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Modifiers"))
+        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
 
         func assertModifiers(_ name: String, static: Bool = false, initOnly: Bool = false, literal: Bool = false) throws {
             let field = try XCTUnwrap(typeDefinition.findField(name: name))
@@ -78,7 +52,19 @@ internal final class FieldTests: CompiledAssemblyTestCase {
     }
 
     public func testLiteralValues() throws {
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "LiteralValues"))
+        let compilation = try CSharpCompilation(code:
+        """
+        class Type
+        {
+            const bool Bool = true;
+            const int Int = 42;
+            const float Float = 42;
+            const string String = "Hello, World!";
+            const object Null = null;
+        }
+        """)
+
+        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
         try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Bool")).literalValue, .boolean(true))
         try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Int")).literalValue, .int32(42))
         try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Float")).literalValue, .single(42))
@@ -87,7 +73,20 @@ internal final class FieldTests: CompiledAssemblyTestCase {
     }
 
     public func testVisibility() throws {
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Visibility"))
+        let compilation = try CSharpCompilation(code:
+        """
+        class Type
+        {
+            private bool Private;
+            protected bool Protected;
+            internal bool Internal;
+            private protected bool PrivateProtected;
+            protected internal bool ProtectedInternal;
+            public bool Public;
+        }
+        """)
+
+        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
 
         func assertVisibility(_ name: String, _ visibility: Visibility) throws {
             let field = try XCTUnwrap(typeDefinition.findField(name: name))
