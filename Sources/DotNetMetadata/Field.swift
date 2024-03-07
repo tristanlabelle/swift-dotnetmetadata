@@ -45,9 +45,11 @@ public final class Field: Member {
         }
     } }
 
-    private lazy var _literalValue = Result {
-        guard tableRow.flags.contains(.literal) else { return nil as Constant? }
-        return try Constant(moduleFile: moduleFile, owner: .init(tag: .field, rowIndex: tableRowIndex))
-    }
-    public var literalValue: Constant? { get throws { try _literalValue.get() } }
+    private var cachedLiteralValue: Constant??
+    public var literalValue: Constant? { get throws {
+        try cachedLiteralValue.lazyInit {
+            guard tableRow.flags.contains(.literal) else { return nil as Constant? }
+            return try Constant(moduleFile: moduleFile, owner: .init(tag: .field, rowIndex: tableRowIndex))
+        }
+    } }
 }

@@ -31,8 +31,13 @@ extension Constant {
             case (.r4, 4): self = .single(buffer.loadUnaligned(as: Float.self))
             case (.r8, 8): self = .double(buffer.loadUnaligned(as: Double.self))
             case (.string, _):
-                // UTF-8 or UTF-16?
-                fatalError("Not implemented: String content decoding")
+                if let firstCharPointer = buffer.baseAddress?.assumingMemoryBound(to: UTF16.CodeUnit.self) {
+                    let charBuffer = UnsafeBufferPointer(start: firstCharPointer, count: buffer.count / 2)
+                    self = .string(String(decoding: charBuffer, as: UTF16.self))
+                }
+                else {
+                    self = .string("")
+                }
             case (.nullRef, 0): self = .null
             default:
                 throw InvalidFormatError.signatureBlob
