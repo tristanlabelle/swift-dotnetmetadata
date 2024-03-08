@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 public final class BaseInterface: Attributable {
-    public unowned let inheritingType: TypeDefinition
+    public private(set) weak var inheritingType: TypeDefinition!
     internal let tableRowIndex: TableRowIndex // In InterfaceImpl table
 
     init(inheritingType: TypeDefinition, tableRowIndex: TableRowIndex) {
@@ -28,5 +28,15 @@ public final class BaseInterface: Attributable {
         cachedAttributes.lazyInit {
             assembly.getAttributes(owner: .init(tag: .interfaceImpl, rowIndex: tableRowIndex))
         }
+    }
+
+    internal func breakReferenceCycles() {
+        if let attributes = cachedAttributes {
+            for attribute in attributes {
+                attribute.breakReferenceCycles()
+            }
+        }
+
+        cachedInterface = nil
     }
 }

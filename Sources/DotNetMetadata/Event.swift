@@ -15,7 +15,7 @@ public final class Event: Member {
     }
 
     public override var metadataToken: MetadataToken { .init(tableID: .event, rowIndex: tableRowIndex) }
-    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     // Assume all accessors are consistently static or instance
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
@@ -65,5 +65,11 @@ public final class Event: Member {
 
     public var hasPublicAddRemoveAccessors: Bool {
         (try? addAccessor)?.isPublic == true && (try? removeAccessor)?.isPublic != nil
+    }
+
+    internal override func breakReferenceCycles() {
+        cachedHandlerType = nil
+        cachedAccessors = nil
+        super.breakReferenceCycles()
     }
 }

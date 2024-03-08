@@ -19,13 +19,14 @@ public class GenericParam: Attributable {
     public var isValueType: Bool { tableRow.flags.contains(.notNullableValueTypeConstraint) }
     public var hasDefaultConstructor: Bool { tableRow.flags.contains(.defaultConstructorConstraint) }
 
-    private lazy var _constraints = Result {
-        try moduleFile.genericParamConstraintTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
-            try assembly.resolveTypeDefOrRef(moduleFile.genericParamConstraintTable[$0].constraint)!
+    private var cachedConstraints: [TypeNode]?
+    public var constraints: [TypeNode] { get throws {
+        try cachedConstraints.lazyInit {
+            try moduleFile.genericParamConstraintTable.findAll(primaryKey: .init(index: tableRowIndex)).map {
+                try assembly.resolveTypeDefOrRef(moduleFile.genericParamConstraintTable[$0].constraint)!
+            }
         }
-    }
-
-    public var constraints: [TypeNode] { get throws { try _constraints.get() } }
+    } }
 
     public var attributeTarget: AttributeTargets { .genericParameter }
     private var cachedAttributes: [Attribute]?
@@ -60,10 +61,20 @@ public class GenericParam: Attributable {
             default: fatalError("Unexpected generic param type")
         }
     }
+
+    internal func breakReferenceCycles() {
+        if let attributes = cachedAttributes {
+            for attribute in attributes {
+                attribute.breakReferenceCycles()
+            }
+        }
+
+        cachedConstraints = nil
+    }
 }
 
 public final class GenericTypeParam: GenericParam {
-    public unowned let definingType: TypeDefinition
+    public private(set) weak var definingType: TypeDefinition!
 
     init(definingType: TypeDefinition, tableRowIndex: TableRowIndex) {
         self.definingType = definingType

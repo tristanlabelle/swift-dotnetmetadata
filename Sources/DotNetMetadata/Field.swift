@@ -11,7 +11,7 @@ public final class Field: Member {
     }
 
     public override var metadataToken: MetadataToken { .init(tableID: .field, rowIndex: tableRowIndex) }
-    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
     public override var attributeTarget: AttributeTargets { .field }
@@ -52,4 +52,12 @@ public final class Field: Member {
             return try Constant(moduleFile: moduleFile, owner: .init(tag: .field, rowIndex: tableRowIndex))
         }
     } }
+
+    internal override func breakReferenceCycles() {
+        // cachedSignature is POD
+        cachedType = nil
+        // cachedLiteralValue is POD
+
+        super.breakReferenceCycles()
+    }
 }

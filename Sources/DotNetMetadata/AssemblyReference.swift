@@ -1,9 +1,8 @@
 import DotNetMetadataFormat
 
 public final class AssemblyReference {
-    public unowned let owner: Assembly
+    public private(set) weak var owner: Assembly!
     internal let tableRowIndex: TableRowIndex // In AssemblyRef table
-    private unowned var cachedTarget: Assembly? = nil
 
     init(owner: Assembly, tableRowIndex: TableRowIndex) {
         self.owner = owner
@@ -41,10 +40,16 @@ public final class AssemblyReference {
         }
     }
 
+    private var cachedTarget: Assembly? = nil
     public func resolve() throws -> Assembly {
         if let cachedTarget { return cachedTarget }
         let target = try owner.context.load(identity: identity)
         self.cachedTarget = target
         return target
+    }
+
+    internal func breakReferenceCycles() {
+        cachedAttributes = nil
+        cachedTarget = nil
     }
 }

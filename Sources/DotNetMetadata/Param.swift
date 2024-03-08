@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 public class ParamBase: Attributable {
-    public unowned let method: Method
+    public private(set) weak var method: Method!
     public let signature: DotNetMetadataFormat.ParamSig
 
     fileprivate init(method: Method, signature: DotNetMetadataFormat.ParamSig) {
@@ -16,9 +16,9 @@ public class ParamBase: Attributable {
     public var metadataToken: MetadataToken { fatalError() }
     public var isByRef: Bool { signature.byRef }
 
-    private var _type: TypeNode?
+    private var cachedType: TypeNode?
     public var type: TypeNode { get throws {
-        try _type.lazyInit {
+        try cachedType.lazyInit {
             try assembly.resolveTypeSig(signature.type, typeContext: method.definingType, methodContext: method)
         }
     } }
@@ -30,6 +30,16 @@ public class ParamBase: Attributable {
         return cachedAttributes.lazyInit {
             assembly.getAttributes(owner: .init(tag: .param, rowIndex: metadataToken.rowIndex))
         }
+    }
+
+    internal func breakReferenceCycles() {
+        if let attributes = cachedAttributes {
+            for attribute in attributes {
+                attribute.breakReferenceCycles()
+            }
+        }
+
+        cachedType = nil
     }
 }
 

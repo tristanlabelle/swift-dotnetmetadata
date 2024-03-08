@@ -22,7 +22,7 @@ public class Method: Member {
     }
 
     public override var metadataToken: MetadataToken { .init(tableID: .methodDef, rowIndex: tableRowIndex) }
-    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
     public override var attributeTarget: AttributeTargets { .method }
@@ -120,6 +120,23 @@ public class Method: Member {
         }
 
         return true
+    }
+
+    internal override func breakReferenceCycles() {
+        if let returnAndParams = cachedReturnAndParams {
+            returnAndParams.0.breakReferenceCycles()
+            for param in returnAndParams.1 {
+                param.breakReferenceCycles()
+            }
+        }
+
+        if let genericParams = cachedGenericParams {
+            for genericParam in genericParams {
+                genericParam.breakReferenceCycles()
+            }
+        }
+
+        super.breakReferenceCycles()
     }
 }
 

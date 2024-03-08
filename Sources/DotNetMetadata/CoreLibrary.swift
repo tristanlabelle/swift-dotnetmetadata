@@ -8,87 +8,87 @@ public class CoreLibrary {
     }
 
     // Fundamental type system types
-    private var _systemObject: ClassDefinition? = nil
-    public var systemObject: ClassDefinition { get throws { try lazyInitType(&_systemObject, name: "Object") } }
+    private var cachedSystemObject: ClassDefinition? = nil
+    public var systemObject: ClassDefinition { get throws { try lazyInitType(&cachedSystemObject, name: "Object") } }
 
-    private var _systemVoid: StructDefinition? = nil
-    public var systemVoid: StructDefinition { get throws { try lazyInitType(&_systemVoid, name: "Void") } }
+    private var cachedSystemVoid: StructDefinition? = nil
+    public var systemVoid: StructDefinition { get throws { try lazyInitType(&cachedSystemVoid, name: "Void") } }
 
-    private var _systemValueType: ClassDefinition? = nil
-    public var systemValueType: ClassDefinition { get throws { try lazyInitType(&_systemValueType, name: "ValueType") } }
+    private var cachedSystemValueType: ClassDefinition? = nil
+    public var systemValueType: ClassDefinition { get throws { try lazyInitType(&cachedSystemValueType, name: "ValueType") } }
 
-    private var _systemEnum: ClassDefinition? = nil
-    public var systemEnum: ClassDefinition { get throws { try lazyInitType(&_systemEnum, name: "Enum") } }
+    private var cachedSystemEnum: ClassDefinition? = nil
+    public var systemEnum: ClassDefinition { get throws { try lazyInitType(&cachedSystemEnum, name: "Enum") } }
 
-    private var _systemDelegate: ClassDefinition? = nil
-    public var systemDelegate: ClassDefinition { get throws { try lazyInitType(&_systemDelegate, name: "Delegate") } }
+    private var cachedSystemDelegate: ClassDefinition? = nil
+    public var systemDelegate: ClassDefinition { get throws { try lazyInitType(&cachedSystemDelegate, name: "Delegate") } }
 
-    private var _systemMulticastDelegate: ClassDefinition? = nil
-    public var systemMulticastDelegate: ClassDefinition { get throws { try lazyInitType(&_systemMulticastDelegate, name: "MulticastDelegate") } }
+    private var cachedSystemMulticastDelegate: ClassDefinition? = nil
+    public var systemMulticastDelegate: ClassDefinition { get throws { try lazyInitType(&cachedSystemMulticastDelegate, name: "MulticastDelegate") } }
 
-    private var _systemType: ClassDefinition? = nil
-    public var systemType: ClassDefinition { get throws { try lazyInitType(&_systemType, name: "Type") } }
+    private var cachedSystemType: ClassDefinition? = nil
+    public var systemType: ClassDefinition { get throws { try lazyInitType(&cachedSystemType, name: "Type") } }
 
-    private var _systemTypedReference: StructDefinition? = nil
-    public var systemTypedReference: StructDefinition { get throws { try lazyInitType(&_systemTypedReference, name: "TypedReference") } }
+    private var cachedSystemTypedReference: StructDefinition? = nil
+    public var systemTypedReference: StructDefinition { get throws { try lazyInitType(&cachedSystemTypedReference, name: "TypedReference") } }
 
-    private var _systemException: ClassDefinition? = nil
-    public var systemException: ClassDefinition { get throws { try lazyInitType(&_systemException, name: "Exception") } }
+    private var cachedSystemException: ClassDefinition? = nil
+    public var systemException: ClassDefinition { get throws { try lazyInitType(&cachedSystemException, name: "Exception") } }
 
-    private var _systemAttribute: ClassDefinition? = nil
-    public var systemAttribute: ClassDefinition { get throws { try lazyInitType(&_systemAttribute, name: "Attribute") } }
+    private var cachedSystemAttribute: ClassDefinition? = nil
+    public var systemAttribute: ClassDefinition { get throws { try lazyInitType(&cachedSystemAttribute, name: "Attribute") } }
 
-    private var _systemString: ClassDefinition? = nil
-    public var systemString: ClassDefinition { get throws { try lazyInitType(&_systemString, name: "String") } }
+    private var cachedSystemString: ClassDefinition? = nil
+    public var systemString: ClassDefinition { get throws { try lazyInitType(&cachedSystemString, name: "String") } }
 
-    private var _systemArray: ClassDefinition? = nil
-    public var systemArray: ClassDefinition { get throws { try lazyInitType(&_systemArray, name: "Array") } }
+    private var cachedSystemArray: ClassDefinition? = nil
+    public var systemArray: ClassDefinition { get throws { try lazyInitType(&cachedSystemArray, name: "Array") } }
 
     // Primitive types
-    private var _systemBoolean: StructDefinition? = nil
-    public var systemBoolean: StructDefinition { get throws { try lazyInitType(&_systemBoolean, name: "Boolean") } }
+    private var cachedSystemBoolean: StructDefinition? = nil
+    public var systemBoolean: StructDefinition { get throws { try lazyInitType(&cachedSystemBoolean, name: "Boolean") } }
 
-    private var _systemChar: StructDefinition? = nil
-    public var systemChar: StructDefinition { get throws { try lazyInitType(&_systemChar, name: "Char") } }
+    private var cachedSystemChar: StructDefinition? = nil
+    public var systemChar: StructDefinition { get throws { try lazyInitType(&cachedSystemChar, name: "Char") } }
 
-    private var _systemByte: StructDefinition? = nil
-    public var systemByte: StructDefinition { get throws { try lazyInitType(&_systemByte, name: "Byte") } }
+    private var cachedSystemByte: StructDefinition? = nil
+    public var systemByte: StructDefinition { get throws { try lazyInitType(&cachedSystemByte, name: "Byte") } }
 
-    private var _systemSByte: StructDefinition? = nil
-    public var systemSByte: StructDefinition { get throws { try lazyInitType(&_systemSByte, name: "SByte") } }
+    private var cachedSystemSByte: StructDefinition? = nil
+    public var systemSByte: StructDefinition { get throws { try lazyInitType(&cachedSystemSByte, name: "SByte") } }
 
-    private var _systemUInt16: StructDefinition? = nil
-    public var systemUInt16: StructDefinition { get throws { try lazyInitType(&_systemUInt16, name: "UInt16") } }
+    private var cachedSystemUInt16: StructDefinition? = nil
+    public var systemUInt16: StructDefinition { get throws { try lazyInitType(&cachedSystemUInt16, name: "UInt16") } }
 
-    private var _systemInt16: StructDefinition? = nil
-    public var systemInt16: StructDefinition { get throws { try lazyInitType(&_systemInt16, name: "Int16") } }
+    private var cachedSystemInt16: StructDefinition? = nil
+    public var systemInt16: StructDefinition { get throws { try lazyInitType(&cachedSystemInt16, name: "Int16") } }
 
-    private var _systemUInt32: StructDefinition? = nil
-    public var systemUInt32: StructDefinition { get throws { try lazyInitType(&_systemUInt32, name: "UInt32") } }
+    private var cachedSystemUInt32: StructDefinition? = nil
+    public var systemUInt32: StructDefinition { get throws { try lazyInitType(&cachedSystemUInt32, name: "UInt32") } }
 
-    private var _systemInt32: StructDefinition? = nil
-    public var systemInt32: StructDefinition { get throws { try lazyInitType(&_systemInt32, name: "Int32") } }
+    private var cachedSystemInt32: StructDefinition? = nil
+    public var systemInt32: StructDefinition { get throws { try lazyInitType(&cachedSystemInt32, name: "Int32") } }
 
-    private var _systemUInt64: StructDefinition? = nil
-    public var systemUInt64: StructDefinition { get throws { try lazyInitType(&_systemUInt64, name: "UInt64") } }
+    private var cachedSystemUInt64: StructDefinition? = nil
+    public var systemUInt64: StructDefinition { get throws { try lazyInitType(&cachedSystemUInt64, name: "UInt64") } }
 
-    private var _systemInt64: StructDefinition? = nil
-    public var systemInt64: StructDefinition { get throws { try lazyInitType(&_systemInt64, name: "Int64") } }
+    private var cachedSystemInt64: StructDefinition? = nil
+    public var systemInt64: StructDefinition { get throws { try lazyInitType(&cachedSystemInt64, name: "Int64") } }
 
-    private var _systemUIntPtr: StructDefinition? = nil
-    public var systemUIntPtr: StructDefinition { get throws { try lazyInitType(&_systemUIntPtr, name: "UIntPtr") } }
+    private var cachedSystemUIntPtr: StructDefinition? = nil
+    public var systemUIntPtr: StructDefinition { get throws { try lazyInitType(&cachedSystemUIntPtr, name: "UIntPtr") } }
 
-    private var _systemIntPtr: StructDefinition? = nil
-    public var systemIntPtr: StructDefinition { get throws { try lazyInitType(&_systemIntPtr, name: "IntPtr") } }
+    private var cachedSystemIntPtr: StructDefinition? = nil
+    public var systemIntPtr: StructDefinition { get throws { try lazyInitType(&cachedSystemIntPtr, name: "IntPtr") } }
 
-    private var _systemSingle: StructDefinition? = nil
-    public var systemSingle: StructDefinition { get throws { try lazyInitType(&_systemSingle, name: "Single") } }
+    private var cachedSystemSingle: StructDefinition? = nil
+    public var systemSingle: StructDefinition { get throws { try lazyInitType(&cachedSystemSingle, name: "Single") } }
 
-    private var _systemDouble: StructDefinition? = nil
-    public var systemDouble: StructDefinition { get throws { try lazyInitType(&_systemDouble, name: "Double") } }
+    private var cachedSystemDouble: StructDefinition? = nil
+    public var systemDouble: StructDefinition { get throws { try lazyInitType(&cachedSystemDouble, name: "Double") } }
 
-    private var _systemGuid: StructDefinition? = nil
-    public var systemGuid: StructDefinition { get throws { try lazyInitType(&_systemGuid, name: "Guid") } }
+    private var cachedSystemGuid: StructDefinition? = nil
+    public var systemGuid: StructDefinition { get throws { try lazyInitType(&cachedSystemGuid, name: "Guid") } }
 
     public func getSystemInt(_ size: IntegerSize, signed: Bool) throws -> StructDefinition {
         switch size {

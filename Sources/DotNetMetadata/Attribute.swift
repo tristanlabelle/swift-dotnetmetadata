@@ -1,7 +1,8 @@
 import DotNetMetadataFormat
 
+/// Represents a custom .NET attribute instance as applied to a type, member, or other metadata element.
 public final class Attribute {
-    public unowned let assembly: Assembly
+    public private(set) weak var assembly: Assembly!
     internal let tableRowIndex: TableRowIndex // In CustomAttribute table
 
     init(tableRowIndex: TableRowIndex, assembly: Assembly) {
@@ -56,6 +57,12 @@ public final class Attribute {
             try signature.namedArgs.map { try resolve($0) }
         }
     } }
+
+    internal func breakReferenceCycles() {
+        cachedConstructor = nil
+        cachedArguments = nil
+        cachedNamedArguments = nil
+    }
 
     private func resolve(_ elem: CustomAttribSig.Elem) throws -> Value {
         switch elem {

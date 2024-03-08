@@ -27,7 +27,7 @@ public class Property: Member {
     }
 
     public override var metadataToken: MetadataToken { .init(tableID: .property, rowIndex: tableRowIndex) }
-    internal override func resolveName() -> String { moduleFile.resolve(tableRow.name) }
+    public override var name: String { moduleFile.resolve(tableRow.name) }
     public override var nameKind: NameKind { flags.nameKind }
     // Assume all accessors are consistently static or instance
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }
@@ -76,6 +76,12 @@ public class Property: Member {
     public var isVirtual: Bool { anyAccessor?.isAbstract ?? false }
     public var isAbstract: Bool { anyAccessor?.isVirtual ?? false }
     public var isFinal: Bool { anyAccessor?.isFinal ?? false }
+
+    internal override func breakReferenceCycles() {
+        cachedType = nil
+        cachedAccessors = nil
+        super.breakReferenceCycles()
+    }
 }
 
 public final class Indexer: Property {

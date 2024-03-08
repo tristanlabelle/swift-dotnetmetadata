@@ -7,7 +7,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     public static let nestedTypeSeparator: Character = "/"
     public static let genericParamCountSeparator: Character = "`"
 
-    public let assembly: Assembly
+    public private(set) weak var assembly: Assembly!
     public let tableRowIndex: TableRowIndex // In TypeDef table
 
     fileprivate init(assembly: Assembly, tableRowIndex: TableRowIndex) {
@@ -110,14 +110,15 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         }
     } }
 
+    private var cachedGenericParams: [GenericTypeParam]?
+
     /// The list of generic parameters on this type definition.
     /// By CLS rules, generic parameters on the enclosing type should be redeclared
     /// in the nested type, i.e. given "Enclosing<T>.Nested<U>" in C#, the metadata
     /// for "Nested" should have generic parameters T (redeclared) and U.
-    private var cachedGenericParms: [GenericTypeParam]?
     public var genericParams: [GenericTypeParam] {
         get {
-            cachedGenericParms.lazyInit {
+            cachedGenericParams.lazyInit {
                 moduleFile.genericParamTable.findAll(primaryKey: .init(tag: .typeDef, rowIndex: tableRowIndex)).map {
                     GenericTypeParam(definingType: self, tableRowIndex: $0)
                 }
@@ -214,6 +215,56 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
             let method = methods.first { $0.tableRowIndex == row.method.index }!
             return (method, row.semantics)
         }
+    }
+
+    internal func breakReferenceCycles() {
+        if let genericParams = cachedGenericParams {
+            for genericParam in genericParams {
+                genericParam.breakReferenceCycles()
+            }
+        }
+
+        if let baseInterfaces = cachedBaseInterfaces {
+            for baseInterface in baseInterfaces {
+                baseInterface.breakReferenceCycles()
+            }
+        }
+
+        if let methods = cachedMethods {
+            for method in methods {
+                method.breakReferenceCycles()
+            }
+        }
+
+        if let fields = cachedFields {
+            for field in fields {
+                field.breakReferenceCycles()
+            }
+        }
+
+        if let properties = cachedProperties {
+            for property in properties {
+                property.breakReferenceCycles()
+            }
+        }
+
+        if let events = cachedEvents {
+            for event in events {
+                event.breakReferenceCycles()
+            }
+        }
+
+        if let attributes = cachedAttributes {
+            for attribute in attributes {
+                attribute.breakReferenceCycles()
+            }
+        }
+
+        cachedEnclosingType = nil
+        cachedBase = nil
+        cachedAttributes = nil
+        cachedNestedTypes = nil
+        // cachedLayout is POD, no need to nil it
     }
 }
 

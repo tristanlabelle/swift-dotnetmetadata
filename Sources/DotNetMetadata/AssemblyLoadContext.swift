@@ -11,6 +11,8 @@ public typealias AssemblyResolver = (AssemblyIdentity) throws -> ModuleFile
 /// A context in which assemblies are loaded and their references can be resolved
 /// to allow building a .NET type graph spanning types from multiple assemblies.
 /// This is analoguous to the System.AppDomain class in the .NET Framework.
+///
+/// This class manages the lifetime of its object graph.
 public final class AssemblyLoadContext {
     private enum CoreLibraryOrAssemblyReference {
         case coreLibrary(CoreLibrary)
@@ -29,6 +31,16 @@ public final class AssemblyLoadContext {
         self.init(resolver: { _ in
             throw AssemblyLoadError.notFound(message: "No assembly resolver was provided")
         })
+    }
+
+    deinit {
+        // Our data model is inherently prone to reference cycles,
+        // for example with a linked list node type definition with a field referencing itself.
+        // To avoid memory leaks, break reference cycles.
+        // This means nulling out every cached reference that is not strictly owned by the parent.
+        for assembly in loadedAssembliesByName.values {
+            assembly.breakReferenceCycles()
+        }
     }
 
     public var coreLibrary: CoreLibrary {

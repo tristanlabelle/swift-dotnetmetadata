@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 public class Assembly: CustomDebugStringConvertible {
-    public let context: AssemblyLoadContext
+    public private(set) weak var context: AssemblyLoadContext!
     public let moduleFile: ModuleFile
     private let tableRow: AssemblyTable.Row
 
@@ -39,10 +39,14 @@ public class Assembly: CustomDebugStringConvertible {
     public var debugDescription: String { identity.description}
 
     private var cachedModuleName: String?
-    public var moduleName: String { cachedModuleName.lazyInit { moduleFile.resolve(moduleFile.moduleTable.first!.name) } }
+    public var moduleName: String {
+        cachedModuleName.lazyInit { moduleFile.resolve(moduleFile.moduleTable.first!.name) }
+    }
 
     private var cachedAttributes: [Attribute]?
-    public var attributes: [Attribute] { cachedAttributes.lazyInit { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) } }
+    public var attributes: [Attribute] {
+        cachedAttributes.lazyInit { getAttributes(owner: .init(tag: .assembly, rowIndex: .first)) }
+    }
 
     private var cachedReferences: [AssemblyReference]?
     public var references: [AssemblyReference] {
@@ -130,6 +134,32 @@ public class Assembly: CustomDebugStringConvertible {
     internal func getAttributes(owner: CodedIndices.HasCustomAttribute) -> [Attribute] {
         moduleFile.customAttributeTable.findAll(primaryKey: owner).map {
             Attribute(tableRowIndex: $0, assembly: self)
+        }
+    }
+
+    internal func breakReferenceCycles() {
+        if let attributes = cachedAttributes {
+            for attribute in attributes {
+                attribute.breakReferenceCycles()
+            }
+        }
+
+        if let references = cachedReferences {
+            for reference in references {
+                reference.breakReferenceCycles()
+            }
+        }
+
+        if let typeDefinitions = cachedTypeDefinitions {
+            for typeDefinition in typeDefinitions {
+                typeDefinition.breakReferenceCycles()
+            }
+        }
+
+        if let exportedTypes = cachedExportedTypes {
+            for exportedType in exportedTypes {
+                exportedType.breakReferenceCycles()
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ import DotNetMetadataFormat
 
 /// A type that is exported but whose definition is in another assembly.
 public final class ExportedType {
-    public unowned let assembly: Assembly
+    public private(set) weak var assembly: Assembly!
     internal let tableRowIndex: TableRowIndex // In ExportedType table
     private var tableRow: ExportedTypeTable.Row { moduleFile.exportedTypeTable[tableRowIndex] }
 
@@ -29,24 +29,29 @@ public final class ExportedType {
         makeFullTypeName(namespace: namespace, name: name)
     }()
 
-    private lazy var _definition = Result {
-        let implementationCodedIndex = tableRow.implementation
-        guard let implementationRowIndex = implementationCodedIndex.rowIndex else {
-            throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+    private var cachedDefinition: TypeDefinition?
+    public var definition: TypeDefinition { get throws {
+        try cachedDefinition.lazyInit {
+            let implementationCodedIndex = tableRow.implementation
+            guard let implementationRowIndex = implementationCodedIndex.rowIndex else {
+                throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+            }
+            switch try implementationCodedIndex.tag {
+                case .assemblyRef:
+                    let definitionAssembly = try self.assembly.resolveAssemblyRef(rowIndex: implementationRowIndex)
+                    // TODO: Optimize using the typeDefId field
+                    // TODO: Support recursive exported types
+                    guard let typeDefinition = try definitionAssembly.resolveTypeDefinition(namespace: namespace, name: name) else {
+                        throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+                    }
+                    return typeDefinition
+                default:
+                    fatalError("Not implemented: \(#function)")
+            }
         }
-        switch try implementationCodedIndex.tag {
-            case .assemblyRef:
-                let definitionAssembly = try self.assembly.resolveAssemblyRef(rowIndex: implementationRowIndex)
-                // TODO: Optimize using the typeDefId field
-                // TODO: Support recursive exported types
-                guard let typeDefinition = try definitionAssembly.resolveTypeDefinition(namespace: namespace, name: name) else {
-                    throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
-                }
-                return typeDefinition
-            default:
-                fatalError("Not implemented: \(#function)")
-        }
-    }
+    } }
 
-    public var definition: TypeDefinition { get throws { try _definition.get() } }
+    public func breakReferenceCycles() {
+        cachedDefinition = nil
+    }
 }

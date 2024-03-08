@@ -1,7 +1,7 @@
 import DotNetMetadataFormat
 
 public class Member: Attributable {
-    public unowned let definingType: TypeDefinition
+    public private(set) weak var definingType: TypeDefinition!
 
     internal init(definingType: TypeDefinition) {
         self.definingType = definingType
@@ -11,20 +11,27 @@ public class Member: Attributable {
     internal var moduleFile: ModuleFile { definingType.moduleFile }
     public var context: AssemblyLoadContext { assembly.context }
 
-    public var metadataToken: MetadataToken { fatalError() }
-    internal func resolveName() -> String { fatalError() }
-    public private(set) lazy var name: String = resolveName()
-    public var nameKind: NameKind { fatalError() }
-    public var isStatic: Bool { fatalError() }
+    public var metadataToken: MetadataToken { fatalError() } // abstract
+    public var name: String { fatalError() } // abstract
+    public var nameKind: NameKind { fatalError() } // abstract
+    public var isStatic: Bool { fatalError() } // abstract
     public var isInstance: Bool { !isStatic }
 
-    public var attributeTarget: AttributeTargets { fatalError() }
-    internal var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { fatalError() }
+    public var attributeTarget: AttributeTargets { fatalError() } // abstract
+    internal var attributesKeyTag: CodedIndices.HasCustomAttribute.Tag { fatalError() } // abstract
 
     private var cachedAttributes: [Attribute]?
     public var attributes: [Attribute] {
         cachedAttributes.lazyInit {
             assembly.getAttributes(owner: .init(tag: attributesKeyTag, rowIndex: metadataToken.rowIndex))
+        }
+    }
+
+    internal func breakReferenceCycles() {
+        if let attributes = cachedAttributes {
+            for attribute in attributes {
+                attribute.breakReferenceCycles()
+            }
         }
     }
 }
