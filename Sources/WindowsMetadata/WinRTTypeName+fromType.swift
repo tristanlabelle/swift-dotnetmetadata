@@ -3,7 +3,7 @@ import DotNetMetadata
 extension WinRTTypeName {
     public static func from(type: BoundType) throws -> WinRTTypeName {
         if type.definition.namespace == "System" {
-            if let primitiveType = WinRTPrimitiveType(fromName: type.definition.name) {
+            if let primitiveType = WinRTPrimitiveType(fromSystemNamespaceType: type.definition.name) {
                 return .primitive(primitiveType)
             } else if type.definition.name == "Object" {
                 return .object

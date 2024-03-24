@@ -16,7 +16,7 @@ public enum MidlNameMangling {
                     case .uint64: return "UINT64"
                 }
             case .float(let double): return double ? "double" : "float"
-            case .char: return "WCHAR"
+            case .char16: return "WCHAR"
             case .guid: return "GUID"
             case .string: return "HSTRING"
         }
