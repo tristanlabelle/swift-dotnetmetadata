@@ -2,7 +2,7 @@ public enum MidlNameMangling {
     public static let interfaceIDPrefix = "IID_"
     public static let virtualTableSuffix = "Vtbl"
 
-    public static func get(_ systemType: WinRTSystemType) -> String {
+    public static func get(_ systemType: WinRTPrimitiveType) -> String {
         switch systemType {
             case .boolean: return "boolean"
             case .integer(let type):
@@ -19,16 +19,18 @@ public enum MidlNameMangling {
             case .char: return "WCHAR"
             case .guid: return "GUID"
             case .string: return "HSTRING"
-            case .object: return "IInspectable"
         }
     }
 
     public static func get(_ typeName: WinRTTypeName) -> String {
-        if case .system(let systemType) = typeName { return get(systemType) }
-
-        var output = String()
-        write(typeName, to: &output)
-        return output
+        switch typeName {
+            case .object: return "IInspectable"
+            case .primitive(let primitiveType): return get(primitiveType)
+            default:
+                var output = String()
+                write(typeName, to: &output)
+                return output
+        }
     }
 
     public static func write(_ typeName: WinRTTypeName, to output: inout some TextOutputStream) {
@@ -41,8 +43,11 @@ public enum MidlNameMangling {
         // __FIMap_2_HSTRING_HSTRING
         // __FIAsyncOperation_1___FIVectorView_1_HSTRING
         switch typeName {
-            case let .system(systemType):
-                output.write(get(systemType))
+            case .object:
+                output.write("IInspectable")
+
+            case let .primitive(primitiveType):
+                output.write(get(primitiveType))
 
             case let .parameterized(type, args):
                 writeMidlMangling(type, args: args, to: &output)
