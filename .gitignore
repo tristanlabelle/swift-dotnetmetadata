@@ -1,6 +1,5 @@
 .DS_Store
 /.build
 /.swiftpm
-/.vscode
-/Packages
-/Sources/LocalTesting
+/.vscode/launch.json
+/build

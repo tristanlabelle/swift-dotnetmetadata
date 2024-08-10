@@ -1,0 +1,5 @@
+add_subdirectory(DotNetMetadataCInterop)
+add_subdirectory(DotNetMetadataFormat)
+add_subdirectory(DotNetMetadata)
+add_subdirectory(DotNetXMLDocs)
+add_subdirectory(WindowsMetadata)
