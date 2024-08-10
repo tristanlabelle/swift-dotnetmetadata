@@ -3,8 +3,8 @@ name: Build & Test
 on: [push]
 
 jobs:
-  build-and-test-spm:
-    name: "Build and Test (SPM)"
+  spm:
+    name: "With SPM"
     runs-on: windows-2022
     timeout-minutes: 10
 
@@ -28,8 +28,8 @@ jobs:
       shell: pwsh
       run: swift test --verbose --skip-build
 
-  build-cmake:
-    name: Build (CMake)
+  cmake:
+    name: With CMake (No Tests)
     runs-on: windows-2022
     timeout-minutes: 15
 
