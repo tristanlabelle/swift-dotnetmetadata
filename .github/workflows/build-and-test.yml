@@ -3,7 +3,8 @@ name: Build & Test
 on: [push]
 
 jobs:
-  build:
+  build-and-test-spm:
+    name: "Build and Test (SPM)"
     runs-on: windows-2022
     timeout-minutes: 10
 
@@ -26,3 +27,20 @@ jobs:
     - name: Test
       shell: pwsh
       run: swift test --verbose --skip-build
+
+  build-cmake:
+    name: Build (CMake)
+    runs-on: windows-2022
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/setup-swift
+
+    - name: CMake Configure
+      shell: pwsh
+      run: cmake --preset debug
+
+    - name: CMake Build
+      shell: pwsh
+      run: cmake --build --preset debug

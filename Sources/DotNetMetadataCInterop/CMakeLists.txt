@@ -1,0 +1,2 @@
+add_library(DotNetMetadataCInterop INTERFACE)
+target_include_directories(DotNetMetadataCInterop INTERFACE include)
