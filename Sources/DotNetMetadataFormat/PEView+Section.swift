@@ -1,4 +1,4 @@
-import CInterop
+import DotNetMetadataCInterop
 
 extension PEView {
     public struct Section {

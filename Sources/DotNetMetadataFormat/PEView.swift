@@ -1,4 +1,4 @@
-import CInterop
+import DotNetMetadataCInterop
 
 struct PEView {
     let file: UnsafeRawBufferPointer
