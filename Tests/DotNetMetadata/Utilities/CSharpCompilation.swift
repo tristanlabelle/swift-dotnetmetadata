@@ -45,9 +45,9 @@ class CSharpCompilation {
         guard result.exitCode == 0 else { throw CompilerError(message: result.standardOutput) }
 
         // Resolve the core library if tests require it
-        assemblyLoadContext = AssemblyLoadContext(resolver: {
-            guard $0.name.starts(with: "System.") else { throw AssemblyLoadError.notFound(message: "Unexpected assembly reference.") }
-            return try ModuleFile(path: "\(refsPath)\\\($0.name).dll")
+        assemblyLoadContext = AssemblyLoadContext(referenceResolver: { identity, flags in
+            guard identity.name.starts(with: "System.") else { throw AssemblyLoadError.notFound(message: "Unexpected assembly reference.") }
+            return try ModuleFile(path: "\(refsPath)\\\(identity.name).dll")
         })
 
         assembly = try assemblyLoadContext.load(path: assemblyFilePath)

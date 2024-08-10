@@ -6,31 +6,55 @@ public enum AssemblyLoadError: Error {
     case invalid(message: String? = nil, inner: (any Error)? = nil)
 }
 
-public typealias AssemblyResolver = (AssemblyIdentity) throws -> ModuleFile
-
 /// A context in which assemblies are loaded and their references can be resolved
 /// to allow building a .NET type graph spanning types from multiple assemblies.
 /// This is analoguous to the System.AppDomain class in the .NET Framework.
 ///
 /// This class manages the lifetime of its object graph.
 public final class AssemblyLoadContext {
+    /// A closure that resolves an assembly reference to a module file.
+    public typealias AssemblyReferenceResolver = (AssemblyIdentity, AssemblyFlags?) throws -> ModuleFile
+
+    /// A reference to a type in another assembly.
+    public struct TypeReference {
+        public let assembly: AssemblyIdentity
+        public let assemblyFlags: AssemblyFlags?
+        public let namespace: String?
+        public let name: String
+
+        public var fullName: String { namespace.map { "\($0).\(name)" } ?? name }
+        public init(assembly: AssemblyIdentity, assemblyFlags: AssemblyFlags? = nil, namespace: String?, name: String) {
+            self.assembly = assembly
+            self.assemblyFlags = assemblyFlags
+            self.namespace = namespace
+            self.name = name
+        }
+    }
+
+    /// A closure that resolves a type reference to a type definition.
+    public typealias TypeReferenceResolver = (AssemblyLoadContext, TypeReference) throws -> TypeDefinition?
+
     private enum CoreLibraryOrAssemblyReference {
         case coreLibrary(CoreLibrary)
         case assemblyReference(AssemblyReference)
     }
 
-    private let resolver: AssemblyResolver
+    private let referenceResolver: AssemblyReferenceResolver
+    private let typeReferenceResolver: TypeReferenceResolver?
     public private(set) var loadedAssembliesByName: [String: Assembly] = [:]
     private var _coreLibraryOrAssemblyReference: CoreLibraryOrAssemblyReference? = nil
 
-    public init(resolver: @escaping AssemblyResolver) {
-        self.resolver = resolver
-    }
-
-    public convenience init() {
-        self.init(resolver: { _ in
-            throw AssemblyLoadError.notFound(message: "No assembly resolver was provided")
-        })
+    /// Initializes a new AssemblyLoadContext, optionally specifying resolving strategies.
+    /// - Parameters:
+    ///   - referenceResolver: A closure that resolves an assembly reference to a module file.
+    ///   - typeReferenceResolver: A closure that resolves a type reference to a type definition, possibly bypassing assembly reference resolution.
+    public init(
+            referenceResolver: AssemblyReferenceResolver? = nil,
+            typeReferenceResolver: TypeReferenceResolver? = nil) {
+        self.referenceResolver = referenceResolver ?? { identity, _ in
+            throw AssemblyLoadError.notFound(message: "Reference to identity \(identity) could not be resolved. No assembly reference resolver was provided.")
+        }
+        self.typeReferenceResolver = typeReferenceResolver
     }
 
     deinit {
@@ -62,12 +86,12 @@ public final class AssemblyLoadContext {
         }
     }
 
-    public func load(identity: AssemblyIdentity) throws -> Assembly {
+    public func load(identity: AssemblyIdentity, flags: AssemblyFlags? = nil) throws -> Assembly {
         if let assembly = loadedAssembliesByName[identity.name] {
             return assembly
         }
 
-        return try load(moduleFile: try resolver(identity))
+        return try load(moduleFile: try referenceResolver(identity, flags))
     }
 
     public func load(url: URL) throws -> Assembly {
@@ -106,5 +130,16 @@ public final class AssemblyLoadContext {
 
         loadedAssembliesByName[assemblyName] = assembly
         return assembly
+    }
+
+    public func resolve(_ typeReference: TypeReference) throws -> TypeDefinition {
+        if let typeReferenceResolver, let typeDefinition = try typeReferenceResolver(self, typeReference) { return typeDefinition }
+
+        let assembly = try load(identity: typeReference.assembly, flags: typeReference.assemblyFlags)
+        guard let typeDefinition = try assembly.resolveTypeDefinition(namespace: typeReference.namespace, name: typeReference.name) else {
+            throw AssemblyLoadError.notFound(message: "Type '\(typeReference.fullName)' not found in assembly '\(assembly.name)'")
+        }
+
+        return typeDefinition
     }
 }
