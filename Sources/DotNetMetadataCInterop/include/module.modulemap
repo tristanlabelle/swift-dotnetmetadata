@@ -1,0 +1,5 @@
+module DotNetMetadataCInterop {
+    header "PE.h"
+    header "Metadata.h"
+    export *
+}

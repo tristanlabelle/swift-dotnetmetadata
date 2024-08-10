@@ -1,4 +1,4 @@
-import CInterop
+import DotNetMetadataCInterop
 import Foundation
 
 /// A view of the CLI metadata embedded in a module file (.dll, .exe or .winmd).

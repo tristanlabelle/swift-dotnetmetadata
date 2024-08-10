@@ -14,11 +14,11 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "CInterop"),
+            name: "DotNetMetadataCInterop"),
 
         .target(
             name: "DotNetMetadataFormat",
-            dependencies: [ "CInterop" ]),
+            dependencies: [ "DotNetMetadataCInterop" ]),
         .testTarget(
             name: "DotNetMetadataFormatTests",
             dependencies: [ "DotNetMetadataFormat" ],
