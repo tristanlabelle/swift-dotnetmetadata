@@ -13,7 +13,7 @@ public class Assembly: CustomDebugStringConvertible {
 
     public var name: String { moduleFile.resolve(tableRow.name) }
 
-    public var version: AssemblyVersion {
+    public var version: FourPartVersion {
         .init(
             major: tableRow.majorVersion,
             minor: tableRow.minorVersion,
