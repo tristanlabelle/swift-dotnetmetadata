@@ -14,11 +14,13 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "DotNetMetadataCInterop"),
+            name: "DotNetMetadataCInterop",
+            exclude: ["CMakeLists.txt"]),
 
         .target(
             name: "DotNetMetadataFormat",
-            dependencies: [ "DotNetMetadataCInterop" ]),
+            dependencies: [ "DotNetMetadataCInterop" ],
+            exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "DotNetMetadataFormatTests",
             dependencies: [ "DotNetMetadataFormat" ],
@@ -27,7 +29,8 @@ let package = Package(
 
         .target(
             name: "DotNetMetadata",
-            dependencies: [ "DotNetMetadataFormat" ]),
+            dependencies: [ "DotNetMetadataFormat" ],
+            exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "DotNetMetadataTests",
             dependencies: [ "DotNetMetadata" ],
@@ -36,7 +39,8 @@ let package = Package(
 
         .target(
             name: "WindowsMetadata",
-            dependencies: [ "DotNetMetadata" ]),
+            dependencies: [ "DotNetMetadata" ],
+            exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "WindowsMetadataTests",
             dependencies: [ "WindowsMetadata" ],
@@ -44,7 +48,8 @@ let package = Package(
             linkerSettings: executableLinkerSettings),
 
         .target(
-            name: "DotNetXMLDocs"),
+            name: "DotNetXMLDocs",
+            exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "DotNetXMLDocsTests",
             dependencies: [ "DotNetXMLDocs" ],
