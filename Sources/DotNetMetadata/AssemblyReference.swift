@@ -13,7 +13,7 @@ public final class AssemblyReference {
     internal var tableRow: AssemblyRefTable.Row { moduleFile.assemblyRefTable[tableRowIndex] }
 
     public var name: String { moduleFile.resolve(tableRow.name) }
-    public var version: AssemblyVersion { tableRow.version }
+    public var version: FourPartVersion { tableRow.version }
 
     public var culture: String? {
         let culture = moduleFile.resolve(tableRow.culture)

@@ -5,11 +5,11 @@ public struct AssemblyIdentity: Hashable, CustomStringConvertible {
 
     public var name: String
     // Version should always be present in definitions, but is allowed to be null for references
-    public var version: AssemblyVersion?
+    public var version: FourPartVersion?
     public var culture: String?
     public var publicKey: AssemblyPublicKey?
 
-    public init(name: String, version: AssemblyVersion? = nil, culture: String? = nil, publicKey: AssemblyPublicKey? = nil) {
+    public init(name: String, version: FourPartVersion? = nil, culture: String? = nil, publicKey: AssemblyPublicKey? = nil) {
         self.name = name
         self.version = version
         self.culture = culture
@@ -49,9 +49,9 @@ public struct AssemblyIdentity: Hashable, CustomStringConvertible {
         let name = String(segments[0])
         var index = 1
 
-        let version: AssemblyVersion?
+        let version: FourPartVersion?
         if index < segments.count, let match = try segments[index].wholeMatch(of: Regex(#"Version=(\d+)\.(\d+)\.(\d+)\.(\d+)"#)) {
-            version = AssemblyVersion(
+            version = FourPartVersion(
                 major: UInt16(match[1].substring!)!,
                 minor: UInt16(match[2].substring!)!,
                 buildNumber: UInt16(match[3].substring!)!,

@@ -7,7 +7,7 @@ public enum TableRows {
         public var name: StringHeap.Offset
         public var culture: StringHeap.Offset
 
-        public var version: AssemblyVersion {
+        public var version: FourPartVersion {
             .init(
                 major: majorVersion,
                 minor: minorVersion,
@@ -24,7 +24,7 @@ public enum TableRows {
         public var culture: StringHeap.Offset
         public var hashValue: BlobHeap.Offset
         
-        public var version: AssemblyVersion {
+        public var version: FourPartVersion {
             .init(
                 major: majorVersion,
                 minor: minorVersion,

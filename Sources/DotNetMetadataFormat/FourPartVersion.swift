@@ -1,6 +1,6 @@
-public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
-    public static let zero = AssemblyVersion()
-    public static let all255 = AssemblyVersion(major: 255, minor: 255, buildNumber: 255, revisionNumber: 255)
+public struct FourPartVersion: Comparable, Hashable, CustomStringConvertible {
+    public static let zero = FourPartVersion()
+    public static let all255 = FourPartVersion(major: 255, minor: 255, buildNumber: 255, revisionNumber: 255)
 
     public var major: UInt16
     public var minor: UInt16
@@ -23,7 +23,7 @@ public struct AssemblyVersion: Comparable, Hashable, CustomStringConvertible {
         self.revisionNumber = revisionNumber
     }
 
-    public static func < (lhs: AssemblyVersion, rhs: AssemblyVersion) -> Bool {
+    public static func < (lhs: FourPartVersion, rhs: FourPartVersion) -> Bool {
         if lhs.major != rhs.major {
             return lhs.major < rhs.major
         } else if lhs.minor != rhs.minor {
