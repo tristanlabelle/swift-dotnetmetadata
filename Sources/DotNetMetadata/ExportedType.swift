@@ -38,13 +38,15 @@ public final class ExportedType {
             }
             switch try implementationCodedIndex.tag {
                 case .assemblyRef:
-                    let definitionAssembly = try self.assembly.resolveAssemblyRef(rowIndex: implementationRowIndex)
+                    let assemblyReference = try self.assembly.resolveAssemblyRef(rowIndex: implementationRowIndex)
                     // TODO: Optimize using the typeDefId field
                     // TODO: Support recursive exported types
-                    guard let typeDefinition = try definitionAssembly.resolveTypeDefinition(namespace: namespace, name: name) else {
-                        throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
-                    }
-                    return typeDefinition
+                    let typeReference = AssemblyLoadContext.TypeReference(
+                        assembly: assemblyReference.identity,
+                        assemblyFlags: assemblyReference.flags,
+                        namespace: namespace,
+                        name: name)
+                    return try context.resolve(typeReference)
                 default:
                     fatalError("Not implemented: \(#function)")
             }

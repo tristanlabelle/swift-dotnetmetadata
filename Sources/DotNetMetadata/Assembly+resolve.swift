@@ -53,8 +53,16 @@ extension Assembly {
                 assert(resolutionScopeRowIndex.zeroBased == 0)
                 return try resolveTypeDefinition(namespace: namespace, name: name)!
             case .assemblyRef:
-                return try resolveAssemblyRef(rowIndex: resolutionScopeRowIndex)
-                    .resolveTypeDefinition(namespace: namespace, name: name)!
+                guard let assemblyRefRowIndex = row.resolutionScope.rowIndex else {
+                    throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+                }
+                let assemblyReference = try resolveAssemblyRef(rowIndex: assemblyRefRowIndex)
+                let typeReference = AssemblyLoadContext.TypeReference(
+                    assembly: assemblyReference.identity,
+                    assemblyFlags: assemblyReference.flags,
+                    namespace: namespace,
+                    name: name)
+                return try context.resolve(typeReference)
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }
@@ -67,10 +75,8 @@ extension Assembly {
         return try resolveTypeSig(typeSig, typeContext: typeContext, methodContext: methodContext)
     }
 
-    internal func resolveAssemblyRef(rowIndex: TableRowIndex) throws -> Assembly {
-        let row = moduleFile.assemblyRefTable[rowIndex]
-        let identity = AssemblyIdentity(fromRow: row, in: moduleFile)
-        return try context.load(identity: identity)
+    internal func resolveAssemblyRef(rowIndex: TableRowIndex) throws -> AssemblyReference {
+        self.references[Int(rowIndex.zeroBased)]
     }
 
     internal func resolveTypeSig(_ typeSig: TypeSig, typeContext: TypeDefinition? = nil, methodContext: Method? = nil) throws -> TypeNode {
