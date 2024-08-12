@@ -23,6 +23,15 @@ public struct FourPartVersion: Comparable, Hashable, CustomStringConvertible {
         self.revisionNumber = revisionNumber
     }
 
+    public init(parsing str: String) throws {
+        let components = str.split(separator: ".")
+        guard components.count == 4 else { fatalError() }
+        self.major = UInt16(components[0])!
+        self.minor = UInt16(components[1])!
+        self.buildNumber = UInt16(components[2])!
+        self.revisionNumber = UInt16(components[3])!
+    }
+
     public static func < (lhs: FourPartVersion, rhs: FourPartVersion) -> Bool {
         if lhs.major != rhs.major {
             return lhs.major < rhs.major
