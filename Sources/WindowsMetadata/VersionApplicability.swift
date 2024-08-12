@@ -6,20 +6,20 @@ public struct VersionApplicability: Hashable {
         case platform(Platform)
     }
 
-    public var version: Version
+    public var version: TwoPartVersion
     public var context: Context?
 
-    public init(version: Version, context: Context? = nil) {
+    public init(version: TwoPartVersion, context: Context? = nil) {
         self.version = version
         self.context = context
     }
 
-    public init(version: Version, contractName: String) {
+    public init(version: TwoPartVersion, contractName: String) {
         self.version = version
         self.context = .contract(name: contractName)
     }
 
-    public init(version: Version, platform: Platform) {
+    public init(version: TwoPartVersion, platform: Platform) {
         self.version = version
         self.context = .platform(platform)
     }
