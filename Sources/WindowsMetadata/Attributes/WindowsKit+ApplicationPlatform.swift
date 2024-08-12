@@ -2,7 +2,7 @@ import DotNetMetadata
 import struct Foundation.URL
 import FoundationXML
 
-extension WindowsSDK {
+extension WindowsKit {
     // From Platform.xml or PreviousPlatforms.xml
     public struct ApplicationPlatform {
         public var name: String
@@ -30,16 +30,5 @@ extension WindowsSDK {
                 self.apiContracts[name] = version
             }
         }
-    }
-}
-extension XMLElement {
-    fileprivate func firstElement(forName name: String) -> XMLElement? {
-        let elements = self.elements(forName: name)
-        return elements.count > 0 ? elements[0] : nil
-    }
-
-    fileprivate func singleElement(forName name: String) -> XMLElement? {
-        let elements = self.elements(forName: name)
-        return elements.count == 1 ? elements[0] : nil
     }
 }
