@@ -1,4 +1,4 @@
-public struct Version: Hashable, CustomStringConvertible {
+public struct TwoPartVersion: Hashable, CustomStringConvertible {
     public var major: UInt16
     public var minor: UInt16
 

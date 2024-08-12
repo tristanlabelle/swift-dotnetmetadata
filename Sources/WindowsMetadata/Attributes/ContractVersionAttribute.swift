@@ -7,18 +7,18 @@ public struct ContractVersionAttribute: AttributeType {
     }
 
     public var contract: Contract?
-    public var version: Version
+    public var version: TwoPartVersion
 
-    public init(contract: Contract? = nil, version: Version) {
+    public init(contract: Contract? = nil, version: TwoPartVersion) {
         self.contract = contract
         self.version = version
     }
 
-    public init(contract: String, version: Version) {
+    public init(contract: String, version: TwoPartVersion) {
         self.init(contract: .name(contract), version: version)
     }
 
-    public init(contract: TypeDefinition, version: Version) {
+    public init(contract: TypeDefinition, version: TwoPartVersion) {
         self.init(contract: .type(contract), version: version)
     }
 
