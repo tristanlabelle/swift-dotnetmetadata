@@ -57,12 +57,11 @@ extension Assembly {
                     throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
                 }
                 let assemblyReference = try resolveAssemblyRef(rowIndex: assemblyRefRowIndex)
-                let typeReference = AssemblyLoadContext.TypeReference(
+                return try context.resolveType(
                     assembly: assemblyReference.identity,
                     assemblyFlags: assemblyReference.flags,
                     namespace: namespace,
                     name: name)
-                return try context.resolve(typeReference)
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }

@@ -41,12 +41,11 @@ public final class ExportedType {
                     let assemblyReference = try self.assembly.resolveAssemblyRef(rowIndex: implementationRowIndex)
                     // TODO: Optimize using the typeDefId field
                     // TODO: Support recursive exported types
-                    let typeReference = AssemblyLoadContext.TypeReference(
+                    return try context.resolveType(
                         assembly: assemblyReference.identity,
                         assemblyFlags: assemblyReference.flags,
                         namespace: namespace,
                         name: name)
-                    return try context.resolve(typeReference)
                 default:
                     fatalError("Not implemented: \(#function)")
             }

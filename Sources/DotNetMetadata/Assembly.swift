@@ -36,6 +36,8 @@ public class Assembly: CustomDebugStringConvertible {
         AssemblyIdentity(name: name, version: version, culture: culture, publicKey: publicKey)
     }
 
+    public var flags: AssemblyFlags { tableRow.flags }
+
     public var debugDescription: String { identity.description}
 
     private var cachedModuleName: String?

@@ -15,46 +15,24 @@ public final class AssemblyLoadContext {
     /// A closure that resolves an assembly reference to a module file.
     public typealias AssemblyReferenceResolver = (AssemblyIdentity, AssemblyFlags?) throws -> ModuleFile
 
-    /// A reference to a type in another assembly.
-    public struct TypeReference {
-        public let assembly: AssemblyIdentity
-        public let assemblyFlags: AssemblyFlags?
-        public let namespace: String?
-        public let name: String
-
-        public var fullName: String { namespace.map { "\($0).\(name)" } ?? name }
-        public init(assembly: AssemblyIdentity, assemblyFlags: AssemblyFlags? = nil, namespace: String?, name: String) {
-            self.assembly = assembly
-            self.assemblyFlags = assemblyFlags
-            self.namespace = namespace
-            self.name = name
-        }
-    }
-
-    /// A closure that resolves a type reference to a type definition.
-    public typealias TypeReferenceResolver = (AssemblyLoadContext, TypeReference) throws -> TypeDefinition?
-
     private enum CoreLibraryOrAssemblyReference {
         case coreLibrary(CoreLibrary)
         case assemblyReference(AssemblyReference)
     }
 
     private let referenceResolver: AssemblyReferenceResolver
-    private let typeReferenceResolver: TypeReferenceResolver?
     public private(set) var loadedAssembliesByName: [String: Assembly] = [:]
     private var _coreLibraryOrAssemblyReference: CoreLibraryOrAssemblyReference? = nil
+    private var uwpTypes = [String: TypeDefinition]()
 
     /// Initializes a new AssemblyLoadContext, optionally specifying resolving strategies.
     /// - Parameters:
     ///   - referenceResolver: A closure that resolves an assembly reference to a module file.
-    ///   - typeReferenceResolver: A closure that resolves a type reference to a type definition, possibly bypassing assembly reference resolution.
     public init(
-            referenceResolver: AssemblyReferenceResolver? = nil,
-            typeReferenceResolver: TypeReferenceResolver? = nil) {
+            referenceResolver: AssemblyReferenceResolver? = nil) {
         self.referenceResolver = referenceResolver ?? { identity, _ in
             throw AssemblyLoadError.notFound(message: "Reference to identity \(identity) could not be resolved. No assembly reference resolver was provided.")
         }
-        self.typeReferenceResolver = typeReferenceResolver
     }
 
     deinit {
@@ -128,16 +106,42 @@ public final class AssemblyLoadContext {
             }
         }
 
+        if assembly.flags.contains(AssemblyFlags.windowsRuntime),
+                assembly.name == "Windows" || assembly.name.starts(with: "Windows.") {
+            // UWP assembly. Store all types by their full name for type reference resolution,
+            // since UWP assemblies references are inconsistent and cannot always be resolved.
+            for type in assembly.typeDefinitions {
+                uwpTypes[type.fullName] = type
+            }
+        }
+
         loadedAssembliesByName[assemblyName] = assembly
         return assembly
     }
 
-    public func resolve(_ typeReference: TypeReference) throws -> TypeDefinition {
-        if let typeReferenceResolver, let typeDefinition = try typeReferenceResolver(self, typeReference) { return typeDefinition }
+    internal func resolveType(
+            assembly assemblyIdentity: AssemblyIdentity,
+            assemblyFlags: AssemblyFlags,
+            namespace: String?,
+            name: String) throws -> TypeDefinition {
+        // References to UWP assemblies can be inconsistent depending on how the WinMD was built:
+        // - To contract assemblies, e.g. "Windows.Foundation.UniversalApiContract"
+        // - To system metadata assemblies, e.g. "Windows.Foundation"
+        // - To partial namespace assemblies, e.g. "Windows.Foundation.Collections"
+        // - To union metadata assemblies, e.g. "Windows"
+        // Since WinRT does not support overloading by full name and the "Windows." namespace is reserved,
+        // we can safely resolve to a previously loaded type by its full name only, ignoring the assembly identity.
+        if assemblyFlags.contains(AssemblyFlags.windowsRuntime),
+                assemblyIdentity.name == "Windows" || assemblyIdentity.name.starts(with: "Windows."),
+                let namespace, namespace == "Windows" || namespace.starts(with: "Windows.") {
+            let fullName = "\(namespace).\(name)"
+            if let typeDefinition = uwpTypes[fullName] { return typeDefinition }
+        }
 
-        let assembly = try load(identity: typeReference.assembly, flags: typeReference.assemblyFlags)
-        guard let typeDefinition = try assembly.resolveTypeDefinition(namespace: typeReference.namespace, name: typeReference.name) else {
-            throw AssemblyLoadError.notFound(message: "Type '\(typeReference.fullName)' not found in assembly '\(assembly.name)'")
+        let assembly = try load(identity: assemblyIdentity, flags: assemblyFlags)
+        guard let typeDefinition = try assembly.resolveTypeDefinition(namespace: namespace, name: name) else {
+            let fullName = namespace.map { "\($0).\(name)" } ?? name
+            throw AssemblyLoadError.notFound(message: "Type '\(fullName)' not found in assembly '\(assembly.name)'")
         }
 
         return typeDefinition

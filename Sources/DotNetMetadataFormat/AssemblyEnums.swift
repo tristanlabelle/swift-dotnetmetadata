@@ -8,6 +8,7 @@ public struct AssemblyFlags: OptionSet {
     public static let sideBySideCompatible = Self(rawValue: 0x2)
     public static let reserved = Self(rawValue: 0x30)
     public static let retargetable = Self(rawValue: 0x100)
+    public static let windowsRuntime = Self(rawValue: 0x200)
     public static let disableJITcompileOptimizer = Self(rawValue: 0x4000)
     public static let enableJITCompileTracking = Self(rawValue: 0x8000)
 }
