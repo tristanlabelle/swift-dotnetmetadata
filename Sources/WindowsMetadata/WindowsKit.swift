@@ -1,17 +1,32 @@
 import DotNetMetadata
+import class Foundation.FileManager
 import WinSDK
 
 /// Represents a Windows (10+) Software Development Kit installation on the current machine.
 public final class WindowsKit {
     public let rootDirectory: String
     public let version: FourPartVersion
+    public private(set) var cachedExtensions: [Extension]?
 
     fileprivate init(rootDirectory: String, version: FourPartVersion) {
         self.rootDirectory = rootDirectory
         self.version = version
     }
 
-    public var extensionSDKs: [ExtensionSDK] { fatalError("Not implemented") } // TODO: Implement
+    public var extensions: [Extension] {
+        if let cachedExtensions = cachedExtensions { return cachedExtensions }
+
+        var extensions = [Extension]()
+        if let extensionDirs = try? FileManager.default.contentsOfDirectory(atPath: "\(rootDirectory)\\Extension SDKs") {
+            for extensionDir in extensionDirs {
+                guard FileManager.default.fileExists(atPath: "\(rootDirectory)\\Extension SDKs\\\(extensionDir)\\\(version)\\SDKManifest.xml") else { continue }
+                extensions.append(Extension(kit: self, name: extensionDir.lastPathComponent))
+            }
+        }
+
+        self.cachedExtensions = extensions
+        return extensions
+    }
 
     public var applicationPlatformXMLPath: String {
         "\(rootDirectory)\\Platforms\\UAP\\\(version)\\Platform.xml"

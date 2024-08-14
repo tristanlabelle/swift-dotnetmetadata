@@ -1,5 +1,5 @@
 extension WindowsKit {
-    public final class ExtensionSDK {
+    public final class Extension {
         private unowned let kit: WindowsKit!
         public let name: String
 
