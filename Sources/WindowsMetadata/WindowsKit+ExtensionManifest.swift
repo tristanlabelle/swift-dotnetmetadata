@@ -25,8 +25,8 @@ extension WindowsKit {
                 fatalError()
             }
             self.targetPlatform = rootElement.attribute(forName: "TargetPlatform")!.stringValue!
-            self.targetPlatformMinVersion = try FourPartVersion(parsing: rootElement.attribute(forName: "TargetPlatformMinVersion")!.stringValue!)
-            self.targetPlatformVersion = try FourPartVersion(parsing: rootElement.attribute(forName: "TargetPlatformVersion")!.stringValue!)
+            self.targetPlatformMinVersion = FourPartVersion(parsing: rootElement.attribute(forName: "TargetPlatformMinVersion")!.stringValue!)!
+            self.targetPlatformVersion = FourPartVersion(parsing: rootElement.attribute(forName: "TargetPlatformVersion")!.stringValue!)!
             self.sdkType = rootElement.attribute(forName: "SDKType")!.stringValue!
             self.displayName = rootElement.attribute(forName: "DisplayName")!.stringValue!
             self.appliesTo = rootElement.attribute(forName: "AppliesTo")!.stringValue!
@@ -34,7 +34,7 @@ extension WindowsKit {
             self.apiContracts = [:]
             for apiContractElement in rootElement.singleElement(forName: "ContainedApiContracts")!.elements(forName: "ApiContract") {
                 let name = apiContractElement.attribute(forName: "name")!.stringValue!
-                let version = try FourPartVersion(parsing: apiContractElement.attribute(forName: "version")!.stringValue!)
+                let version = FourPartVersion(parsing: apiContractElement.attribute(forName: "version")!.stringValue!)!
                 self.apiContracts[name] = version
             }
         }
