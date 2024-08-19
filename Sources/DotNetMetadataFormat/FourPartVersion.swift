@@ -23,13 +23,17 @@ public struct FourPartVersion: Comparable, Hashable, CustomStringConvertible {
         self.revisionNumber = revisionNumber
     }
 
-    public init(parsing str: String) throws {
+    public init?(parsing str: String) {
         let components = str.split(separator: ".")
-        guard components.count == 4 else { fatalError() }
-        self.major = UInt16(components[0])!
-        self.minor = UInt16(components[1])!
-        self.buildNumber = UInt16(components[2])!
-        self.revisionNumber = UInt16(components[3])!
+        guard components.count == 4 else { return nil }
+        guard let major = UInt16(components[0]),
+            let minor = UInt16(components[1]),
+            let buildNumber = UInt16(components[2]),
+            let revisionNumber = UInt16(components[3]) else { return nil }
+        self.major = major
+        self.minor = minor
+        self.buildNumber = buildNumber
+        self.revisionNumber = revisionNumber
     }
 
     public static func < (lhs: FourPartVersion, rhs: FourPartVersion) -> Bool {

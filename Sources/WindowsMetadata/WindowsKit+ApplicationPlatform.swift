@@ -22,11 +22,11 @@ extension WindowsKit {
             }
             self.name = rootElement.attribute(forName: "name")!.stringValue!
             self.friendlyName = rootElement.attribute(forName: "friendlyName")!.stringValue!
-            self.version = try FourPartVersion(parsing: rootElement.attribute(forName: "version")!.stringValue!)
+            self.version = FourPartVersion(parsing: rootElement.attribute(forName: "version")!.stringValue!)!
             self.apiContracts = [:]
             for apiContractElement in rootElement.singleElement(forName: "ContainedApiContracts")!.elements(forName: "ApiContract") {
                 let name = apiContractElement.attribute(forName: "name")!.stringValue!
-                let version = try FourPartVersion(parsing: apiContractElement.attribute(forName: "version")!.stringValue!)
+                let version = FourPartVersion(parsing: apiContractElement.attribute(forName: "version")!.stringValue!)!
                 self.apiContracts[name] = version
             }
         }

@@ -6,7 +6,7 @@ import WinSDK
 public final class WindowsKit {
     public let rootDirectory: String
     public let version: FourPartVersion
-    public private(set) var cachedExtensions: [Extension]?
+    private var cachedExtensions: [Extension]?
 
     fileprivate init(rootDirectory: String, version: FourPartVersion) {
         self.rootDirectory = rootDirectory
@@ -36,6 +36,14 @@ public final class WindowsKit {
         "\(rootDirectory)\\UnionMetadata\\\(version)\\Windows.winmd"
     }
 
+    public var desktopExtension: Extension? {
+        getExtension(name: "WindowsDesktop")
+    }
+
+    public func getExtension(name: String) -> Extension? {
+        extensions.first { $0.name == name }
+    }
+
     public func readApplicationPlatform() throws -> ApplicationPlatform {
         try ApplicationPlatform(readingFileAtPath: applicationPlatformXMLPath)
     }
@@ -51,6 +59,10 @@ public final class WindowsKit {
         guard let rootDirectory = try getRoot10(key: key) else { return [] }
         let versions = try getVersions(key: key)
         return versions.map { WindowsKit(rootDirectory: rootDirectory, version: $0) }
+    }
+
+    public static func getInstalled(version: FourPartVersion) throws -> WindowsKit? {
+        try getInstalled().first { $0.version == version }
     }
 
     private static func openKey() throws -> HKEY? {
@@ -102,8 +114,9 @@ public final class WindowsKit {
             var subkeyNameLength: UInt32 = 32
             subkeyName.append(contentsOf: repeatElement(0, count: Int(subkeyNameLength)))
             guard RegEnumKeyExW(key, UInt32(subkeyIndex), &subkeyName, &subkeyNameLength, nil, nil, nil, nil) == ERROR_SUCCESS else { break }
-            let version = String(utf16CodeUnits: subkeyName, count: Int(subkeyNameLength))
-            versions.append(try FourPartVersion(parsing: version))
+            let versionString = String(utf16CodeUnits: subkeyName, count: Int(subkeyNameLength))
+            guard let version = FourPartVersion(parsing: versionString) else { continue }
+            versions.append(version)
         }
 
         return versions
