@@ -4,9 +4,6 @@ import DotNetMetadataFormat
 public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     internal typealias Kind = TypeDefinitionKind
 
-    public static let nestedTypeSeparator: Character = "/"
-    public static let genericParamCountSeparator: Character = "`"
-
     public private(set) weak var assembly: Assembly!
     public let tableRowIndex: TableRowIndex // In TypeDef table
 
@@ -41,12 +38,7 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     public var isReferenceType: Bool { kind.isReferenceType }
 
     public var name: String { moduleFile.resolve(tableRow.typeName) }
-
-    public var nameWithoutGenericSuffix: String {
-        let name = name
-        guard let index = name.firstIndex(of: Self.genericParamCountSeparator) else { return name }
-        return String(name[..<index])
-    }
+    public var nameWithoutGenericArity: String { TypeName.trimGenericArity(name) }
 
     public var namespace: String? {
         let tableRow = tableRow
@@ -61,9 +53,9 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
         cachedFullName.lazyInit {
             if let enclosingType = try? enclosingType {
                 assert(namespace == nil)
-                return "\(enclosingType.fullName)\(Self.nestedTypeSeparator)\(name)"
+                return "\(enclosingType.fullName)\(TypeName.nestedTypeSeparator)\(name)"
             }
-            return makeFullTypeName(namespace: namespace, name: name)
+            return TypeName.toFullName(namespace: namespace, shortName: name)
         }
     } }
 
@@ -315,22 +307,4 @@ public final class EnumDefinition: TypeDefinition {
 extension TypeDefinition: Hashable {
     public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
     public static func == (lhs: TypeDefinition, rhs: TypeDefinition) -> Bool { lhs === rhs }
-}
-
-public func makeFullTypeName(namespace: String?, name: String) -> String {
-    if let namespace { return "\(namespace).\(name)" }
-    else { return name }
-}
-
-public func makeFullTypeName(namespace: String?, enclosingName: String, nestedNames: [String]) -> String {
-    var result: String
-    if let namespace { result = "\(namespace).\(enclosingName)" }
-    else { result = enclosingName }
-
-    for nestedName in nestedNames {
-        result.append(TypeDefinition.nestedTypeSeparator)
-        result += nestedName
-    }
-
-    return result
 }

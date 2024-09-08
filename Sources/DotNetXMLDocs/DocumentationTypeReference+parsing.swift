@@ -15,7 +15,7 @@ extension DocumentationTypeReference {
 
         return Self(
             namespace: identifier.namespace.map(String.init),
-            nameWithoutGenericSuffix: String(identifier.name),
+            nameWithoutGenericArity: String(identifier.name),
             genericity: genericity)
     }
 

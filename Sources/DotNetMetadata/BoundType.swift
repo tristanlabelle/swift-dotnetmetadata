@@ -42,7 +42,7 @@ extension BoundTypeOf: CustomStringConvertible {
             result += "."
         }
 
-        result += definition.nameWithoutGenericSuffix
+        result += definition.nameWithoutGenericArity
 
         if genericArgs.count > 0 {
             result += "<"

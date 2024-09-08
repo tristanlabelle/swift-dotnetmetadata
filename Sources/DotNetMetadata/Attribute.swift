@@ -69,9 +69,11 @@ public final class Attribute {
             case .constant(let constant): return .constant(constant)
 
             case let .type(fullName, assemblyIdentity):
-                let assembly: Assembly
+                let typeDefinition: TypeDefinition
                 if let assemblyIdentity {
-                    assembly = try self.assembly.context.load(identity: assemblyIdentity)
+                    typeDefinition = try self.assembly.context.resolveType(
+                        assembly: assemblyIdentity, assemblyFlags: nil,
+                        name: TypeName(fullName: fullName))
                 }
                 else {
                     // TODO: Fallback to mscorlib
@@ -79,9 +81,9 @@ public final class Attribute {
                     // > If the assembly name is omitted, the CLI looks first in the current assembly,
                     // > and then in the system library (mscorlib); in these two special cases,
                     // > it is permitted to omit the assembly-name, version, culture and public-key-token.
-                    assembly = self.assembly
+                    typeDefinition = try self.assembly.resolveTypeDefinition(fullName: fullName)!
                 }
-                return .type(definition: try assembly.resolveTypeDefinition(fullName: fullName)!)
+                return .type(definition: typeDefinition)
 
             case .array(let elems): return .array(try elems.map(resolve))
             case .boxed(_): fatalError("Not implemented: boxed custom attribute arguments")
