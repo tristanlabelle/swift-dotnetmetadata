@@ -149,7 +149,7 @@ public final class AssemblyLoadContext {
         // > by other parts of Microsoft) must live in a namespace other than Windows.*.
 
         // Assembly name lookup is case-insensitive since it corresponds to files on disk.
-        name.compare("Windows", options: .caseInsensitive) == .orderedSame
-            || name.lowercased().starts(with: "windows.")
+        let lowercasedName = name.lowercased()
+        return lowercasedName == "windows" || lowercasedName.starts(with: "windows.")
     }
 }
