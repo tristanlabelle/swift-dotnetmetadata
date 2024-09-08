@@ -106,8 +106,7 @@ public final class AssemblyLoadContext {
             }
         }
 
-        if assembly.flags.contains(AssemblyFlags.windowsRuntime),
-                assembly.name == "Windows" || assembly.name.starts(with: "Windows.") {
+        if assembly.flags.contains(AssemblyFlags.windowsRuntime), isUWPAssemblyName(assembly.name) {
             // UWP assembly. Store all types by their full name for type reference resolution,
             // since UWP assemblies references are inconsistent and cannot always be resolved.
             for type in assembly.typeDefinitions {
@@ -131,8 +130,7 @@ public final class AssemblyLoadContext {
         // - To union metadata assemblies, e.g. "Windows"
         // Since WinRT does not support overloading by full name and the "Windows." namespace is reserved,
         // we can safely resolve to a previously loaded type by its full name only, ignoring the assembly identity.
-        if assemblyFlags.contains(AssemblyFlags.windowsRuntime),
-                assemblyIdentity.name == "Windows" || assemblyIdentity.name.starts(with: "Windows."),
+        if assemblyFlags.contains(AssemblyFlags.windowsRuntime), isUWPAssemblyName(assemblyIdentity.name),
                 let namespace, namespace == "Windows" || namespace.starts(with: "Windows.") {
             let fullName = "\(namespace).\(name)"
             if let typeDefinition = uwpTypes[fullName] { return typeDefinition }
@@ -145,5 +143,11 @@ public final class AssemblyLoadContext {
         }
 
         return typeDefinition
+    }
+
+    private static func isUWPAssemblyName(_ name: String) -> Bool {
+        // Assembly name lookup is case-insensitive since it corresponds to files on disk.
+        name.compare("Windows", options: .caseInsensitive) == .orderedSame
+            || name.compare("Windows.", options: .caseInsensitive) == .orderedSame
     }
 }
