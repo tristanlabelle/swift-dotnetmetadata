@@ -5,37 +5,38 @@ public struct TypeName: Hashable, CustomStringConvertible {
     public static let genericAritySeparator: Character = "`"
 
     public let namespace: String?
-    /// The short type name and any nested type names.
-    public let shortNames: [String] // Invariant: non-empty
-    // TODO: Splitoff generic arity?
+    public let outermostShortName: String
+    public let nestedNames: [String]
 
-    public init(namespace: String?, shortNames: [String]) {
-        assert(!shortNames.isEmpty)
+    public init(namespace: String?, outermostShortName: String, nestedNames: [String]) {
+        assert(!outermostShortName.contains(Self.namespaceSeparator))
+        assert(!outermostShortName.contains(Self.nestedTypeSeparator))
         self.namespace = namespace
-        self.shortNames = shortNames
+        self.outermostShortName = outermostShortName
+        self.nestedNames = nestedNames
     }
 
     public init(namespace: String?, shortName: String) {
-        assert(!shortName.contains(Self.namespaceSeparator))
-        assert(!shortName.contains(Self.nestedTypeSeparator))
-        self.namespace = namespace
-        self.shortNames = [shortName]
-    }
-
-    public init(namespace: String?, outermostShortName: String, nestedNames: [String]) {
-        self.init(namespace: namespace, shortNames: [outermostShortName] + nestedNames)
+        self.init(namespace: namespace, outermostShortName: shortName, nestedNames: [])
     }
 
     public init(fullName: String) {
         let namespaceEnd = fullName.lastIndex(of: Self.namespaceSeparator)
         let shortNamesStart = namespaceEnd.map { fullName.index(after: $0) } ?? fullName.startIndex
-        self.init(
-            namespace: namespaceEnd.map { String(fullName[...$0]) },
-            shortNames: fullName[shortNamesStart...].split(separator: Self.nestedTypeSeparator).map(String.init))
+        let shortNamesPart = fullName[shortNamesStart...]
+        if let outermostShortNameEnd = shortNamesPart.firstIndex(of: Self.nestedTypeSeparator) {
+            let nestedNamesPart = shortNamesPart[shortNamesPart.index(after: outermostShortNameEnd)...]
+            self.init(
+                namespace: namespaceEnd.map { String(fullName[...$0]) },
+                outermostShortName: String(shortNamesPart[..<outermostShortNameEnd]),
+                nestedNames: nestedNamesPart.split(separator: Self.nestedTypeSeparator).map(String.init))
+        }
+        else {
+            self.init(
+                namespace: namespaceEnd.map { String(fullName[..<$0]) },
+                shortName: String(shortNamesPart))
+        }
     }
-
-    public var outermostShortName: String { shortNames.first! }
-    public var nestedNames: ArraySlice<String> { shortNames.dropFirst() }
 
     public var fullName: String {
         var result: String = ""
@@ -43,10 +44,11 @@ public struct TypeName: Hashable, CustomStringConvertible {
             result = namespace
             result.append(TypeName.namespaceSeparator)
         }
+        result.append(outermostShortName)
 
-        for (index, shortName) in shortNames.enumerated() {
-            if index > 0 { result.append(Self.nestedTypeSeparator) }
-            result += shortName
+        for nestedName in nestedNames {
+            result.append(Self.nestedTypeSeparator)
+            result += nestedName
         }
 
         return result
