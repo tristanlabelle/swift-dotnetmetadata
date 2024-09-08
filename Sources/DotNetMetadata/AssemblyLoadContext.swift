@@ -150,6 +150,6 @@ public final class AssemblyLoadContext {
 
         // Assembly name lookup is case-insensitive since it corresponds to files on disk.
         name.compare("Windows", options: .caseInsensitive) == .orderedSame
-            || name.compare("Windows.", options: .caseInsensitive) == .orderedSame
+            || name.lowercased().starts(with: "windows.")
     }
 }
