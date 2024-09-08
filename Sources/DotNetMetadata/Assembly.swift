@@ -123,14 +123,12 @@ public class Assembly: CustomDebugStringConvertible {
         return nil
     }
 
-    public func resolveTypeDefinition(namespace: String?, name: String, allowForwarding: Bool = true) throws -> TypeDefinition? {
-        let fullName = makeFullTypeName(namespace: namespace, name: name)
-        return try resolveTypeDefinition(fullName: fullName, allowForwarding: allowForwarding)
+    public func resolveTypeDefinition(name: TypeName, allowForwarding: Bool = true) throws -> TypeDefinition? {
+        try resolveTypeDefinition(fullName: name.fullName, allowForwarding: allowForwarding)
     }
 
-    public func resolveTypeDefinition(namespace: String?, enclosingName: String, nestedNames: [String], allowForwarding: Bool = true) throws -> TypeDefinition? {
-        let fullName = makeFullTypeName(namespace: namespace, enclosingName: enclosingName, nestedNames: nestedNames)
-        return try resolveTypeDefinition(fullName: fullName, allowForwarding: allowForwarding)
+    public func resolveTypeDefinition(namespace: String, name: String, allowForwarding: Bool = true) throws -> TypeDefinition? {
+        try resolveTypeDefinition(name: TypeName(namespace: namespace, shortName: name), allowForwarding: allowForwarding)
     }
 
     internal func getAttributes(owner: CodedIndices.HasCustomAttribute) -> [Attribute] {

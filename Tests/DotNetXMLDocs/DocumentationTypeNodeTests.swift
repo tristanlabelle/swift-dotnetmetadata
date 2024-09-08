@@ -5,19 +5,19 @@ final class DocumentationTypeNodeTests: XCTestCase {
     func testParseBound() throws {
         XCTAssertEqual(
             try DocumentationTypeNode(parsing: "Name"),
-            .bound(nameWithoutGenericSuffix: "Name"))
+            .bound(nameWithoutGenericArity: "Name"))
     }
 
     func testParseArray() throws {
         XCTAssertEqual(
             try DocumentationTypeNode(parsing: "Name[]"),
-            .array(of: .bound(nameWithoutGenericSuffix: "Name")))
+            .array(of: .bound(nameWithoutGenericArity: "Name")))
     }
 
     func testParsePointer() throws {
         XCTAssertEqual(
             try DocumentationTypeNode(parsing: "Name*"),
-            .pointer(to: .bound(nameWithoutGenericSuffix: "Name")))
+            .pointer(to: .bound(nameWithoutGenericArity: "Name")))
     }
 
     func testParseGenericParam() throws {

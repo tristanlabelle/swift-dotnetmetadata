@@ -26,7 +26,7 @@ public final class ExportedType {
 
     public private(set) lazy var fullName: String = {
         // TODO: Support nested exported types
-        makeFullTypeName(namespace: namespace, name: name)
+        TypeName.toFullName(namespace: namespace, shortName: name)
     }()
 
     private var cachedDefinition: TypeDefinition?
@@ -44,8 +44,7 @@ public final class ExportedType {
                     return try context.resolveType(
                         assembly: assemblyReference.identity,
                         assemblyFlags: assemblyReference.flags,
-                        namespace: namespace,
-                        name: name)
+                        name: TypeName(namespace: namespace, shortName: name))
                 default:
                     fatalError("Not implemented: \(#function)")
             }

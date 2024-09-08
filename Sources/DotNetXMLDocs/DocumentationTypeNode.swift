@@ -13,11 +13,11 @@ public enum DocumentationTypeNode: Hashable {
 extension DocumentationTypeNode {
     public static func bound(
             namespace: String? = nil,
-            nameWithoutGenericSuffix: String,
+            nameWithoutGenericArity: String,
             genericity: DocumentationTypeReference.Genericity = .bound([])) -> Self {
         .bound(DocumentationTypeReference(
             namespace: namespace,
-            nameWithoutGenericSuffix: nameWithoutGenericSuffix,
+            nameWithoutGenericArity: nameWithoutGenericArity,
             genericity: genericity))
     }
 }

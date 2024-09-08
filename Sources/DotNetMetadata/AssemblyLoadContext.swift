@@ -31,7 +31,7 @@ public final class AssemblyLoadContext {
     public init(
             referenceResolver: AssemblyReferenceResolver? = nil) {
         self.referenceResolver = referenceResolver ?? { identity, _ in
-            throw AssemblyLoadError.notFound(message: "Reference to identity \(identity) could not be resolved. No assembly reference resolver was provided.")
+            throw AssemblyLoadError.notFound(message: "Reference to assembly '\(identity)' could not be resolved. No assembly reference resolver was provided.")
         }
     }
 
@@ -120,9 +120,8 @@ public final class AssemblyLoadContext {
 
     internal func resolveType(
             assembly assemblyIdentity: AssemblyIdentity,
-            assemblyFlags: AssemblyFlags,
-            namespace: String?,
-            name: String) throws -> TypeDefinition {
+            assemblyFlags: AssemblyFlags?,
+            name: TypeName) throws -> TypeDefinition {
         // References to UWP assemblies can be inconsistent depending on how the WinMD was built:
         // - To contract assemblies, e.g. "Windows.Foundation.UniversalApiContract"
         // - To system metadata assemblies, e.g. "Windows.Foundation"
@@ -130,16 +129,14 @@ public final class AssemblyLoadContext {
         // - To union metadata assemblies, e.g. "Windows"
         // Since WinRT does not support overloading by full name and the "Windows." namespace is reserved,
         // we can safely resolve to a previously loaded type by its full name only, ignoring the assembly identity.
-        if assemblyFlags.contains(AssemblyFlags.windowsRuntime), Self.isUWPAssemblyName(assemblyIdentity.name),
-                let namespace, namespace == "Windows" || namespace.starts(with: "Windows.") {
-            let fullName = "\(namespace).\(name)"
-            if let typeDefinition = uwpTypes[fullName] { return typeDefinition }
+        if assemblyFlags?.contains(AssemblyFlags.windowsRuntime) != false, Self.isUWPAssemblyName(assemblyIdentity.name),
+                let namespace = name.namespace, namespace == "Windows" || namespace.starts(with: "Windows.") {
+            if let typeDefinition = uwpTypes[name.fullName] { return typeDefinition }
         }
 
         let assembly = try load(identity: assemblyIdentity, flags: assemblyFlags)
-        guard let typeDefinition = try assembly.resolveTypeDefinition(namespace: namespace, name: name) else {
-            let fullName = namespace.map { "\($0).\(name)" } ?? name
-            throw AssemblyLoadError.notFound(message: "Type '\(fullName)' not found in assembly '\(assembly.name)'")
+        guard let typeDefinition = try assembly.resolveTypeDefinition(name: name) else {
+            throw AssemblyLoadError.notFound(message: "Type '\(name)' not found in assembly '\(assembly.name)'")
         }
 
         return typeDefinition

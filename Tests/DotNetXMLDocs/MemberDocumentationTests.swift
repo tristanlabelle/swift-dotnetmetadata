@@ -28,7 +28,7 @@ final class MemberDocumentationTests: XCTestCase {
         XCTAssertEqual(memberDocumentation.params, [.init(name: "ParamName", description: .plain("ParamDesc"))])
         XCTAssertEqual(memberDocumentation.returns, .plain("Returns"))
         XCTAssertEqual(memberDocumentation.exceptions, [
-            .init(type: .init(nameWithoutGenericSuffix: "MyException"), description: .plain("Exception"))
+            .init(type: .init(nameWithoutGenericArity: "MyException"), description: .plain("Exception"))
         ])
     }
 

@@ -1,25 +1,25 @@
 public struct DocumentationTypeReference: Hashable {
     public var namespace: String?
-    public var nameWithoutGenericSuffix: String
+    public var nameWithoutGenericArity: String
     public var genericity: Genericity
 
-    public init(namespace: String? = nil, nameWithoutGenericSuffix: String, genericity: Genericity = .bound([])) {
+    public init(namespace: String? = nil, nameWithoutGenericArity: String, genericity: Genericity = .bound([])) {
         self.namespace = namespace
-        self.nameWithoutGenericSuffix = nameWithoutGenericSuffix
+        self.nameWithoutGenericArity = nameWithoutGenericArity
         self.genericity = genericity
     }
 
-    public init(namespace: String? = nil, nameWithoutGenericSuffix: String, genericArity: Int) {
+    public init(namespace: String? = nil, nameWithoutGenericArity: String, genericArity: Int) {
         self.init(
             namespace: namespace,
-            nameWithoutGenericSuffix: nameWithoutGenericSuffix,
+            nameWithoutGenericArity: nameWithoutGenericArity,
             genericity: genericArity == 0 ? .bound([]) : .unbound(arity: genericArity))
     }
 
-    public init(namespace: String? = nil, nameWithoutGenericSuffix: String, genericArgs: [DocumentationTypeNode]) {
+    public init(namespace: String? = nil, nameWithoutGenericArity: String, genericArgs: [DocumentationTypeNode]) {
         self.init(
             namespace: namespace,
-            nameWithoutGenericSuffix: nameWithoutGenericSuffix,
+            nameWithoutGenericArity: nameWithoutGenericArity,
             genericity: .bound(genericArgs))
     }
 

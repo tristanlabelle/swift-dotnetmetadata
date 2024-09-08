@@ -25,11 +25,11 @@ public enum MemberDocumentationKey: Hashable {
 extension MemberDocumentationKey {
     public static func type(
             namespace: String? = nil,
-            nameWithoutGenericSuffix: String,
+            nameWithoutGenericArity: String,
             genericity: DocumentationTypeReference.Genericity = .bound([])) -> Self {
         .type(DocumentationTypeReference(
             namespace: namespace,
-            nameWithoutGenericSuffix: nameWithoutGenericSuffix,
+            nameWithoutGenericArity: nameWithoutGenericArity,
             genericity: genericity))
     }
 }

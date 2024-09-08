@@ -60,8 +60,7 @@ extension Assembly {
                 return try context.resolveType(
                     assembly: assemblyReference.identity,
                     assemblyFlags: assemblyReference.flags,
-                    namespace: namespace,
-                    name: name)
+                    name: TypeName(namespace: namespace, shortName: name))
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }
