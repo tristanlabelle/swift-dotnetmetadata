@@ -11,7 +11,7 @@ public enum AssemblyLoadError: Error {
 /// This is analoguous to the System.AppDomain class in the .NET Framework.
 ///
 /// This class manages the lifetime of its object graph.
-public final class AssemblyLoadContext {
+open class AssemblyLoadContext {
     /// A closure that resolves an assembly reference to a module file.
     public typealias AssemblyReferenceResolver = (AssemblyIdentity, AssemblyFlags?) throws -> ModuleFile
 
@@ -23,7 +23,6 @@ public final class AssemblyLoadContext {
     private let referenceResolver: AssemblyReferenceResolver
     public private(set) var loadedAssembliesByName: [String: Assembly] = [:]
     private var _coreLibraryOrAssemblyReference: CoreLibraryOrAssemblyReference? = nil
-    private var uwpTypes = [String: TypeDefinition]()
 
     /// Initializes a new AssemblyLoadContext, optionally specifying resolving strategies.
     /// - Parameters:
@@ -91,6 +90,8 @@ public final class AssemblyLoadContext {
             throw AssemblyLoadError.invalid(message: "Assembly with name '\(assemblyName)' already loaded")
         }
 
+        try _willLoad(name: assemblyName, flags: assemblyRow.flags)
+
         let assembly: Assembly = try Assembly(context: self, moduleFile: moduleFile, tableRow: assemblyRow)
         if _coreLibraryOrAssemblyReference == nil {
             if CoreLibrary.isKnownAssemblyName(assembly.name) {
@@ -106,50 +107,27 @@ public final class AssemblyLoadContext {
             }
         }
 
-        if assembly.flags.contains(AssemblyFlags.windowsRuntime), Self.isUWPAssemblyName(assembly.name) {
-            // UWP assembly. Store all types by their full name for type reference resolution,
-            // since UWP assemblies references are inconsistent and cannot always be resolved.
-            for type in assembly.typeDefinitions {
-                uwpTypes[type.fullName] = type
-            }
-        }
-
-        loadedAssembliesByName[assemblyName] = assembly
+        loadedAssembliesByName[assembly.name] = assembly
+        _didLoad(assembly)
         return assembly
     }
 
-    internal func resolveType(
-            assembly assemblyIdentity: AssemblyIdentity,
-            assemblyFlags: AssemblyFlags?,
-            name: TypeName) throws -> TypeDefinition {
-        // References to UWP assemblies can be inconsistent depending on how the WinMD was built:
-        // - To contract assemblies, e.g. "Windows.Foundation.UniversalApiContract"
-        // - To system metadata assemblies, e.g. "Windows.Foundation"
-        // - To partial namespace assemblies, e.g. "Windows.Foundation.Collections"
-        // - To union metadata assemblies, e.g. "Windows"
-        // Since WinRT does not support overloading by full name and the "Windows." namespace is reserved,
-        // we can safely resolve to a previously loaded type by its full name only, ignoring the assembly identity.
-        if assemblyFlags?.contains(AssemblyFlags.windowsRuntime) != false, Self.isUWPAssemblyName(assemblyIdentity.name),
-                let namespace = name.namespace, namespace == "Windows" || namespace.starts(with: "Windows.") {
-            if let typeDefinition = uwpTypes[name.fullName] { return typeDefinition }
-        }
+    public func findLoaded(name: String) -> Assembly? {
+        loadedAssembliesByName[name]
+    }
 
+    /// Invoked internally before an assembly is loaded into the context.
+    open func _willLoad(name: String, flags: AssemblyFlags) throws {}
+
+    /// Invoked internally after an assembly was loaded into the context.
+    open func _didLoad(_ assembly: Assembly) {}
+
+    open func resolveType(assembly assemblyIdentity: AssemblyIdentity, assemblyFlags: AssemblyFlags?, name: TypeName) throws -> TypeDefinition {
         let assembly = try load(identity: assemblyIdentity, flags: assemblyFlags)
         guard let typeDefinition = try assembly.resolveTypeDefinition(name: name) else {
             throw AssemblyLoadError.notFound(message: "Type '\(name)' not found in assembly '\(assembly.name)'")
         }
 
         return typeDefinition
-    }
-
-    private static func isUWPAssemblyName(_ name: String) -> Bool {
-        // From https://learn.microsoft.com/en-us/uwp/winrt-cref/winrt-type-system :
-        // > Types provided by Windows are all contained under the Windows.* namespace.
-        // > WinRT types that are not provided by Windows (including WinRT types that are provided
-        // > by other parts of Microsoft) must live in a namespace other than Windows.*.
-
-        // Assembly name lookup is case-insensitive since it corresponds to files on disk.
-        let lowercasedName = name.lowercased()
-        return lowercasedName == "windows" || lowercasedName.starts(with: "windows.")
     }
 }
