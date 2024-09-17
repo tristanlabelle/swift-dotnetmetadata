@@ -77,10 +77,20 @@ final class MemberDocumentationKeyTests: XCTestCase {
             ]))
     }
 
-    func testParseConstructor() throws {
+    func testParseDefaultConstructor() throws {
         XCTAssertEqual(
             try MemberDocumentationKey(parsing: "M:TypeName.#ctor"),
             .method(declaringType: .init(nameWithoutGenericArity: "TypeName"), name: MemberDocumentationKey.constructorName))
+
+        _ = try MemberDocumentationKey(parsing: "M:Windows.AI.MachineLearning.LearningModelBinding.#ctor(Windows.AI.MachineLearning.LearningModelSession)")
+    }
+
+    func testParseNonDefaultConstructor() throws {
+        XCTAssertEqual(
+            try MemberDocumentationKey(parsing: "M:TypeName.#ctor(System.Int32)"),
+            .method(declaringType: .init(nameWithoutGenericArity: "TypeName"), name: MemberDocumentationKey.constructorName, params: [
+                .init(type: .bound(namespace: "System", nameWithoutGenericArity: "Int32"))
+            ]))
     }
 
     func testParseConversionOperator() throws {

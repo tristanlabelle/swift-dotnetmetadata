@@ -18,6 +18,13 @@ extension Substring {
 }
 
 internal func consumeIdentifier(_ remainder: inout Substring, allowConstructor: Bool = false) throws -> Substring {
+    guard let identifier = tryConsumeIdentifier(&remainder, allowConstructor: allowConstructor) else {
+        throw DocumentationFormatError()
+    }
+    return identifier
+}
+
+internal func tryConsumeIdentifier(_ remainder: inout Substring, allowConstructor: Bool = false) -> Substring? {
     let constructorName = "#ctor"
     if allowConstructor && remainder.starts(with: constructorName) {
         let original = remainder
@@ -31,7 +38,7 @@ internal func consumeIdentifier(_ remainder: inout Substring, allowConstructor: 
         remainder = remainder.dropFirst()
     }
     else {
-        throw DocumentationFormatError()
+        return nil
     }
 
     while let char = remainder.first, char.isLetter || char.isNumber || char == "_" {
