@@ -30,7 +30,7 @@ extension DocumentationTypeReference {
             guard remainder.tryConsume(".") else { break }
             let newName: Substring
             if ignoreMemberSuffix {
-                if let possibleName = try? consumeIdentifier(&remainder),
+                if let possibleName = tryConsumeIdentifier(&remainder),
                     remainder.first == "." || remainder.first == "`" || remainder.first == "{" {
                     newName = possibleName
                 }
