@@ -38,4 +38,11 @@ final class WinMetadataTests: XCTestCase {
             try WindowsMetadata.getInterfaceID(iasyncOperation, genericArgs: [try Self.context.coreLibrary.systemBoolean.bindNode()]),
             UUID(uuidString: "cdb5efb3-5788-509d-9be1-71ccb8a3362a"))
     }
+
+    func testWinRTTypeNameFromType() throws {
+        let imemoryReference = try XCTUnwrap(Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IMemoryReference") as? InterfaceDefinition)
+        let closedEvent = try XCTUnwrap(imemoryReference.findEvent(name: "Closed"))
+        let typeName = try WinRTTypeName.from(type: closedEvent.handlerType.asBoundType)
+        XCTAssertEqual(typeName.description, "Windows.Foundation.TypedEventHandler<Windows.Foundation.IMemoryBufferReference, Object>")
+    }
 }
