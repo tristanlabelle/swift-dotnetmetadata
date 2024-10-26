@@ -40,7 +40,7 @@ final class WinMetadataTests: XCTestCase {
     }
 
     func testWinRTTypeNameFromType() throws {
-        let imemoryReference = try XCTUnwrap(Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IMemoryReference") as? InterfaceDefinition)
+        let imemoryReference = try XCTUnwrap(Self.assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IMemoryBufferReference") as? InterfaceDefinition)
         let closedEvent = try XCTUnwrap(imemoryReference.findEvent(name: "Closed"))
         let typeName = try WinRTTypeName.from(type: closedEvent.handlerType.asBoundType)
         XCTAssertEqual(typeName.description, "Windows.Foundation.TypedEventHandler<Windows.Foundation.IMemoryBufferReference, Object>")
