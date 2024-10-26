@@ -34,11 +34,6 @@ extension MemberDocumentation {
 
     fileprivate func parseContentText(_ element: XMLElement) -> DocumentationText? {
         guard let children = element.children else { return nil }
-        if children.count == 1, let child = children.first, child.kind == .text,
-                let text = child.stringValue, !text.contains(where: { !$0.isWhitespace }) {
-            // All whitespace content, ignore
-            return nil
-        }
         return try? DocumentationText(parsing: children)
     }
 }
