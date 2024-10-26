@@ -19,6 +19,10 @@ extension WinRTTypeName: CustomStringConvertible, TextOutputStreamable {
         return output
     }
 
+    public func write(to output: inout some TextOutputStream) {
+        write(useIInspectable: false, useAritySuffixes: false, to: &output)
+    }
+
     public func write(useIInspectable: Bool = false, useAritySuffixes: Bool = false, to output: inout some TextOutputStream) {
         switch self {
             case .object:
