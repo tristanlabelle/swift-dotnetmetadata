@@ -1,2 +1,2 @@
 file(GLOB_RECURSE SOURCES "*.swift")
-add_library(DotNetMetadataXMLDocs STATIC ${SOURCES})
+add_library(DotNetXMLDocs STATIC ${SOURCES})

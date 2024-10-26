@@ -55,5 +55,10 @@ let package = Package(
             dependencies: [ "DotNetXMLDocs" ],
             path: "Tests/DotNetXMLDocs",
             linkerSettings: executableLinkerSettings),
+
+        .target(
+            name: "DotNetXMLDocsFromMetadata",
+            dependencies: [ "DotNetMetadata", "DotNetXMLDocs" ],
+            exclude: ["CMakeLists.txt"]),
     ]
 )
