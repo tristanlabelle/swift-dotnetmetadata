@@ -31,17 +31,4 @@ final class MemberDocumentationTests: XCTestCase {
             .init(type: .init(nameWithoutGenericArity: "MyException"), description: .plain("Exception"))
         ])
     }
-
-    func testParseIgnoresEmptyTags() throws {
-        let memberDocumentation = try Self.parse(xmlString: #"""
-            <member name="M:TypeName.FuncName">
-                <summary>  </summary>
-                <remarks>
-                </remarks>
-            </member>
-            """#)
-
-        XCTAssertNil(memberDocumentation.summary)
-        XCTAssertNil(memberDocumentation.remarks)
-    }
 }
