@@ -16,7 +16,7 @@ extension DocumentationTypeReference {
 
 extension DocumentationTypeReference.Genericity {
     public init(forTypeDefinition typeDefinition: TypeDefinition, genericArgs: [TypeNode]?) {
-        precondition(typeDefinition.genericArity == (genericArgs?.count ?? 0))
+        precondition(typeDefinition.genericArity == (genericArgs?.count ?? typeDefinition.genericArity))
         if let genericArgs {
             self = .bound(genericArgs.map { .init(forTypeNode: $0) })
         }
