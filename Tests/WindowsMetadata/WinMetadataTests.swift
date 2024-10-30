@@ -14,10 +14,7 @@ final class WinMetadataTests: XCTestCase {
         let url = URL(fileURLWithPath: windowsFoundationPath)
 
         context = WinMDLoadContext()
-        // Resolve the mscorlib dependency from the .NET Framework 4 machine installation
-        if let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath {
-            mscorlib = try? context.load(path: mscorlibPath)
-        }
+        mscorlib = try? context.load(path: "mscorlib.winmd")
         assembly = try? context.load(url: url)
     }
 
