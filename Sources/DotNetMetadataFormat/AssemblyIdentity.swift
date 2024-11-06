@@ -20,22 +20,29 @@ public struct AssemblyIdentity: Hashable, CustomStringConvertible {
         // mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
         var result = name
 
-        if let version = version {
+        if let version {
             result += ", Version=\(version)"
         }
 
-        if let culture = culture {
+        if let culture {
             result += ", Culture=\(culture)"
         }
 
         switch publicKey {
-            case .full(_): fatalError("Not implemented: ")
-            case let .token(value):
-                result += ", PublicKeyToken="
-                for byte in value {
+            case .full(let bytes):
+                result += ", PublicKey="
+                for byte in bytes {
                     result += String(format: "%02x", byte)
                 }
-            case nil: break
+            case .token(let bytes):
+                result += ", PublicKeyToken="
+                for byte in bytes {
+                    result += String(format: "%02x", byte)
+                }
+            case nil:
+                // The .NET implementation appends either of
+                // PublicKey=null / PublicKeyToken=null
+                break
         }
 
         return result
@@ -72,13 +79,31 @@ public struct AssemblyIdentity: Hashable, CustomStringConvertible {
         }
 
         let publicKey: AssemblyPublicKey?
-        if index < segments.count, let match = try segments[index].wholeMatch(of: Regex(#"PublicKeyToken=([a-fA-F0-9]{16})"#)) {
-            let tokenValue = UInt64(match[1].substring!, radix: 16)!
-            publicKey = .token([
-                UInt8((tokenValue >> 56) & 0xFF), UInt8((tokenValue >> 48) & 0xFF),
-                UInt8((tokenValue >> 40) & 0xFF), UInt8((tokenValue >> 32) & 0xFF),
-                UInt8((tokenValue >> 24) & 0xFF), UInt8((tokenValue >> 16) & 0xFF),
-                UInt8((tokenValue >> 8) & 0xFF), UInt8((tokenValue >> 0) & 0xFF)])
+        if index < segments.count, let match = try segments[index].wholeMatch(of: Regex(#"PublicKey(Token)?=(null|[a-fA-F0-9]+)"#)) {
+            let valueString = match[2].substring!
+            if valueString == "null" {
+                publicKey = nil
+            }
+            else {
+                if valueString.count % 2 != 0 {
+                    throw ParseError()
+                }
+
+                var valueRemainder = Substring(valueString)
+                var bytes: [UInt8] = []
+                while !valueRemainder.isEmpty {
+                    bytes.append(UInt8(valueRemainder.prefix(2), radix: 16)!)
+                    valueRemainder = valueRemainder.dropFirst(2)
+                }
+
+                let isToken = match[1].range != nil
+                if isToken && bytes.count != 8 {
+                    throw ParseError()
+                }
+
+                publicKey = isToken ? .token(bytes) : .full(bytes)
+            }
+
             index += 1
         }
         else {

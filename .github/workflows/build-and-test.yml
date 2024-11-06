@@ -17,6 +17,11 @@ jobs:
       shell: pwsh
       run: swift build --verbose --build-tests
 
+    - name: Build mscorlib.winmd
+      shell: pwsh
+      run: |
+        & .\SPMPreBuild.ps1 -BuildDir .build\x86_64-unknown-windows-msvc\debug
+
     - name: Test
       shell: pwsh
       run: swift test --verbose --skip-build

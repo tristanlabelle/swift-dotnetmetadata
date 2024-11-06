@@ -7,3 +7,4 @@ if("${CMAKE_EXPORT_COMPILE_COMMANDS}" STREQUAL "")
 endif()
 
 add_subdirectory(Sources)
+add_subdirectory(WindowsMetadataCoreLibrary)

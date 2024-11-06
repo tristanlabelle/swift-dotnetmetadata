@@ -19,4 +19,18 @@ final class AssemblyIdentityTests: XCTestCase {
         XCTAssertEqual(value.culture, "neutral")
         XCTAssertEqual(value.publicKey, .token([ 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 ]))
     }
+
+    func testParsePublicKey() throws {
+        XCTAssertEqual(
+            try AssemblyIdentity.parse("name, PublicKey=1234").publicKey,
+            .full([ 0x12, 0x34 ]))
+
+        XCTAssertEqual(
+            try AssemblyIdentity.parse("name, PublicKeyToken=b77a5c561934e089").publicKey,
+            .token([ 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 ]))
+
+        XCTAssertNil(try AssemblyIdentity.parse("name").publicKey)
+        XCTAssertNil(try AssemblyIdentity.parse("name, PublicKey=null").publicKey)
+        XCTAssertNil(try AssemblyIdentity.parse("name, PublicKeyToken=null").publicKey)
+    }
 }
