@@ -25,17 +25,14 @@
 .class public sealed System.TypedReference extends System.ValueType {}
 .class public System.Type extends System.Object {}
 
-// Primitive types
+// Primitive types (intentionally excludes SByte, IntPtr and UIntPtr)
 .class public sealed System.Byte extends System.ValueType {}
-.class public sealed System.SByte extends System.ValueType {} // Not used by WinRT
 .class public sealed System.Int16 extends System.ValueType {}
 .class public sealed System.UInt16 extends System.ValueType {}
 .class public sealed System.Int32 extends System.ValueType {}
 .class public sealed System.UInt32 extends System.ValueType {}
 .class public sealed System.Int64 extends System.ValueType {}
 .class public sealed System.UInt64 extends System.ValueType {}
-.class public sealed System.IntPtr extends System.ValueType {} // Not used by WinRT
-.class public sealed System.UIntPtr extends System.ValueType {} // Not used by WinRT
 .class public sealed System.Single extends System.ValueType {}
 .class public sealed System.Double extends System.ValueType {}
 
@@ -47,3 +44,15 @@
 // Attributes
 .class public System.AttributeUsageAttribute extends System.Attribute {}
 .class public System.FlagsAttribute extends System.Attribute {}
+.class public System.Runtime.InteropServices.GuidAttribute extends System.Attribute {}
+
+// IActivationFactory interface
+.class interface public abstract import windowsruntime System.Runtime.InteropServices.WindowsRuntime.IActivationFactory
+{
+    // [Guid("00000035-0000-0000-C000-000000000046")]
+    .custom instance void System.Runtime.InteropServices.GuidAttribute::.ctor(string) = (
+        01 00 24 30 30 30 30 30 30 33 35 2d 30 30 30 30
+        2d 30 30 30 30 2d 43 30 30 30 2d 30 30 30 30 30
+        30 30 30 30 30 34 36 00 00)
+    .method public hidebysig newslot abstract virtual instance object ActivateInstance() cil managed {}
+}
