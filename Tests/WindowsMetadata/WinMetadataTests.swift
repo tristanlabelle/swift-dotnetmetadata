@@ -2,24 +2,46 @@
 import WindowsMetadata
 import DotNetMetadataFormat
 import struct Foundation.UUID
+import class Foundation.Bundle
 import XCTest
 
 final class WinMetadataTests: XCTestCase {
+    internal static var setUpError: Error?
     internal static var context: AssemblyLoadContext!
     internal static var mscorlib: Assembly!
     internal static var assembly: Assembly!
 
     override class func setUp() {
-        guard let windowsFoundationPath = SystemAssemblies.WinMetadata.windowsFoundationPath else { return }
-        let url = URL(fileURLWithPath: windowsFoundationPath)
+        do {
+            context = WinMDLoadContext()
 
-        context = WinMDLoadContext()
-        mscorlib = try? context.load(path: "mscorlib.winmd")
-        assembly = try? context.load(url: url)
+            // Expect mscorlib.winmd side-by-side with the test executable
+            let mscorlibURL = Bundle.main.bundleURL.appendingPathComponent("mscorlib.winmd", isDirectory: false)
+            mscorlib = try context.load(url: mscorlibURL)
+
+            guard let windowsFoundationPath = SystemAssemblies.WinMetadata.windowsFoundationPath else {
+                try XCTSkipIf(true, "System Windows.Foundation.winmd not found")
+                return
+            }
+
+            assembly = try context.load(url: URL(fileURLWithPath: windowsFoundationPath))
+        } catch {
+            setUpError = error
+            XCTFail("Failed to set up test: \(error)")
+        }
     }
 
     override func setUpWithError() throws {
-        try XCTSkipIf(Self.assembly == nil, "System Windows.Foundation.winmd not found")
+        if let error = Self.setUpError {
+            throw error
+        }
+    }
+
+    override class func tearDown() {
+        assembly = nil
+        mscorlib = nil
+        context = nil
+        setUpError = nil
     }
 
     func testMscorlibTypeReference() throws {
