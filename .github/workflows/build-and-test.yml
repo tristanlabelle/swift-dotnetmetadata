@@ -20,7 +20,7 @@ jobs:
     - name: Build mscorlib.winmd
       shell: pwsh
       run: |
-        & $SPMPreBuild.ps1 -BuildDir .build\x86_64-unknown-windows-msvc\debug\mscorlib.winmd
+        & .\SPMPreBuild.ps1 -BuildDir .build\x86_64-unknown-windows-msvc\debug
 
     - name: Test
       shell: pwsh
