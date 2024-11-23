@@ -174,12 +174,12 @@ extension Assembly {
             paramTypes: sig.params.map { try resolveTypeSig($0.type) })
         guard let method else { return nil }
 
-        func matches(_ param: ParamBase, _ paramSig: ParamSig) throws -> Bool {
+        func matches(_ param: ParamBase, _ paramSig: ParamSig) -> Bool {
             // TODO: Compare CustomMods
-            try param.isByRef == paramSig.byRef && param.type == resolveTypeSig(paramSig.type)
+            param.isByRef == paramSig.byRef && param.type == resolveTypeSig(paramSig.type)
         }
 
-        guard (try? matches(method.returnParam, sig.returnParam)) == true else { return nil }
+        guard matches(method.returnParam, sig.returnParam) else { return nil }
 
         // TODO: Compare param byrefs and custom mods
         return method
