@@ -42,10 +42,14 @@ let package = Package(
 Prerequisites:
 
 - Windows 10 or above (building on other platforms should be possible but is untested)
-- A Swift toolchain, version 5.8 or above (`winget install --id Swift.Toolchain`)
-- Visual Studio (any edition) with the Desktop C++ Workload (`winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop"`)
-- A Windows SDK (comes with Visual Studio, or use `winget install --id Microsoft.WindowsSDK.10.0.22000`)
-- CMake and ninja (comes with Visual Studio, or use `winget install --id Kitware.CMake` and `winget install --id Ninja-build.Ninja`)
+- A Swift toolchain, version 5.8 or above
+  - `winget install --id Swift.Toolchain`
+- Visual Studio (any edition) with the Desktop C++ Workload
+  - `winget install --id Microsoft.VisualStudio.2022.Community --override "--quiet --add Microsoft.VisualStudio.Workload.NativeDesktop"`
+- A Windows SDK
+  - Comes with Visual Studio, or use `winget install --id Microsoft.WindowsSDK.10.0.22000`
+- CMake and ninja
+  - Comes with Visual Studio, or use `winget install --id Kitware.CMake` and `winget install --id Ninja-build.Ninja`
 
 ### In Visual Studio Code
 Open Visual Studio Code from a `x64 Native Tools Command Prompt for VS 2022` and use standard IDE commands for building (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>B</kbd>).
