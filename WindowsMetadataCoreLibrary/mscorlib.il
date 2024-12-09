@@ -44,7 +44,10 @@
 // Attributes
 .class public System.AttributeUsageAttribute extends System.Attribute {}
 .class public System.FlagsAttribute extends System.Attribute {}
-.class public System.Runtime.InteropServices.GuidAttribute extends System.Attribute {}
+
+.class public System.Runtime.InteropServices.GuidAttribute extends System.Attribute {
+    .method public hidebysig specialname rtspecialname instance void .ctor(string guid) runtime managed internalcall {}
+}
 
 // IActivationFactory interface
 .class interface public abstract import windowsruntime System.Runtime.InteropServices.WindowsRuntime.IActivationFactory
