@@ -5,13 +5,26 @@ public func getInterfaceID(_ typeDefinition: TypeDefinition, genericArgs: [TypeN
     guard typeDefinition is InterfaceDefinition || typeDefinition is DelegateDefinition else {
         throw UnexpectedTypeError(typeDefinition.fullName, context: #function, reason: "Only interfaces and delegates have interface IDs")
     }
-    if let genericArgs = genericArgs, genericArgs.count > 0 {
+
+    /// Generic interfaces/delegates have a GUID computed based on the generic arguments.
+    if let genericArgs, genericArgs.count > 0 {
         let signature = try WinRTTypeSignature(typeDefinition.bindType(genericArgs: genericArgs))
         return signature.parameterizedID
     }
-    else {
-        guard let attribute = try typeDefinition.findAttribute(GuidAttribute.self) else { throw WinMDError.missingAttribute }
+    /// Non-generic interfaces/delegates defined in winmd files specify their GUID via Windows.Foundation.Metadata.GuidAttribute.
+    else if let attribute = try typeDefinition.findAttribute(WindowsMetadata.GuidAttribute.self) {
         return attribute.value
+    }
+    /// We consider System.Runtime.InteropServices.WindowsRuntime.IActivationFactory to be a WinRT interface,
+    /// but since it's defined in mscorlib, it uses System.Runtime.InteropServices.GuidAttribute instead.
+    else if typeDefinition.namespace == "System.Runtime.InteropServices.WindowsRuntime",
+            typeDefinition.name == "IActivationFactory",
+            let attribute = try typeDefinition.findAttribute(DotNetMetadata.GuidAttribute.self) {
+        guard let guid = UUID(uuidString: attribute.value) else { throw InvalidMetadataError.attributeArguments }
+        return guid
+    }
+    else {
+        throw WinMDError.missingAttribute
     }
 }
 
