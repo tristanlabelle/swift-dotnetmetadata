@@ -1,15 +1,15 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 import Foundation
 
-final class SystemAssemblyPathsTests: XCTestCase {
-    func testFramework4MscorlibExists() throws {
-        let path = try XCTUnwrap(SystemAssemblies.DotNetFramework4.mscorlibPath)
-        XCTAssert(FileManager.default.fileExists(atPath: path))
+struct SystemAssemblyPathsTests {
+    @Test func testFramework4MscorlibExists() throws {
+        let path = try #require(SystemAssemblies.DotNetFramework4.mscorlibPath)
+        #expect(FileManager.default.fileExists(atPath: path))
     }
 
-    func testWindowsMetadataExists() throws {
-        let path = try XCTUnwrap(SystemAssemblies.WinMetadata.windowsFoundationPath)
-        XCTAssert(FileManager.default.fileExists(atPath: path))
+    @Test func testWindowsMetadataExists() throws {
+        let path = try #require(SystemAssemblies.WinMetadata.windowsFoundationPath)
+        #expect(FileManager.default.fileExists(atPath: path))
     }
 }

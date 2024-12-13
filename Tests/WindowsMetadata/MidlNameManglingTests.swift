@@ -1,49 +1,47 @@
-import XCTest
+import Testing
 import WindowsMetadata
 
-final class MidlNameManglingTests: XCTestCase {
-    func testObject() throws {
-        XCTAssertEqual(MidlNameMangling.get(.object), "IInspectable")
+struct MidlNameManglingTests {
+    @Test func testObject() throws {
+        #expect(MidlNameMangling.get(.object) == "IInspectable")
     }
 
-    func testWinRTType() throws {
+    @Test func testWinRTType() throws {
         let typeName: WinRTTypeName = .declared(namespace: "Windows.Foundation", name: "Uri")
-        XCTAssertEqual(MidlNameMangling.get(typeName), "__x_ABI_CWindows_CFoundation_CUri")
+        #expect(MidlNameMangling.get(typeName) == "__x_ABI_CWindows_CFoundation_CUri")
     }
 
-    func testGenericOfWinRTType() throws {
+    @Test func testGenericOfWinRTType() throws {
         let typeName: WinRTTypeName = .parameterized(.collections_ivector,
             args: [ .declared(namespace: "Windows.Foundation", name: "Uri") ])
-        XCTAssertEqual(MidlNameMangling.get(typeName), "__FIVector_1_Windows__CFoundation__CUri")
+        #expect(MidlNameMangling.get(typeName) == "__FIVector_1_Windows__CFoundation__CUri")
     }
 
-    func testGenericOfPrimitiveType() throws {
+    @Test func testGenericOfPrimitiveType() throws {
         let typeName: WinRTTypeName = .parameterized(.collections_ivector,
             args: [ .primitive(.string) ])
-        XCTAssertEqual(MidlNameMangling.get(typeName), "__FIVector_1_HSTRING")
+        #expect(MidlNameMangling.get(typeName) == "__FIVector_1_HSTRING")
     }
 
-    func testGenericWithTwoArgs() throws {
+    @Test func testGenericWithTwoArgs() throws {
         let typeName: WinRTTypeName = .parameterized(.collections_imap,
             args: [ .primitive(.string), .primitive(.string) ])
-        XCTAssertEqual(MidlNameMangling.get(typeName), "__FIMap_2_HSTRING_HSTRING")
+        #expect(MidlNameMangling.get(typeName) == "__FIMap_2_HSTRING_HSTRING")
     }
 
-    func testNestedGenerics() throws {
+    @Test func testNestedGenerics() throws {
         let typeName: WinRTTypeName = .parameterized(.iasyncOperation,
             args: [ .parameterized(.collections_ivectorView, args: [ .primitive(.string) ]) ])
-        XCTAssertEqual(MidlNameMangling.get(typeName), "__FIAsyncOperation_1___FIVectorView_1_HSTRING")
+        #expect(MidlNameMangling.get(typeName) == "__FIAsyncOperation_1___FIVectorView_1_HSTRING")
     }
 
-    func testGenericDelegates() throws {
+    @Test func testGenericDelegates() throws {
         // Should add an I prefix
-        XCTAssertEqual(
-            MidlNameMangling.get(WinRTTypeName.parameterized(.asyncOperationCompletedHandler, args: [ .primitive(.string) ])),
-            "__FIAsyncOperationCompletedHandler_1_HSTRING")
+        let asyncOperationCompletedHandlerOfString = WinRTTypeName.parameterized(.asyncOperationCompletedHandler, args: [ .primitive(.string) ])
+        #expect(MidlNameMangling.get(asyncOperationCompletedHandlerOfString) == "__FIAsyncOperationCompletedHandler_1_HSTRING")
 
         // Except for the collections changed event handlers
-        XCTAssertEqual(
-            MidlNameMangling.get(WinRTTypeName.parameterized(.collections_vectorChangedEventHandler, args: [ .primitive(.string) ])),
-            "__FVectorChangedEventHandler_1_HSTRING")
+        let vectorOfString = WinRTTypeName.parameterized(.collections_ivector, args: [ .primitive(.string) ])
+        #expect(MidlNameMangling.get(vectorOfString) == "__FVectorChangedEventHandler_1_HSTRING")
     }
 }

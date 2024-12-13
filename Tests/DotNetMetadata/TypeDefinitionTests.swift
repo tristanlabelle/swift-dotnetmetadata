@@ -1,8 +1,8 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 
-internal final class TypeDefinitionTests: XCTestCase {
-    public func testTypeKinds() throws {
+internal struct TypeDefinitionTests {
+    @Test func testTypeKinds() throws {
         let compilation = try CSharpCompilation(code:
         """
         interface Interface {}
@@ -13,14 +13,14 @@ internal final class TypeDefinitionTests: XCTestCase {
         """)
 
         let assembly = compilation.assembly
-        try XCTAssertNotNil(assembly.resolveTypeDefinition(fullName: "Interface") as? InterfaceDefinition)
-        try XCTAssertNotNil(assembly.resolveTypeDefinition(fullName: "Class") as? ClassDefinition)
-        try XCTAssertNotNil(assembly.resolveTypeDefinition(fullName: "Delegate") as? DelegateDefinition)
-        try XCTAssertNotNil(assembly.resolveTypeDefinition(fullName: "Enum") as? EnumDefinition)
-        try XCTAssertNotNil(assembly.resolveTypeDefinition(fullName: "Struct") as? StructDefinition)
+        #expect(try assembly.resolveTypeDefinition(fullName: "Interface") is InterfaceDefinition)
+        #expect(try assembly.resolveTypeDefinition(fullName: "Class") is ClassDefinition)
+        #expect(try assembly.resolveTypeDefinition(fullName: "Delegate") is DelegateDefinition)
+        #expect(try assembly.resolveTypeDefinition(fullName: "Enum") is EnumDefinition)
+        #expect(try assembly.resolveTypeDefinition(fullName: "Struct") is StructDefinition)
     }
 
-    public func testStructuralRelationships() throws {
+    @Test func testStructuralRelationships() throws {
         let compilation = try CSharpCompilation(code:
         """
         class Generic<T> {}
@@ -34,24 +34,24 @@ internal final class TypeDefinitionTests: XCTestCase {
         let assembly = compilation.assembly
 
         // Base/derived
-        let base = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Base"))
-        let derived = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Derived"))
-        try XCTAssertEqual(XCTUnwrap(derived.base), base.bindType())
-        try XCTAssertEqual(XCTUnwrap(base.base), base.context.coreLibrary.systemObject.bindType())
+        let base = try #require(assembly.resolveTypeDefinition(fullName: "Base"))
+        let derived = try #require(assembly.resolveTypeDefinition(fullName: "Derived"))
+        #expect(#require(try derived.base) == base.bindType())
+        #expect(#require(try base.base) == base.context.coreLibrary.systemObject.bindType())
 
         // Interface implementation
-        let interface = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Interface"))
-        let implementing = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Implementing"))
-        try XCTAssertEqual(XCTUnwrap(implementing.baseInterfaces.first).interface.asBoundType, interface.bindType())
+        let interface = try #require(assembly.resolveTypeDefinition(fullName: "Interface"))
+        let implementing = try #require(assembly.resolveTypeDefinition(fullName: "Implementing"))
+        #expect(try #require(implementing.baseInterfaces.first).interface.asBoundType == interface.bindType())
 
         // Nesting
-        let enclosing = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Enclosing"))
-        let nested = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Enclosing/Nested"))
-        try XCTAssertEqual(XCTUnwrap(nested.enclosingType), enclosing)
-        try XCTAssertEqual(XCTUnwrap(enclosing.nestedTypes.first), nested)
+        let enclosing = try #require(assembly.resolveTypeDefinition(fullName: "Enclosing"))
+        let nested = try #require(assembly.resolveTypeDefinition(fullName: "Enclosing/Nested"))
+        #expect(#require(try nested.enclosingType) == enclosing)
+        #expect(#require(try enclosing.nestedTypes.first) == nested)
     }
 
-    public func testVisibility() throws {
+    @Test func testVisibility() throws {
         let compilation = try CSharpCompilation(code:
         """
         internal class Internal {}
@@ -68,8 +68,8 @@ internal final class TypeDefinitionTests: XCTestCase {
         """)
 
         func assertTypeVisibility(_ name: String, _ visibility: Visibility) throws {
-            let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: name))
-            XCTAssertEqual(typeDefinition.visibility, visibility)
+            let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: name))
+            #expect(typeDefinition.visibility == visibility)
         }
 
         try assertTypeVisibility("Internal", .assembly)
@@ -82,7 +82,7 @@ internal final class TypeDefinitionTests: XCTestCase {
         try assertTypeVisibility("NestedVisibility/Public", .public)
     }
 
-    public func testModifiers() throws {
+    @Test func testModifiers() throws {
         let compilation = try CSharpCompilation(code:
         """
         class Open {}
@@ -92,10 +92,10 @@ internal final class TypeDefinitionTests: XCTestCase {
         """)
 
         func assertTypeModifiers(_ name: String, abstract: Bool = false, sealed: Bool = false, static: Bool = false) throws {
-            let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: name) as? ClassDefinition)
-            XCTAssertEqual(typeDefinition.isAbstract, abstract)
-            XCTAssertEqual(typeDefinition.isSealed, sealed)
-            XCTAssertEqual(typeDefinition.isStatic, `static`)
+            let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: name) as? ClassDefinition)
+            #expect(typeDefinition.isAbstract == abstract)
+            #expect(typeDefinition.isSealed == sealed)
+            #expect(typeDefinition.isStatic == `static`)
         }
 
         try assertTypeModifiers("Open")
@@ -104,7 +104,7 @@ internal final class TypeDefinitionTests: XCTestCase {
         try assertTypeModifiers("Static", abstract: true, sealed: true, static: true)
     }
 
-    public func testStructLayout() throws {
+    @Test func testStructLayout() throws {
         let compilation = try CSharpCompilation(code:
         """
         using System.Runtime.InteropServices;
@@ -126,15 +126,15 @@ internal final class TypeDefinitionTests: XCTestCase {
         """)
 
         let assembly = compilation.assembly
-        let auto = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Auto"))
-        XCTAssertEqual(auto.layout, .auto)
+        let auto = try #require(assembly.resolveTypeDefinition(fullName: "Auto"))
+        #expect(auto.layout == .auto)
 
-        let sequential = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Sequential"))
-        XCTAssertEqual(sequential.layout, .sequential(pack: 2, minSize: 24))
+        let sequential = try #require(assembly.resolveTypeDefinition(fullName: "Sequential"))
+        #expect(sequential.layout == .sequential(pack: 2, minSize: 24))
 
-        let explicit = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Explicit"))
-        XCTAssertEqual(explicit.layout, .explicit(minSize: 24))
-        XCTAssertEqual(explicit.findField(name: "A")?.explicitOffset, 16)
-        XCTAssertEqual(explicit.findField(name: "B")?.explicitOffset, 16)
+        let explicit = try #require(assembly.resolveTypeDefinition(fullName: "Explicit"))
+        #expect(explicit.layout == .explicit(minSize: 24))
+        #expect(explicit.findField(name: "A")?.explicitOffset == 16)
+        #expect(explicit.findField(name: "B")?.explicitOffset == 16)
     }
 }

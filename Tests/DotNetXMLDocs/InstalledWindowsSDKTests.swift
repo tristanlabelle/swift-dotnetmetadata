@@ -1,10 +1,10 @@
 @testable import DotNetXMLDocs
-import XCTest
+import Testing
 import Foundation
 import FoundationXML
 
-final class InstalledWindowsSDKTests: XCTestCase {
-    func testParseWindowsUniversalApiContract() throws {
+struct InstalledWindowsSDKTests {
+    @Test func testParseWindowsUniversalApiContract() throws {
         let programFilesX86Path = ProcessInfo.processInfo.environment["ProgramFiles(x86)"]
             ?? ((ProcessInfo.processInfo.environment["SystemDrive"] ?? "C:") + "\\Program Files (x86)")
         let windowsKits10Path = programFilesX86Path + "\\Windows Kits\\10"

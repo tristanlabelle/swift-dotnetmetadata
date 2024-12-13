@@ -1,7 +1,7 @@
-import XCTest
+import Testing
 @testable import DotNetMetadataFormat
 
-final class SignatureTests: XCTestCase {
+struct SignatureTests {
     static func decodeCustomAttrib(_ bytes: [UInt8], paramTypes: [CustomAttribSig.ElemType]) throws -> CustomAttribSig {
         try bytes.withUnsafeBufferPointer { buffer in
             try CustomAttribSig(
@@ -11,7 +11,7 @@ final class SignatureTests: XCTestCase {
         }
     }
 
-    func testCustomAttrib_byte() throws {
+    @Test func testCustomAttrib_byte() throws {
         let sig = try Self.decodeCustomAttrib(
             [
                 0x01, 0x00, // Prolog
@@ -21,7 +21,7 @@ final class SignatureTests: XCTestCase {
             paramTypes: [ .integer(size: .int8, signed: true) ]
         )
 
-        XCTAssertEqual(sig.fixedArgs.count, 1)
-        XCTAssertEqual(sig.namedArgs.count, 0)
+        #expect(sig.fixedArgs.count == 1)
+        #expect(sig.namedArgs.count == 0)
     }
 }

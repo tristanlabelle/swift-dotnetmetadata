@@ -1,27 +1,27 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 
-internal final class ReferenceCycleTests: XCTestCase {
-    public func testNoLeak() throws {
-        var compilation: CSharpCompilation! = try CSharpCompilation(code:
+internal struct ReferenceCycleTests {
+    @Test func testNoLeak() throws {
+        var compilation: CSharpCompilation = try CSharpCompilation(code:
         """
         class Class { Class other; }
         """)
 
         weak var assembly = compilation.assembly
-        weak var typeDefinition = try XCTUnwrap(XCTUnwrap(assembly).resolveTypeDefinition(fullName: "Class"))
-        weak var field = try XCTUnwrap(XCTUnwrap(typeDefinition).findField(name: "other"))
-        try XCTAssertEqual(XCTUnwrap(field).type, XCTUnwrap(typeDefinition).bindNode())
-        
+        weak var typeDefinition = try #require(#require(assembly).resolveTypeDefinition(fullName: "Class"))
+        weak var field = try #require(#require(typeDefinition).findField(name: "other"))
+        #expect(try #require(field).type == #require(typeDefinition).bindNode())
+
         // Reference cycle established: TypeDefinition > Field > TypeNode > BoundType > TypeDefinition
-        XCTAssertNotNil(typeDefinition)
-        XCTAssertNotNil(field)
+        #expect(typeDefinition != nil)
+        #expect(field != nil)
 
         withExtendedLifetime(compilation) {}
         compilation = nil
 
-        XCTAssertNil(assembly)
-        XCTAssertNil(typeDefinition)
-        XCTAssertNil(field)
+        #expect(assembly == nil)
+        #expect(typeDefinition == nil)
+        #expect(field == nil)
     }
 }

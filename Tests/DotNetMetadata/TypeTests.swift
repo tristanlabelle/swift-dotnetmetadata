@@ -1,9 +1,16 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 
 /// Tests that the library is able to describe all kinds of types.
-internal final class TypeTests: CompiledAssemblyTestCase {
-    internal override class var csharpCode: String {
+internal final class TypeTests {
+    private var compilation: CSharpCompilation
+    private var assembly: Assembly { compilation.assembly }
+    private var membersTypeDefinition: TypeDefinition
+    private var structDefinition: TypeDefinition
+    private var genericClassDefinition: TypeDefinition
+
+    init() throws {
+        compilation = try CSharpCompilation(code: 
         """
         class Members
         {
@@ -21,65 +28,46 @@ internal final class TypeTests: CompiledAssemblyTestCase {
         {
             T TypeGenericParamField;
         }
-        """
+        """)
+
+        let assembly = compilation.assembly
+        membersTypeDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Members"))
+        structDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Struct"))
+        genericClassDefinition = try #require(assembly.resolveTypeDefinition(fullName: "GenericClass`1"))
     }
 
-    private var membersTypeDefinition: TypeDefinition!
-    private var structDefinition: TypeDefinition!
-    private var genericClassDefinition: TypeDefinition!
-
-    public override func setUpWithError() throws {
-        try super.setUpWithError()
-        membersTypeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Members"))
-        structDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Struct"))
-        genericClassDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "GenericClass`1"))
+    @Test func testBoundType() throws {
+        let field = try #require(membersTypeDefinition.findField(name: "DirectField"))
+        #expect(field.type == structDefinition.bindNode())
     }
 
-    public override func tearDown() {
-        membersTypeDefinition = nil
-        structDefinition = nil
-        genericClassDefinition = nil
-        super.tearDown()
+    @Test func testArray() throws {
+        let field = try #require(membersTypeDefinition.findField(name: "ArrayField"))
+        #expect(field.type == .array(of: structDefinition.bindNode()))
     }
 
-    public func testBoundType() throws {
-        try XCTAssertEqual(
-            XCTUnwrap(membersTypeDefinition.findField(name: "DirectField")).type,
-            structDefinition.bindNode())
+    @Test func testPointer() throws {
+        let field = try #require(membersTypeDefinition.findField(name: "PointerField"))
+        #expect(field.type == .pointer(to: structDefinition.bindNode()))
     }
 
-    public func testArray() throws {
-        try XCTAssertEqual(
-            XCTUnwrap(membersTypeDefinition.findField(name: "ArrayField")).type,
-            .array(of: structDefinition.bindNode()))
+    @Test func testVoidPointer() throws {
+        let field = try #require(membersTypeDefinition.findField(name: "VoidPointerField"))
+        #expect(field.type == .pointer(to: nil))
     }
 
-    public func testPointer() throws {
-        try XCTAssertEqual(
-            XCTUnwrap(membersTypeDefinition.findField(name: "PointerField")).type,
-            .pointer(to: structDefinition.bindNode()))
+    @Test func testGenericInstance() throws {
+        let field = try #require(membersTypeDefinition.findField(name: "GenericInstanceField"))
+        #expect(field.type == genericClassDefinition.bindNode(genericArgs: [ structDefinition.bindNode() ]))
     }
 
-    public func testVoidPointer() throws {
-        try XCTAssertEqual(
-            XCTUnwrap(membersTypeDefinition.findField(name: "VoidPointerField")).type,
-            .pointer(to: nil))
+    @Test func testTypeGenericParams() throws {
+        let field = try #require(genericClassDefinition.findField(name: "TypeGenericParamField"))
+        #expect(field.type == .genericParam(genericClassDefinition.genericParams[0]))
     }
 
-    public func testGenericInstance() throws {
-        try XCTAssertEqual(
-            XCTUnwrap(membersTypeDefinition.findField(name: "GenericInstanceField")).type,
-            genericClassDefinition.bindNode(genericArgs: [ structDefinition.bindNode() ]))
-    }
-
-    public func testTypeGenericParams() throws {
-        try XCTAssertEqual(
-            XCTUnwrap(genericClassDefinition.findField(name: "TypeGenericParamField")).type,
-            .genericParam(genericClassDefinition.genericParams[0]))
-    }
-
-    public func testMethodGenericParams() throws {
-        let genericMethod = try XCTUnwrap(membersTypeDefinition.findMethod(name: "ReturnMethodGenericParam"))
-        try XCTAssertEqual(genericMethod.returnType, .genericParam(genericMethod.genericParams[0]))
+    @Test func testMethodGenericParams() throws {
+        let genericMethod = try #require(membersTypeDefinition.findMethod(name: "ReturnMethodGenericParam"))
+        #expect(try genericMethod.returnType == .genericParam(genericMethod.genericParams[0]))
     }
 }
