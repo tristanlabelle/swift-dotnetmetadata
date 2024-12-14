@@ -3,9 +3,9 @@ import Testing
 
 struct MemberDocumentationKeyTests {
     @Test func testParseInvalid() throws {
-        XCTAssertThrowsError(try MemberDocumentationKey(parsing: ""))
-        XCTAssertThrowsError(try MemberDocumentationKey(parsing: "Hello"))
-        XCTAssertThrowsError(try MemberDocumentationKey(parsing: "K:Identifier"))
+        #expect(throws: (any Error).self) { try MemberDocumentationKey(parsing: "") }
+        #expect(throws: (any Error).self) { try MemberDocumentationKey(parsing: "Hello") }
+        #expect(throws: (any Error).self) { try MemberDocumentationKey(parsing: "K:Identifier") }
     }
 
     @Test func testParseType() throws {
@@ -28,8 +28,7 @@ struct MemberDocumentationKeyTests {
             == .method(declaringType: .init(nameWithoutGenericArity: "Type"), name: "Method"))
 
         // Should have a type name followed by a member name
-        XCTAssertThrowsError(
-            try MemberDocumentationKey(parsing: "F:Identifier"))
+        #expect(throws: (any Error).self) { try MemberDocumentationKey(parsing: "F:Identifier") }
     }
 
     @Test func testParseGenericTypeMember() throws {

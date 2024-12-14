@@ -3,15 +3,15 @@ import Testing
 
 internal struct ReferenceCycleTests {
     @Test func testNoLeak() throws {
-        var compilation: CSharpCompilation = try CSharpCompilation(code:
+        var compilation: CSharpCompilation! = try CSharpCompilation(code:
         """
         class Class { Class other; }
         """)
 
         weak var assembly = compilation.assembly
-        weak var typeDefinition = try #require(#require(assembly).resolveTypeDefinition(fullName: "Class"))
-        weak var field = try #require(#require(typeDefinition).findField(name: "other"))
-        #expect(try #require(field).type == #require(typeDefinition).bindNode())
+        weak var typeDefinition = try #require(try assembly?.resolveTypeDefinition(fullName: "Class"))
+        weak var field = try #require(try typeDefinition?.findField(name: "other"))
+        #expect(try field?.type == typeDefinition?.bindNode())
 
         // Reference cycle established: TypeDefinition > Field > TypeNode > BoundType > TypeDefinition
         #expect(typeDefinition != nil)

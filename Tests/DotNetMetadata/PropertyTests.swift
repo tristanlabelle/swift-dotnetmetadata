@@ -19,9 +19,9 @@ internal final class PropertyTests {
         """)
 
         let assembly = compilation.assembly
-        typeDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Properties"))
-        publicAbstractInstanceGetSetProperty = try #require(typeDefinition.findProperty(name: "PublicAbstractInstanceGetSet"))
-        privateStaticGetProperty = try #require(typeDefinition.findProperty(name: "PrivateStaticGet"))
+        typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Properties"))
+        publicAbstractInstanceGetSetProperty = try #require(try typeDefinition.findProperty(name: "PublicAbstractInstanceGetSet"))
+        privateStaticGetProperty = try #require(try typeDefinition.findProperty(name: "PrivateStaticGet"))
     }
 
     @Test func testEnumeration() throws {
@@ -34,15 +34,14 @@ internal final class PropertyTests {
     }
 
     @Test func testType() throws {
-        #expect(
-            #require(publicAbstractInstanceGetSetProperty.type.asDefinition)
-            == #require(assembly.resolveTypeDefinition(fullName: "PropertyType")))
+        #expect(try #require(publicAbstractInstanceGetSetProperty.type.asDefinition)
+            == #require(try assembly.resolveTypeDefinition(fullName: "PropertyType")))
     }
 
     @Test func testAccessors() throws {
-        #expect(publicAbstractInstanceGetSetProperty.getter != nil)
-        #expect(publicAbstractInstanceGetSetProperty.setter != nil)
-        #expect(privateStaticGetProperty.getter != nil)
-        #expect(privateStaticGetProperty.setter == nil)
+        #expect(try publicAbstractInstanceGetSetProperty.getter != nil)
+        #expect(try publicAbstractInstanceGetSetProperty.setter != nil)
+        #expect(try privateStaticGetProperty.getter != nil)
+        #expect(try privateStaticGetProperty.setter == nil)
     }
 }

@@ -31,43 +31,43 @@ internal final class TypeTests {
         """)
 
         let assembly = compilation.assembly
-        membersTypeDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Members"))
-        structDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Struct"))
-        genericClassDefinition = try #require(assembly.resolveTypeDefinition(fullName: "GenericClass`1"))
+        membersTypeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Members"))
+        structDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Struct"))
+        genericClassDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "GenericClass`1"))
     }
 
     @Test func testBoundType() throws {
-        let field = try #require(membersTypeDefinition.findField(name: "DirectField"))
-        #expect(field.type == structDefinition.bindNode())
+        let field = try #require(try membersTypeDefinition.findField(name: "DirectField"))
+        #expect(try field.type == structDefinition.bindNode())
     }
 
     @Test func testArray() throws {
-        let field = try #require(membersTypeDefinition.findField(name: "ArrayField"))
-        #expect(field.type == .array(of: structDefinition.bindNode()))
+        let field = try #require(try membersTypeDefinition.findField(name: "ArrayField"))
+        #expect(try field.type == .array(of: structDefinition.bindNode()))
     }
 
     @Test func testPointer() throws {
-        let field = try #require(membersTypeDefinition.findField(name: "PointerField"))
-        #expect(field.type == .pointer(to: structDefinition.bindNode()))
+        let field = try #require(try membersTypeDefinition.findField(name: "PointerField"))
+        #expect(try field.type == .pointer(to: structDefinition.bindNode()))
     }
 
     @Test func testVoidPointer() throws {
-        let field = try #require(membersTypeDefinition.findField(name: "VoidPointerField"))
-        #expect(field.type == .pointer(to: nil))
+        let field = try #require(try membersTypeDefinition.findField(name: "VoidPointerField"))
+        #expect(try field.type == .pointer(to: nil))
     }
 
     @Test func testGenericInstance() throws {
-        let field = try #require(membersTypeDefinition.findField(name: "GenericInstanceField"))
-        #expect(field.type == genericClassDefinition.bindNode(genericArgs: [ structDefinition.bindNode() ]))
+        let field = try #require(try membersTypeDefinition.findField(name: "GenericInstanceField"))
+        #expect(try field.type == genericClassDefinition.bindNode(genericArgs: [ structDefinition.bindNode() ]))
     }
 
     @Test func testTypeGenericParams() throws {
-        let field = try #require(genericClassDefinition.findField(name: "TypeGenericParamField"))
-        #expect(field.type == .genericParam(genericClassDefinition.genericParams[0]))
+        let field = try #require(try genericClassDefinition.findField(name: "TypeGenericParamField"))
+        #expect(try field.type == .genericParam(genericClassDefinition.genericParams[0]))
     }
 
     @Test func testMethodGenericParams() throws {
-        let genericMethod = try #require(membersTypeDefinition.findMethod(name: "ReturnMethodGenericParam"))
+        let genericMethod = try #require(try membersTypeDefinition.findMethod(name: "ReturnMethodGenericParam"))
         #expect(try genericMethod.returnType == .genericParam(genericMethod.genericParams[0]))
     }
 }

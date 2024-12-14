@@ -34,21 +34,21 @@ internal struct TypeDefinitionTests {
         let assembly = compilation.assembly
 
         // Base/derived
-        let base = try #require(assembly.resolveTypeDefinition(fullName: "Base"))
-        let derived = try #require(assembly.resolveTypeDefinition(fullName: "Derived"))
-        #expect(#require(try derived.base) == base.bindType())
-        #expect(#require(try base.base) == base.context.coreLibrary.systemObject.bindType())
+        let base = try #require(try assembly.resolveTypeDefinition(fullName: "Base"))
+        let derived = try #require(try assembly.resolveTypeDefinition(fullName: "Derived"))
+        #expect(try #require(try derived.base) == base.bindType())
+        #expect(try #require(try base.base) == base.context.coreLibrary.systemObject.bindType())
 
         // Interface implementation
-        let interface = try #require(assembly.resolveTypeDefinition(fullName: "Interface"))
-        let implementing = try #require(assembly.resolveTypeDefinition(fullName: "Implementing"))
+        let interface = try #require(try assembly.resolveTypeDefinition(fullName: "Interface"))
+        let implementing = try #require(try assembly.resolveTypeDefinition(fullName: "Implementing"))
         #expect(try #require(implementing.baseInterfaces.first).interface.asBoundType == interface.bindType())
 
         // Nesting
-        let enclosing = try #require(assembly.resolveTypeDefinition(fullName: "Enclosing"))
-        let nested = try #require(assembly.resolveTypeDefinition(fullName: "Enclosing/Nested"))
-        #expect(#require(try nested.enclosingType) == enclosing)
-        #expect(#require(try enclosing.nestedTypes.first) == nested)
+        let enclosing = try #require(try assembly.resolveTypeDefinition(fullName: "Enclosing"))
+        let nested = try #require(try assembly.resolveTypeDefinition(fullName: "Enclosing/Nested"))
+        #expect(try #require(try nested.enclosingType) == enclosing)
+        #expect(try #require(try enclosing.nestedTypes.first) == nested)
     }
 
     @Test func testVisibility() throws {
@@ -68,7 +68,7 @@ internal struct TypeDefinitionTests {
         """)
 
         func assertTypeVisibility(_ name: String, _ visibility: Visibility) throws {
-            let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: name))
+            let typeDefinition = try #require(try compilation.assembly.resolveTypeDefinition(fullName: name))
             #expect(typeDefinition.visibility == visibility)
         }
 
@@ -126,13 +126,13 @@ internal struct TypeDefinitionTests {
         """)
 
         let assembly = compilation.assembly
-        let auto = try #require(assembly.resolveTypeDefinition(fullName: "Auto"))
+        let auto = try #require(try assembly.resolveTypeDefinition(fullName: "Auto"))
         #expect(auto.layout == .auto)
 
-        let sequential = try #require(assembly.resolveTypeDefinition(fullName: "Sequential"))
+        let sequential = try #require(try assembly.resolveTypeDefinition(fullName: "Sequential"))
         #expect(sequential.layout == .sequential(pack: 2, minSize: 24))
 
-        let explicit = try #require(assembly.resolveTypeDefinition(fullName: "Explicit"))
+        let explicit = try #require(try assembly.resolveTypeDefinition(fullName: "Explicit"))
         #expect(explicit.layout == .explicit(minSize: 24))
         #expect(explicit.findField(name: "A")?.explicitOffset == 16)
         #expect(explicit.findField(name: "B")?.explicitOffset == 16)

@@ -26,19 +26,19 @@ struct WinMetadataTests {
     }
 
     @Test func testMscorlibTypeReference() throws {
-        let pointTypeDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Windows.Foundation.Point"))
+        let pointTypeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Windows.Foundation.Point"))
         #expect(try #require(pointTypeDefinition.base).definition.fullName == "System.ValueType")
     }
 
     @Test func testParameterizedInterfaceID() throws {
-        let iasyncOperation = try #require(assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IAsyncOperation`1") as? InterfaceDefinition)
+        let iasyncOperation = try #require(try assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IAsyncOperation`1") as? InterfaceDefinition)
         #expect(
             try WindowsMetadata.getInterfaceID(iasyncOperation, genericArgs: [try Self.context.coreLibrary.systemBoolean.bindNode()])
             == UUID(uuidString: "cdb5efb3-5788-509d-9be1-71ccb8a3362a"))
     }
 
     @Test func testWinRTTypeNameFromType() throws {
-        let imemoryReference = try #require(assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IMemoryBufferReference") as? InterfaceDefinition)
+        let imemoryReference = try #require(try assembly.resolveTypeDefinition(fullName: "Windows.Foundation.IMemoryBufferReference") as? InterfaceDefinition)
         let closedEvent = try #require(imemoryReference.findEvent(name: "Closed"))
         let typeName = try WinRTTypeName.from(type: closedEvent.handlerType.asBoundType)
         #expect(typeName.description == "Windows.Foundation.TypedEventHandler<Windows.Foundation.IMemoryBufferReference, Object>")

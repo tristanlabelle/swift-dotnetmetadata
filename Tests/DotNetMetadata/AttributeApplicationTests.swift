@@ -77,8 +77,8 @@ final class AttributeApplicationTests {
 
     @Test func testTypeDefinitions() throws {
         func assertHasAttribute(typeName: String, expectedTarget: AttributeTargets) throws {
-            let typeDefinition = try #require(assembly.resolveTypeDefinition(fullName: typeName))
-            let attribute = try #require(typeDefinition.findAttribute(MyAttributeAttribute.self))
+            let typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: typeName))
+            let attribute = try #require(try typeDefinition.findAttribute(MyAttributeAttribute.self))
             #expect(attribute.target == expectedTarget)
         }
 
@@ -90,8 +90,8 @@ final class AttributeApplicationTests {
     }
 
     @Test func testGenericParam() throws {
-        let typeDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Generic`1"))
-        let genericParam = try #require(typeDefinition.genericParams.first)
+        let typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Generic`1"))
+        let genericParam = try #require(try typeDefinition.genericParams.first)
         let attribute = try #require(genericParam.findAttribute(MyAttributeAttribute.self))
         #expect(attribute.target == .genericParameter)
     }
@@ -103,7 +103,7 @@ final class AttributeApplicationTests {
             #expect(attribute.target == expectedTarget)
         }
 
-        let typeDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Members"))
+        let typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Members"))
         try assertHasAttribute(member: typeDefinition.findMethod(name: ".ctor"), expectedTarget: .constructor)
         try assertHasAttribute(member: typeDefinition.findField(name: "Field"), expectedTarget: .field)
         try assertHasAttribute(member: typeDefinition.findProperty(name: "Property"), expectedTarget: .property)
@@ -118,7 +118,7 @@ final class AttributeApplicationTests {
             #expect(attribute.target == expectedTarget)
         }
 
-        let delegateDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Parameters") as? DelegateDefinition)
+        let delegateDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Parameters") as? DelegateDefinition)
         try assertHasAttribute(param: delegateDefinition.invokeMethod.returnParam, expectedTarget: .returnValue)
         try assertHasAttribute(param: delegateDefinition.invokeMethod.params.first, expectedTarget: .parameter)
     }

@@ -1,3 +1,4 @@
+import struct Foundation.UUID
 import Testing
 import WindowsMetadata
 

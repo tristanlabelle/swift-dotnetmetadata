@@ -15,31 +15,31 @@ internal final class TypeNameTests {
     }
 
     @Test func testNamespacedClass() throws {
-        let classDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Namespace.Nested.Namespaced"))
+        let classDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Namespace.Nested.Namespaced"))
         #expect(classDefinition.name == "Namespaced")
         #expect(classDefinition.namespace == "Namespace.Nested")
         #expect(classDefinition.fullName == "Namespace.Nested.Namespaced")
     }
 
     @Test func testNestedClass() throws {
-        let classDefinition = try #require(assembly.resolveTypeDefinition(fullName: "Namespace.Nested.Namespaced/Nested"))
+        let classDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Namespace.Nested.Namespaced/Nested"))
         #expect(classDefinition.name == "Nested")
         #expect(classDefinition.namespace == nil)
         #expect(classDefinition.fullName == "Namespace.Nested.Namespaced/Nested")
     }
 
     @Test func testTopLevelClass() throws {
-        let classDefinition = try #require(assembly.resolveTypeDefinition(fullName: "TopLevel"))
+        let classDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "TopLevel"))
         #expect(classDefinition.name == "TopLevel")
         #expect(classDefinition.namespace == nil)
         #expect(classDefinition.fullName == "TopLevel")
     }
 
     @Test func testGeneric() throws {
-        let enclosingClass = try #require(assembly.resolveTypeDefinition(fullName: "EnclosingGeneric`1"))
+        let enclosingClass = try #require(try assembly.resolveTypeDefinition(fullName: "EnclosingGeneric`1"))
         #expect(enclosingClass.name == "EnclosingGeneric`1")
 
-        let nestedClass = try #require(assembly.resolveTypeDefinition(fullName: "EnclosingGeneric`1/NestedGeneric`1"))
+        let nestedClass = try #require(try assembly.resolveTypeDefinition(fullName: "EnclosingGeneric`1/NestedGeneric`1"))
         #expect(nestedClass.name == "NestedGeneric`1")
         #expect(nestedClass.fullName == "EnclosingGeneric`1/NestedGeneric`1")
     }

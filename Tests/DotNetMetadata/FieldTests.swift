@@ -37,7 +37,7 @@ internal struct FieldTests {
         let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
 
         func assertModifiers(_ name: String, static: Bool = false, initOnly: Bool = false, literal: Bool = false) throws {
-            let field = try #require(typeDefinition.findField(name: name))
+            let field = try #require(try typeDefinition.findField(name: name))
             #expect(field.isStatic == `static`)
             #expect(field.isInstance == !`static`)
             #expect(field.isInitOnly == initOnly)
@@ -65,11 +65,11 @@ internal struct FieldTests {
         """)
 
         let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
-        #expect(try #require(typeDefinition.findField(name: "Bool")).literalValue == .boolean(true))
-        #expect(try #require(typeDefinition.findField(name: "Int")).literalValue == .int32(42))
-        #expect(try #require(typeDefinition.findField(name: "Float")).literalValue == .single(42))
-        #expect(try #require(typeDefinition.findField(name: "String")).literalValue == .string("Hello, World!"))
-        #expect(try #require(typeDefinition.findField(name: "Null")).literalValue == .null)
+        #expect(try #require(try typeDefinition.findField(name: "Bool")).literalValue == .boolean(true))
+        #expect(try #require(try typeDefinition.findField(name: "Int")).literalValue == .int32(42))
+        #expect(try #require(try typeDefinition.findField(name: "Float")).literalValue == .single(42))
+        #expect(try #require(try typeDefinition.findField(name: "String")).literalValue == .string("Hello, World!"))
+        #expect(try #require(try typeDefinition.findField(name: "Null")).literalValue == .null)
     }
 
     @Test func testVisibility() throws {
@@ -89,7 +89,7 @@ internal struct FieldTests {
         let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
 
         func assertVisibility(_ name: String, _ visibility: Visibility) throws {
-            let field = try #require(typeDefinition.findField(name: name))
+            let field = try #require(try typeDefinition.findField(name: name))
             #expect(field.visibility == visibility)
         }
 

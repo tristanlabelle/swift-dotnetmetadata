@@ -32,7 +32,7 @@ internal final class AttributeConstructionTests {
     }
 
     @Test func testNumericArgument() throws {
-        let targetType = try #require(assembly.resolveTypeDefinition(fullName: "IntArgument"))
+        let targetType = try #require(try assembly.resolveTypeDefinition(fullName: "IntArgument"))
         let attribute = try #require(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         #expect(arguments.count == 1)
@@ -45,7 +45,7 @@ internal final class AttributeConstructionTests {
     }
 
     @Test func testStringArgument() throws {
-        let targetType = try #require(assembly.resolveTypeDefinition(fullName: "StringArgument"))
+        let targetType = try #require(try assembly.resolveTypeDefinition(fullName: "StringArgument"))
         let attribute = try #require(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         #expect(arguments.count == 1)
@@ -58,7 +58,7 @@ internal final class AttributeConstructionTests {
     }
 
     @Test func testTypeArgument() throws {
-        let targetType = try #require(assembly.resolveTypeDefinition(fullName: "TypeArgument"))
+        let targetType = try #require(try assembly.resolveTypeDefinition(fullName: "TypeArgument"))
         let attribute = try #require(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         #expect(arguments.count == 1)
@@ -71,7 +71,7 @@ internal final class AttributeConstructionTests {
     }
 
     @Test func testEnumArgument() throws {
-        let targetType = try #require(assembly.resolveTypeDefinition(fullName: "EnumArgument"))
+        let targetType = try #require(try assembly.resolveTypeDefinition(fullName: "EnumArgument"))
         let attribute = try #require(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         let arguments = try attribute.arguments
         #expect(arguments.count == 1)
@@ -84,7 +84,7 @@ internal final class AttributeConstructionTests {
     }
 
     @Test func testNamedFieldArgument() throws {
-        let targetType = try #require(assembly.resolveTypeDefinition(fullName: "NamedFieldArgument"))
+        let targetType = try #require(try assembly.resolveTypeDefinition(fullName: "NamedFieldArgument"))
         let attribute = try #require(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         #expect(try attribute.arguments.count == 0)
         let namedArguments = try attribute.namedArguments
@@ -105,7 +105,7 @@ internal final class AttributeConstructionTests {
     }
 
     @Test func testNamedPropertyArgument() throws {
-        let targetType = try #require(assembly.resolveTypeDefinition(fullName: "NamedPropertyArgument"))
+        let targetType = try #require(try assembly.resolveTypeDefinition(fullName: "NamedPropertyArgument"))
         let attribute = try #require(targetType.findAttribute(namespace: nil, name: "MyAttributeAttribute"))
         #expect(try attribute.arguments.count == 0)
         let namedArguments = try attribute.namedArguments

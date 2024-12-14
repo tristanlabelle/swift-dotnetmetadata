@@ -19,7 +19,7 @@ let package = Package(
             ])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-testing.git", exact: "6.0.2"),
+        .package(url: "https://github.com/apple/swift-testing.git", revision: "18c42c19cac3fafd61cab1156d4088664b7424ae"), // 6.0.3
     ],
     targets: [
         .target(
