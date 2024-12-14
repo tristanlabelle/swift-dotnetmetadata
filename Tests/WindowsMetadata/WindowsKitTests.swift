@@ -1,21 +1,21 @@
 @testable import WindowsMetadata
-import XCTest
+import Testing
 
-final class WindowsKitTests: XCTestCase {
-    public func testReadApplicationPlatformXml() throws {
+struct WindowsKitTests {
+    @Test func testReadApplicationPlatformXml() throws {
         let kits = try WindowsKit.getInstalled()
         try XCTSkipIf(kits.isEmpty, "No Windows Kits found")
 
         let applicationPlatform = try kits[0].readApplicationPlatform()
-        XCTAssertNotNil(applicationPlatform.apiContracts["Windows.Foundation.UniversalApiContract"])
+        #expect(applicationPlatform.apiContracts["Windows.Foundation.UniversalApiContract"] != nil)
     }
 
-    public func testReadExtensionManifestXml() throws {
+    @Test func testReadExtensionManifestXml() throws {
         let kits = try WindowsKit.getInstalled()
         try XCTSkipIf(kits.isEmpty, "No Windows Kits found")
 
-        let desktopExtension = try XCTUnwrap(kits[0].extensions.first { $0.name == "WindowsDesktop" })
+        let desktopExtension = try #require(kits[0].extensions.first { $0.name == "WindowsDesktop" })
         let manifest = try desktopExtension.readManifest()
-        XCTAssertEqual(manifest.productFamilyName, "Windows.Desktop")
+        #expect(manifest.productFamilyName == "Windows.Desktop")
     }
 }

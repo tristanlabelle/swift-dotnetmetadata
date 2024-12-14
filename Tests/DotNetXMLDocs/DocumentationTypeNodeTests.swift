@@ -1,31 +1,21 @@
 @testable import DotNetXMLDocs
-import XCTest
+import Testing
 
-final class DocumentationTypeNodeTests: XCTestCase {
-    func testParseBound() throws {
-        XCTAssertEqual(
-            try DocumentationTypeNode(parsing: "Name"),
-            .bound(nameWithoutGenericArity: "Name"))
+struct DocumentationTypeNodeTests {
+    @Test func testParseBound() throws {
+        #expect(try DocumentationTypeNode(parsing: "Name") == .bound(nameWithoutGenericArity: "Name"))
     }
 
-    func testParseArray() throws {
-        XCTAssertEqual(
-            try DocumentationTypeNode(parsing: "Name[]"),
-            .array(of: .bound(nameWithoutGenericArity: "Name")))
+    @Test func testParseArray() throws {
+        #expect(try DocumentationTypeNode(parsing: "Name[]") == .array(of: .bound(nameWithoutGenericArity: "Name")))
     }
 
-    func testParsePointer() throws {
-        XCTAssertEqual(
-            try DocumentationTypeNode(parsing: "Name*"),
-            .pointer(to: .bound(nameWithoutGenericArity: "Name")))
+    @Test func testParsePointer() throws {
+        #expect(try DocumentationTypeNode(parsing: "Name*") == .pointer(to: .bound(nameWithoutGenericArity: "Name")))
     }
 
-    func testParseGenericParam() throws {
-        XCTAssertEqual(
-            try DocumentationTypeNode(parsing: "`0"),
-            .genericParam(index: 0, kind: .type))
-        XCTAssertEqual(
-            try DocumentationTypeNode(parsing: "``42"),
-            .genericParam(index: 42, kind: .method))
+    @Test func testParseGenericParam() throws {
+        #expect(try DocumentationTypeNode(parsing: "`0") == .genericParam(index: 0, kind: .type))
+        #expect(try DocumentationTypeNode(parsing: "``42") == .genericParam(index: 42, kind: .method))
     }
 }

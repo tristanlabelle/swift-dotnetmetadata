@@ -1,8 +1,8 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 
-internal final class FieldTests: XCTestCase {
-    public func testEnumerationAndName() throws {
+internal struct FieldTests {
+    @Test func testEnumerationAndName() throws {
         let compilation = try CSharpCompilation(code:
         """
         class Type
@@ -13,15 +13,15 @@ internal final class FieldTests: XCTestCase {
         }
         """)
 
-        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
-        XCTAssertEqual(typeDefinition.fields.map { $0.name }, ["A", "B", "C"])
+        let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
+        #expect(typeDefinition.fields.map { $0.name } == ["A", "B", "C"])
     }
 
-    public func testType() throws {
+    @Test func testType() throws {
         // See TypeTests
     }
 
-    public func testModifiers() throws {
+    @Test func testModifiers() throws {
         let compilation = try CSharpCompilation(code:
         """
         class Type
@@ -34,14 +34,14 @@ internal final class FieldTests: XCTestCase {
         }
         """)
 
-        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
+        let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
 
         func assertModifiers(_ name: String, static: Bool = false, initOnly: Bool = false, literal: Bool = false) throws {
-            let field = try XCTUnwrap(typeDefinition.findField(name: name))
-            XCTAssertEqual(field.isStatic, `static`)
-            XCTAssertEqual(field.isInstance, !`static`)
-            XCTAssertEqual(field.isInitOnly, initOnly)
-            XCTAssertEqual(field.isLiteral, literal)
+            let field = try #require(try typeDefinition.findField(name: name))
+            #expect(field.isStatic == `static`)
+            #expect(field.isInstance == !`static`)
+            #expect(field.isInitOnly == initOnly)
+            #expect(field.isLiteral == literal)
         }
 
         try assertModifiers("Instance")
@@ -51,7 +51,7 @@ internal final class FieldTests: XCTestCase {
         try assertModifiers("Literal", static: true, literal: true)
     }
 
-    public func testLiteralValues() throws {
+    @Test func testLiteralValues() throws {
         let compilation = try CSharpCompilation(code:
         """
         class Type
@@ -64,15 +64,15 @@ internal final class FieldTests: XCTestCase {
         }
         """)
 
-        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
-        try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Bool")).literalValue, .boolean(true))
-        try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Int")).literalValue, .int32(42))
-        try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Float")).literalValue, .single(42))
-        try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "String")).literalValue, .string("Hello, World!"))
-        try XCTAssertEqual(XCTUnwrap(typeDefinition.findField(name: "Null")).literalValue, .null)
+        let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
+        #expect(try #require(try typeDefinition.findField(name: "Bool")).literalValue == .boolean(true))
+        #expect(try #require(try typeDefinition.findField(name: "Int")).literalValue == .int32(42))
+        #expect(try #require(try typeDefinition.findField(name: "Float")).literalValue == .single(42))
+        #expect(try #require(try typeDefinition.findField(name: "String")).literalValue == .string("Hello, World!"))
+        #expect(try #require(try typeDefinition.findField(name: "Null")).literalValue == .null)
     }
 
-    public func testVisibility() throws {
+    @Test func testVisibility() throws {
         let compilation = try CSharpCompilation(code:
         """
         class Type
@@ -86,11 +86,11 @@ internal final class FieldTests: XCTestCase {
         }
         """)
 
-        let typeDefinition = try XCTUnwrap(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
+        let typeDefinition = try #require(compilation.assembly.resolveTypeDefinition(fullName: "Type"))
 
         func assertVisibility(_ name: String, _ visibility: Visibility) throws {
-            let field = try XCTUnwrap(typeDefinition.findField(name: name))
-            XCTAssertEqual(field.visibility, visibility)
+            let field = try #require(try typeDefinition.findField(name: name))
+            #expect(field.visibility == visibility)
         }
 
         try assertVisibility("Private", .private)

@@ -1,9 +1,9 @@
 @testable import DotNetXMLDocs
-import XCTest
+import Testing
 import FoundationXML
 
-final class AssemblyDocumentationTests: XCTestCase {
-    func testParseFullDocument() throws {
+struct AssemblyDocumentationTests {
+    @Test func testParseFullDocument() throws {
         let xmlDocument = try XMLDocument(xmlString: #"""
             <?xml version="1.0" encoding="utf-8"?>
             <doc>
@@ -23,10 +23,10 @@ final class AssemblyDocumentationTests: XCTestCase {
 
         let assemblyDocumentation = try AssemblyDocumentation(parsing: xmlDocument)
 
-        XCTAssertEqual(assemblyDocumentation.assemblyName, "AssemblyName")
-        XCTAssertEqual(assemblyDocumentation.members.count, 2)
+        #expect(assemblyDocumentation.assemblyName == "AssemblyName")
+        #expect(assemblyDocumentation.members.count == 2)
 
-        XCTAssertNotNil(assemblyDocumentation.members[.type(nameWithoutGenericArity: "TypeA")])
-        XCTAssertNotNil(assemblyDocumentation.members[.type(nameWithoutGenericArity: "TypeB")])
+        #expect(assemblyDocumentation.members[.type(nameWithoutGenericArity: "TypeA")] != nil)
+        #expect(assemblyDocumentation.members[.type(nameWithoutGenericArity: "TypeB")] != nil)
     }
 }

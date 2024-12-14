@@ -1,24 +1,19 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 
-final class NetFX45MscorlibTests: XCTestCase {
-    internal static var context: AssemblyLoadContext!
-    internal static var assembly: Assembly!
+struct NetFX45MscorlibTests {
+    var context: AssemblyLoadContext
+    var assembly: Assembly
+    var coreLibrary: CoreLibrary { get throws { try context.coreLibrary } }
 
-    override class func setUp() {
+    init() throws {
         guard let mscorlibPath = SystemAssemblies.DotNetFramework4.mscorlibPath else { return }
 
         context = AssemblyLoadContext()
-        assembly = try? context.load(path: mscorlibPath)
+        assembly = try context.load(path: mscorlibPath)
     }
 
-    override func setUpWithError() throws {
-        try XCTSkipIf(Self.assembly == nil)
-    }
-
-    internal var coreLibrary: CoreLibrary { get throws { try Self.context.coreLibrary } }
-
-    func testTypeLookup() throws {
-        XCTAssertNotNil(try Self.assembly.resolveTypeDefinition(fullName: "System.Object"))
+    @Test func testTypeLookup() throws {
+        #expect(try assembly.resolveTypeDefinition(fullName: "System.Object") != nil)
     }
 }

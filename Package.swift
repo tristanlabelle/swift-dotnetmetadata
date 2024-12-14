@@ -18,6 +18,9 @@ let package = Package(
                 "WindowsMetadata"
             ])
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-testing.git", revision: "18c42c19cac3fafd61cab1156d4088664b7424ae"), // 6.0.3
+    ],
     targets: [
         .target(
             name: "DotNetMetadataCInterop",
@@ -29,7 +32,10 @@ let package = Package(
             exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "DotNetMetadataFormatTests",
-            dependencies: [ "DotNetMetadataFormat" ],
+            dependencies: [
+                "DotNetMetadataFormat",
+                .product(name: "Testing", package: "swift-testing")
+            ],
             path: "Tests/DotNetMetadataFormat",
             linkerSettings: executableLinkerSettings),
 
@@ -39,7 +45,10 @@ let package = Package(
             exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "DotNetMetadataTests",
-            dependencies: [ "DotNetMetadata" ],
+            dependencies: [
+                "DotNetMetadata",
+                .product(name: "Testing", package: "swift-testing")
+            ],
             path: "Tests/DotNetMetadata",
             linkerSettings: executableLinkerSettings),
 
@@ -49,7 +58,10 @@ let package = Package(
             exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "WindowsMetadataTests",
-            dependencies: [ "WindowsMetadata" ],
+            dependencies: [
+                "WindowsMetadata",
+                .product(name: "Testing", package: "swift-testing")
+            ],
             path: "Tests/WindowsMetadata",
             linkerSettings: executableLinkerSettings),
 
@@ -58,7 +70,10 @@ let package = Package(
             exclude: ["CMakeLists.txt"]),
         .testTarget(
             name: "DotNetXMLDocsTests",
-            dependencies: [ "DotNetXMLDocs" ],
+            dependencies: [
+                "DotNetXMLDocs",
+                .product(name: "Testing", package: "swift-testing")
+            ],
             path: "Tests/DotNetXMLDocs",
             linkerSettings: executableLinkerSettings),
 

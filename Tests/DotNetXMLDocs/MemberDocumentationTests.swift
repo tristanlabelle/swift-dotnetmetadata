@@ -1,14 +1,14 @@
 @testable import DotNetXMLDocs
-import XCTest
+import Testing
 import FoundationXML
 
-final class MemberDocumentationTests: XCTestCase {
+struct MemberDocumentationTests {
     private static func parse(xmlString: String) throws -> MemberDocumentation {
         let xmlDocument = try XMLDocument(xmlString: #"<?xml version="1.0" encoding="utf-8"?>"# + "\n" + xmlString)
         return MemberDocumentation(parsing: xmlDocument.rootElement()!)
     }
 
-    func testParseFields() throws {
+    @Test func testParseFields() throws {
         let memberDocumentation = try Self.parse(xmlString: #"""
             <member name="M:TypeName.FuncName">
                 <summary>Summary</summary>
@@ -21,14 +21,13 @@ final class MemberDocumentationTests: XCTestCase {
             </member>
             """#)
 
-        XCTAssertEqual(memberDocumentation.summary, .plain("Summary"))
-        XCTAssertEqual(memberDocumentation.remarks, .plain("Remarks"))
-        XCTAssertEqual(memberDocumentation.value, .plain("Value"))
-        XCTAssertEqual(memberDocumentation.typeParams, [.init(name: "TypeParamName", description: .plain("TypeParamDesc"))])
-        XCTAssertEqual(memberDocumentation.params, [.init(name: "ParamName", description: .plain("ParamDesc"))])
-        XCTAssertEqual(memberDocumentation.returns, .plain("Returns"))
-        XCTAssertEqual(memberDocumentation.exceptions, [
-            .init(type: .init(nameWithoutGenericArity: "MyException"), description: .plain("Exception"))
-        ])
+        #expect(memberDocumentation.summary == .plain("Summary"))
+        #expect(memberDocumentation.remarks == .plain("Remarks"))
+        #expect(memberDocumentation.value == .plain("Value"))
+        #expect(memberDocumentation.typeParams == [.init(name: "TypeParamName", description: .plain("TypeParamDesc"))])
+        #expect(memberDocumentation.params == [.init(name: "ParamName", description: .plain("ParamDesc"))])
+        #expect(memberDocumentation.returns == .plain("Returns"))
+        #expect(memberDocumentation.exceptions
+            == [ .init(type: .init(nameWithoutGenericArity: "MyException"), description: .plain("Exception")) ])
     }
 }

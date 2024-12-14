@@ -1,8 +1,12 @@
 @testable import DotNetMetadata
-import XCTest
+import Testing
 
-internal final class AttributeApplicationTests: CompiledAssemblyTestCase {
-    internal override class var csharpCode: String {
+final class AttributeApplicationTests {
+    private var compilation: CSharpCompilation
+    private var assembly: Assembly { compilation.assembly }
+
+    init() throws {
+        compilation = try CSharpCompilation(code: 
         """
         // Must precede all other declarations
         [assembly: MyAttribute(System.AttributeTargets.Assembly)]
@@ -36,7 +40,7 @@ internal final class AttributeApplicationTests: CompiledAssemblyTestCase {
 
         [return: MyAttribute(System.AttributeTargets.ReturnValue)] delegate bool Parameters(
             [MyAttribute(System.AttributeTargets.Parameter)] bool param1);
-        """
+        """)
     }
 
     public struct MyAttributeAttribute: AttributeType {
@@ -61,19 +65,21 @@ internal final class AttributeApplicationTests: CompiledAssemblyTestCase {
         }
     }
 
-    public func testAssembly() throws {
-        try XCTSkipIf(true, "Not implemented")
+    @Test(.enabled(if: false))
+    func testAssembly() throws {
+        fatalError("Not implemented")
     }
 
-    public func testModule() throws {
-        try XCTSkipIf(true, "Not implemented")
+    @Test(.enabled(if: false))
+    func testModule() throws {
+        fatalError("Not implemented")
     }
 
-    public func testTypeDefinitions() throws {
+    @Test func testTypeDefinitions() throws {
         func assertHasAttribute(typeName: String, expectedTarget: AttributeTargets) throws {
-            let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: typeName))
-            let attribute = try XCTUnwrap(typeDefinition.findAttribute(MyAttributeAttribute.self))
-            XCTAssertEqual(attribute.target, expectedTarget)
+            let typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: typeName))
+            let attribute = try #require(try typeDefinition.findAttribute(MyAttributeAttribute.self))
+            #expect(attribute.target == expectedTarget)
         }
 
         try assertHasAttribute(typeName: "Delegate", expectedTarget: .delegate)
@@ -83,21 +89,21 @@ internal final class AttributeApplicationTests: CompiledAssemblyTestCase {
         try assertHasAttribute(typeName: "Class", expectedTarget: .class)
     }
 
-    public func testGenericParam() throws {
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Generic`1"))
-        let genericParam = try XCTUnwrap(typeDefinition.genericParams.first)
-        let attribute = try XCTUnwrap(genericParam.findAttribute(MyAttributeAttribute.self))
-        XCTAssertEqual(attribute.target, .genericParameter)
+    @Test func testGenericParam() throws {
+        let typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Generic`1"))
+        let genericParam = try #require(try typeDefinition.genericParams.first)
+        let attribute = try #require(genericParam.findAttribute(MyAttributeAttribute.self))
+        #expect(attribute.target == .genericParameter)
     }
 
-    public func testMembers() throws {
+    @Test func testMembers() throws {
         func assertHasAttribute(member: Member?, expectedTarget: AttributeTargets) throws {
-            let member = try XCTUnwrap(member)
-            let attribute = try XCTUnwrap(member.findAttribute(MyAttributeAttribute.self))
-            XCTAssertEqual(attribute.target, expectedTarget)
+            let member = try #require(member)
+            let attribute = try #require(member.findAttribute(MyAttributeAttribute.self))
+            #expect(attribute.target == expectedTarget)
         }
 
-        let typeDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Members"))
+        let typeDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Members"))
         try assertHasAttribute(member: typeDefinition.findMethod(name: ".ctor"), expectedTarget: .constructor)
         try assertHasAttribute(member: typeDefinition.findField(name: "Field"), expectedTarget: .field)
         try assertHasAttribute(member: typeDefinition.findProperty(name: "Property"), expectedTarget: .property)
@@ -105,14 +111,14 @@ internal final class AttributeApplicationTests: CompiledAssemblyTestCase {
         try assertHasAttribute(member: typeDefinition.findEvent(name: "Event"), expectedTarget: .event)
     }
 
-    public func testParameters() throws {
+    @Test func testParameters() throws {
         func assertHasAttribute(param: ParamBase?, expectedTarget: AttributeTargets) throws {
-            let param = try XCTUnwrap(param)
-            let attribute = try XCTUnwrap(param.findAttribute(MyAttributeAttribute.self))
-            XCTAssertEqual(attribute.target, expectedTarget)
+            let param = try #require(param)
+            let attribute = try #require(param.findAttribute(MyAttributeAttribute.self))
+            #expect(attribute.target == expectedTarget)
         }
 
-        let delegateDefinition = try XCTUnwrap(assembly.resolveTypeDefinition(fullName: "Parameters") as? DelegateDefinition)
+        let delegateDefinition = try #require(try assembly.resolveTypeDefinition(fullName: "Parameters") as? DelegateDefinition)
         try assertHasAttribute(param: delegateDefinition.invokeMethod.returnParam, expectedTarget: .returnValue)
         try assertHasAttribute(param: delegateDefinition.invokeMethod.params.first, expectedTarget: .parameter)
     }
