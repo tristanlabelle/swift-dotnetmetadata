@@ -25,8 +25,39 @@
 
 // Attributes
 .class public System.Attribute extends System.Object {}
-.class public System.AttributeUsageAttribute extends System.Attribute {}
-.class public System.FlagsAttribute extends System.Attribute {}
+
+.class public auto ansi sealed serializable System.AttributeTargets extends System.Enum
+{
+	.field public specialname rtspecialname int32 value__
+}
+
+.class public System.AttributeUsageAttribute extends System.Attribute
+{
+    .method public hidebysig specialname rtspecialname instance
+        void .ctor(valuetype System.AttributeTargets validOn)
+        runtime managed internalcall {}
+
+    .method public hidebysig specialname rtspecialname instance
+        void .ctor(valuetype System.AttributeTargets validOn, bool allowMultiple, bool inherited)
+        runtime managed internalcall {}
+
+    .method public hidebysig specialname instance bool set_AllowMultiple(bool 'value') runtime managed internalcall {}
+    .property instance bool AllowMultiple()
+    {
+        .set instance void System.AttributeUsageAttribute::set_AllowMultiple(bool)
+    }
+
+    .method public hidebysig specialname instance bool set_Inherited(bool 'value') runtime managed internalcall {}
+    .property instance bool Inherited()
+    {
+        .set instance void System.AttributeUsageAttribute::set_Inherited(bool)
+    }
+}
+
+.class public System.FlagsAttribute extends System.Attribute
+{
+    .method public hidebysig specialname rtspecialname instance void .ctor() runtime managed internalcall {}
+}
 
 // Primitive types
 .class public sealed System.Boolean extends System.ValueType {}
