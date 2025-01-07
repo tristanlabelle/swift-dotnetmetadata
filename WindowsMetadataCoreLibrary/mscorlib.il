@@ -20,12 +20,17 @@
 .class public System.Delegate extends System.Object {}
 .class public System.MulticastDelegate extends System.Delegate {}
 .class public System.Array extends System.Object {}
-
-.class public System.Attribute extends System.Object {}
 .class public sealed System.TypedReference extends System.ValueType {}
 .class public System.Type extends System.Object {}
 
-// Primitive types (intentionally excludes SByte, IntPtr and UIntPtr)
+// Attributes
+.class public System.Attribute extends System.Object {}
+.class public System.AttributeUsageAttribute extends System.Attribute {}
+.class public System.FlagsAttribute extends System.Attribute {}
+
+// Primitive types
+.class public sealed System.Boolean extends System.ValueType {}
+.class public sealed System.Char extends System.ValueType {}
 .class public sealed System.Byte extends System.ValueType {}
 .class public sealed System.Int16 extends System.ValueType {}
 .class public sealed System.UInt16 extends System.ValueType {}
@@ -36,26 +41,9 @@
 .class public sealed System.Single extends System.ValueType {}
 .class public sealed System.Double extends System.ValueType {}
 
-.class public sealed System.Boolean extends System.ValueType {}
-.class public sealed System.Char extends System.ValueType {}
 .class public sealed System.Guid extends System.ValueType {}
 .class public System.String extends System.Object {}
 
-// Attributes
-.class public System.AttributeUsageAttribute extends System.Attribute {}
-.class public System.FlagsAttribute extends System.Attribute {}
-
-.class public System.Runtime.InteropServices.GuidAttribute extends System.Attribute {
-    .method public hidebysig specialname rtspecialname instance void .ctor(string guid) runtime managed internalcall {}
-}
-
-// IActivationFactory interface
-.class interface public abstract import windowsruntime System.Runtime.InteropServices.WindowsRuntime.IActivationFactory
-{
-    // [Guid("00000035-0000-0000-C000-000000000046")]
-    .custom instance void System.Runtime.InteropServices.GuidAttribute::.ctor(string) = (
-        01 00 24 30 30 30 30 30 30 33 35 2d 30 30 30 30
-        2d 30 30 30 30 2d 43 30 30 30 2d 30 30 30 30 30
-        30 30 30 30 30 34 36 00 00)
-    .method public hidebysig newslot abstract virtual instance object ActivateInstance() cil managed {}
-}
+// WinRT does not expose System.IntPtr as a type, but it appears
+// internally in the metadata for delegates: .ctor(object, native int)
+.class public sealed System.IntPtr extends System.ValueType {}
