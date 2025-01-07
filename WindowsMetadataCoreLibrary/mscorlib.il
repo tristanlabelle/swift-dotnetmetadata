@@ -41,13 +41,13 @@
         void .ctor(valuetype System.AttributeTargets validOn, bool allowMultiple, bool inherited)
         runtime managed internalcall {}
 
-    .method public hidebysig specialname instance bool set_AllowMultiple(bool 'value') runtime managed internalcall {}
+    .method public hidebysig specialname instance void set_AllowMultiple(bool 'value') runtime managed internalcall {}
     .property instance bool AllowMultiple()
     {
         .set instance void System.AttributeUsageAttribute::set_AllowMultiple(bool)
     }
 
-    .method public hidebysig specialname instance bool set_Inherited(bool 'value') runtime managed internalcall {}
+    .method public hidebysig specialname instance void set_Inherited(bool 'value') runtime managed internalcall {}
     .property instance bool Inherited()
     {
         .set instance void System.AttributeUsageAttribute::set_Inherited(bool)
