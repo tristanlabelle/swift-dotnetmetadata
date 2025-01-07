@@ -15,14 +15,6 @@ public func getInterfaceID(_ typeDefinition: TypeDefinition, genericArgs: [TypeN
     else if let attribute = try typeDefinition.findAttribute(WindowsMetadata.GuidAttribute.self) {
         return attribute.value
     }
-    /// We consider System.Runtime.InteropServices.WindowsRuntime.IActivationFactory to be a WinRT interface,
-    /// but since it's defined in mscorlib, it uses System.Runtime.InteropServices.GuidAttribute instead.
-    else if typeDefinition.namespace == "System.Runtime.InteropServices.WindowsRuntime",
-            typeDefinition.name == "IActivationFactory",
-            let attribute = try typeDefinition.findAttribute(DotNetMetadata.GuidAttribute.self) {
-        guard let guid = UUID(uuidString: attribute.value) else { throw InvalidMetadataError.attributeArguments }
-        return guid
-    }
     else {
         throw WinMDError.missingAttribute
     }
