@@ -12,7 +12,15 @@ public class Member: Attributable {
     public var context: AssemblyLoadContext { assembly.context }
 
     public var metadataToken: MetadataToken { fatalError() } // abstract
-    public var name: String { fatalError() } // abstract
+
+    internal var nameStringHeapOffset: StringHeap.Offset { fatalError() } // abstract
+    private var _cachedName: String?
+    public var name: String {
+        if let name = _cachedName { return name }
+        _cachedName = moduleFile.resolve(nameStringHeapOffset)
+        return _cachedName!
+    }
+
     public var nameKind: NameKind { fatalError() } // abstract
     public var isStatic: Bool { fatalError() } // abstract
     public var isInstance: Bool { !isStatic }

@@ -37,7 +37,12 @@ public class TypeDefinition: CustomDebugStringConvertible, Attributable {
     public var isValueType: Bool { kind.isValueType }
     public var isReferenceType: Bool { kind.isReferenceType }
 
-    public var name: String { moduleFile.resolve(tableRow.typeName) }
+    private var _cachedName: String?
+    public var name: String {
+        if let name = _cachedName { return name }
+        _cachedName = moduleFile.resolve(tableRow.typeName)
+        return _cachedName!
+    }
     public var nameWithoutGenericArity: String { TypeName.trimGenericArity(name) }
 
     public var namespace: String? {
