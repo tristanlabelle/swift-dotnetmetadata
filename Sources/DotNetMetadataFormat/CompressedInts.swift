@@ -33,3 +33,19 @@ internal func consumeCompressedUInt(buffer: inout UnsafeRawBufferPointer) -> UIn
         }
     }
 }
+
+internal func consumeCompressedInt(buffer: inout UnsafeRawBufferPointer) -> Int32? {
+    guard buffer.count > 0 else { return nil }
+
+    let firstByte = buffer.consume(type: UInt8.self).pointee
+    // > If the value lies between -26 and 26-1 inclusive:
+    // > - Represent the value as a 7-bit 2’s complement number, giving 0x40 (-26) to 0x3F (26-1);
+    // > - Rotate this value 1 bit left, giving 0x01 (-26) to 0x7E (26-1);
+    // > - Encode as a one-byte integer, bit 7 clear, rotated value in bits 6 through 0, giving 0x01 (-26) to 0x7E (26-1).
+    if firstByte < 0x80 {
+        return Int32(Int8((firstByte >> 1) | (firstByte & 1) << 7))
+    }
+    else {
+        fatalError("Not implemented: decoding multibyte compressed signed integers")
+    }
+}

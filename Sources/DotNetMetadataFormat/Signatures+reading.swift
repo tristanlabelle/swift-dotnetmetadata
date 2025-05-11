@@ -213,6 +213,7 @@ extension TypeSig {
     }
 
     init(consuming buffer: inout UnsafeRawBufferPointer) throws {
+        // §II.23.2.12
         let token = SigToken.consume(buffer: &buffer)
         switch token {
             // Leaf types
@@ -258,6 +259,20 @@ extension TypeSig {
 
                 self = .defOrRef(index: index, class: `class`, genericArgs: genericArgs)
 
+            // §II.23.2.13
+            case SigToken.ElementType.array:
+                let type = try TypeSig(consuming: &buffer)
+                let rank = try consumeSigUInt(buffer: &buffer)
+                let explicitSizeCount = try consumeSigUInt(buffer: &buffer)
+                let dimensionSizes = try (0 ..< explicitSizeCount).map { i in
+                    try consumeSigUInt(buffer: &buffer)
+                }
+                let explicitLowBoundCount = try consumeSigUInt(buffer: &buffer)
+                let lowBounds = try (0 ..< explicitLowBoundCount).map { i in
+                    try consumeSigInt(buffer: &buffer)
+                }
+                self = .array(of: type, shape: .init(rank: rank, lowerBounds: lowBounds, sizes: dimensionSizes))
+
             case SigToken.ElementType.szarray:
                 let customMods = try consumeCustomMods(buffer: &buffer)
                 self = .szarray(customMods: customMods, of: try TypeSig(consuming: &buffer))
@@ -287,6 +302,10 @@ fileprivate func consumeSerString(buffer: inout UnsafeRawBufferPointer) throws -
 
 fileprivate func consumeSigUInt(buffer: inout UnsafeRawBufferPointer) throws -> UInt32 {
     try consumeCompressedUInt(buffer: &buffer) ?? { throw InvalidFormatError.signatureBlob }()
+}
+
+fileprivate func consumeSigInt(buffer: inout UnsafeRawBufferPointer) throws -> Int32 {
+    try consumeCompressedInt(buffer: &buffer) ?? { throw InvalidFormatError.signatureBlob }()
 }
 
 // §II.23.2.8
