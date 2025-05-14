@@ -15,7 +15,7 @@ public final class Event: Member {
     }
 
     public override var metadataToken: MetadataToken { .init(tableID: .event, rowIndex: tableRowIndex) }
-    public override var name: String { moduleFile.resolve(tableRow.name) }
+    internal override var nameStringHeapOffset: StringHeap.Offset { tableRow.name }
     public override var nameKind: NameKind { flags.nameKind }
     // Assume all accessors are consistently static or instance
     public override var isStatic: Bool { anyAccessor?.isStatic ?? false }

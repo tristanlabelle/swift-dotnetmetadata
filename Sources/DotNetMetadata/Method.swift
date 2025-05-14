@@ -22,7 +22,7 @@ public class Method: Member {
     }
 
     public override var metadataToken: MetadataToken { .init(tableID: .methodDef, rowIndex: tableRowIndex) }
-    public override var name: String { moduleFile.resolve(tableRow.name) }
+    internal override var nameStringHeapOffset: StringHeap.Offset { tableRow.name }
     public override var nameKind: NameKind { flags.nameKind }
     public override var isStatic: Bool { flags.contains(.`static`) }
     public override var attributeTarget: AttributeTargets { .method }
