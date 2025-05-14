@@ -37,8 +37,13 @@ final class CompressedIntsTests: XCTestCase {
         XCTAssertEqual(decompressSigned(0x00), 0x00)
 
         // From §II.23.2
-        XCTAssertEqual(decompressSigned(0x03), 3)
+        XCTAssertEqual(decompressSigned(0x06), 3)
         XCTAssertEqual(decompressSigned(0x7B), -3)
+        XCTAssertEqual(decompressSigned(0x80, 0x80), 64)
         XCTAssertEqual(decompressSigned(0x01), -64)
+        XCTAssertEqual(decompressSigned(0xC0, 0x00, 0x40, 0x00), 8192)
+        XCTAssertEqual(decompressSigned(0x80, 0x01), -8192)
+        XCTAssertEqual(decompressSigned(0xDF, 0xFF, 0xFF, 0xFE), 268435455)
+        XCTAssertEqual(decompressSigned(0xC0, 0x00, 0x00, 0x01), -268435456)
     }
 }
