@@ -92,6 +92,7 @@ public enum TypeSig {
     indirect case ptr(customMods: [CustomModSig], to: TypeSig) // Target may be .void
     indirect case defOrRef(index: CodedIndices.TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
     case genericParam(index: UInt32, method: Bool)
+    indirect case array(of: TypeSig, shape: ArrayShape)
     indirect case szarray(customMods: [CustomModSig], of: TypeSig)
     case fnptr
 }
@@ -105,4 +106,24 @@ extension TypeSig {
     public static var uint32: TypeSig { .integer(size: .int32, signed: false) }
     public static var int64: TypeSig { .integer(size: .int64, signed: true) }
     public static var uint64: TypeSig { .integer(size: .int64, signed: false) }
+}
+
+public struct ArrayShape: Equatable {
+    public var rank: UInt32
+    public var lowerBounds: [Int32]
+    public var sizes: [UInt32]
+
+    public init(rank: UInt32, lowerBounds: [Int32], sizes: [UInt32]) {
+        precondition(lowerBounds.count <= Int(rank))
+        precondition(sizes.count <= Int(rank))
+        self.rank = rank
+        self.lowerBounds = lowerBounds
+        self.sizes = sizes
+    }
+
+    public static let vector: ArrayShape = ArrayShape(rank: 1, lowerBounds: [0], sizes: [])
+
+    public static func ==(_ lhs: ArrayShape, _ rhs: ArrayShape) -> Bool {
+        return lhs.rank == rhs.rank && lhs.lowerBounds == rhs.lowerBounds && lhs.sizes == rhs.sizes
+    }
 }

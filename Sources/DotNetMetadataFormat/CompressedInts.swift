@@ -33,3 +33,44 @@ internal func consumeCompressedUInt(buffer: inout UnsafeRawBufferPointer) -> UIn
         }
     }
 }
+
+internal func consumeCompressedInt(buffer: inout UnsafeRawBufferPointer) -> Int32? {
+    guard buffer.count > 0 else { return nil }
+
+    let firstByte = buffer.consume(type: UInt8.self).pointee
+    // > If the value lies between -26 and 26-1 inclusive:
+    // > - Represent the value as a 7-bit 2’s complement number, giving 0x40 (-26) to 0x3F (26-1);
+    // > - Rotate this value 1 bit left, giving 0x01 (-26) to 0x7E (26-1);
+    // > - Encode as a one-byte integer, bit 7 clear, rotated value in bits 6 through 0, giving 0x01 (-26) to 0x7E (26-1).
+    if (firstByte & 0x80) == 0 {
+        // Rotate the bottom 7 bits right by 1 and sign extend to 8 bits
+        return Int32(Int8(bitPattern: (firstByte >> 1) | ((firstByte & 1) << 6) | ((firstByte & 1) << 7)))
+    }
+    else {
+        let secondByte = buffer.consume(type: UInt8.self).pointee
+        if (firstByte & 0x40) == 0 {
+            let encoded = (UInt16(firstByte & 0x3F) << 8) | UInt16(secondByte)
+            // Rotate the bottom 14 bits right by 1 and sign extend to 16 bits
+            return Int32(Int16(bitPattern:
+                (encoded >> 1)
+                | ((encoded & 1) << 13)
+                | ((encoded & 1) << 14)
+                | ((encoded & 1) << 15)))
+        }
+        else {
+            let thirdByte = buffer.consume(type: UInt8.self).pointee
+            let fourthByte = buffer.consume(type: UInt8.self).pointee
+            let encoded = (UInt32(firstByte & 0x1F) << 24)
+                | (UInt32(secondByte) << 16)
+                | (UInt32(thirdByte) << 8)
+                | UInt32(fourthByte)
+            // Rotate the bottom 29 bits right by 1 and sign extend to 32 bits
+            return Int32(Int32(bitPattern:
+                (encoded >> 1)
+                | ((encoded & 1) << 28)
+                | ((encoded & 1) << 29)
+                | ((encoded & 1) << 30)
+                | ((encoded & 1) << 31)))
+        }
+    }
+}

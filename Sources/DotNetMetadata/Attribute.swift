@@ -108,8 +108,14 @@ public final class Attribute {
             case .integer(let size, let signed): return .integer(size: size, signed: signed)
             case .real(let double): return .real(double: double)
             case .string: return .string
-            case .szarray(customMods: _, of: let elemType):
-                guard let elemType = try toElemType(elemType) else { return nil }
+            case .array(of: let elemSig, shape: let shape):
+                guard let elemType = try toElemType(elemSig) else { return nil }
+                guard shape == ArrayShape.vector else {
+                    fatalError("Not implemented: multidimensional arrays in custom attribute arguments")
+                }
+                return .array(of: elemType)
+            case .szarray(customMods: _, of: let elemSig):
+                guard let elemType = try toElemType(elemSig) else { return nil }
                 return .array(of: elemType)
             default: return nil
         }
