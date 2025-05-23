@@ -1,10 +1,11 @@
 import DotNetMetadataFormat
 
-public typealias AssemblyIdentity = DotNetMetadataFormat.AssemblyIdentity
-public typealias AssemblyPublicKey = DotNetMetadataFormat.AssemblyPublicKey
-public typealias FourPartVersion = DotNetMetadataFormat.FourPartVersion
-public typealias Constant = DotNetMetadataFormat.Constant
-public typealias IntegerSize = DotNetMetadataFormat.IntegerSize
-public typealias LayoutKind = DotNetMetadataFormat.LayoutKind
-public typealias NameKind = DotNetMetadataFormat.NameKind
-public typealias Visibility = DotNetMetadataFormat.Visibility
+@_exported import struct DotNetMetadataFormat.ArrayShape
+@_exported import struct DotNetMetadataFormat.AssemblyIdentity
+@_exported import enum DotNetMetadataFormat.AssemblyPublicKey
+@_exported import enum DotNetMetadataFormat.Constant
+@_exported import struct DotNetMetadataFormat.FourPartVersion
+@_exported import enum DotNetMetadataFormat.IntegerSize
+@_exported import enum DotNetMetadataFormat.LayoutKind
+@_exported import enum DotNetMetadataFormat.NameKind
+@_exported import enum DotNetMetadataFormat.Visibility

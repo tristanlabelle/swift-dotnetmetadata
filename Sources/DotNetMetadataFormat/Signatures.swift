@@ -92,7 +92,7 @@ public enum TypeSig {
     indirect case ptr(customMods: [CustomModSig], to: TypeSig) // Target may be .void
     indirect case defOrRef(index: CodedIndices.TypeDefOrRef, class: Bool, genericArgs: [TypeSig])
     case genericParam(index: UInt32, method: Bool)
-    indirect case array(of: TypeSig, shape: ArrayShape)
+    indirect case array(of: TypeSig, shape: ArrayShapeSig)
     indirect case szarray(customMods: [CustomModSig], of: TypeSig)
     case fnptr
 }
@@ -108,22 +108,38 @@ extension TypeSig {
     public static var uint64: TypeSig { .integer(size: .int64, signed: false) }
 }
 
-public struct ArrayShape: Equatable {
-    public var rank: UInt32
-    public var lowerBounds: [Int32]
-    public var sizes: [UInt32]
+public struct ArrayShapeSig {
+    /// The number of dimensions in the array. Must be greater than zero.
+    public let rank: UInt32
+    /// The explicitly specified static sizes for each array dimension.
+    /// Unspecified values and zero values both indicate that the size is not known staticly.
+    public let sizes: [UInt32]
+    /// The explicitly specified static lower bounds for each array dimension.
+    /// Unspecified values indicate a lower bound of zero.
+    public let lowerBounds: [Int32]
 
-    public init(rank: UInt32, lowerBounds: [Int32], sizes: [UInt32]) {
-        precondition(lowerBounds.count <= Int(rank))
-        precondition(sizes.count <= Int(rank))
+    public init(rank: UInt32, sizes: [UInt32], lowerBounds: [Int32]) {
+        precondition(rank > 0)
+        precondition(UInt32(sizes.count) <= rank)
+        precondition(UInt32(lowerBounds.count) <= rank)
         self.rank = rank
         self.lowerBounds = lowerBounds
         self.sizes = sizes
     }
 
-    public static let vector: ArrayShape = ArrayShape(rank: 1, lowerBounds: [0], sizes: [])
+    public func getSize(dimension: Int) -> UInt32? {
+        precondition(dimension >= 0 && dimension < rank)
+        if dimension >= sizes.count { return nil }
+        return sizes[dimension] == 0 ? nil : sizes[dimension]
+    }
 
-    public static func ==(_ lhs: ArrayShape, _ rhs: ArrayShape) -> Bool {
-        return lhs.rank == rhs.rank && lhs.lowerBounds == rhs.lowerBounds && lhs.sizes == rhs.sizes
+    public func getLowerBound(dimension: Int) -> Int32 {
+        precondition(dimension >= 0 && dimension < rank)
+        if dimension >= lowerBounds.count { return 0 }
+        return lowerBounds[dimension]
+    }
+
+    public var isVector: Bool {
+        rank == 1 && getLowerBound(dimension: 0) == 0 && getSize(dimension: 0) == nil
     }
 }

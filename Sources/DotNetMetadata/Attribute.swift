@@ -108,9 +108,9 @@ public final class Attribute {
             case .integer(let size, let signed): return .integer(size: size, signed: signed)
             case .real(let double): return .real(double: double)
             case .string: return .string
-            case .array(of: let elemSig, shape: let shape):
+            case .array(of: let elemSig, shape: let shapeSig):
                 guard let elemType = try toElemType(elemSig) else { return nil }
-                guard shape == ArrayShape.vector else {
+                guard shapeSig.isVector else {
                     fatalError("Not implemented: multidimensional arrays in custom attribute arguments")
                 }
                 return .array(of: elemType)
@@ -125,7 +125,10 @@ public final class Attribute {
         switch type {
             case .bound(let type) where type.genericArgs.isEmpty:
                 return try toElemType(type.definition)
-            case .array(of: let elemType):
+            case .array(of: let elemType, shape: let shape):
+                guard shape == .vector else {
+                    fatalError("Not implemented: multidimensional arrays in custom attribute arguments")
+                }
                 return .array(of: try toElemType(elemType))
             default:
                 throw InvalidMetadataError.attributeArguments

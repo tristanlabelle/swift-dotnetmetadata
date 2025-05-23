@@ -263,15 +263,15 @@ extension TypeSig {
             case SigToken.ElementType.array:
                 let type = try TypeSig(consuming: &buffer)
                 let rank = try consumeSigUInt(buffer: &buffer)
-                let explicitSizeCount = try consumeSigUInt(buffer: &buffer)
-                let dimensionSizes = try (0 ..< explicitSizeCount).map { i in
+                let sizeCount = try consumeSigUInt(buffer: &buffer)
+                let sizes = try (0 ..< sizeCount).map { i in
                     try consumeSigUInt(buffer: &buffer)
                 }
-                let explicitLowBoundCount = try consumeSigUInt(buffer: &buffer)
-                let lowBounds = try (0 ..< explicitLowBoundCount).map { i in
+                let lowerBoundCount = try consumeSigUInt(buffer: &buffer)
+                let lowerBounds = try (0 ..< lowerBoundCount).map { i in
                     try consumeSigInt(buffer: &buffer)
                 }
-                self = .array(of: type, shape: .init(rank: rank, lowerBounds: lowBounds, sizes: dimensionSizes))
+                self = .array(of: type, shape: .init(rank: rank, sizes: sizes, lowerBounds: lowerBounds))
 
             case SigToken.ElementType.szarray:
                 let customMods = try consumeCustomMods(buffer: &buffer)
