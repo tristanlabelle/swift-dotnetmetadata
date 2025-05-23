@@ -2,7 +2,7 @@
 /// Types are arranged as a tree and cannot reference unbound type definitions.
 public enum TypeNode: Hashable {
     case bound(BoundType)
-    indirect case array(of: TypeNode)
+    indirect case array(of: TypeNode, shape: ArrayShape)
     case genericParam(GenericParam)
     indirect case pointer(to: TypeNode?) // nil for void*
 }
@@ -11,10 +11,14 @@ extension TypeNode {
     public var context: AssemblyLoadContext? {
         switch self {
             case .bound(let bound): return bound.context
-            case .array(let element): return element.context
+            case .array(let element, shape: _): return element.context
             case .genericParam(let param): return param.context
             case .pointer(let pointee): return pointee?.context
         }
+    }
+
+    public static func array(of element: TypeNode) -> TypeNode {
+        .array(of: element, shape: ArrayShape.vector)
     }
 
     public static func bound(_ definition: TypeDefinition, genericArgs: [TypeNode] = []) -> TypeNode {
@@ -50,7 +54,7 @@ extension TypeNode {
     public var isParameterized: Bool {
         switch self {
             case .bound(let bound): return bound.isParameterized
-            case .array(let element): return element.isParameterized
+            case .array(let element, shape: _): return element.isParameterized
             case .genericParam: return true
             case .pointer(let element): return element?.isParameterized ?? false
         }
@@ -60,8 +64,8 @@ extension TypeNode {
         switch self {
             case .bound(let bound):
                 return .bound(bound.definition, genericArgs: try bound.genericArgs.map { try $0.bindGenericParams(binding) })
-            case .array(let element):
-                return .array(of: try element.bindGenericParams(binding))
+            case .array(let element, shape: let shape):
+                return .array(of: try element.bindGenericParams(binding), shape: shape)
             case .genericParam(let param):
                 return try binding(param)
             case .pointer(let pointee):
@@ -78,7 +82,7 @@ extension TypeNode: CustomStringConvertible {
     public var description: String {
         switch self {
             case .bound(let type): return type.description
-            case .array(of: let element): return element.description + "[]"
+            case .array(of: let element, shape: let shape): return element.description + shape.description
             case .genericParam(let genericParam): return genericParam.name
             case .pointer(to: let pointee): return (pointee?.description ?? "void") + "*"
         }

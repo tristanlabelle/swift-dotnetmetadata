@@ -108,10 +108,9 @@ extension Assembly {
                     return try resolveTypeDefOrRef(codedIndex)!
                 }
 
-            case let .array(of: elementSig, shape):
+            case let .array(of: elementSig, shapeSig):
                 let element = try resolveTypeSig(elementSig, typeContext: typeContext, methodContext: methodContext)
-                if shape == ArrayShape.vector { return .array(of: element) }
-                fatalError("Not implemented: multi-dimensional arrays \(shape)")
+                return .array(of: element, shape: ArrayShape(shapeSig))
 
             case let .szarray(_, of: element):
                 return .array(of: try resolveTypeSig(element, typeContext: typeContext, methodContext: methodContext))
