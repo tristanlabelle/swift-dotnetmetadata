@@ -52,6 +52,7 @@ extension Assembly {
                 // Assume single-module assembly
                 assert(resolutionScopeRowIndex.zeroBased == 0)
                 return try resolveTypeDefinition(namespace: namespace, name: name)!
+
             case .assemblyRef:
                 guard let assemblyRefRowIndex = row.resolutionScope.rowIndex else {
                     throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
@@ -61,6 +62,18 @@ extension Assembly {
                     assembly: assemblyReference.identity,
                     assemblyFlags: assemblyReference.flags,
                     name: TypeName(namespace: namespace, shortName: name))
+
+            case .typeRef:
+                guard let enclosingTypeRefRowIndex = row.resolutionScope.rowIndex else {
+                    throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+                }
+                assert(namespace.isEmpty, "Nested types should not have a namespace.")
+                let enclosingTypeDef = try resolveTypeRef(rowIndex: enclosingTypeRefRowIndex)
+                guard let nestedType = enclosingTypeDef.findNestedType(name: name) else {
+                    throw DotNetMetadataFormat.InvalidFormatError.tableConstraint
+                }
+                return nestedType
+
             default:
                 fatalError("Not implemented: resolution scope \(row.resolutionScope)")
         }

@@ -101,6 +101,22 @@ extension TypeDefinition {
             inherited: inherited)
     }
 
+    public func findNestedType(name: String, public: Bool? = nil, inherited: Bool = false) -> TypeDefinition? {
+        if let nestedTypes = try? self.nestedTypes {
+            for nestedType in nestedTypes {
+                if nestedType.name != name { continue }
+                if let `public`, nestedType.isPublic != `public` { continue }
+                return nestedType
+            }
+        }
+
+        if inherited, let base = try? self.base {
+            return base.definition.findNestedType(name: name)
+        }
+
+        return nil
+    }
+
     private func findMember<M: Member>(
         getter: (TypeDefinition) -> [M],
         name: String,
