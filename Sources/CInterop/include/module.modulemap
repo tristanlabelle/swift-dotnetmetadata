@@ -1,5 +1,0 @@
-module CInterop {
-    header "PE.h"
-    header "Metadata.h"
-    export *
-}
